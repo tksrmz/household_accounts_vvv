@@ -13,7 +13,7 @@ class Record {
   Record.fromJson(Map<String, Object?> json)
     : this(
     (json['editedAt'] as Timestamp).toDate(),
-    (json['tradingData'] as Timestamp).toDate(),
+    (json['tradingDate'] as Timestamp).toDate(),
     json['amount'] as int,
     json['recordType'] as RecordType, // ここもどうにかする必要がある
     json['note'] as String,
