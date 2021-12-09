@@ -11,7 +11,7 @@ abstract class RecordRepositoryInterface {
   /// Retrieves records whose [Record.dateOfRecord] is within the [range].
   ///
   /// The records are sorted in ascending order of [Record.dateOfRecord] .
-  List<Record> retrieveRecordsOf(DateTimeRange range);
+  Future<List<Record>> retrieveRecordsOf(DateTimeRange range);
 
   /// Registers the [record] in the repository.
   ///
