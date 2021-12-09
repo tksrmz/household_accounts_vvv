@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/record.dart';
 import 'package:household_accounts/use_case/uc_repository.dart';
 
@@ -22,6 +23,15 @@ class InMemoryRecordRepository implements RecordRepositoryInterface {
   }
 
   @override
+  Future<List<Record>> retrieveRecordsOf(DateTimeRange range) {
+    bool Function(Record) withinTheRange = (record) =>
+        record.dateOfRecord.compareTo(range.start) >= 0 &&
+        record.dateOfRecord.compareTo(range.end) <= 0;
+
+    return Future.value(List.of(_repository.where(withinTheRange))..sort());
+  }
+
+  @override
   Record? retrieveById(int id) {
     return id < _repository.length ? _repository[id] : null;
   }
@@ -39,6 +49,17 @@ class FirestoreRecordRepository implements RecordRepositoryInterface {
     _tradesRef.add(record);
 
     return true;
+  }
+
+  @override
+  Future<List<Record>> retrieveRecordsOf(DateTimeRange range) async {
+    return _tradesRef
+        .where('tradingDate', isGreaterThanOrEqualTo: range.start)
+        .where('tradingDate', isLessThanOrEqualTo: range.end)
+        .orderBy('tradingDate')
+        .get()
+        .then((snapshot) => snapshot.docs)
+        .then((records) => List.of(records.map((e) => e.data())));
   }
 
   @override
