@@ -137,19 +137,27 @@ class _MonthlyRecordView extends StatelessWidget {
           List<Record> records = dataSnapshot.data as List<Record>;
 
           final Widget Function(int) dayWidgetBuilder = (day) {
+            final todayRecord = List.of(
+                records.where((element) => element.dateOfRecord.day == day));
+
             final void Function() onPressedCallback = () {
+              List<Record> incomes = List.of(todayRecord
+                  .where((element) => element.recordType == RecordType.income));
+              List<Record> expenses = List.of(todayRecord.where(
+                  (element) => element.recordType == RecordType.expense));
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => _DailyRecordMinute(
                     DateTime(_year, _month, day),
+                    incomes,
+                    expenses,
                   ),
                 ),
               );
             };
 
-            final todayRecord = List.of(
-                records.where((element) => element.dateOfRecord.day == day));
             final int income = todayRecord
                 .where((element) => element.recordType == RecordType.income)
                 .fold(0,
@@ -233,24 +241,54 @@ class _Calendar extends StatelessWidget {
 
 class _DailyRecordMinute extends StatelessWidget {
   final DateTime _displayDate;
+  final List<Record> _incomeRecords;
+  final List<Record> _expenseRecords;
+
   int get _year => _displayDate.year;
+
   int get _month => _displayDate.month;
+
   int get _day => _displayDate.day;
 
-  const _DailyRecordMinute(this._displayDate, {Key? key}) : super(key: key);
+  const _DailyRecordMinute(
+      this._displayDate, this._incomeRecords, this._expenseRecords,
+      {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final children = <Widget>[];
+    if (_incomeRecords.isNotEmpty) {
+      children.add(Text('Incomes'));
+      children.addAll(_incomeRecords.map((e) => Row(
+            children: [
+              Expanded(
+                child: Text('${e.note}@${e.category}'),
+              ),
+              Text('${e.amount} yen'),
+            ],
+          )));
+    }
+    if (_expenseRecords.isNotEmpty) {
+      children.add(Text('Expenses'));
+      children.addAll(_expenseRecords.map((e) => Row(
+            children: [
+              Expanded(
+                child: Text('${e.note}'),
+              ),
+              Text('${e.amount} yen'),
+            ],
+          )));
+    }
+
+    if (children.isEmpty) children.add(Text('No items to display'));
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Minute'),
+        title: Text('$_year/$_month/$_day'),
       ),
       body: ListView(
-        children: [
-          Text('$_year/$_month/$_day - 1'),
-          Text('$_year/$_month/$_day - 2'),
-          Text('$_year/$_month/$_day - 3'),
-        ],
+        children: children,
       ),
     );
   }
