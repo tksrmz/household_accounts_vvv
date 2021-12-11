@@ -11,14 +11,14 @@ class Record {
   Record(this.dateOfInput, this.dateOfRecord, this.amount, this.recordType, this.note, this.category);
 
   Record.fromJson(Map<String, Object?> json)
-    : this(
-    (json['editedAt'] as Timestamp).toDate(),
-    (json['tradingDate'] as Timestamp).toDate(),
-    json['amount'] as int,
-    json['recordType'] as RecordType, // ここもどうにかする必要がある
-    json['note'] as String,
-    json['category'] as String,
-  );
+      : this(
+          (json['editedAt'] as Timestamp).toDate(),
+          (json['tradingDate'] as Timestamp).toDate(),
+          json['amount'] as int,
+          RecordTypeParsing.fromShortString(json['recordType'] as String),
+          json['note'] as String,
+          json['category'] as String,
+        );
 
   Map<String, Object?> toJson() {
     return {
@@ -41,6 +41,13 @@ enum RecordType {
 
 extension RecordTypeParsing on RecordType {
   String toShortString() => this.toString().split('.').last;
+
+  static RecordType fromShortString(String str) {
+    if (str == RecordType.expense.toShortString()) return RecordType.expense;
+    if (str == RecordType.income.toShortString()) return RecordType.income;
+
+    throw 'Invalid short string of RecordType';
+  }
 }
 
 final incomeCategories = [
