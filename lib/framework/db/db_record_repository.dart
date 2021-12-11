@@ -26,7 +26,7 @@ class InMemoryRecordRepository implements RecordRepositoryInterface {
   Future<List<Record>> retrieveRecordsOf(DateTimeRange range) {
     bool Function(Record) withinTheRange = (record) =>
         record.dateOfRecord.compareTo(range.start) >= 0 &&
-        record.dateOfRecord.compareTo(range.end) <= 0;
+        record.dateOfRecord.compareTo(range.end) < 0;
 
     return Future.value(List.of(_repository.where(withinTheRange))..sort());
   }
@@ -38,10 +38,11 @@ class InMemoryRecordRepository implements RecordRepositoryInterface {
 }
 
 class FirestoreRecordRepository implements RecordRepositoryInterface {
-  final _tradesRef = FirebaseFirestore.instance.collection('trades').withConverter<Record>(
-      fromFirestore: (snapshot, _) => Record.fromJson(snapshot.data()!),
-      toFirestore: (record, _) => record.toJson(),
-  );
+  final _tradesRef =
+      FirebaseFirestore.instance.collection('trades').withConverter<Record>(
+            fromFirestore: (snapshot, _) => Record.fromJson(snapshot.data()!),
+            toFirestore: (record, _) => record.toJson(),
+          );
 
   @override
   bool register(Record record) {
@@ -55,7 +56,7 @@ class FirestoreRecordRepository implements RecordRepositoryInterface {
   Future<List<Record>> retrieveRecordsOf(DateTimeRange range) async {
     return _tradesRef
         .where('tradingDate', isGreaterThanOrEqualTo: range.start)
-        .where('tradingDate', isLessThanOrEqualTo: range.end)
+        .where('tradingDate', isLessThan: range.end)
         .orderBy('tradingDate')
         .get()
         .then((snapshot) => snapshot.docs)
