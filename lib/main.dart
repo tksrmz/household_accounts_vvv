@@ -87,7 +87,10 @@ class MyApp extends StatelessWidget {
 
     final calenderViewPage = _HomeWidgetContent(
       title: 'Calendar',
-      builder: () => const CalendarRecordViewPage(),
+      builder: () {
+        final RecordRepositoryInterface rrif = FirestoreRecordRepository();
+        return CalendarRecordViewPage(rrif);
+      },
       iconData: Icons.beach_access,
     );
 

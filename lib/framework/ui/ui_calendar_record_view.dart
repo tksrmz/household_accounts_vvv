@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:household_accounts/entity/record.dart';
+import 'package:household_accounts/use_case/uc_repository.dart';
 
 class CalendarRecordViewPage extends StatefulWidget {
-  const CalendarRecordViewPage({Key? key}) : super(key: key);
+  final RecordRepositoryInterface _rrif;
+
+  const CalendarRecordViewPage(this._rrif, {Key? key}) : super(key: key);
+
   @override
   _CalendarRecordViewPageState createState() => _CalendarRecordViewPageState();
 }
@@ -35,7 +40,7 @@ class _CalendarRecordViewPageState extends State<CalendarRecordViewPage> {
           _incrementMonth,
         ),
         const _WeekdayWidget(),
-        _MonthlyRecordView(_selectedDate),
+        _MonthlyRecordView(_selectedDate, widget._rrif),
       ],
     );
   }
@@ -94,41 +99,88 @@ class _WeekdayWidget extends StatelessWidget {
   }
 }
 
+extension DateTimeUtil on DateTime {
+  DateTime nextMonth() {
+    final days = DateUtils.getDaysInMonth(this.year, this.month);
+    return DateUtils.addDaysToDate(this, days);
+  }
+}
+
 class _MonthlyRecordView extends StatelessWidget {
   final DateTime _selectedMonth;
+  final RecordRepositoryInterface _rrif;
 
   int get _year => _selectedMonth.year;
+
   int get _month => _selectedMonth.month;
 
-  _MonthlyRecordView(this._selectedMonth) : super();
+  _MonthlyRecordView(this._selectedMonth, this._rrif) : super();
 
   @override
   Widget build(BuildContext context) {
-    final Widget Function(int) dayWidgetBuilder = (day) {
-      final void Function() onPressedCallback = () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => _DailyRecordMinute(
-              DateTime(_year, _month, day),
-            ),
-          ),
+    // return _Calendar(_selectedMonth, dayWidgetBuilder);
+    final range = DateTimeRange(
+      start: DateTime(_year, _month),
+      end: DateTime(_year, _month).nextMonth(),
+    );
+
+    return FutureBuilder(
+      future: _rrif.retrieveRecordsOf(range),
+      builder: (ctx, dataSnapshot) {
+        if (dataSnapshot.hasError) {
+          return Center(
+            child: Text('Error occurred'),
+          );
+        }
+
+        if (dataSnapshot.connectionState == ConnectionState.done) {
+          List<Record> records = dataSnapshot.data as List<Record>;
+
+          final Widget Function(int) dayWidgetBuilder = (day) {
+            final void Function() onPressedCallback = () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => _DailyRecordMinute(
+                    DateTime(_year, _month, day),
+                  ),
+                ),
+              );
+            };
+
+            final todayRecord = List.of(
+                records.where((element) => element.dateOfRecord.day == day));
+            final int income = todayRecord
+                .where((element) => element.recordType == RecordType.income)
+                .fold(0,
+                    (previousValue, element) => previousValue + element.amount);
+            final int expense = todayRecord
+                .where((element) => element.recordType == RecordType.expense)
+                .fold(0,
+                    (previousValue, element) => previousValue + element.amount);
+
+            final childWidget = Column(
+              children: [
+                Text('$day'),
+                Text('$income'),
+                Text('$expense'),
+              ],
+            );
+
+            return TextButton(
+              onPressed: onPressedCallback,
+              child: childWidget,
+            );
+          };
+
+          return _Calendar(_selectedMonth, dayWidgetBuilder);
+        }
+
+        return Center(
+          child: Text('loading'),
         );
-      };
-
-      final childWidget = Column(
-        children: [
-          Text('$day'),
-        ],
-      );
-
-      return TextButton(
-        onPressed: onPressedCallback,
-        child: childWidget,
-      );
-    };
-
-    return _Calendar(_selectedMonth, dayWidgetBuilder);
+      },
+    );
   }
 }
 
