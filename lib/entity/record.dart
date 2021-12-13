@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Record {
-  final DateTime   dateOfInput;
-  final DateTime   dateOfRecord;
-  final int        amount;
+  final DateTime dateOfInput;
+  final DateTime dateOfRecord;
+  final int amount;
   final RecordType recordType;
-  final String     note;
-  final String     category;
+  final String note;
+  final String category;
 
-  Record(this.dateOfInput, this.dateOfRecord, this.amount, this.recordType, this.note, this.category);
+  Record(this.dateOfInput, this.dateOfRecord, this.amount, this.recordType,
+      this.note, this.category);
 
   Record.fromJson(Map<String, Object?> json)
       : this(
@@ -31,6 +32,16 @@ class Record {
       'note': note,
       'category': category,
     };
+  }
+
+  @override
+  String toString() {
+    return '''editedAt...$dateOfInput
+tradingDate...$dateOfRecord
+amount...$amount
+RecordType...$recordType
+note...$note
+category...$category''';
   }
 }
 
