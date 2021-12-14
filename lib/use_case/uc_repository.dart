@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:household_accounts/entity/property.dart';
 import 'package:household_accounts/entity/record.dart';
 
 /// Repository that handles [Record].
@@ -18,4 +19,11 @@ abstract class RecordRepositoryInterface {
   ///
   /// Returns true if the registration is successful, false otherwise.
   bool register(Record record);
+}
+
+abstract class PropertyRepository {
+  /// Retrieves user's properties.
+  ///
+  /// The list order has no meanings.
+  Future<List<Property>> retrieveProperties();
 }
