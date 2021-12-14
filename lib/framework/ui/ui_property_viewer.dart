@@ -1,76 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:household_accounts/adapter/controller/ctl_property_viewer.dart';
+import 'package:household_accounts/adapter/presenter/prs_property_viewer.dart';
+import 'package:provider/provider.dart';
 
-class PropertyViewerPage extends StatefulWidget {
-  const PropertyViewerPage({Key? key}) : super(key: key);
+class PropertyViewerPage extends StatelessWidget {
+  final PropertyViewerController _controller;
+  final PropertyViewerPresenter _presenter;
 
-  @override
-  _PropertyViewerPageState createState() => _PropertyViewerPageState();
-}
-
-class _PropertyViewerPageState extends State<PropertyViewerPage> {
-  late int _carried;
-  late int _income;
-  late int _expense;
-  late int _balance;
-
-  @override
-  void initState() {
-    super.initState();
-    _carried = 0;
-    _income = 1;
-    _expense = 2;
-    _balance = 3;
-  }
+  const PropertyViewerPage(this._controller, this._presenter, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    _controller.retrieveProperties();
+
+    return ChangeNotifierProvider.value(
+      value: _presenter,
+      child: PropertyListWidget(),
+    );
+  }
+}
+
+class PropertyListWidget extends StatelessWidget {
+  const PropertyListWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final presenter = context.watch<PropertyViewerPresenter>();
+
     return ListView(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Text("繰越"),
-            Text(_carried.toString()),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Edit'),
-            )
-          ],
+      children: List.of(
+        presenter.viewModel.properties.map(
+          (e) => Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(e.name),
+              Text(e.amount.toString()),
+              ElevatedButton(
+                onPressed: () {},
+                child: const Text('Edit'),
+              )
+            ],
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Text("収入"),
-            Text(_income.toString()),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Edit'),
-            )
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Text("支出"),
-            Text(_expense.toString()),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Edit'),
-            )
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Text("残高"),
-            Text(_balance.toString()),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Edit'),
-            )
-          ],
-        )
-      ],
+      ),
     );
   }
 }

@@ -3,8 +3,12 @@ import 'package:household_accounts/adapter/controller/ctl_record_register.dart';
 import 'package:household_accounts/framework/ui/ui_calendar_record_view.dart';
 import 'package:household_accounts/framework/ui/ui_property_viewer.dart';
 import 'package:household_accounts/framework/ui/ui_record_register.dart';
+import 'package:household_accounts/use_case/uc_property_viewer.dart';
 import 'package:household_accounts/use_case/uc_record_register.dart';
 import 'package:household_accounts/use_case/uc_repository.dart';
+import 'adapter/controller/ctl_property_viewer.dart';
+import 'adapter/presenter/prs_property_viewer.dart';
+import 'framework/db/db_property_repository.dart';
 import 'framework/db/db_record_repository.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -96,7 +100,16 @@ class MyApp extends StatelessWidget {
 
     final propertyPage = _HomeWidgetContent(
       title: 'Balance',
-      builder: () => const PropertyViewerPage(),
+      builder: () {
+        final PropertyRepository repo = InMemoryPropertyRepository();
+        final PropertyViewerPresenter prs = PropertyViewerPresenter();
+        final DisplayPropertiesUseCaseInterface uci =
+            DisplayPropertiesInteractor(repo, prs);
+
+        final PropertyViewerController ctl = PropertyViewerController(uci);
+
+        return PropertyViewerPage(ctl, prs);
+      },
       iconData: Icons.access_alarm,
     );
 
