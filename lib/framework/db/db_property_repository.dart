@@ -11,4 +11,14 @@ class InMemoryPropertyRepository implements PropertyRepository {
   Future<List<Property>> retrieveProperties() async {
     return [..._repository];
   }
+
+  @override
+  Future<void> updateProperty(Property newValue) async {
+    final index =
+        _repository.indexWhere((element) => element.name == newValue.name);
+
+    if (index != -1) {
+      _repository[index].amount = newValue.amount;
+    }
+  }
 }

@@ -26,4 +26,7 @@ abstract class PropertyRepository {
   ///
   /// The list order has no meanings.
   Future<List<Property>> retrieveProperties();
+
+  /// Updates the amount of a property whose name is [newValue.name]
+  Future<void> updateProperty(Property newValue);
 }
