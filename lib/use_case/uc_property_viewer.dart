@@ -4,6 +4,9 @@ import 'package:household_accounts/use_case/uc_repository.dart';
 abstract class DisplayPropertiesUseCaseInterface {
   /// Retrieves properties of the user.
   Future<void> retrieveProperties();
+
+  /// Updates the amount of a property whose name is [newValue.name]
+  Future<void> updateProperty(Property newValue);
 }
 
 class PropertyViewerOutputData {
@@ -28,5 +31,10 @@ class DisplayPropertiesInteractor implements DisplayPropertiesUseCaseInterface {
   Future<void> retrieveProperties() async {
     _repository.retrieveProperties().then((properties) =>
         _presenter.display(PropertyViewerOutputData(properties)));
+  }
+
+  @override
+  Future<void> updateProperty(Property property) async {
+    _repository.updateProperty(property);
   }
 }
