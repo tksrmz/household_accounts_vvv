@@ -15,8 +15,12 @@ class PropertyViewerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     _controller.retrieveProperties();
 
-    return ChangeNotifierProvider.value(
-      value: _presenter,
+    return MultiProvider(
+      providers: [
+        Provider<PropertyViewerController>.value(value: _controller),
+        ChangeNotifierProvider<PropertyViewerPresenter>.value(
+            value: _presenter),
+      ],
       child: PropertyListWidget(),
     );
   }
@@ -39,10 +43,11 @@ class PropertyListWidget extends StatelessWidget {
               Text(e.amount.toString()),
               ElevatedButton(
                 onPressed: () {
+                  final ctrl = context.read<PropertyViewerController>();
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (ctx) => _PropertyEditorPage(e),
+                      builder: (ctx) => _PropertyEditorPage(e, ctrl),
                     ),
                   );
                 },
@@ -58,8 +63,10 @@ class PropertyListWidget extends StatelessWidget {
 
 class _PropertyEditorPage extends StatelessWidget {
   final Property _property;
+  final PropertyViewerController _controller;
 
-  const _PropertyEditorPage(this._property, {Key? key}) : super(key: key);
+  const _PropertyEditorPage(this._property, this._controller, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -68,16 +75,19 @@ class _PropertyEditorPage extends StatelessWidget {
         title: Text('Edit ${_property.name}'),
       ),
       body: Center(
-        child: _PropertyAmountEditorWidget(_property.amount),
+        child: _PropertyAmountEditorWidget(_property, _controller),
       ),
     );
   }
 }
 
 class _PropertyAmountEditorWidget extends StatefulWidget {
-  final int _amount;
+  final Property _property;
+  final PropertyViewerController _controller;
 
-  const _PropertyAmountEditorWidget(this._amount, {Key? key}) : super(key: key);
+  const _PropertyAmountEditorWidget(this._property, this._controller,
+      {Key? key})
+      : super(key: key);
 
   @override
   _PropertyAmountEditorWidgetState createState() =>
@@ -91,7 +101,7 @@ class _PropertyAmountEditorWidgetState
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget._amount.toString());
+    _controller = TextEditingController(text: '${widget._property.amount}');
   }
 
   @override
@@ -102,6 +112,8 @@ class _PropertyAmountEditorWidgetState
 
   @override
   Widget build(BuildContext context) {
+    final ctrl = widget._controller;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -109,7 +121,15 @@ class _PropertyAmountEditorWidgetState
           _AmountInputWidget(_controller),
           ElevatedButton(
             onPressed: () {
-              // TODO: Add code to update property
+              ctrl
+                  .updateProperty(
+                    Property(
+                      widget._property.name,
+                      int.parse(_controller.text),
+                    ),
+                  )
+                  .then((_) => ctrl.retrieveProperties());
+
               Navigator.pop(context);
             },
             child: const Text('Edit'),

@@ -1,12 +1,8 @@
 class Property {
   final String name;
-  int _amount;
+  int amount;
 
-  Property(this.name, this._amount);
-
-  int get amount => _amount;
-
-  set amount(int value) => amount = value;
+  Property(this.name, this.amount);
 
   Property.fromJson(Map<String, Object?> json)
       : this(
