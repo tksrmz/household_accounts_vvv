@@ -3,8 +3,8 @@ import 'package:household_accounts/use_case/uc_repository.dart';
 
 class InMemoryPropertyRepository implements PropertyRepository {
   final _repository = <Property>[
-    Property('Cash', 100),
-    Property('Bank', 200),
+    Property('id1', 'Cash', 100),
+    Property('id2', 'Bank', 200),
   ];
 
   @override

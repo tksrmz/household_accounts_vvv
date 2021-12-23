@@ -124,6 +124,7 @@ class _PropertyAmountEditorWidgetState
               ctrl
                   .updateProperty(
                     Property(
+                      widget._property.id,
                       widget._property.name,
                       int.parse(_controller.text),
                     ),
