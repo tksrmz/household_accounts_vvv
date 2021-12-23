@@ -101,7 +101,7 @@ class MyApp extends StatelessWidget {
     final propertyPage = _HomeWidgetContent(
       title: 'Balance',
       builder: () {
-        final PropertyRepository repo = InMemoryPropertyRepository();
+        final PropertyRepository repo = FirebasePropertyRepository();
         final PropertyViewerPresenter prs = PropertyViewerPresenter();
         final DisplayPropertiesUseCaseInterface uci =
             DisplayPropertiesInteractor(repo, prs);
