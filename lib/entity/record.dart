@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Record {
+  final String id;
   final DateTime dateOfInput;
   final DateTime dateOfRecord;
   final int amount;
@@ -8,11 +9,36 @@ class Record {
   final String note;
   final String category;
 
-  Record(this.dateOfInput, this.dateOfRecord, this.amount, this.recordType,
-      this.note, this.category);
+  Record(
+    this.id,
+    this.dateOfInput,
+    this.dateOfRecord,
+    this.amount,
+    this.recordType,
+    this.note,
+    this.category,
+  );
+
+  Record.emptyId(
+    DateTime dateOfInput,
+    DateTime dateOfRecord,
+    int amount,
+    RecordType recordType,
+    String note,
+    String category,
+  ) : this(
+          'tmpId',
+          dateOfInput,
+          dateOfRecord,
+          amount,
+          recordType,
+          note,
+          category,
+        );
 
   Record.fromJson(Map<String, Object?> json)
       : this(
+          json['id'] as String,
           (json['editedAt'] as Timestamp).toDate(),
           (json['tradingDate'] as Timestamp).toDate(),
           json['amount'] as int,
@@ -25,6 +51,7 @@ class Record {
     return {
       // 'editedAt': 1,
       // 'tradingDate': 1,
+      'id': id,
       'editedAt': Timestamp.fromDate(dateOfInput),
       'tradingDate': Timestamp.fromDate(dateOfRecord),
       'amount': amount,
@@ -36,7 +63,8 @@ class Record {
 
   @override
   String toString() {
-    return '''editedAt...$dateOfInput
+    return '''id...$id
+editedAt...$dateOfInput
 tradingDate...$dateOfRecord
 amount...$amount
 RecordType...$recordType

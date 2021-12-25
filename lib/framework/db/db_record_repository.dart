@@ -40,9 +40,17 @@ class InMemoryRecordRepository implements RecordRepositoryInterface {
 class FirestoreRecordRepository implements RecordRepositoryInterface {
   final _tradesRef =
       FirebaseFirestore.instance.collection('trades').withConverter<Record>(
-            fromFirestore: (snapshot, _) => Record.fromJson(snapshot.data()!),
-            toFirestore: (record, _) => record.toJson(),
-          );
+    fromFirestore: (snapshot, _) {
+      final Map<String, dynamic> json = snapshot.data()!;
+      json['id'] = snapshot.id;
+      return Record.fromJson(json);
+    },
+    toFirestore: (record, _) {
+      final json = record.toJson();
+      json.remove('id'); // id property isn't needed in Firestore.
+      return json;
+    },
+  );
 
   @override
   bool register(Record record) {

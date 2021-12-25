@@ -112,8 +112,14 @@ class _RecordRegisterPageState extends State<RecordRegisterPage> {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
                 final currentDate = DateTime.now();
-                final record = Record(currentDate, _dateOfRecord, _amount,
-                    _type, _note, _category);
+                final record = Record.emptyId(
+                  currentDate,
+                  _dateOfRecord,
+                  _amount,
+                  _type,
+                  _note,
+                  _category,
+                );
                 widget._controller.register(record);
               }
             },
