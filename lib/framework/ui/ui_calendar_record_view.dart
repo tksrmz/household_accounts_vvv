@@ -122,14 +122,11 @@ class _MonthlyRecordView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return _Calendar(_selectedMonth, dayWidgetBuilder);
-    final range = DateTimeRange(
-      start: DateTime(_year, _month),
-      end: DateTime(_year, _month).nextMonth(),
-    );
-
     return FutureBuilder(
-      future: _rrif.retrieveRecordsOf(range),
+      future: _rrif.retrieveRecordsOf(
+        DateTime(_year, _month),
+        DateTime(_year, _month).nextMonth(),
+      ),
       builder: (ctx, dataSnapshot) {
         if (dataSnapshot.hasError) {
           return Center(

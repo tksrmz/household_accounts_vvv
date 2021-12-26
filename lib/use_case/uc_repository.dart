@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/property.dart';
 import 'package:household_accounts/entity/record.dart';
 
@@ -9,11 +8,10 @@ abstract class RecordRepositoryInterface {
   /// Returns null if the [Record] with the [id] does not exist.
   Record? retrieveById(int id);
 
-  /// Retrieves records whose [Record.dateOfRecord] is within the [range].
+  /// Retrieves records in the specified date range ([begin] included, [end] excluded).
   ///
-  /// [range.start] is included, [range.end] is excluded.
   /// The records are sorted in ascending order of [Record.dateOfRecord].
-  Future<List<Record>> retrieveRecordsOf(DateTimeRange range);
+  Future<List<Record>> retrieveRecordsOf(DateTime begin, DateTime end);
 
   /// Registers the [record] in the repository.
   ///
