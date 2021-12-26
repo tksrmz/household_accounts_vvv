@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:household_accounts/adapter/controller/ctl_record_register.dart';
+import 'package:household_accounts/adapter/controller/record_controller.dart';
 import 'package:household_accounts/entity/record.dart';
 
 class RecordRegisterPage extends StatefulWidget {

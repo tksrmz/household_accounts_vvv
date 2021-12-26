@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:household_accounts/adapter/controller/record_controller.dart';
 import 'package:household_accounts/entity/record.dart';
+import 'package:household_accounts/framework/db/db_record_repository.dart';
+import 'package:household_accounts/use_case/record_use_case.dart';
 import 'package:household_accounts/use_case/uc_repository.dart';
+import 'package:provider/provider.dart';
 
 class CalendarRecordViewPage extends StatefulWidget {
   final RecordRepositoryInterface _rrif;
@@ -136,6 +140,7 @@ class _MonthlyRecordView extends StatelessWidget {
         if (dataSnapshot.connectionState == ConnectionState.done) {
           List<Record> records = dataSnapshot.data as List<Record>;
 
+          // final Widget Function(int) dayWidgetBuilder = (day) {
           final Widget Function(int) dayWidgetBuilder = (day) {
             final todayRecord = List.of(
                 records.where((element) => element.dateOfRecord.day == day));
@@ -260,25 +265,11 @@ class _DailyRecordMinute extends StatelessWidget {
     final children = <Widget>[];
     if (_incomeRecords.isNotEmpty) {
       children.add(Text('Incomes'));
-      children.addAll(_incomeRecords.map((e) => Row(
-            children: [
-              Expanded(
-                child: Text('${e.note}@${e.category}'),
-              ),
-              Text('${e.amount} yen'),
-            ],
-          )));
+      children.addAll(_incomeRecords.map((e) => _MinuteItem(e)));
     }
     if (_expenseRecords.isNotEmpty) {
       children.add(Text('Expenses'));
-      children.addAll(_expenseRecords.map((e) => Row(
-            children: [
-              Expanded(
-                child: Text('${e.note}'),
-              ),
-              Text('${e.amount} yen'),
-            ],
-          )));
+      children.addAll(_expenseRecords.map((e) => _MinuteItem(e)));
     }
 
     if (children.isEmpty) children.add(Text('No items to display'));
@@ -287,9 +278,36 @@ class _DailyRecordMinute extends StatelessWidget {
       appBar: AppBar(
         title: Text('$_year/$_month/$_day'),
       ),
-      body: ListView(
-        children: children,
+      body: Provider(
+        create: (ctx) => RecordDeleteController(
+            RecordDeleteInteractor(FirestoreRecordRepository())),
+        child: ListView(
+          children: children,
+        ),
       ),
+    );
+  }
+}
+
+class _MinuteItem extends StatelessWidget {
+  final Record _record;
+
+  const _MinuteItem(this._record, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text('${_record.note}@${_record.category}'),
+        ),
+        Text('${_record.amount} yen'),
+        OutlinedButton(
+          onPressed: () =>
+              context.read<RecordDeleteController>().deleteById(_record.id),
+          child: const Text('Delete'),
+        ),
+      ],
     );
   }
 }

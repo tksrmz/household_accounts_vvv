@@ -17,3 +17,22 @@ class RecordRegisterInputHandler implements RecordRegisterInputPort {
   @override
   bool register(Record input) => _repository.register(input);
 }
+
+abstract class RecordDeleteUseCase {
+  /// Delete the record whose ID is [id].
+  ///
+  /// If such a record doesn't exist, nothing will be deleted.
+  Future<void> deleteById(String id);
+}
+
+class RecordDeleteInteractor implements RecordDeleteUseCase {
+  /// Repository from which the record will be deleted.
+  final RecordRepositoryInterface _repository;
+
+  const RecordDeleteInteractor(this._repository);
+
+  @override
+  Future<void> deleteById(String id) async {
+    _repository.deleteById(id);
+  }
+}

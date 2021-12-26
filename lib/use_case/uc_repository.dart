@@ -19,6 +19,11 @@ abstract class RecordRepositoryInterface {
   ///
   /// Returns true if the registration is successful, false otherwise.
   bool register(Record record);
+
+  /// Delete the record whose ID is [id].
+  ///
+  /// If such a record doesn't exist, nothing will be deleted.
+  Future<void> deleteById(String id);
 }
 
 abstract class PropertyRepository {

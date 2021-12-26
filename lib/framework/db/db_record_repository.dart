@@ -35,6 +35,11 @@ class InMemoryRecordRepository implements RecordRepositoryInterface {
   Record? retrieveById(int id) {
     return id < _repository.length ? _repository[id] : null;
   }
+
+  @override
+  Future<void> deleteById(String id) async {
+    _repository.removeAt(int.parse(id));
+  }
 }
 
 class FirestoreRecordRepository implements RecordRepositoryInterface {
@@ -75,4 +80,11 @@ class FirestoreRecordRepository implements RecordRepositoryInterface {
   Record? retrieveById(int id) {
     return null;
   }
+
+  @override
+  Future<void> deleteById(String id) => _tradesRef
+      .doc(id)
+      .delete()
+      .then((_) => print('$id has been deleted.'))
+      .onError((error, stackTrace) => print(error));
 }
