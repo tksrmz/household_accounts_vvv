@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Record {
   final String id;
   final DateTime dateOfInput;
@@ -17,7 +15,7 @@ class Record {
     this.recordType,
     this.note,
     this.category,
-  );
+  ) : assert(amount >= 0, 'Record amount is negative.');
 
   Record.emptyId(
     DateTime dateOfInput,
@@ -38,9 +36,9 @@ class Record {
 
   Record.fromJson(Map<String, Object?> json)
       : this(
-          json['id'] as String,
-          (json['editedAt'] as Timestamp).toDate(),
-          (json['tradingDate'] as Timestamp).toDate(),
+    json['id'] as String,
+          json['editedAt'] as DateTime,
+          json['tradingDate'] as DateTime,
           json['amount'] as int,
           RecordTypeParsing.fromShortString(json['recordType'] as String),
           json['note'] as String,
@@ -49,11 +47,9 @@ class Record {
 
   Map<String, Object?> toJson() {
     return {
-      // 'editedAt': 1,
-      // 'tradingDate': 1,
       'id': id,
-      'editedAt': Timestamp.fromDate(dateOfInput),
-      'tradingDate': Timestamp.fromDate(dateOfRecord),
+      'editedAt': dateOfInput,
+      'tradingDate': dateOfRecord,
       'amount': amount,
       'recordType': recordType.toShortString(),
       'note': note,

@@ -46,12 +46,26 @@ class FirestoreRecordRepository implements RecordRepositoryInterface {
       FirebaseFirestore.instance.collection('trades').withConverter<Record>(
     fromFirestore: (snapshot, _) {
       final Map<String, dynamic> json = snapshot.data()!;
+
+      // Add ID for entity.
       json['id'] = snapshot.id;
+
+      // Convert from Firebase type to dart type.
+      json['editedAt'] = (json['editedAt'] as Timestamp).toDate();
+      json['tradingDate'] = (json['tradingDate'] as Timestamp).toDate();
+
       return Record.fromJson(json);
     },
     toFirestore: (record, _) {
       final json = record.toJson();
-      json.remove('id'); // id property isn't needed in Firestore.
+
+      // id property isn't needed in Firestore.
+      json.remove('id');
+
+      // Convert from dart type to Firebase type.
+      json['editedAt'] = Timestamp.fromDate(json['editedAt'] as DateTime);
+      json['tradingDate'] = Timestamp.fromDate(json['tradingDate'] as DateTime);
+
       return json;
     },
   );
@@ -66,6 +80,11 @@ class FirestoreRecordRepository implements RecordRepositoryInterface {
 
   @override
   Future<List<Record>> retrieveRecordsOf(DateTime begin, DateTime end) async {
+    assert(
+      begin.isBefore(end),
+      '$begin is after or at the same moment as $end',
+    );
+
     return _tradesRef
         .where('tradingDate', isGreaterThanOrEqualTo: begin)
         .where('tradingDate', isLessThan: end)

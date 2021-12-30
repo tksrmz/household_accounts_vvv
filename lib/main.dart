@@ -3,9 +3,12 @@ import 'package:household_accounts/adapter/controller/record_controller.dart';
 import 'package:household_accounts/framework/ui/ui_calendar_record_view.dart';
 import 'package:household_accounts/framework/ui/ui_property_viewer.dart';
 import 'package:household_accounts/framework/ui/ui_record_register.dart';
+import 'package:household_accounts/use_case/retrieve_daily_records.dart';
+import 'package:household_accounts/use_case/retrieve_monthly_records.dart';
 import 'package:household_accounts/use_case/uc_property_viewer.dart';
 import 'package:household_accounts/use_case/record_use_case.dart';
 import 'package:household_accounts/use_case/uc_repository.dart';
+import 'package:provider/provider.dart';
 import 'adapter/controller/ctl_property_viewer.dart';
 import 'adapter/presenter/prs_property_viewer.dart';
 import 'framework/db/db_property_repository.dart';
@@ -92,8 +95,21 @@ class MyApp extends StatelessWidget {
     final calenderViewPage = _HomeWidgetContent(
       title: 'Calendar',
       builder: () {
-        final RecordRepositoryInterface rrif = FirestoreRecordRepository();
-        return CalendarRecordViewPage(rrif);
+        final repository = FirestoreRecordRepository();
+        return MultiProvider(
+          providers: [
+            Provider<RetrieveMonthlyRecordsUseCase>(
+              create: (ctx) => RetrieveMonthlyRecordsInteractor(repository),
+            ),
+            Provider<RetrieveDailyRecordsUseCase>(
+              create: (ctx) => RetrieveDailyRecordsInteractor(repository),
+            ),
+            Provider<RecordDeleteUseCase>(
+              create: (ctx) => RecordDeleteInteractor(repository),
+            ),
+          ],
+          child: CalendarRecordViewPage2(),
+        );
       },
       iconData: Icons.beach_access,
     );
