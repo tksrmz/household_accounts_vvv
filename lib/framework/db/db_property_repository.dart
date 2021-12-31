@@ -22,6 +22,12 @@ class InMemoryPropertyRepository implements PropertyRepository {
       _repository[index].amount = newValue.amount;
     }
   }
+
+  @override
+  Future<bool> register(Property property) async {
+    _repository.add(property);
+    return true;
+  }
 }
 
 class FirebasePropertyRepository implements PropertyRepository {
@@ -49,5 +55,17 @@ class FirebasePropertyRepository implements PropertyRepository {
     _propertiesRef
         .doc(newValue.id)
         .update({'name': newValue.name, 'amount': newValue.amount});
+  }
+
+  @override
+  Future<bool> register(Property property) async {
+    return _propertiesRef
+        .doc(property.id)
+        .set(property)
+        .then((_) => true)
+        .onError((error, stackTrace) {
+      print(error);
+      return false;
+    });
   }
 }

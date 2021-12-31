@@ -32,4 +32,9 @@ abstract class PropertyRepository {
 
   /// Updates the amount of a property whose name is [newValue.name]
   Future<void> updateProperty(Property newValue);
+
+  /// Registers the [property] in the repository
+  ///
+  /// Returns true if the registration is successful, false otherwise.
+  Future<bool> register(Property property);
 }
