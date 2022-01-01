@@ -8,3 +8,8 @@ abstract class Failure extends Equatable {
   @override
   List<Object> get props => _properties;
 }
+
+class RepositoryFailure extends Failure {
+  @override
+  String toString() => 'RepositoryFailure';
+}
