@@ -7,7 +7,7 @@ abstract class PropertyRepository {
   ///
   /// Fails when there is already a property that is identified by [property.id],
   /// or when something goes wrong with the repository.
-  Future<Either<Failure, void>> register(Property property);
+  Future<Either<Failure, Unit>> register(Property property);
 
   /// Retrieves all properties.
   ///
@@ -19,10 +19,10 @@ abstract class PropertyRepository {
   ///
   /// Fails when no properties have [newValue.id],
   /// or when something goes wrong with the repository.
-  Future<Either<Failure, void>> update(Property newValue);
+  Future<Either<Failure, Unit>> update(Property newValue);
 
   /// Deletes a property that is identified by [id].
   ///
   /// Fails when something goes wrong with the repository.
-  Future<Either<Failure, void>> deleteById(String id);
+  Future<Either<Failure, Unit>> deleteById(String id);
 }
