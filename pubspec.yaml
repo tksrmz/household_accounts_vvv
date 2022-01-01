@@ -33,6 +33,12 @@ dependencies:
 
   provider: ^6.0.1
 
+  # Functional programming
+  dartz: ^0.10.1
+
+  # Object equality
+  equatable: ^2.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
