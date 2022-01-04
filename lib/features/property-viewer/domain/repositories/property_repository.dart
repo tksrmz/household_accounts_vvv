@@ -30,5 +30,8 @@ abstract class PropertyRepository {
   /// Deletes a property that is identified by [id].
   ///
   /// Fails when something goes wrong with the repository.
+  ///
+  /// It's not a failure that specifying an ID that doesn't exist in the repository.
+  /// Such operations do nothing.
   Future<Either<Failure, Unit>> deleteById(String id);
 }
