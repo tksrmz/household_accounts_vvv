@@ -9,6 +9,12 @@ abstract class PropertyRepository {
   /// or when something goes wrong with the repository.
   Future<Either<Failure, Unit>> register(Property property);
 
+  /// Retrieves a property that is identified by [id].
+  ///
+  /// Fails if no properties have [id], or
+  /// something goes wrong with the repository.
+  Future<Either<Failure, Property>> retrieveById(String id);
+
   /// Retrieves all properties.
   ///
   /// The list order has no meanings.

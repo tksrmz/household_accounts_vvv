@@ -54,4 +54,10 @@ class InMemoryPropertyRepository implements PropertyRepository {
       return Left(RepositoryFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, Property>> retrieveById(String id) async {
+    final index = _repository.indexWhere((element) => element.id == id);
+    return index < 0 ? Left(RepositoryFailure()) : Right(_repository[index]);
+  }
 }
