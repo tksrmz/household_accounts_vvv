@@ -1,18 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:household_accounts/adapter/controller/record_controller.dart';
-import 'package:household_accounts/framework/ui/ui_calendar_record_view.dart';
-import 'package:household_accounts/framework/ui/ui_property_viewer.dart';
-import 'package:household_accounts/framework/ui/ui_record_register.dart';
-import 'package:household_accounts/use_case/retrieve_daily_records.dart';
-import 'package:household_accounts/use_case/retrieve_monthly_records.dart';
-import 'package:household_accounts/use_case/uc_property_viewer.dart';
-import 'package:household_accounts/use_case/record_use_case.dart';
-import 'package:household_accounts/use_case/uc_repository.dart';
 import 'package:provider/provider.dart';
-import 'adapter/controller/ctl_property_viewer.dart';
-import 'adapter/presenter/prs_property_viewer.dart';
-import 'framework/db/db_property_repository.dart';
-import 'framework/db/db_record_repository.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() {
@@ -81,38 +68,38 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final recordRegisterPage = _HomeWidgetContent(
-      title: 'Input',
-      builder: () {
-        final RecordRepositoryInterface rrif = FirestoreRecordRepository();
-        final RecordRegisterInputPort rrip = RecordRegisterInputHandler(rrif);
-        final RecordRegisterController rrct = RecordRegisterController(rrip);
-        return RecordRegisterPage(rrct);
-      },
-      iconData: Icons.cloud,
-    );
-
-    final calenderViewPage = _HomeWidgetContent(
-      title: 'Calendar',
-      builder: () {
-        final repository = FirestoreRecordRepository();
-        return MultiProvider(
-          providers: [
-            Provider<RetrieveMonthlyRecordsUseCase>(
-              create: (ctx) => RetrieveMonthlyRecordsInteractor(repository),
-            ),
-            Provider<RetrieveDailyRecordsUseCase>(
-              create: (ctx) => RetrieveDailyRecordsInteractor(repository),
-            ),
-            Provider<RecordDeleteUseCase>(
-              create: (ctx) => RecordDeleteInteractor(repository),
-            ),
-          ],
-          child: CalendarRecordViewPage2(),
-        );
-      },
-      iconData: Icons.beach_access,
-    );
+    // final recordRegisterPage = _HomeWidgetContent(
+    //   title: 'Input',
+    //   builder: () {
+    //     final RecordRepositoryInterface rrif = InMemoryRecordRepository();
+    //     final RecordRegisterInputPort rrip = RecordRegisterInputHandler(rrif);
+    //     final RecordRegisterController rrct = RecordRegisterController(rrip);
+    //     return RecordRegisterPage(rrct);
+    //   },
+    //   iconData: Icons.cloud,
+    // );
+    //
+    // final calenderViewPage = _HomeWidgetContent(
+    //   title: 'Calendar',
+    //   builder: () {
+    //     final repository = InMemoryRecordRepository();
+    //     return MultiProvider(
+    //       providers: [
+    //         Provider<RetrieveMonthlyRecordsUseCase>(
+    //           create: (ctx) => RetrieveMonthlyRecordsInteractor(repository),
+    //         ),
+    //         Provider<RetrieveDailyRecordsUseCase>(
+    //           create: (ctx) => RetrieveDailyRecordsInteractor(repository),
+    //         ),
+    //         Provider<RecordDeleteUseCase>(
+    //           create: (ctx) => RecordDeleteInteractor(repository),
+    //         ),
+    //       ],
+    //       child: CalendarRecordViewPage2(),
+    //     );
+    //   },
+    //   iconData: Icons.beach_access,
+    // );
 
     final propertyPage = _HomeWidgetContent(
       title: 'Balance',
@@ -129,6 +116,13 @@ class MyApp extends StatelessWidget {
       iconData: Icons.access_alarm,
     );
 
+    final dummyPage = _HomeWidgetContent(
+        title: 'Dummy',
+        builder: () {
+          return Center(child: Text('Dummy'));
+        },
+        iconData: Icons.note);
+
     return MaterialApp(
       title: 'Household Accounts',
       theme: ThemeData(
@@ -136,9 +130,10 @@ class MyApp extends StatelessWidget {
       ),
       home: _HomeWidget(
         [
-          recordRegisterPage,
-          calenderViewPage,
+          // recordRegisterPage,
+          // calenderViewPage,
           propertyPage,
+          dummyPage,
         ],
       ),
     );
