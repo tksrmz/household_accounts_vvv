@@ -29,26 +29,23 @@ class PropertyListState with ChangeNotifier {
 
   Failure? get failure => _failure;
 
-  void loadProperties() {
+  Future<void> loadProperties() async {
     _isLoading = true;
     _failure = null;
     notifyListeners();
 
-    _retrievePropertiesUseCase.handle(NoParam()).then((failureOrProperties) {
-      failureOrProperties.fold(
-        (failure) {
-          _failure = failure;
-          _properties = [];
-        },
-        (props) {
-          _properties = props;
-        },
-      );
-      _isLoading = false;
-      notifyListeners();
-    }).onError((error, stackTrace) {
-      print(error);
-      assert(false, "Shouldn't come here");
-    });
+    final failureOrProperties =
+        await _retrievePropertiesUseCase.handle(NoParam());
+    failureOrProperties.fold(
+      (failure) {
+        _failure = failure;
+        _properties = [];
+      },
+      (props) {
+        _properties = props;
+      },
+    );
+    _isLoading = false;
+    notifyListeners();
   }
 }
