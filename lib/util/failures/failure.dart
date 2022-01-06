@@ -7,6 +7,9 @@ abstract class Failure extends Equatable {
 
   @override
   List<Object> get props => _properties;
+
+  @override
+  bool get stringify => true;
 }
 
 class RepositoryFailure extends Failure {
