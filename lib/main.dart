@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'features/property-viewer/data/repositories/property_repository.dart';
+import 'features/property-viewer/domain/repositories/property_repository.dart';
+import 'features/property-viewer/domain/use-cases/retrieve_properties.dart';
+import 'features/property-viewer/presentation/pages/property_list.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(App());
@@ -104,14 +109,15 @@ class MyApp extends StatelessWidget {
     final propertyPage = _HomeWidgetContent(
       title: 'Balance',
       builder: () {
-        final PropertyRepository repo = FirebasePropertyRepository();
-        final PropertyViewerPresenter prs = PropertyViewerPresenter();
-        final DisplayPropertiesUseCaseInterface uci =
-            DisplayPropertiesInteractor(repo, prs);
-
-        final PropertyViewerController ctl = PropertyViewerController(uci);
-
-        return PropertyViewerPage(ctl, prs);
+        final PropertyRepository repository = InMemoryPropertyRepository();
+        return MultiProvider(
+          providers: [
+            Provider<RetrievePropertiesUseCase>(
+              create: (ctx) => RetrievePropertiesInteractor(repository),
+            )
+          ],
+          child: PropertyListPage(),
+        );
       },
       iconData: Icons.access_alarm,
     );
