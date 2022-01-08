@@ -100,9 +100,8 @@ class _AddPropertyButton extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (newContext) => ChangeNotifierProvider.value(
-              value: context.read<PropertyListState>(),
-              child: AddPropertyPage(),
+            builder: (newContext) => AddPropertyPage(
+              state: context.read<PropertyListState>(),
             ),
           ),
         );
