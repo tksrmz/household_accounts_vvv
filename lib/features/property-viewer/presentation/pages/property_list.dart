@@ -110,7 +110,7 @@ class _EditPropertyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    return IconButton(
       onPressed: () {
         Navigator.push(
           context,
@@ -122,7 +122,7 @@ class _EditPropertyButton extends StatelessWidget {
           ),
         );
       },
-      child: const Text('Edit'),
+      icon: const Icon(Icons.edit),
     );
   }
 }
