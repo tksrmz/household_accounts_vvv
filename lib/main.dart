@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'features/property-viewer/data/repositories/property_repository.dart';
 import 'features/property-viewer/domain/repositories/property_repository.dart';
+import 'features/property-viewer/domain/use-cases/delete_property.dart';
 import 'features/property-viewer/domain/use-cases/retrieve_properties.dart';
 import 'features/property-viewer/presentation/pages/property_list.dart';
 
@@ -122,6 +123,9 @@ class MyApp extends StatelessWidget {
             ),
             Provider<UpdatePropertyUseCase>(
               create: (ctx) => UpdatePropertyInteractor(repository),
+            ),
+            Provider<DeletePropertiesUseCase>(
+              create: (ctx) => DeletePropertyInteractor(repository),
             ),
           ],
           child: PropertyListPage(),

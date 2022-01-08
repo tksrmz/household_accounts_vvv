@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/property-viewer/domain/entities/property.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
+import 'package:household_accounts/features/property-viewer/domain/use-cases/delete_property.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/retrieve_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:household_accounts/features/property-viewer/presentation/states/property_list.dart';
@@ -23,6 +24,7 @@ class PropertyListPage extends StatelessWidget {
         context.read<RetrievePropertiesUseCase>(),
         context.read<AddPropertiesUseCase>(),
         context.read<UpdatePropertyUseCase>(),
+        context.read<DeletePropertiesUseCase>(),
       )..loadProperties(),
       child: _PageContents(),
     );

@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/cupertino.dart';
 import 'package:household_accounts/features/property-viewer/domain/entities/property.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
+import 'package:household_accounts/features/property-viewer/domain/use-cases/delete_property.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/retrieve_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:household_accounts/util/failures/failure.dart';
@@ -18,11 +19,13 @@ class PropertyListState with ChangeNotifier {
   final RetrievePropertiesUseCase _retrievePropertiesUseCase;
   final AddPropertiesUseCase _addPropertiesUseCase;
   final UpdatePropertyUseCase _updatePropertyUseCase;
+  final DeletePropertiesUseCase _deletePropertiesUseCase;
 
   PropertyListState(
     this._retrievePropertiesUseCase,
     this._addPropertiesUseCase,
     this._updatePropertyUseCase,
+    this._deletePropertiesUseCase,
   )   : _properties = [],
         _isLoading = false,
         _failure = null;
@@ -106,6 +109,24 @@ class PropertyListState with ChangeNotifier {
         final index = _properties.indexWhere((element) => element.id == id);
         assert(index >= 0, '$id is not in the properties');
         _properties[index] = property;
+      },
+    );
+    notifyListeners();
+  }
+
+  Future<void> deleteProperty(String id) async {
+    _failure = null;
+
+    final failureOrUnit =
+        await _deletePropertiesUseCase.handle(DeletePropertyInput(id));
+    failureOrUnit.fold(
+      (failure) {
+        _failure = failure;
+        _properties = [];
+      },
+      (_) {
+        print('Delete property whose id is $id');
+        _properties.removeWhere((element) => element.id == id);
       },
     );
     notifyListeners();
