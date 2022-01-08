@@ -98,6 +98,7 @@ class _PropertyListItem extends StatelessWidget {
         Text(_property.name),
         Text(_property.amount.toString()),
         _EditPropertyButton(propertyId: _property.id),
+        _DeletePropertyButton(propertyId: _property.id),
       ],
     );
   }
@@ -125,6 +126,24 @@ class _EditPropertyButton extends StatelessWidget {
         );
       },
       icon: const Icon(Icons.edit),
+    );
+  }
+}
+
+class _DeletePropertyButton extends StatelessWidget {
+  final String _propertyId;
+
+  const _DeletePropertyButton({required String propertyId, Key? key})
+      : _propertyId = propertyId,
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        context.read<PropertyListState>().deleteProperty(_propertyId);
+      },
+      icon: const Icon(Icons.delete),
     );
   }
 }
