@@ -11,6 +11,7 @@ import 'package:household_accounts/util/presentation/widgets/loading.dart';
 import 'package:provider/provider.dart';
 
 import 'add_property.dart';
+import 'edit_property.dart';
 
 class PropertyListPage extends StatelessWidget {
   const PropertyListPage({Key? key}) : super(key: key);
@@ -73,19 +74,55 @@ class _PropertyListView extends StatelessWidget {
     return ListView(
       children: List.of(
         _properties.map(
-          (e) => Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text(e.name),
-              Text(e.amount.toString()),
-              ElevatedButton(
-                onPressed: null,
-                child: const Text('Edit'),
-              )
-            ],
-          ),
+          (e) => _PropertyListItem(property: e),
         ),
       ),
+    );
+  }
+}
+
+class _PropertyListItem extends StatelessWidget {
+  final Property _property;
+
+  const _PropertyListItem({required Property property, Key? key})
+      : _property = property,
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Text(_property.name),
+        Text(_property.amount.toString()),
+        _EditPropertyButton(propertyId: _property.id),
+      ],
+    );
+  }
+}
+
+class _EditPropertyButton extends StatelessWidget {
+  final String _propertyId;
+
+  const _EditPropertyButton({required String propertyId, Key? key})
+      : _propertyId = propertyId,
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (newContext) => EditPropertyPage(
+              state: context.read<PropertyListState>(),
+              targetPropertyId: _propertyId,
+            ),
+          ),
+        );
+      },
+      child: const Text('Edit'),
     );
   }
 }
