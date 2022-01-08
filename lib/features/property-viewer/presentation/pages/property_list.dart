@@ -13,9 +13,10 @@ class PropertyListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (ctx) =>
-          PropertyListState(context.read<RetrievePropertiesUseCase>())
-            ..loadProperties(),
+      create: (ctx) => PropertyListState(
+        context.read<RetrievePropertiesUseCase>(),
+        context.read<AddPropertiesUseCase>(),
+      )..loadProperties(),
       child: _PageContents(),
     );
   }

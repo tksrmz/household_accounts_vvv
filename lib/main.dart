@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -114,6 +115,9 @@ class MyApp extends StatelessWidget {
           providers: [
             Provider<RetrievePropertiesUseCase>(
               create: (ctx) => RetrievePropertiesInteractor(repository),
+            ),
+            Provider<AddPropertiesUseCase>(
+              create: (ctx) => AddPropertyInteractor(repository),
             )
           ],
           child: PropertyListPage(),
