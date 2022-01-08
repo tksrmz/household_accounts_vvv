@@ -24,7 +24,8 @@ class PropertyListState with ChangeNotifier {
         _isLoading = false,
         _failure = null;
 
-  UnmodifiableListView get properties => UnmodifiableListView(_properties);
+  UnmodifiableListView<Property> get properties =>
+      UnmodifiableListView(_properties);
 
   bool get isLoading => _isLoading;
 
