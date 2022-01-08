@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
+import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -118,7 +119,10 @@ class MyApp extends StatelessWidget {
             ),
             Provider<AddPropertiesUseCase>(
               create: (ctx) => AddPropertyInteractor(repository),
-            )
+            ),
+            Provider<UpdatePropertyUseCase>(
+              create: (ctx) => UpdatePropertyInteractor(repository),
+            ),
           ],
           child: PropertyListPage(),
         );

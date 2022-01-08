@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:household_accounts/features/property-viewer/domain/entities/property.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/retrieve_properties.dart';
+import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/use_case.dart';
 
@@ -16,10 +17,12 @@ class PropertyListState with ChangeNotifier {
   // Use cases
   final RetrievePropertiesUseCase _retrievePropertiesUseCase;
   final AddPropertiesUseCase _addPropertiesUseCase;
+  final UpdatePropertyUseCase _updatePropertyUseCase;
 
   PropertyListState(
     this._retrievePropertiesUseCase,
     this._addPropertiesUseCase,
+    this._updatePropertyUseCase,
   )   : _properties = [],
         _isLoading = false,
         _failure = null;
@@ -70,6 +73,39 @@ class PropertyListState with ChangeNotifier {
       (property) {
         print('Add ${property.toString()}');
         _properties.add(property);
+      },
+    );
+    notifyListeners();
+  }
+
+  Future<void> updateProperty(
+      String id, String newPropertyName, String newPropertyValue) async {
+    _failure = null;
+
+    // FIXME: Validate [newPropertyName] before parsing it into int.
+    final nullableName = newPropertyName.isNotEmpty ? newPropertyName : null;
+    // FIXME: Validate [newPropertyValue] before parsing it into int.
+    final nullableAmount =
+        newPropertyValue.isNotEmpty ? int.parse(newPropertyValue) : null;
+
+    final input = UpdatePropertyInput(
+      id: id,
+      newPropertyName: nullableName,
+      newPropertyAmount: nullableAmount,
+    );
+
+    final failureOrProperty = await _updatePropertyUseCase.handle(input);
+    failureOrProperty.fold(
+      (failure) {
+        _failure = failure;
+        _properties = [];
+      },
+      (property) {
+        print('Update ${property.toString()}');
+
+        final index = _properties.indexWhere((element) => element.id == id);
+        assert(index >= 0, '$id is not in the properties');
+        _properties[index] = property;
       },
     );
     notifyListeners();
