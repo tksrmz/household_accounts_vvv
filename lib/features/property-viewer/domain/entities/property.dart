@@ -1,21 +1,17 @@
-import 'package:equatable/equatable.dart';
+import 'package:household_accounts/util/domain/entities/identifiable.dart';
 
-class Property extends Equatable {
+class Property extends Identifiable {
   static const int maxNameLength = 20;
 
-  final String id;
   final String name;
   final int amount;
 
-  Property(this.id, this.name, this.amount)
-      : assert(id.length > 0, 'Property ID is empty string.'),
-        assert(name.length > 0, 'Property name is empty string.'),
+  Property(String id, this.name, this.amount)
+      : assert(name.length > 0, 'Property name is empty string.'),
         assert(name.length <= Property.maxNameLength,
-            'Property name is too long.');
+            'Property name is too long.'),
+        super(id);
 
   @override
   List<Object> get props => [id, name, amount];
-
-  @override
-  bool get stringify => true;
 }
