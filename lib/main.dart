@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
+import 'package:household_accounts/features/category-page/domain/use-cases/retrieve_categories.dart';
+import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'features/category-page/domain/repositories/category_repository.dart';
 import 'features/property-viewer/data/repositories/property_repository.dart';
 import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'features/property-viewer/domain/use-cases/delete_property.dart';
@@ -134,6 +138,22 @@ class MyApp extends StatelessWidget {
       iconData: Icons.access_alarm,
     );
 
+    final categoryListPage = _HomeWidgetContent(
+      title: 'Categories',
+      builder: () {
+        final CategoryRepository repository = InMemoryCategoryRepository();
+        return MultiProvider(
+          providers: [
+            Provider<RetrieveCategoriesUseCase>(
+              create: (ctx) => RetrieveAllCategoriesInteractor(repository),
+            ),
+          ],
+          child: CategoryListPage(),
+        );
+      },
+      iconData: Icons.accessibility,
+    );
+
     final dummyPage = _HomeWidgetContent(
         title: 'Dummy',
         builder: () {
@@ -151,6 +171,7 @@ class MyApp extends StatelessWidget {
           // recordRegisterPage,
           // calenderViewPage,
           propertyPage,
+          categoryListPage,
           dummyPage,
         ],
       ),
