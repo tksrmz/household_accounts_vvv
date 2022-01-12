@@ -17,3 +17,15 @@ class Category extends Identifiable {
 }
 
 enum CategoryType { income, expense }
+
+extension RecordTypeParsing on CategoryType {
+  String toShortString() => this.toString().split('.').last;
+
+  static CategoryType fromShortString(String str) {
+    if (str == CategoryType.expense.toShortString())
+      return CategoryType.expense;
+    if (str == CategoryType.income.toShortString()) return CategoryType.income;
+
+    throw 'Invalid short string of RecordType';
+  }
+}
