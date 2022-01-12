@@ -58,36 +58,61 @@ class _CategoryListView extends StatelessWidget {
         _expenseCategories = expenseCategories,
         super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    const boldStyle = const TextStyle(fontWeight: FontWeight.bold);
+  List<Widget> _toListViewChildren(
+    String headline,
+    String emptyCategoryString,
+    List<Category> categories,
+  ) {
+    final children = <Widget>[];
 
-    final children = <Widget>[
-      const Text(
-        'Income Categories',
-        style: boldStyle,
-      ),
-    ];
-
-    if (_incomeCategories.isEmpty) {
-      children.add(const Text(
-        'No income categories registered.',
-      ));
-    } else {
-      _incomeCategories.forEach((element) => children.add(Text(element.name)));
-    }
-
-    children.add(const Text(
-      'Expense Categories',
-      style: boldStyle,
+    children.add(Text(
+      headline,
+      style: const TextStyle(fontWeight: FontWeight.bold),
     ));
 
-    if (_expenseCategories.isEmpty) {
-      children.add(const Text('No expense categories registered.'));
+    if (categories.isEmpty) {
+      children.add(Text(emptyCategoryString));
     } else {
-      _expenseCategories.forEach((element) => children.add(Text(element.name)));
+      categories.forEach((element) {
+        children.add(_CategoryListItem(category: element));
+      });
     }
 
+    return children;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final children = <Widget>[];
+    children.addAll(_toListViewChildren(
+      'Income Categories',
+      'No income categories registered.',
+      _incomeCategories,
+    ));
+    children.addAll(_toListViewChildren(
+      'Expense Categories',
+      'No expense categories registered.',
+      _expenseCategories,
+    ));
+
     return ListView(children: children);
+  }
+}
+
+class _CategoryListItem extends StatelessWidget {
+  final Category _category;
+
+  const _CategoryListItem({required Category category, Key? key})
+      : _category = category,
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Text(_category.name),
+      ],
+    );
   }
 }
