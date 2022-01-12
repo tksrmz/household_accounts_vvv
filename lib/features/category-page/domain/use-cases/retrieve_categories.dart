@@ -19,38 +19,3 @@ class RetrieveAllCategoriesInteractor extends RetrieveCategoriesUseCase {
   Future<Either<Failure, List<Category>>> handle(NoParam noParam) =>
       _repository.retrieveCategories();
 }
-
-// FIXME: RetrieveIncomeCategoriesInteractor and RetrieveExpenseCategoriesInteractor is almost same.
-class RetrieveIncomeCategoriesInteractor extends RetrieveCategoriesUseCase {
-  RetrieveIncomeCategoriesInteractor(CategoryRepository repository)
-      : super(repository);
-
-  @override
-  Future<Either<Failure, List<Category>>> handle(NoParam noParam) async {
-    final failureOrCategories = await _repository.retrieveCategories();
-    return failureOrCategories.map(
-      (categories) => List.of(
-        categories.where(
-          (element) => element.type == CategoryType.income,
-        ),
-      ),
-    );
-  }
-}
-
-class RetrieveExpenseCategoriesInteractor extends RetrieveCategoriesUseCase {
-  RetrieveExpenseCategoriesInteractor(CategoryRepository repository)
-      : super(repository);
-
-  @override
-  Future<Either<Failure, List<Category>>> handle(NoParam noParam) async {
-    final failureOrCategories = await _repository.retrieveCategories();
-    return failureOrCategories.map(
-      (categories) => List.of(
-        categories.where(
-          (element) => element.type == CategoryType.expense,
-        ),
-      ),
-    );
-  }
-}
