@@ -11,8 +11,8 @@ abstract class RetrieveCategoriesUseCase
   RetrieveCategoriesUseCase(this._repository);
 }
 
-class RetrieveAllCategoriesInteractor extends RetrieveCategoriesUseCase {
-  RetrieveAllCategoriesInteractor(CategoryRepository repository)
+class RetrieveCategoriesInteractor extends RetrieveCategoriesUseCase {
+  RetrieveCategoriesInteractor(CategoryRepository repository)
       : super(repository);
 
   @override

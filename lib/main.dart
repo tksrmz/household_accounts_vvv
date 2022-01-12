@@ -145,7 +145,7 @@ class MyApp extends StatelessWidget {
         return MultiProvider(
           providers: [
             Provider<RetrieveCategoriesUseCase>(
-              create: (ctx) => RetrieveAllCategoriesInteractor(repository),
+              create: (ctx) => RetrieveCategoriesInteractor(repository),
             ),
           ],
           child: CategoryListPage(),
