@@ -7,6 +7,7 @@ import 'package:household_accounts/features/property-viewer/domain/use-cases/del
 import 'package:household_accounts/features/property-viewer/domain/use-cases/retrieve_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:household_accounts/features/property-viewer/presentation/states/property_list.dart';
+import 'package:household_accounts/util/presentation/widgets/delete_icon_button.dart';
 import 'package:household_accounts/util/presentation/widgets/failure.dart';
 import 'package:household_accounts/util/presentation/widgets/loading.dart';
 import 'package:provider/provider.dart';
@@ -98,7 +99,11 @@ class _PropertyListItem extends StatelessWidget {
         Text(_property.name),
         Text(_property.amount.toString()),
         _EditPropertyButton(propertyId: _property.id),
-        _DeletePropertyButton(propertyId: _property.id),
+        DeleteIconButton(
+          onPressed: () {
+            context.read<PropertyListState>().deleteProperty(_property.id);
+          },
+        ),
       ],
     );
   }
@@ -126,24 +131,6 @@ class _EditPropertyButton extends StatelessWidget {
         );
       },
       icon: const Icon(Icons.edit),
-    );
-  }
-}
-
-class _DeletePropertyButton extends StatelessWidget {
-  final String _propertyId;
-
-  const _DeletePropertyButton({required String propertyId, Key? key})
-      : _propertyId = propertyId,
-        super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () {
-        context.read<PropertyListState>().deleteProperty(_propertyId);
-      },
-      icon: const Icon(Icons.delete),
     );
   }
 }
