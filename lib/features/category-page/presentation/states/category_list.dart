@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/category-page/domain/entities/category.dart';
+import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/use_case.dart';
@@ -14,8 +15,12 @@ class CategoryListState with ChangeNotifier {
 
   // Use cases
   final RetrieveCategoriesUseCase _retrieveCategoriesUseCase;
+  final DeleteCategoryUseCase _deleteCategoryUseCase;
 
-  CategoryListState(this._retrieveCategoriesUseCase);
+  CategoryListState(
+    this._retrieveCategoriesUseCase,
+    this._deleteCategoryUseCase,
+  );
 
   UnmodifiableListView<Category> get incomeCategories => UnmodifiableListView(
         _categories.where((element) => element.type == CategoryType.income),
@@ -48,6 +53,24 @@ class CategoryListState with ChangeNotifier {
       },
     );
     _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> deleteCategory(String id) async {
+    _failure = null;
+
+    final failureOrUnit =
+        await _deleteCategoryUseCase.handle(DeleteCategoryInput(id));
+    failureOrUnit.fold(
+      (failure) {
+        _failure = failure;
+        _categories = [];
+      },
+      (_) {
+        print('Delete property whose id is $id');
+        _categories.removeWhere((element) => element.id == id);
+      },
+    );
     notifyListeners();
   }
 }

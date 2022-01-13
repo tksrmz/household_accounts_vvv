@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
+import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
@@ -146,6 +147,9 @@ class MyApp extends StatelessWidget {
           providers: [
             Provider<RetrieveCategoriesUseCase>(
               create: (ctx) => RetrieveCategoriesInteractor(repository),
+            ),
+            Provider<DeleteCategoryUseCase>(
+              create: (ctx) => DeleteCategoryInteractor(repository),
             ),
           ],
           child: CategoryListPage(),

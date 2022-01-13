@@ -1,7 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:household_accounts/features/category-page/domain/entities/category.dart';
+import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/presentation/states/category_list.dart';
+import 'package:household_accounts/util/presentation/widgets/delete_icon_button.dart';
 import 'package:household_accounts/util/presentation/widgets/failure.dart';
 import 'package:household_accounts/util/presentation/widgets/loading.dart';
 import 'package:provider/provider.dart';
@@ -12,9 +14,10 @@ class CategoryListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (ctx) =>
-          CategoryListState(context.read<RetrieveCategoriesUseCase>())
-            ..loadCategories(),
+      create: (ctx) => CategoryListState(
+        context.read<RetrieveCategoriesUseCase>(),
+        context.read<DeleteCategoryUseCase>(),
+      )..loadCategories(),
       child: _PageContents(),
     );
   }
@@ -112,6 +115,11 @@ class _CategoryListItem extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Text(_category.name),
+        DeleteIconButton(
+          onPressed: () {
+            context.read<CategoryListState>().deleteCategory(_category.id);
+          },
+        ),
       ],
     );
   }
