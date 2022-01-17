@@ -8,6 +8,8 @@ import 'package:household_accounts/util/presentation/widgets/failure.dart';
 import 'package:household_accounts/util/presentation/widgets/loading.dart';
 import 'package:provider/provider.dart';
 
+import 'add_category.dart';
+
 class CategoryListPage extends StatelessWidget {
   const CategoryListPage({Key? key}) : super(key: key);
 
@@ -42,9 +44,17 @@ class _PageContents extends StatelessWidget {
       );
     }
 
-    return _CategoryListView(
-      incomeCategories: state.incomeCategories,
-      expenseCategories: state.expenseCategories,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: _CategoryListView(
+            incomeCategories: state.incomeCategories,
+            expenseCategories: state.expenseCategories,
+          ),
+        ),
+        _AddCategoryButton(),
+      ],
     );
   }
 }
@@ -121,6 +131,31 @@ class _CategoryListItem extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+class _AddCategoryButton extends StatelessWidget {
+  const _AddCategoryButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (newContext) => AddCategoryPage(),
+          ),
+        );
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.add_circle_outline),
+          const Text('Add a new category.'),
+        ],
+      ),
     );
   }
 }
