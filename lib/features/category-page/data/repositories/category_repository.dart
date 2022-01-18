@@ -20,7 +20,7 @@ class InMemoryCategoryRepository implements CategoryRepository {
 
   @override
   Future<Either<Failure, Unit>> register(Category value) async {
-    if (_repository.every((element) => element.id != element.id)) {
+    if (_repository.every((element) => element.id != value.id)) {
       _repository.add(value);
       return Right(unit);
     }
