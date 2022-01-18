@@ -147,7 +147,9 @@ class _AddCategoryButton extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (newContext) => AddCategoryPage(),
+            builder: (newContext) => AddCategoryPage(
+              state: context.read<CategoryListState>(),
+            ),
           ),
         );
       },
