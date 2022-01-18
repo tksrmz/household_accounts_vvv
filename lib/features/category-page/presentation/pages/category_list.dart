@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/category-page/domain/entities/category.dart';
+import 'package:household_accounts/features/category-page/domain/use-cases/add_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/presentation/states/category_list.dart';
@@ -19,6 +20,7 @@ class CategoryListPage extends StatelessWidget {
       create: (ctx) => CategoryListState(
         context.read<RetrieveCategoriesUseCase>(),
         context.read<DeleteCategoryUseCase>(),
+        context.read<AddCategoryUseCase>(),
       )..loadCategories(),
       child: _PageContents(),
     );
