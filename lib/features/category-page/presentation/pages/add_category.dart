@@ -22,6 +22,7 @@ class AddCategoryPage extends StatelessWidget {
           _state.addCategory(controller.text, type);
         },
         buttonChild: const Text('Add'),
+        mode: CategoryEditorMode.add,
       ),
     );
   }
