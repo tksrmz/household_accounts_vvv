@@ -10,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'features/category-page/domain/repositories/category_repository.dart';
 import 'features/category-page/domain/use-cases/add_category.dart';
+import 'features/category-page/domain/use-cases/update_category.dart';
 import 'features/property-viewer/data/repositories/property_repository.dart';
 import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'features/property-viewer/domain/use-cases/delete_property.dart';
@@ -154,6 +155,9 @@ class MyApp extends StatelessWidget {
             ),
             Provider<AddCategoryUseCase>(
               create: (ctx) => AddCategoryInteractor(repository),
+            ),
+            Provider<UpdateCategoryUseCase>(
+              create: (ctx) => UpdateCategoryInteractor(repository),
             ),
           ],
           child: CategoryListPage(),

@@ -5,6 +5,7 @@ import 'package:household_accounts/features/category-page/domain/entities/catego
 import 'package:household_accounts/features/category-page/domain/use-cases/add_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/retrieve_categories.dart';
+import 'package:household_accounts/features/category-page/domain/use-cases/update_category.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/use_case.dart';
 
@@ -18,11 +19,13 @@ class CategoryListState with ChangeNotifier {
   final RetrieveCategoriesUseCase _retrieveCategoriesUseCase;
   final DeleteCategoryUseCase _deleteCategoryUseCase;
   final AddCategoryUseCase _addCategoryUseCase;
+  final UpdateCategoryUseCase _updateCategoryUseCase;
 
   CategoryListState(
     this._retrieveCategoriesUseCase,
     this._deleteCategoryUseCase,
     this._addCategoryUseCase,
+    this._updateCategoryUseCase,
   );
 
   UnmodifiableListView<Category> get incomeCategories => UnmodifiableListView(
@@ -92,6 +95,27 @@ class CategoryListState with ChangeNotifier {
         _categories.add(category);
       },
     );
+    notifyListeners();
+  }
+
+  Future<void> updateCategory(String id, String newCategoryName) async {
+    _failure = null;
+
+    final failureOrCategory = await _updateCategoryUseCase.handle(
+      UpdateCategoryInput(
+        id,
+        newCategoryName,
+      ),
+    );
+    failureOrCategory.fold((failure) {
+      _failure = failure;
+      _categories.clear();
+    }, (category) {
+      print('Update ${category.toString()}');
+      final index = _categories.indexWhere((element) => element.id == id);
+      assert(index >= 0, '$id is not in the properties');
+      _categories[index] = category;
+    });
     notifyListeners();
   }
 }

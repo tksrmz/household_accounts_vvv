@@ -3,6 +3,7 @@ import 'package:household_accounts/features/category-page/domain/entities/catego
 import 'package:household_accounts/features/category-page/domain/use-cases/add_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/retrieve_categories.dart';
+import 'package:household_accounts/features/category-page/domain/use-cases/update_category.dart';
 import 'package:household_accounts/features/category-page/presentation/states/category_list.dart';
 import 'package:household_accounts/util/presentation/widgets/delete_icon_button.dart';
 import 'package:household_accounts/util/presentation/widgets/failure.dart';
@@ -21,6 +22,7 @@ class CategoryListPage extends StatelessWidget {
         context.read<RetrieveCategoriesUseCase>(),
         context.read<DeleteCategoryUseCase>(),
         context.read<AddCategoryUseCase>(),
+        context.read<UpdateCategoryUseCase>(),
       )..loadCategories(),
       child: _PageContents(),
     );
