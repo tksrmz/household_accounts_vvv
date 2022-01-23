@@ -11,6 +11,7 @@ import 'package:household_accounts/util/presentation/widgets/loading.dart';
 import 'package:provider/provider.dart';
 
 import 'add_category.dart';
+import 'edit_category.dart';
 
 class CategoryListPage extends StatelessWidget {
   const CategoryListPage({Key? key}) : super(key: key);
@@ -129,6 +130,7 @@ class _CategoryListItem extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Text(_category.name),
+        _EditCategoryButton(categoryId: _category.id),
         DeleteIconButton(
           onPressed: () {
             context.read<CategoryListState>().deleteCategory(_category.id);
@@ -162,6 +164,32 @@ class _AddCategoryButton extends StatelessWidget {
           const Text('Add a new category.'),
         ],
       ),
+    );
+  }
+}
+
+class _EditCategoryButton extends StatelessWidget {
+  final String _categoryId;
+
+  const _EditCategoryButton({required String categoryId, Key? key})
+      : _categoryId = categoryId,
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (newContext) => EditCategoryPage(
+              state: context.read<CategoryListState>(),
+              categoryId: _categoryId,
+            ),
+          ),
+        );
+      },
+      icon: const Icon(Icons.edit),
     );
   }
 }
