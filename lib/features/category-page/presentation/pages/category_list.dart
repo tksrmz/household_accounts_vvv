@@ -129,7 +129,7 @@ class _CategoryListItem extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Text(_category.name),
+        Text('${_category.name} (${_category.budget})'),
         _EditCategoryButton(categoryId: _category.id),
         DeleteIconButton(
           onPressed: () {

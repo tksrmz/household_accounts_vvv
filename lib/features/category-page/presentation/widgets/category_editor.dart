@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/category-page/domain/entities/category.dart';
 
-typedef CategoryNameAndTypeHandler = void Function(
-    TextEditingController, CategoryType);
+typedef CategoryPropertiesHandler = void Function(
+  TextEditingController nameContrller,
+  TextEditingController budgetController,
+  CategoryType categoryType,
+);
 
 enum CategoryEditorMode {
   add,
@@ -10,12 +13,12 @@ enum CategoryEditorMode {
 }
 
 class CategoryEditor extends StatefulWidget {
-  final CategoryNameAndTypeHandler _onPressed;
+  final CategoryPropertiesHandler _onPressed;
   final Widget _buttonChild;
   final CategoryEditorMode _mode;
 
   const CategoryEditor({
-    required CategoryNameAndTypeHandler onPressed,
+    required CategoryPropertiesHandler onPressed,
     required Widget buttonChild,
     required CategoryEditorMode mode,
     Key? key,
@@ -31,17 +34,20 @@ class CategoryEditor extends StatefulWidget {
 class _CategoryEditorState extends State<CategoryEditor> {
   // This property is nullable only because RadioListTile.onChanged receives nullable value.
   CategoryType? _selected = CategoryType.income;
-  late final TextEditingController _controller;
+  late final TextEditingController _nameController;
+  late final TextEditingController _budgetController;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+    _nameController = TextEditingController();
+    _budgetController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _nameController.dispose();
+    _budgetController.dispose();
     super.dispose();
   }
 
@@ -49,7 +55,7 @@ class _CategoryEditorState extends State<CategoryEditor> {
   Widget build(BuildContext context) {
     final children = <Widget>[
       TextField(
-        controller: _controller,
+        controller: _nameController,
         decoration: InputDecoration(
           labelText: 'Category name',
           helperText: '1-20 alphabet characters only',
@@ -92,10 +98,19 @@ class _CategoryEditorState extends State<CategoryEditor> {
         break;
     }
 
+    children.add(TextField(
+      controller: _budgetController,
+      decoration: InputDecoration(
+        labelText: 'Budget',
+        border: OutlineInputBorder(),
+      ),
+      keyboardType: TextInputType.number,
+    ));
+
     children.add(
       ElevatedButton(
         onPressed: () {
-          widget._onPressed(_controller, _selected!);
+          widget._onPressed(_nameController, _budgetController, _selected!);
           Navigator.pop(context);
         },
         child: widget._buttonChild,

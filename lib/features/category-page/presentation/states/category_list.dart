@@ -80,11 +80,18 @@ class CategoryListState with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addCategory(String name, CategoryType type) async {
+  Future<void> addCategory(
+    String name,
+    CategoryType type,
+    String budgetString,
+  ) async {
     _failure = null;
 
+    // FIXME: Validate [budgetString] before parsing it into int.
+    final budget = int.parse(budgetString);
+
     final failureOrProperty =
-        await _addCategoryUseCase.handle(AddCategoryInput(name, type));
+        await _addCategoryUseCase.handle(AddCategoryInput(name, type, budget));
     failureOrProperty.fold(
       (failure) {
         _failure = failure;
@@ -98,13 +105,25 @@ class CategoryListState with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateCategory(String id, String newCategoryName) async {
+  Future<void> updateCategory(
+    String id,
+    String newCategoryName,
+    String newBudgetString,
+  ) async {
     _failure = null;
 
     final failureOrCategory = await _updateCategoryUseCase.handle(
       UpdateCategoryInput(
-        id,
-        newCategoryName,
+        id: id,
+        newCategoryName: newCategoryName.isNotEmpty ? newCategoryName : null,
+        // FIXME: Validate [budgetString] before parsing it into int.
+
+        // Should budgetString validator returns null if it is empty?
+        // Or return a Failure?
+        // Returning a failure seems good, as Failure class is a general representation of errors in this application.
+        // Let's consider passing empty string to the validator as an error.
+        newBudget:
+            newBudgetString.isNotEmpty ? int.parse(newBudgetString) : null,
       ),
     );
     failureOrCategory.fold((failure) {

@@ -5,11 +5,11 @@ import 'package:household_accounts/util/failures/failure.dart';
 
 class InMemoryCategoryRepository implements CategoryRepository {
   final _repository = [
-    Category('id1', 'Food', CategoryType.expense),
-    Category('id2', 'Transportation', CategoryType.expense),
-    Category('id3', 'Other', CategoryType.expense),
-    Category('id4', 'Salary', CategoryType.income),
-    Category('id5', 'Pocket Money', CategoryType.income),
+    Category('id1', 'Food', CategoryType.expense, 100),
+    Category('id2', 'Transportation', CategoryType.expense, 200),
+    Category('id3', 'Other', CategoryType.expense, 300),
+    Category('id4', 'Salary', CategoryType.income, 400),
+    Category('id5', 'Pocket Money', CategoryType.income, 500),
   ];
 
   @override

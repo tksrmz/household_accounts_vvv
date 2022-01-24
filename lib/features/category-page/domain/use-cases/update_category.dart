@@ -9,12 +9,28 @@ typedef UpdateCategoryUseCase = UseCase<UpdateCategoryInput, Category>;
 
 class UpdateCategoryInput extends Equatable {
   final String id;
-  final String newCategoryName;
+  final String? newCategoryName;
+  final int? newBudget;
 
-  const UpdateCategoryInput(this.id, this.newCategoryName);
+  const UpdateCategoryInput({
+    required String id,
+    String? newCategoryName,
+    int? newBudget,
+  })  : this.id = id,
+        this.newCategoryName = newCategoryName,
+        this.newBudget = newBudget;
 
   @override
-  List<Object> get props => [id, newCategoryName];
+  List<Object> get props {
+    final props = <Object>[id];
+    if (newCategoryName != null) {
+      props.add(newCategoryName!);
+    }
+    if (newBudget != null) {
+      props.add(newBudget!);
+    }
+    return props;
+  }
 }
 
 class UpdateCategoryInteractor extends UpdateCategoryUseCase {
@@ -26,8 +42,12 @@ class UpdateCategoryInteractor extends UpdateCategoryUseCase {
   Future<Either<Failure, Category>> handle(UpdateCategoryInput input) async {
     final failureOrCurrentValue = await _repository.retrieveById(input.id);
     final failureOrNewValue = failureOrCurrentValue.map(
-      (currentValue) =>
-          Category(input.id, input.newCategoryName, currentValue.type),
+      (currentValue) => Category(
+        input.id,
+        input.newCategoryName ?? currentValue.name,
+        currentValue.type,
+        input.newBudget ?? currentValue.budget,
+      ),
     );
 
     final result =

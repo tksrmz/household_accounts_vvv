@@ -18,8 +18,8 @@ class AddCategoryPage extends StatelessWidget {
         title: Text('Add a new category'),
       ),
       body: CategoryEditor(
-        onPressed: (controller, type) {
-          _state.addCategory(controller.text, type);
+        onPressed: (nameController, budgetController, type) {
+          _state.addCategory(nameController.text, type, budgetController.text);
         },
         buttonChild: const Text('Add'),
         mode: CategoryEditorMode.add,

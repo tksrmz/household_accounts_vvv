@@ -5,15 +5,18 @@ class Category extends Identifiable {
 
   final String name;
   final CategoryType type;
+  final int budget;
 
-  Category(String id, this.name, this.type)
+  // Isn't it strange to define "budgets" to income categories?
+  Category(String id, this.name, this.type, this.budget)
       : assert(name.length > 0, 'Category name is empty string.'),
         assert(name.length <= Category.maxNameLength,
             'Category name is too long.'),
+        assert(budget >= 0, 'Budget is negative.'),
         super(id);
 
   @override
-  List<Object> get props => [id, name, type];
+  List<Object> get props => [id, name, type, budget];
 }
 
 enum CategoryType { income, expense }

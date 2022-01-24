@@ -21,8 +21,12 @@ class EditCategoryPage extends StatelessWidget {
         title: Text('Edit'),
       ),
       body: CategoryEditor(
-        onPressed: (controller, _) {
-          _state.updateCategory(_targetCategoryId, controller.text);
+        onPressed: (nameController, budgetController, _) {
+          _state.updateCategory(
+            _targetCategoryId,
+            nameController.text,
+            budgetController.text,
+          );
         },
         buttonChild: const Text('Edit'),
         mode: CategoryEditorMode.edit,
