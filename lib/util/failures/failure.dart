@@ -16,3 +16,5 @@ class RepositoryFailure extends Failure {
   @override
   String toString() => 'RepositoryFailure';
 }
+
+class StringToIntFailure extends Failure {}
