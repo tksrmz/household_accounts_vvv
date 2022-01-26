@@ -9,7 +9,7 @@ import 'package:household_accounts/features/category-page/domain/use-cases/updat
 import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/use_case.dart';
 
-class CategoryListState with ChangeNotifier {
+class CategoryPageState with ChangeNotifier {
   // States
   List<Category> _categories = [];
   bool _isLoading = false;
@@ -21,7 +21,7 @@ class CategoryListState with ChangeNotifier {
   final AddCategoryUseCase _addCategoryUseCase;
   final UpdateCategoryUseCase _updateCategoryUseCase;
 
-  CategoryListState(
+  CategoryPageState(
     this._retrieveCategoriesUseCase,
     this._deleteCategoryUseCase,
     this._addCategoryUseCase,
