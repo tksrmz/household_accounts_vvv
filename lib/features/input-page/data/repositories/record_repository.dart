@@ -7,7 +7,7 @@ class InMemoryRecordRepository implements RecordRepository {
   final _repository = [];
 
   @override
-  Future<Either<Failure, Unit>> register(Record value) async {
+  Future<Either<Failure, Unit>> register(RecordOld value) async {
     if (_repository.every((element) => element.id != value.id)) {
       _repository.add(value);
       return Right(unit);

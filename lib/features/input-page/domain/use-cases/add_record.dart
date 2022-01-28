@@ -6,7 +6,7 @@ import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/use_case.dart';
 import 'package:household_accounts/util/uuid.dart';
 
-typedef AddRecordUseCase = UseCase<AddRecordInput, Record>;
+typedef AddRecordUseCase = UseCase<AddRecordInput, RecordOld>;
 
 class AddRecordInput extends Equatable {
   final DateTime dateOfRecord;
@@ -26,8 +26,8 @@ class AddRecordInteractor extends AddRecordUseCase {
   AddRecordInteractor(this._repository);
 
   @override
-  Future<Either<Failure, Record>> handle(AddRecordInput input) async {
-    final record = Record(
+  Future<Either<Failure, RecordOld>> handle(AddRecordInput input) async {
+    final record = RecordOld(
       UUID.generate(),
       DateTime.now(),
       input.dateOfRecord,

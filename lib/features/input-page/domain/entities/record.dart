@@ -1,13 +1,13 @@
 import 'package:household_accounts/util/domain/entities/identifiable.dart';
 
-class Record extends Identifiable {
+class RecordOld extends Identifiable {
   final DateTime dateOfInput;
   final DateTime dateOfRecord;
   final int amount;
   final String note;
   final String categoryId;
 
-  Record(
+  RecordOld(
     String id,
     this.dateOfInput,
     this.dateOfRecord,
