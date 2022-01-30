@@ -64,7 +64,11 @@ class _AppState extends State<App> {
 
         // Once complete, show your application
         if (snapshot.connectionState == ConnectionState.done) {
-          return MyApp();
+          return MyApp(
+            recordRepository: InMemoryRecordRepository(),
+            propertyRepository: InMemoryPropertyRepository(),
+            categoryRepository: InMemoryCategoryRepository(),
+          );
         }
 
         // Otherwise, show something whilst waiting for initialization to complete
@@ -84,23 +88,36 @@ class _AppState extends State<App> {
 }
 
 class MyApp extends StatelessWidget {
+  final RecordRepository _recordRepository;
+  final PropertyRepository _propertyRepository;
+  final CategoryRepository _categoryRepository;
+
+  const MyApp({
+    Key? key,
+    required RecordRepository recordRepository,
+    required PropertyRepository propertyRepository,
+    required CategoryRepository categoryRepository,
+  })  : _recordRepository = recordRepository,
+        _propertyRepository = propertyRepository,
+        _categoryRepository = categoryRepository,
+        super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     final recordRegisterPage = _HomeWidgetContent(
       title: 'Input',
       builder: () {
-        final RecordRepository repository = InMemoryRecordRepository();
         return MultiProvider(
           providers: [
             Provider<AddIncomeRecordUseCase>(
-              create: (ctx) => AddIncomeRecordInteractor(repository),
+              create: (ctx) => AddIncomeRecordInteractor(_recordRepository),
             ),
             Provider<AddExpenseRecordUseCase>(
-              create: (ctx) => AddExpenseRecordInteractor(repository),
+              create: (ctx) => AddExpenseRecordInteractor(_recordRepository),
             ),
             Provider<AddTransferRecordUseCase>(
-              create: (ctx) => AddTransferRecordInteractor(repository),
+              create: (ctx) => AddTransferRecordInteractor(_recordRepository),
             ),
           ],
           child: RecordInputPage(),
@@ -134,20 +151,20 @@ class MyApp extends StatelessWidget {
     final propertyPage = _HomeWidgetContent(
       title: 'Balance',
       builder: () {
-        final PropertyRepository repository = InMemoryPropertyRepository();
         return MultiProvider(
           providers: [
             Provider<RetrievePropertiesUseCase>(
-              create: (ctx) => RetrievePropertiesInteractor(repository),
+              create: (ctx) =>
+                  RetrievePropertiesInteractor(_propertyRepository),
             ),
             Provider<AddPropertiesUseCase>(
-              create: (ctx) => AddPropertyInteractor(repository),
+              create: (ctx) => AddPropertyInteractor(_propertyRepository),
             ),
             Provider<UpdatePropertyUseCase>(
-              create: (ctx) => UpdatePropertyInteractor(repository),
+              create: (ctx) => UpdatePropertyInteractor(_propertyRepository),
             ),
             Provider<DeletePropertiesUseCase>(
-              create: (ctx) => DeletePropertyInteractor(repository),
+              create: (ctx) => DeletePropertyInteractor(_propertyRepository),
             ),
           ],
           child: PropertyListPage(),
@@ -159,20 +176,20 @@ class MyApp extends StatelessWidget {
     final categoryListPage = _HomeWidgetContent(
       title: 'Categories',
       builder: () {
-        final CategoryRepository repository = InMemoryCategoryRepository();
         return MultiProvider(
           providers: [
             Provider<RetrieveCategoriesUseCase>(
-              create: (ctx) => RetrieveCategoriesInteractor(repository),
+              create: (ctx) =>
+                  RetrieveCategoriesInteractor(_categoryRepository),
             ),
             Provider<DeleteCategoryUseCase>(
-              create: (ctx) => DeleteCategoryInteractor(repository),
+              create: (ctx) => DeleteCategoryInteractor(_categoryRepository),
             ),
             Provider<AddCategoryUseCase>(
-              create: (ctx) => AddCategoryInteractor(repository),
+              create: (ctx) => AddCategoryInteractor(_categoryRepository),
             ),
             Provider<UpdateCategoryUseCase>(
-              create: (ctx) => UpdateCategoryInteractor(repository),
+              create: (ctx) => UpdateCategoryInteractor(_categoryRepository),
             ),
           ],
           child: CategoryListPage(),
