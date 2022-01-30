@@ -181,13 +181,6 @@ class MyApp extends StatelessWidget {
       iconData: Icons.accessibility,
     );
 
-    final dummyPage = _HomeWidgetContent(
-        title: 'Dummy',
-        builder: () {
-          return Center(child: Text('Dummy'));
-        },
-        iconData: Icons.note);
-
     return MaterialApp(
       title: 'Household Accounts',
       theme: ThemeData(
@@ -199,7 +192,6 @@ class MyApp extends StatelessWidget {
           // calenderViewPage,
           propertyPage,
           categoryListPage,
-          dummyPage,
         ],
       ),
     );
