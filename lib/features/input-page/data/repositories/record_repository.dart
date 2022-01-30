@@ -3,11 +3,11 @@ import 'package:household_accounts/features/input-page/domain/entities/record.da
 import 'package:household_accounts/features/input-page/domain/repositories/record_repository.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
-class InMemoryRecordRepository implements RecordRepositoryOld {
+class InMemoryRecordRepository implements RecordRepository {
   final _repository = [];
 
   @override
-  Future<Either<Failure, Unit>> register(RecordOld value) async {
+  Future<Either<Failure, Unit>> register(Record value) async {
     if (_repository.every((element) => element.id != value.id)) {
       _repository.add(value);
       return Right(unit);
