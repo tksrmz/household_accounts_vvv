@@ -1,6 +1,10 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
+import 'package:household_accounts/features/category-page/domain/entities/category.dart';
 import 'package:household_accounts/features/input-page/domain/entities/record.dart';
 import 'package:household_accounts/features/input-page/domain/use-cases/add_record.dart';
+import 'package:household_accounts/util/presentation/states/category_list.dart';
 import 'package:household_accounts/util/string-parser.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +28,7 @@ class _PageContentsState extends State<_PageContents> {
   DateTime _recordDate = DateTime.now();
   String _amount = '';
   RecordType _recordType = RecordType.income;
-  String? _category;
+  Category? _category;
   String? _srcProperty;
   String? _destProperty;
   String _note = '';
@@ -56,7 +60,7 @@ class _PageContentsState extends State<_PageContents> {
     });
   }
 
-  void _setCategoryState(String? value) {
+  void _setCategoryState(Category? value) {
     setState(() {
       _category = value;
       print('category name: $_category');
@@ -91,7 +95,7 @@ class _PageContentsState extends State<_PageContents> {
           _recordDate,
           _amount.tryToInt() | 0,
           _note,
-          _category!,
+          _category!.id,
           _srcProperty!,
         ),
       );
@@ -105,7 +109,7 @@ class _PageContentsState extends State<_PageContents> {
           _recordDate,
           _amount.tryToInt() | 0,
           _note,
-          _category!,
+          _category!.id,
           _srcProperty!,
         ),
       );
@@ -129,26 +133,6 @@ class _PageContentsState extends State<_PageContents> {
   @override
   Widget build(BuildContext context) {
     // dummy data
-    List<String>? categories;
-    switch (_recordType) {
-      case RecordType.income:
-        categories = [
-          'aaa',
-          'bbb',
-          'ccc',
-        ];
-        break;
-      case RecordType.expense:
-        categories = [
-          '111',
-          '222',
-          '333',
-        ];
-        break;
-      case RecordType.transfer:
-        categories = null;
-        break;
-    }
     List<String> dummyProperties = [
       'bank',
       'cash',
@@ -182,13 +166,15 @@ class _PageContentsState extends State<_PageContents> {
         ),
         _recordType == RecordType.transfer
             ? _PropertyDropDownMenu(
-                value: _destProperty,
-                items: dummyProperties,
-                onChanged: _setDestPropertyState,
-              )
+          value: _destProperty,
+          items: dummyProperties,
+          onChanged: _setDestPropertyState,
+        )
             : _CategoryDropDownMenu(
-                value: _category,
-                items: categories,
+          value: _category,
+                categoryType: _recordType == RecordType.income
+                    ? CategoryType.income
+                    : CategoryType.expense,
                 onChanged: _setCategoryState,
               ),
         _NoteTextField(
@@ -333,25 +319,58 @@ class _RecordTypeSelector extends StatelessWidget {
 }
 
 class _CategoryDropDownMenu extends StatelessWidget {
-  final String? _dropdownValue;
-  final List<String>? _items;
-  final ValueChanged<String?>? _onChanged;
+  final Category? _dropdownValue;
+  final CategoryType _displayedType;
+  final ValueChanged<Category?>? _onChanged;
 
   const _CategoryDropDownMenu({
-    String? value,
-    required List<String>? items,
-    required ValueChanged<String?>? onChanged,
+    Category? value,
+    required CategoryType categoryType,
+    required ValueChanged<Category?>? onChanged,
     Key? key,
   })  : _dropdownValue = value,
-        _items = items,
+        _displayedType = categoryType,
         _onChanged = onChanged,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      value: _dropdownValue,
+    final state = context.watch<CategoryListState>();
+
+    final Text? disabledHint;
+    final List<DropdownMenuItem<Category>>? items;
+    if (state.hasFailure) {
+      disabledHint = Text(state.failure!.toString());
+      items = null;
+    } else if (state.isLoading) {
+      disabledHint = Text('Loading category settings...');
+      items = null;
+    } else {
+      disabledHint = null;
+
+      final UnmodifiableListView<Category> categories;
+      switch (_displayedType) {
+        case CategoryType.income:
+          categories = state.incomeCategories;
+          break;
+        case CategoryType.expense:
+          categories = state.expenseCategories;
+          break;
+      }
+      items = categories.map<DropdownMenuItem<Category>>((Category value) {
+        return DropdownMenuItem<Category>(
+          value: value,
+          child: Text(value.name),
+        );
+      }).toList();
+    }
+
+    return DropdownButton<Category>(
+      // [value] should be null to display [disabledHint]
+      // when failure has occurred or loading categories.
+      value: disabledHint != null ? null : _dropdownValue,
       hint: const Text('Select category'),
+      disabledHint: disabledHint,
       icon: const Icon(Icons.arrow_downward),
       elevation: 16,
       style: const TextStyle(color: Colors.deepPurple),
@@ -359,12 +378,9 @@ class _CategoryDropDownMenu extends StatelessWidget {
         height: 2,
         color: Colors.deepPurpleAccent,
       ),
-      items: _items?.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
+      // When failure has occurred or loading categories,
+      // [items] becomes null to disable this widget.
+      items: items,
       onChanged: _onChanged,
     );
   }
