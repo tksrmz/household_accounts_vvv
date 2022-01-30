@@ -3,6 +3,8 @@ import 'package:household_accounts/features/category-page/data/repositories/cate
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
+import 'package:household_accounts/features/input-page/data/repositories/record_repository.dart';
+import 'package:household_accounts/features/input-page/presentation/pages/input_page.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +13,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'features/category-page/domain/repositories/category_repository.dart';
 import 'features/category-page/domain/use-cases/add_category.dart';
 import 'features/category-page/domain/use-cases/update_category.dart';
+import 'features/input-page/domain/repositories/record_repository.dart';
+import 'features/input-page/domain/use-cases/add_record.dart';
 import 'features/property-viewer/data/repositories/property_repository.dart';
 import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'features/property-viewer/domain/use-cases/delete_property.dart';
@@ -83,16 +87,27 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // final recordRegisterPage = _HomeWidgetContent(
-    //   title: 'Input',
-    //   builder: () {
-    //     final RecordRepositoryInterface rrif = InMemoryRecordRepository();
-    //     final RecordRegisterInputPort rrip = RecordRegisterInputHandler(rrif);
-    //     final RecordRegisterController rrct = RecordRegisterController(rrip);
-    //     return RecordRegisterPage(rrct);
-    //   },
-    //   iconData: Icons.cloud,
-    // );
+    final recordRegisterPage = _HomeWidgetContent(
+      title: 'Input',
+      builder: () {
+        final RecordRepository repository = InMemoryRecordRepository();
+        return MultiProvider(
+          providers: [
+            Provider<AddIncomeRecordUseCase>(
+              create: (ctx) => AddIncomeRecordInteractor(repository),
+            ),
+            Provider<AddExpenseRecordUseCase>(
+              create: (ctx) => AddExpenseRecordInteractor(repository),
+            ),
+            Provider<AddTransferRecordUseCase>(
+              create: (ctx) => AddTransferRecordInteractor(repository),
+            ),
+          ],
+          child: RecordInputPage(),
+        );
+      },
+      iconData: Icons.cloud,
+    );
     //
     // final calenderViewPage = _HomeWidgetContent(
     //   title: 'Calendar',
@@ -180,7 +195,7 @@ class MyApp extends StatelessWidget {
       ),
       home: _HomeWidget(
         [
-          // recordRegisterPage,
+          recordRegisterPage,
           // calenderViewPage,
           propertyPage,
           categoryListPage,
