@@ -119,3 +119,44 @@ class AddExpenseRecordInteractor implements AddExpenseRecordUseCase {
     return result.replace(record);
   }
 }
+
+typedef AddTransferRecordUseCase
+    = UseCase<AddTransferRecordInput, TransferRecord>;
+
+class AddTransferRecordInput {
+  final DateTime recordDate;
+  final int amount;
+  final String note;
+  final String srcPropertyId;
+  final String destPropertyId;
+
+  AddTransferRecordInput(
+    this.recordDate,
+    this.amount,
+    this.note,
+    this.srcPropertyId,
+    this.destPropertyId,
+  );
+}
+
+class AddTransferRecordInteractor implements AddTransferRecordUseCase {
+  final RecordRepository _repository;
+
+  AddTransferRecordInteractor(this._repository);
+
+  @override
+  Future<Either<Failure, TransferRecord>> handle(
+    AddTransferRecordInput input,
+  ) async {
+    final record = TransferRecord(
+      UUID.generate(),
+      input.recordDate,
+      input.amount,
+      input.note,
+      input.srcPropertyId,
+      input.destPropertyId,
+    );
+    final result = await _repository.register(record);
+    return result.replace(record);
+  }
+}
