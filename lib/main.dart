@@ -7,6 +7,7 @@ import 'package:household_accounts/features/input-page/data/repositories/record_
 import 'package:household_accounts/features/input-page/presentation/pages/input_page.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
+import 'package:household_accounts/util/presentation/states/category_list.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -175,41 +176,35 @@ class MyApp extends StatelessWidget {
 
     final categoryListPage = _HomeWidgetContent(
       title: 'Categories',
-      builder: () {
-        return MultiProvider(
-          providers: [
-            Provider<RetrieveCategoriesUseCase>(
-              create: (ctx) =>
-                  RetrieveCategoriesInteractor(_categoryRepository),
-            ),
-            Provider<DeleteCategoryUseCase>(
-              create: (ctx) => DeleteCategoryInteractor(_categoryRepository),
-            ),
-            Provider<AddCategoryUseCase>(
-              create: (ctx) => AddCategoryInteractor(_categoryRepository),
-            ),
-            Provider<UpdateCategoryUseCase>(
-              create: (ctx) => UpdateCategoryInteractor(_categoryRepository),
-            ),
-          ],
-          child: CategoryListPage(),
-        );
-      },
+      builder: () => CategoryListPage(),
       iconData: Icons.accessibility,
     );
 
-    return MaterialApp(
-      title: 'Household Accounts',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: _HomeWidget(
-        [
-          recordRegisterPage,
-          // calenderViewPage,
-          propertyPage,
-          categoryListPage,
-        ],
+    // Provide states here which are used in the entire app.
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (ctx) => CategoryListState(
+            RetrieveCategoriesInteractor(_categoryRepository),
+            DeleteCategoryInteractor(_categoryRepository),
+            AddCategoryInteractor(_categoryRepository),
+            UpdateCategoryInteractor(_categoryRepository),
+          )..loadCategories(),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Household Accounts',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: _HomeWidget(
+          [
+            recordRegisterPage,
+            // calenderViewPage,
+            propertyPage,
+            categoryListPage,
+          ],
+        ),
       ),
     );
   }

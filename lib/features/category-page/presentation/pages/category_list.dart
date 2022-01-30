@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/category-page/domain/entities/category.dart';
-import 'package:household_accounts/features/category-page/domain/use-cases/add_category.dart';
-import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
-import 'package:household_accounts/features/category-page/domain/use-cases/retrieve_categories.dart';
-import 'package:household_accounts/features/category-page/domain/use-cases/update_category.dart';
-import 'package:household_accounts/features/category-page/presentation/states/category_page.dart';
+import 'package:household_accounts/util/presentation/states/category_list.dart';
 import 'package:household_accounts/util/presentation/widgets/delete_icon_button.dart';
 import 'package:household_accounts/util/presentation/widgets/failure.dart';
 import 'package:household_accounts/util/presentation/widgets/loading.dart';
@@ -18,15 +14,7 @@ class CategoryListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (ctx) => CategoryPageState(
-        context.read<RetrieveCategoriesUseCase>(),
-        context.read<DeleteCategoryUseCase>(),
-        context.read<AddCategoryUseCase>(),
-        context.read<UpdateCategoryUseCase>(),
-      )..loadCategories(),
-      child: _PageContents(),
-    );
+    return _PageContents();
   }
 }
 
@@ -35,7 +23,7 @@ class _PageContents extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<CategoryPageState>();
+    final state = context.watch<CategoryListState>();
 
     if (state.hasFailure) {
       return Center(
@@ -133,7 +121,7 @@ class _CategoryListItem extends StatelessWidget {
         _EditCategoryButton(categoryId: _category.id),
         DeleteIconButton(
           onPressed: () {
-            context.read<CategoryPageState>().deleteCategory(_category.id);
+            context.read<CategoryListState>().deleteCategory(_category.id);
           },
         ),
       ],
@@ -152,7 +140,7 @@ class _AddCategoryButton extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (newContext) => AddCategoryPage(
-              state: context.read<CategoryPageState>(),
+              state: context.read<CategoryListState>(),
             ),
           ),
         );
@@ -183,7 +171,7 @@ class _EditCategoryButton extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (newContext) => EditCategoryPage(
-              state: context.read<CategoryPageState>(),
+              state: context.read<CategoryListState>(),
               categoryId: _categoryId,
             ),
           ),
