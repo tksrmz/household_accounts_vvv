@@ -3,7 +3,7 @@ import 'package:household_accounts/features/input-page/domain/entities/record.da
 import 'package:household_accounts/features/input-page/domain/repositories/record_repository.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
-class InMemoryRecordRepository implements RecordRepository {
+class InMemoryRecordRepository implements RecordRepositoryOld {
   final _repository = [];
 
   @override

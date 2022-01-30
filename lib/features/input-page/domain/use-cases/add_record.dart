@@ -21,7 +21,7 @@ class AddRecordInput extends Equatable {
 }
 
 class AddRecordInteractor extends AddRecordUseCase {
-  final RecordRepository _repository;
+  final RecordRepositoryOld _repository;
 
   AddRecordInteractor(this._repository);
 

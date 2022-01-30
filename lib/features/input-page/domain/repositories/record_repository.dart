@@ -3,7 +3,7 @@ import 'package:household_accounts/features/input-page/domain/entities/record.da
 import 'package:household_accounts/util/failures/failure.dart';
 
 /// Base class for repositories that store [RecordOld]
-abstract class RecordRepository {
+abstract class RecordRepositoryOld {
   /// Registers the [value] in the repository.
   ///
   /// Fails when there is already a record that is identified by [value.id],
