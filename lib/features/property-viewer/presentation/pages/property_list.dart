@@ -6,7 +6,7 @@ import 'package:household_accounts/features/property-viewer/domain/use-cases/add
 import 'package:household_accounts/features/property-viewer/domain/use-cases/delete_property.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/retrieve_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
-import 'package:household_accounts/features/property-viewer/presentation/states/property_list.dart';
+import 'package:household_accounts/util/presentation/states/property_list.dart';
 import 'package:household_accounts/util/presentation/widgets/delete_icon_button.dart';
 import 'package:household_accounts/util/presentation/widgets/failure.dart';
 import 'package:household_accounts/util/presentation/widgets/loading.dart';
