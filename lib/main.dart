@@ -8,6 +8,7 @@ import 'package:household_accounts/features/input-page/presentation/pages/input_
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:household_accounts/util/presentation/states/category_list.dart';
+import 'package:household_accounts/util/presentation/states/property_list.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -151,26 +152,7 @@ class MyApp extends StatelessWidget {
 
     final propertyPage = _HomeWidgetContent(
       title: 'Balance',
-      builder: () {
-        return MultiProvider(
-          providers: [
-            Provider<RetrievePropertiesUseCase>(
-              create: (ctx) =>
-                  RetrievePropertiesInteractor(_propertyRepository),
-            ),
-            Provider<AddPropertiesUseCase>(
-              create: (ctx) => AddPropertyInteractor(_propertyRepository),
-            ),
-            Provider<UpdatePropertyUseCase>(
-              create: (ctx) => UpdatePropertyInteractor(_propertyRepository),
-            ),
-            Provider<DeletePropertiesUseCase>(
-              create: (ctx) => DeletePropertyInteractor(_propertyRepository),
-            ),
-          ],
-          child: PropertyListPage(),
-        );
-      },
+      builder: () => PropertyListPage(),
       iconData: Icons.access_alarm,
     );
 
@@ -190,6 +172,14 @@ class MyApp extends StatelessWidget {
             AddCategoryInteractor(_categoryRepository),
             UpdateCategoryInteractor(_categoryRepository),
           )..loadCategories(),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => PropertyListState(
+            RetrievePropertiesInteractor(_propertyRepository),
+            AddPropertyInteractor(_propertyRepository),
+            UpdatePropertyInteractor(_propertyRepository),
+            DeletePropertyInteractor(_propertyRepository),
+          )..loadProperties(),
         ),
       ],
       child: MaterialApp(
