@@ -39,3 +39,43 @@ class AddRecordInteractor extends AddRecordUseCase {
     return result.replace(record);
   }
 }
+
+typedef AddIncomeRecordUseCase = UseCase<AddIncomeRecordInput, IncomeRecord>;
+
+class AddIncomeRecordInput {
+  final DateTime recordDate;
+  final int amount;
+  final String note;
+  final String categoryId;
+  final String propertyId;
+
+  AddIncomeRecordInput(
+    this.recordDate,
+    this.amount,
+    this.note,
+    this.categoryId,
+    this.propertyId,
+  );
+}
+
+class AddIncomeRecordInteractor implements AddIncomeRecordUseCase {
+  final RecordRepository _repository;
+
+  AddIncomeRecordInteractor(this._repository);
+
+  @override
+  Future<Either<Failure, IncomeRecord>> handle(
+    AddIncomeRecordInput input,
+  ) async {
+    final record = IncomeRecord(
+      UUID.generate(),
+      input.recordDate,
+      input.amount,
+      input.note,
+      input.categoryId,
+      input.propertyId,
+    );
+    final result = await _repository.register(record);
+    return result.replace(record);
+  }
+}
