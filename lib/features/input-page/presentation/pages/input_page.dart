@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:household_accounts/features/category-page/domain/entities/category.dart';
 import 'package:household_accounts/features/input-page/domain/entities/record.dart';
 import 'package:household_accounts/features/input-page/domain/use-cases/add_record.dart';
+import 'package:household_accounts/features/property-viewer/domain/entities/property.dart';
 import 'package:household_accounts/util/presentation/states/category_list.dart';
+import 'package:household_accounts/util/presentation/states/property_list.dart';
 import 'package:household_accounts/util/string-parser.dart';
 import 'package:provider/provider.dart';
 
@@ -29,8 +31,8 @@ class _PageContentsState extends State<_PageContents> {
   String _amount = '';
   RecordType _recordType = RecordType.income;
   Category? _category;
-  String? _srcProperty;
-  String? _destProperty;
+  Property? _srcProperty;
+  Property? _destProperty;
   String _note = '';
 
   void _setRecordDateState(DateTime value) {
@@ -67,14 +69,14 @@ class _PageContentsState extends State<_PageContents> {
     });
   }
 
-  void _setSrcPropertyState(String? value) {
+  void _setSrcPropertyState(Property? value) {
     setState(() {
       _srcProperty = value;
       print('source property: $_srcProperty');
     });
   }
 
-  void _setDestPropertyState(String? value) {
+  void _setDestPropertyState(Property? value) {
     setState(() {
       _destProperty = value;
       print('destination property: $_destProperty');
@@ -96,7 +98,7 @@ class _PageContentsState extends State<_PageContents> {
           _amount.tryToInt() | 0,
           _note,
           _category!.id,
-          _srcProperty!,
+          _srcProperty!.id,
         ),
       );
     }
@@ -110,7 +112,7 @@ class _PageContentsState extends State<_PageContents> {
           _amount.tryToInt() | 0,
           _note,
           _category!.id,
-          _srcProperty!,
+          _srcProperty!.id,
         ),
       );
     }
@@ -123,8 +125,8 @@ class _PageContentsState extends State<_PageContents> {
           _recordDate,
           _amount.tryToInt() | 0,
           _note,
-          _srcProperty!,
-          _destProperty!,
+          _srcProperty!.id,
+          _destProperty!.id,
         ),
       );
     }
@@ -132,13 +134,6 @@ class _PageContentsState extends State<_PageContents> {
 
   @override
   Widget build(BuildContext context) {
-    // dummy data
-    List<String> dummyProperties = [
-      'bank',
-      'cash',
-      'credit',
-    ];
-
     return ListView(
       children: [
         _RecordDatePicker(
@@ -161,15 +156,13 @@ class _PageContentsState extends State<_PageContents> {
         ),
         _PropertyDropDownMenu(
           value: _srcProperty,
-          items: dummyProperties,
           onChanged: _setSrcPropertyState,
         ),
         _recordType == RecordType.transfer
             ? _PropertyDropDownMenu(
-          value: _destProperty,
-          items: dummyProperties,
-          onChanged: _setDestPropertyState,
-        )
+                value: _destProperty,
+                onChanged: _setDestPropertyState,
+              )
             : _CategoryDropDownMenu(
           value: _category,
                 categoryType: _recordType == RecordType.income
@@ -387,25 +380,36 @@ class _CategoryDropDownMenu extends StatelessWidget {
 }
 
 class _PropertyDropDownMenu extends StatelessWidget {
-  final String? _dropdownValue;
-  final List<String>? _items;
-  final ValueChanged<String?>? _onChanged;
+  final Property? _dropdownValue;
+  final ValueChanged<Property?>? _onChanged;
 
   const _PropertyDropDownMenu({
-    String? value,
-    required List<String>? items,
-    required ValueChanged<String?>? onChanged,
+    Property? value,
+    required ValueChanged<Property?>? onChanged,
     Key? key,
   })  : _dropdownValue = value,
-        _items = items,
         _onChanged = onChanged,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      value: _dropdownValue,
+    final state = context.watch<PropertyListState>();
+
+    final Text? disabledHint;
+    if (state.hasFailure) {
+      disabledHint = Text(state.failure!.toString());
+    } else if (state.isLoading) {
+      disabledHint = Text('Loading property settings...');
+    } else {
+      disabledHint = null;
+    }
+
+    return DropdownButton<Property>(
+      // [value] should be null to display [disabledHint]
+      // when failure has occurred or loading properties.
+      value: disabledHint != null ? null : _dropdownValue,
       hint: const Text('Select property'),
+      disabledHint: disabledHint,
       icon: const Icon(Icons.arrow_downward),
       elevation: 16,
       style: const TextStyle(color: Colors.deepPurple),
@@ -413,12 +417,18 @@ class _PropertyDropDownMenu extends StatelessWidget {
         height: 2,
         color: Colors.deepPurpleAccent,
       ),
-      items: _items?.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
+      // When failure has occurred or loading categories,
+      // [items] becomes null to disable this widget.
+      items: disabledHint != null
+          ? null
+          : state.properties
+              .map(
+                (value) => DropdownMenuItem<Property>(
+                  value: value,
+                  child: Text(value.name),
+                ),
+              )
+              .toList(),
       onChanged: _onChanged,
     );
   }
