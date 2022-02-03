@@ -1,4 +1,4 @@
-import 'package:household_accounts/features/category-page/domain/entities/category.dart';
+import 'package:household_accounts/util/domain/entities/category.dart';
 
 class CategoryModel extends Category {
   CategoryModel.fromJson(Map<String, Object?> json)

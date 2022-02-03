@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
-import 'package:household_accounts/features/category-page/domain/entities/category.dart';
+import 'package:household_accounts/util/domain/entities/category.dart';
 import 'package:household_accounts/features/input-page/domain/use-cases/add_record.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/presentation/states/category_list.dart';

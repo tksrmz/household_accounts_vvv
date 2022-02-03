@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:household_accounts/features/category-page/domain/entities/category.dart';
+import 'package:household_accounts/util/domain/entities/category.dart';
 
 typedef CategoryPropertiesHandler = void Function(
   TextEditingController nameContrller,

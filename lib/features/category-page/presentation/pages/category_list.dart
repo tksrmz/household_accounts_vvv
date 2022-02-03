@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:household_accounts/features/category-page/domain/entities/category.dart';
+import 'package:household_accounts/util/domain/entities/category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/add_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';

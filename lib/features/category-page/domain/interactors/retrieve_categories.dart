@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/features/category-page/domain/entities/category.dart';
+import 'package:household_accounts/util/domain/entities/category.dart';
 import 'package:household_accounts/features/category-page/domain/repositories/category_repository.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/util/failures/failure.dart';
