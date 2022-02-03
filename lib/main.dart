@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
-import 'package:household_accounts/features/category-page/domain/use-cases/retrieve_categories.dart';
+import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
 import 'package:household_accounts/features/input-page/data/repositories/record_repository.dart';
 import 'package:household_accounts/features/input-page/presentation/pages/input_page.dart';

@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:flutter/widgets.dart';
 import 'package:household_accounts/features/category-page/domain/entities/category.dart';
-import 'package:household_accounts/features/category-page/domain/use-cases/retrieve_categories.dart';
+import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
 import '../../use_case.dart';
