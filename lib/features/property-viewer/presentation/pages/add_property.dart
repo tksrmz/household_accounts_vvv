@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:household_accounts/util/presentation/states/property_list.dart';
+import 'package:household_accounts/features/property-viewer/presentation/states/property_list.dart';
 import 'package:household_accounts/features/property-viewer/presentation/widgets/property_editor.dart';
 
 class AddPropertyPage extends StatelessWidget {
