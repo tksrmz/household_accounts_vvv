@@ -4,16 +4,12 @@ import 'package:household_accounts/features/category-page/domain/repositories/ca
 import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/use_case.dart';
 
-abstract class RetrieveCategoriesUseCase
-    extends UseCase<NoParam, List<Category>> {
-  final CategoryRepository _repository;
-
-  RetrieveCategoriesUseCase(this._repository);
-}
+typedef RetrieveCategoriesUseCase = UseCase<NoParam, List<Category>>;
 
 class RetrieveCategoriesInteractor extends RetrieveCategoriesUseCase {
-  RetrieveCategoriesInteractor(CategoryRepository repository)
-      : super(repository);
+  final CategoryRepository _repository;
+
+  RetrieveCategoriesInteractor(this._repository);
 
   @override
   Future<Either<Failure, List<Category>>> handle(NoParam noParam) =>
