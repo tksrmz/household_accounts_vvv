@@ -2,6 +2,10 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/property-viewer/domain/entities/property.dart';
+import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
+import 'package:household_accounts/features/property-viewer/domain/use-cases/delete_property.dart';
+import 'package:household_accounts/features/property-viewer/domain/use-cases/retrieve_properties.dart';
+import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:household_accounts/util/presentation/states/property_list.dart';
 import 'package:household_accounts/util/presentation/widgets/delete_icon_button.dart';
 import 'package:household_accounts/util/presentation/widgets/failure.dart';
@@ -16,7 +20,15 @@ class PropertyListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _PageContents();
+    return ChangeNotifierProvider(
+      create: (ctx) => PropertyListState(
+        context.read<RetrievePropertiesUseCase>(),
+        context.read<AddPropertiesUseCase>(),
+        context.read<UpdatePropertyUseCase>(),
+        context.read<DeletePropertiesUseCase>(),
+      )..loadProperties(),
+      child: _PageContents(),
+    );
   }
 }
 
