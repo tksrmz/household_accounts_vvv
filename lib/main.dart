@@ -10,6 +10,7 @@ import 'package:household_accounts/features/property-viewer/domain/use-cases/upd
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'features/category-page/domain/interactors/retrieve_categories.dart';
 import 'features/category-page/domain/repositories/category_repository.dart';
 import 'features/category-page/domain/use-cases/add_category.dart';
 import 'features/category-page/domain/use-cases/update_category.dart';
