@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:household_accounts/features/category-page/presentation/states/category_page.dart';
 import 'package:household_accounts/features/category-page/presentation/widgets/category_editor.dart';
-import 'package:household_accounts/util/presentation/states/category_list.dart';
 
 class EditCategoryPage extends StatelessWidget {
-  final CategoryListState _state;
+  final CategoryPageState _state;
   final String _targetCategoryId;
 
   const EditCategoryPage({
-    required CategoryListState state,
+    required CategoryPageState state,
     required String categoryId,
     Key? key,
   })  : _state = state,
