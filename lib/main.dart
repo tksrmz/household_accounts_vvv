@@ -66,11 +66,7 @@ class _AppState extends State<App> {
 
         // Once complete, show your application
         if (snapshot.connectionState == ConnectionState.done) {
-          return MyApp(
-            recordRepository: InMemoryRecordRepository(),
-            propertyRepository: InMemoryPropertyRepository(),
-            categoryRepository: InMemoryCategoryRepository(),
-          );
+          return MyApp();
         }
 
         // Otherwise, show something whilst waiting for initialization to complete
@@ -90,19 +86,15 @@ class _AppState extends State<App> {
 }
 
 class MyApp extends StatelessWidget {
-  final RecordRepository _recordRepository;
-  final PropertyRepository _propertyRepository;
-  final CategoryRepository _categoryRepository;
+  late final RecordRepository _recordRepository;
+  late final PropertyRepository _propertyRepository;
+  late final CategoryRepository _categoryRepository;
 
-  const MyApp({
-    Key? key,
-    required RecordRepository recordRepository,
-    required PropertyRepository propertyRepository,
-    required CategoryRepository categoryRepository,
-  })  : _recordRepository = recordRepository,
-        _propertyRepository = propertyRepository,
-        _categoryRepository = categoryRepository,
-        super(key: key);
+  MyApp({Key? key}) : super(key: key) {
+    _propertyRepository = InMemoryPropertyRepository();
+    _recordRepository = InMemoryRecordRepository(_propertyRepository);
+    _categoryRepository = InMemoryCategoryRepository();
+  }
 
   // This widget is the root of your application.
   @override
