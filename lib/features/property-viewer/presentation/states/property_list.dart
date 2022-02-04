@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:household_accounts/features/property-viewer/domain/entities/property.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/delete_property.dart';
-import 'package:household_accounts/features/property-viewer/domain/use-cases/retrieve_properties.dart';
+import 'package:household_accounts/util/domain/use-cases/retrieve_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/use_case.dart';

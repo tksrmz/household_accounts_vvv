@@ -20,7 +20,7 @@ import 'features/property-viewer/data/repositories/property_repository.dart';
 import 'features/property-viewer/domain/interactors/retrieve_properties.dart';
 import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'features/property-viewer/domain/use-cases/delete_property.dart';
-import 'features/property-viewer/domain/use-cases/retrieve_properties.dart';
+import 'util/domain/use-cases/retrieve_properties.dart';
 import 'features/property-viewer/presentation/pages/property_list.dart';
 
 void main() {
