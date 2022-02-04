@@ -17,6 +17,7 @@ import 'features/category-page/domain/use-cases/update_category.dart';
 import 'features/input-page/domain/repositories/record_repository.dart';
 import 'features/input-page/domain/use-cases/add_record.dart';
 import 'features/property-viewer/data/repositories/property_repository.dart';
+import 'features/property-viewer/domain/interactors/retrieve_properties.dart';
 import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'features/property-viewer/domain/use-cases/delete_property.dart';
 import 'features/property-viewer/domain/use-cases/retrieve_properties.dart';

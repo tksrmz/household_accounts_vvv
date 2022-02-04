@@ -1,5 +1,7 @@
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
+import 'package:household_accounts/features/property-viewer/domain/entities/property.dart';
+import 'package:household_accounts/features/property-viewer/domain/use-cases/retrieve_properties.dart';
 import 'package:household_accounts/util/domain/entities/category.dart';
 import 'package:household_accounts/features/input-page/domain/entities/record.dart';
 import 'package:household_accounts/features/input-page/domain/use-cases/add_record.dart';
@@ -35,12 +37,15 @@ class _PageContentsState extends State<_PageContents> {
   String _note = '';
 
   late final Future<dartz.Either<Failure, List<Category>>> _categoriesFuture;
+  late final Future<dartz.Either<Failure, List<Property>>> _propertiesFuture;
 
   @override
   void initState() {
     super.initState();
     _categoriesFuture =
         context.read<RetrieveCategoriesUseCase>().handle(const NoParam());
+    _propertiesFuture =
+        context.read<RetrievePropertiesUseCase>().handle(const NoParam());
   }
 
   void _setRecordDateState(DateTime value) {
