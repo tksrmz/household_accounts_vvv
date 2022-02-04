@@ -13,5 +13,7 @@ abstract class UseCase<T, R> {
 
 /// Class for use cases that have no input and/or output.
 class NoParam extends Equatable {
+  const NoParam();
+
   List<Object> get props => const [];
 }

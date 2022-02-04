@@ -120,6 +120,10 @@ class MyApp extends StatelessWidget {
             Provider<AddTransferRecordUseCase>(
               create: (ctx) => AddTransferRecordInteractor(_recordRepository),
             ),
+            Provider<RetrieveCategoriesUseCase>(
+              create: (ctx) =>
+                  RetrieveCategoriesInteractor(_categoryRepository),
+            ),
           ],
           child: RecordInputPage(),
         );

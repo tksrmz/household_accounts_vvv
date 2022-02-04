@@ -1,7 +1,12 @@
+import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
+import 'package:household_accounts/util/domain/entities/category.dart';
 import 'package:household_accounts/features/input-page/domain/entities/record.dart';
 import 'package:household_accounts/features/input-page/domain/use-cases/add_record.dart';
+import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
+import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/string-parser.dart';
+import 'package:household_accounts/util/use_case.dart';
 import 'package:provider/provider.dart';
 
 class RecordInputPage extends StatelessWidget {
@@ -24,10 +29,19 @@ class _PageContentsState extends State<_PageContents> {
   DateTime _recordDate = DateTime.now();
   String _amount = '';
   RecordType _recordType = RecordType.income;
-  String? _category;
+  Category? _category;
   String? _srcProperty;
   String? _destProperty;
   String _note = '';
+
+  late final Future<dartz.Either<Failure, List<Category>>> _categoriesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoriesFuture =
+        context.read<RetrieveCategoriesUseCase>().handle(const NoParam());
+  }
 
   void _setRecordDateState(DateTime value) {
     setState(() {
@@ -56,7 +70,7 @@ class _PageContentsState extends State<_PageContents> {
     });
   }
 
-  void _setCategoryState(String? value) {
+  void _setCategoryState(Category? value) {
     setState(() {
       _category = value;
       print('category name: $_category');
@@ -91,7 +105,7 @@ class _PageContentsState extends State<_PageContents> {
           _recordDate,
           _amount.tryToInt() | 0,
           _note,
-          _category!,
+          _category!.id,
           _srcProperty!,
         ),
       );
@@ -105,7 +119,7 @@ class _PageContentsState extends State<_PageContents> {
           _recordDate,
           _amount.tryToInt() | 0,
           _note,
-          _category!,
+          _category!.id,
           _srcProperty!,
         ),
       );
@@ -129,26 +143,6 @@ class _PageContentsState extends State<_PageContents> {
   @override
   Widget build(BuildContext context) {
     // dummy data
-    List<String>? categories;
-    switch (_recordType) {
-      case RecordType.income:
-        categories = [
-          'aaa',
-          'bbb',
-          'ccc',
-        ];
-        break;
-      case RecordType.expense:
-        categories = [
-          '111',
-          '222',
-          '333',
-        ];
-        break;
-      case RecordType.transfer:
-        categories = null;
-        break;
-    }
     List<String> dummyProperties = [
       'bank',
       'cash',
@@ -182,13 +176,16 @@ class _PageContentsState extends State<_PageContents> {
         ),
         _recordType == RecordType.transfer
             ? _PropertyDropDownMenu(
-                value: _destProperty,
-                items: dummyProperties,
-                onChanged: _setDestPropertyState,
-              )
+          value: _destProperty,
+          items: dummyProperties,
+          onChanged: _setDestPropertyState,
+        )
             : _CategoryDropDownMenu(
+          categories: _categoriesFuture,
                 value: _category,
-                items: categories,
+                categoryType: _recordType == RecordType.income
+                    ? CategoryType.income
+                    : CategoryType.expense,
                 onChanged: _setCategoryState,
               ),
         _NoteTextField(
@@ -333,39 +330,84 @@ class _RecordTypeSelector extends StatelessWidget {
 }
 
 class _CategoryDropDownMenu extends StatelessWidget {
-  final String? _dropdownValue;
-  final List<String>? _items;
-  final ValueChanged<String?>? _onChanged;
+  final Future<dartz.Either<Failure, List<Category>>> _categories;
+  final Category? _value;
+  final CategoryType _displayedType;
+  final ValueChanged<Category?>? _onChanged;
 
   const _CategoryDropDownMenu({
-    String? value,
-    required List<String>? items,
-    required ValueChanged<String?>? onChanged,
     Key? key,
-  })  : _dropdownValue = value,
-        _items = items,
+    required Future<dartz.Either<Failure, List<Category>>> categories,
+    Category? value,
+    required CategoryType categoryType,
+    required ValueChanged<Category?>? onChanged,
+  })  : _categories = categories,
+        _value = value,
+        _displayedType = categoryType,
         _onChanged = onChanged,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      value: _dropdownValue,
-      hint: const Text('Select category'),
-      icon: const Icon(Icons.arrow_downward),
-      elevation: 16,
-      style: const TextStyle(color: Colors.deepPurple),
-      underline: Container(
-        height: 2,
-        color: Colors.deepPurpleAccent,
-      ),
-      items: _items?.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
+    return FutureBuilder<dartz.Either<Failure, List<Category>>>(
+      future: _categories,
+      builder: (context, snapshot) {
+        Category? value;
+        Text? disabledHint;
+        List<DropdownMenuItem<Category>>? items;
+        if (snapshot.hasData) {
+          // succeeded, but there may be a failure
+          snapshot.data!.fold(
+            (failure) {
+              // When there is a failure, [items] is set to null to disable [DropdownButton].
+              // Then, [value] is set to null to display [disabledHint].
+              value = null;
+              disabledHint = Text('Error: ${snapshot.error}');
+              items = null;
+            },
+            (categories) {
+              value = _value;
+              disabledHint = null;
+              items = categories
+                  .where((category) => category.type == _displayedType)
+                  .map<DropdownMenuItem<Category>>(
+                    (category) => DropdownMenuItem(
+                      value: category,
+                      child: Text(category.name),
+                    ),
+                  )
+                  .toList();
+            },
+          );
+        } else if (snapshot.hasError) {
+          // When an error was occurred, [items] is set to null to disable [DropdownButton].
+          // Then, [value] is set to null to display [disabledHint].
+          value = null;
+          disabledHint = Text('Error: ${snapshot.error}');
+          items = null;
+        } else {
+          // While loading, [items] is set to null to disable [DropdownButton].
+          // Then, [value] is set to null to display [disabledHint].
+          value = null;
+          disabledHint = Text('Loading...');
+          items = null;
+        }
+
+        return DropdownButton<Category>(
           value: value,
-          child: Text(value),
+          hint: const Text('Select category'),
+          disabledHint: disabledHint,
+          icon: const Icon(Icons.arrow_downward),
+          elevation: 16,
+          style: const TextStyle(color: Colors.deepPurple),
+          underline: Container(
+            height: 2,
+            color: Colors.deepPurpleAccent,
+          ),
+          items: items,
+          onChanged: _onChanged,
         );
-      }).toList(),
-      onChanged: _onChanged,
+      },
     );
   }
 }
