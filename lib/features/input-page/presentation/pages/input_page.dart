@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
-import 'package:household_accounts/features/property-viewer/domain/entities/property.dart';
+import 'package:household_accounts/util/domain/entities/property.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_properties.dart';
 import 'package:household_accounts/util/domain/entities/category.dart';
 import 'package:household_accounts/features/input-page/domain/entities/record.dart';

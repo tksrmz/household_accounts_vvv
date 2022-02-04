@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import 'package:household_accounts/features/property-viewer/domain/entities/property.dart';
+import 'package:household_accounts/util/domain/entities/property.dart';
 import 'package:household_accounts/features/property-viewer/domain/repositories/property_repository.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/use_case.dart';

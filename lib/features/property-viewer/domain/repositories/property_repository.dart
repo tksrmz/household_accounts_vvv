@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/features/property-viewer/domain/entities/property.dart';
+import 'package:household_accounts/util/domain/entities/property.dart';
 import 'package:household_accounts/util/domain/repositories/repository.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 

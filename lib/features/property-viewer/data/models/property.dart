@@ -1,4 +1,4 @@
-import 'package:household_accounts/features/property-viewer/domain/entities/property.dart';
+import 'package:household_accounts/util/domain/entities/property.dart';
 
 class PropertyModel extends Property {
   PropertyModel.fromJson(Map<String, Object?> json)
