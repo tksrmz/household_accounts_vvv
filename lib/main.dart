@@ -125,6 +125,10 @@ class MyApp extends StatelessWidget {
               create: (ctx) =>
                   RetrieveCategoriesInteractor(_categoryRepository),
             ),
+            Provider<RetrievePropertiesUseCase>(
+              create: (ctx) =>
+                  RetrievePropertiesInteractor(_propertyRepository),
+            ),
           ],
           child: RecordInputPage(),
         );

@@ -32,8 +32,8 @@ class _PageContentsState extends State<_PageContents> {
   String _amount = '';
   RecordType _recordType = RecordType.income;
   Category? _category;
-  String? _srcProperty;
-  String? _destProperty;
+  Property? _srcProperty;
+  Property? _destProperty;
   String _note = '';
 
   late final Future<dartz.Either<Failure, List<Category>>> _categoriesFuture;
@@ -82,14 +82,14 @@ class _PageContentsState extends State<_PageContents> {
     });
   }
 
-  void _setSrcPropertyState(String? value) {
+  void _setSrcPropertyState(Property? value) {
     setState(() {
       _srcProperty = value;
       print('source property: $_srcProperty');
     });
   }
 
-  void _setDestPropertyState(String? value) {
+  void _setDestPropertyState(Property? value) {
     setState(() {
       _destProperty = value;
       print('destination property: $_destProperty');
@@ -111,7 +111,7 @@ class _PageContentsState extends State<_PageContents> {
           _amount.tryToInt() | 0,
           _note,
           _category!.id,
-          _srcProperty!,
+          _srcProperty!.id,
         ),
       );
     }
@@ -125,7 +125,7 @@ class _PageContentsState extends State<_PageContents> {
           _amount.tryToInt() | 0,
           _note,
           _category!.id,
-          _srcProperty!,
+          _srcProperty!.id,
         ),
       );
     }
@@ -138,8 +138,8 @@ class _PageContentsState extends State<_PageContents> {
           _recordDate,
           _amount.tryToInt() | 0,
           _note,
-          _srcProperty!,
-          _destProperty!,
+          _srcProperty!.id,
+          _destProperty!.id,
         ),
       );
     }
@@ -147,13 +147,6 @@ class _PageContentsState extends State<_PageContents> {
 
   @override
   Widget build(BuildContext context) {
-    // dummy data
-    List<String> dummyProperties = [
-      'bank',
-      'cash',
-      'credit',
-    ];
-
     return ListView(
       children: [
         _RecordDatePicker(
@@ -175,16 +168,16 @@ class _PageContentsState extends State<_PageContents> {
               : () => _setRecordTypeState(RecordType.transfer),
         ),
         _PropertyDropDownMenu(
+          properties: _propertiesFuture,
           value: _srcProperty,
-          items: dummyProperties,
           onChanged: _setSrcPropertyState,
         ),
         _recordType == RecordType.transfer
             ? _PropertyDropDownMenu(
-          value: _destProperty,
-          items: dummyProperties,
-          onChanged: _setDestPropertyState,
-        )
+                properties: _propertiesFuture,
+                value: _destProperty,
+                onChanged: _setDestPropertyState,
+              )
             : _CategoryDropDownMenu(
           categories: _categoriesFuture,
                 value: _category,
@@ -418,39 +411,80 @@ class _CategoryDropDownMenu extends StatelessWidget {
 }
 
 class _PropertyDropDownMenu extends StatelessWidget {
-  final String? _dropdownValue;
-  final List<String>? _items;
-  final ValueChanged<String?>? _onChanged;
+  final Future<dartz.Either<Failure, List<Property>>> _properties;
+  final Property? _value;
+  final ValueChanged<Property?>? _onChanged;
 
   const _PropertyDropDownMenu({
-    String? value,
-    required List<String>? items,
-    required ValueChanged<String?>? onChanged,
     Key? key,
-  })  : _dropdownValue = value,
-        _items = items,
+    required Future<dartz.Either<Failure, List<Property>>> properties,
+    Property? value,
+    required ValueChanged<Property?>? onChanged,
+  })  : _properties = properties,
+        _value = value,
         _onChanged = onChanged,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      value: _dropdownValue,
-      hint: const Text('Select property'),
-      icon: const Icon(Icons.arrow_downward),
-      elevation: 16,
-      style: const TextStyle(color: Colors.deepPurple),
-      underline: Container(
-        height: 2,
-        color: Colors.deepPurpleAccent,
-      ),
-      items: _items?.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
+    return FutureBuilder<dartz.Either<Failure, List<Property>>>(
+      future: _properties,
+      builder: (context, snapshot) {
+        Property? value;
+        Text? disabledHint;
+        List<DropdownMenuItem<Property>>? items;
+        if (snapshot.hasData) {
+          // succeeded, but there may be a failure
+          snapshot.data!.fold(
+            (failure) {
+              // When there is a failure, [items] is set to null to disable [DropdownButton].
+              // Then, [value] is set to null to display [disabledHint].
+              value = null;
+              disabledHint = Text('Error: ${snapshot.error}');
+              items = null;
+            },
+            (properties) {
+              value = _value;
+              disabledHint = null;
+              items = properties
+                  .map<DropdownMenuItem<Property>>(
+                    (property) => DropdownMenuItem(
+                      value: property,
+                      child: Text(property.name),
+                    ),
+                  )
+                  .toList();
+            },
+          );
+        } else if (snapshot.hasError) {
+          // When an error was occurred, [items] is set to null to disable [DropdownButton].
+          // Then, [value] is set to null to display [disabledHint].
+          value = null;
+          disabledHint = Text('Error: ${snapshot.error}');
+          items = null;
+        } else {
+          // While loading, [items] is set to null to disable [DropdownButton].
+          // Then, [value] is set to null to display [disabledHint].
+          value = null;
+          disabledHint = Text('Loading...');
+          items = null;
+        }
+
+        return DropdownButton<Property>(
           value: value,
-          child: Text(value),
+          hint: const Text('Select property'),
+          disabledHint: disabledHint,
+          icon: const Icon(Icons.arrow_downward),
+          elevation: 16,
+          style: const TextStyle(color: Colors.deepPurple),
+          underline: Container(
+            height: 2,
+            color: Colors.deepPurpleAccent,
+          ),
+          items: items,
+          onChanged: _onChanged,
         );
-      }).toList(),
-      onChanged: _onChanged,
+      },
     );
   }
 }
