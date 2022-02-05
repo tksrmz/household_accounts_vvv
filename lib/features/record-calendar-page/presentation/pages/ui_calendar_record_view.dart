@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:household_accounts/entity/record.dart';
+import 'package:household_accounts/features/input-page/domain/entities/record.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/delete_record.dart';
 import 'package:household_accounts/features/record-calendar-page/presentation/states/calendar_record_model.dart';
 import 'package:household_accounts/features/record-calendar-page/presentation/states/daily_record_model.dart';
@@ -245,7 +245,7 @@ class _MinuteItem extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text('${_record.note}@${_record.category}'),
+          child: Text('${_record.note}'),
         ),
         Text('${_record.amount} yen'),
         OutlinedButton(
