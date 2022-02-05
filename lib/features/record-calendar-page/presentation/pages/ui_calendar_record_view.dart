@@ -3,7 +3,6 @@ import 'package:household_accounts/features/input-page/domain/entities/record.da
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/delete_record.dart';
 import 'package:household_accounts/features/record-calendar-page/presentation/states/calendar_record_model.dart';
 import 'package:household_accounts/features/record-calendar-page/presentation/states/daily_record_model.dart';
-import 'package:household_accounts/features/record-calendar-page/domain/use-cases/record_use_case.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
 import 'package:provider/provider.dart';
@@ -66,7 +65,7 @@ class _CalenderView extends StatelessWidget {
                       value: context.read<RetrieveDailyRecordsUseCase>(),
                     ),
                     Provider.value(
-                      value: context.read<RecordDeleteUseCase>(),
+                      value: context.read<DeleteRecordUseCase>(),
                     ),
                   ],
                   child: _DailyRecordMinute(year, month, day),

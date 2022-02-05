@@ -47,7 +47,7 @@ class InMemoryRecordRepository implements RecordRepository {
         record.recordDate.compareTo(begin) >= 0 &&
         record.recordDate.compareTo(end) < 0;
 
-    return Right(List.of(_repository.where(withinTheRange))..sort());
+    return Right(List.of(_repository.where(withinTheRange)));
   }
 
   bool _repositoryHasId(String id) {
