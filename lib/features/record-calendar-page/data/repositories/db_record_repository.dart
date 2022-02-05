@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/entity/record.dart';
-import 'package:household_accounts/use_case/uc_repository.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/repositories/uc_repository.dart';
 
 class InMemoryRecordRepository implements RecordRepositoryInterface {
   static final List<Record> _repository = [];

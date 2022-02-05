@@ -1,6 +1,6 @@
 import 'package:household_accounts/application-rules/use-cases/create_property.dart';
 import 'package:household_accounts/entity/property.dart';
-import 'package:household_accounts/use_case/uc_repository.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/repositories/uc_repository.dart';
 import 'package:household_accounts/util/uuid.dart';
 
 class CreatePropertyInteractor implements CreatePropertyUseCase {

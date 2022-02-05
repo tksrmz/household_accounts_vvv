@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/record.dart';
-import 'package:household_accounts/framework/model/calendar_record_model.dart';
-import 'package:household_accounts/framework/model/daily_record_model.dart';
-import 'package:household_accounts/use_case/record_use_case.dart';
-import 'package:household_accounts/use_case/retrieve_daily_records.dart';
-import 'package:household_accounts/use_case/retrieve_monthly_records.dart';
+import 'package:household_accounts/features/record-calendar-page/presentation/states/calendar_record_model.dart';
+import 'package:household_accounts/features/record-calendar-page/presentation/states/daily_record_model.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/use-cases/record_use_case.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
 import 'package:provider/provider.dart';
 
 class CalendarRecordViewPage2 extends StatelessWidget {

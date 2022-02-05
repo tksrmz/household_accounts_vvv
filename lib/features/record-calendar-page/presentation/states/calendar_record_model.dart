@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/record.dart';
-import 'package:household_accounts/use_case/retrieve_monthly_records.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
 
 class CalendarRecordModel with ChangeNotifier {
   // States

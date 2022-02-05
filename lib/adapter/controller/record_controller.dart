@@ -1,5 +1,5 @@
 import 'package:household_accounts/entity/record.dart';
-import 'package:household_accounts/use_case/record_use_case.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/use-cases/record_use_case.dart';
 
 class RecordRegisterController {
   final RecordRegisterInputPort _inputPort;

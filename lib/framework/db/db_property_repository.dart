@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/entity/property.dart';
-import 'package:household_accounts/use_case/uc_repository.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/repositories/uc_repository.dart';
 
 class InMemoryPropertyRepository implements PropertyRepository {
   final _repository = <Property>[

@@ -1,5 +1,5 @@
 import 'package:household_accounts/entity/record.dart';
-import 'package:household_accounts/use_case/uc_repository.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/repositories/uc_repository.dart';
 
 /// Used by controllers that wants to register [RecordRegisterInput].
 abstract class RecordRegisterInputPort {
