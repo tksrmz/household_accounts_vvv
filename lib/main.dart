@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
+import 'package:household_accounts/use_case/record_use_case.dart';
+import 'package:household_accounts/use_case/retrieve_daily_records.dart';
+import 'package:household_accounts/use_case/retrieve_monthly_records.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
 import 'package:household_accounts/features/input-page/data/repositories/record_repository.dart';
@@ -20,6 +23,8 @@ import 'features/property-viewer/data/repositories/property_repository.dart';
 import 'features/property-viewer/domain/interactors/retrieve_properties.dart';
 import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'features/property-viewer/domain/use-cases/delete_property.dart';
+import 'framework/db/db_record_repository.dart' as OldRecordDb;
+import 'framework/ui/ui_calendar_record_view.dart';
 import 'util/domain/use-cases/retrieve_properties.dart';
 import 'features/property-viewer/presentation/pages/property_list.dart';
 
@@ -127,28 +132,28 @@ class MyApp extends StatelessWidget {
       },
       iconData: Icons.cloud,
     );
-    //
-    // final calenderViewPage = _HomeWidgetContent(
-    //   title: 'Calendar',
-    //   builder: () {
-    //     final repository = InMemoryRecordRepository();
-    //     return MultiProvider(
-    //       providers: [
-    //         Provider<RetrieveMonthlyRecordsUseCase>(
-    //           create: (ctx) => RetrieveMonthlyRecordsInteractor(repository),
-    //         ),
-    //         Provider<RetrieveDailyRecordsUseCase>(
-    //           create: (ctx) => RetrieveDailyRecordsInteractor(repository),
-    //         ),
-    //         Provider<RecordDeleteUseCase>(
-    //           create: (ctx) => RecordDeleteInteractor(repository),
-    //         ),
-    //       ],
-    //       child: CalendarRecordViewPage2(),
-    //     );
-    //   },
-    //   iconData: Icons.beach_access,
-    // );
+
+    final calenderViewPage = _HomeWidgetContent(
+      title: 'Calendar',
+      builder: () {
+        final repository = OldRecordDb.InMemoryRecordRepository();
+        return MultiProvider(
+          providers: [
+            Provider<RetrieveMonthlyRecordsUseCase>(
+              create: (ctx) => RetrieveMonthlyRecordsInteractor(repository),
+            ),
+            Provider<RetrieveDailyRecordsUseCase>(
+              create: (ctx) => RetrieveDailyRecordsInteractor(repository),
+            ),
+            Provider<RecordDeleteUseCase>(
+              create: (ctx) => RecordDeleteInteractor(repository),
+            ),
+          ],
+          child: CalendarRecordViewPage2(),
+        );
+      },
+      iconData: Icons.beach_access,
+    );
 
     final propertyPage = _HomeWidgetContent(
       title: 'Balance',
@@ -208,7 +213,7 @@ class MyApp extends StatelessWidget {
       home: _HomeWidget(
         [
           recordRegisterPage,
-          // calenderViewPage,
+          calenderViewPage,
           propertyPage,
           categoryListPage,
         ],
