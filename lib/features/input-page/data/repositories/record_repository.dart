@@ -6,7 +6,7 @@ import 'package:household_accounts/util/domain/entities/property.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
 class InMemoryRecordRepository implements RecordRepository {
-  final _repository = [];
+  final _repository = <Record>[];
   final PropertyRepository _propertyRepository;
 
   InMemoryRecordRepository(this._propertyRepository);
@@ -24,6 +24,30 @@ class InMemoryRecordRepository implements RecordRepository {
     }
 
     return Left(RepositoryFailure());
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteById(String id) async {
+    _repository.removeWhere((record) => record.id == id);
+    return Right(unit);
+  }
+
+  @override
+  Future<Either<Failure, Record>> retrieveById(String id) async {
+    final index = _repository.indexWhere((record) => record.id == id);
+    return index >= 0 ? Right(_repository[index]) : Left(RepositoryFailure());
+  }
+
+  @override
+  Future<Either<Failure, List<Record>>> retrieveRecordsOf(
+    DateTime begin,
+    DateTime end,
+  ) async {
+    bool Function(Record) withinTheRange = (record) =>
+        record.recordDate.compareTo(begin) >= 0 &&
+        record.recordDate.compareTo(end) < 0;
+
+    return Right(List.of(_repository.where(withinTheRange))..sort());
   }
 
   bool _repositoryHasId(String id) {
