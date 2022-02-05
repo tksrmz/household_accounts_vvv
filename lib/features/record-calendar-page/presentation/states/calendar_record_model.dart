@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:household_accounts/entity/record.dart';
+import 'package:household_accounts/features/input-page/domain/entities/record.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
+import 'package:household_accounts/util/failures/failure.dart';
 
 class CalendarRecordModel with ChangeNotifier {
   // States
@@ -15,6 +16,9 @@ class CalendarRecordModel with ChangeNotifier {
 
   /// Whether loading [_records] from a repository.
   bool _isLoading;
+
+  /// Failure that will happen when connect to DB.
+  Failure? _failure;
 
   // Use cases
   late final RetrieveMonthlyRecordsUseCase _useCase;
@@ -31,19 +35,23 @@ class CalendarRecordModel with ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
-  void loadRecords() {
+  bool get hasFailure => _failure != null;
+
+  Failure? get failure => _failure;
+
+  Future<void> loadRecords() async {
+    _failure = null;
     _isLoading = true;
     notifyListeners();
 
-    _useCase.handle(RetrieveMonthlyRecordsInput(_year, _month)).then((records) {
-      _records = records;
-      _isLoading = false;
-      notifyListeners();
-    }).onError((error, stackTrace) {
-      _isLoading = false;
-      notifyListeners();
-      print(error);
-    });
+    final failureOrRecords =
+        await _useCase.handle(RetrieveMonthlyRecordsInput(_year, _month));
+    failureOrRecords.fold(
+      (failure) => _failure = failure,
+      (records) => _records = records,
+    );
+    _isLoading = false;
+    notifyListeners();
   }
 
   void incrementMonth() {
@@ -71,14 +79,12 @@ class CalendarRecordModel with ChangeNotifier {
   DailyRecordSummary recordAt(int day) {
     final int income = _records
         .where((element) =>
-            element.recordType == RecordType.income &&
-            element.dateOfRecord.day == day)
+            element.type == RecordType.income && element.recordDate.day == day)
         .fold<int>(
             0, (previousValue, element) => previousValue + element.amount);
     final int expense = _records
         .where((element) =>
-            element.recordType == RecordType.expense &&
-            element.dateOfRecord.day == day)
+            element.type == RecordType.expense && element.recordDate.day == day)
         .fold<int>(
             0, (previousValue, element) => previousValue + element.amount);
 

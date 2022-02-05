@@ -142,7 +142,8 @@ class MyApp extends StatelessWidget {
         return MultiProvider(
           providers: [
             Provider<RetrieveMonthlyRecordsUseCase>(
-              create: (ctx) => RetrieveMonthlyRecordsInteractor(repository),
+              create: (ctx) =>
+                  RetrieveMonthlyRecordsInteractor(_recordRepository),
             ),
             Provider<RetrieveDailyRecordsUseCase>(
               create: (ctx) =>
