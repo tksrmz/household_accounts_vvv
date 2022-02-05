@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/record.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/use-cases/delete_record.dart';
 import 'package:household_accounts/features/record-calendar-page/presentation/states/calendar_record_model.dart';
 import 'package:household_accounts/features/record-calendar-page/presentation/states/daily_record_model.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/record_use_case.dart';
@@ -201,7 +202,7 @@ class _DailyRecordMinute extends StatelessWidget {
         body: ChangeNotifierProvider(
           create: (ctx) => DailyRecordModel(
             context.read<RetrieveDailyRecordsUseCase>(),
-            context.read<RecordDeleteUseCase>(),
+            context.read<DeleteRecordUseCase>(),
           )..loadRecords(_year, _month, _day),
           child: _MinuteList(),
         ));

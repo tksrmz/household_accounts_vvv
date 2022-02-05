@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
-import 'package:household_accounts/features/record-calendar-page/domain/use-cases/record_use_case.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
@@ -23,9 +22,9 @@ import 'features/property-viewer/data/repositories/property_repository.dart';
 import 'features/property-viewer/domain/interactors/retrieve_properties.dart';
 import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'features/property-viewer/domain/use-cases/delete_property.dart';
-import 'features/record-calendar-page/data/repositories/db_record_repository.dart'
-    as OldRecordDb;
+import 'features/record-calendar-page/domain/interactors/delete_record.dart';
 import 'features/record-calendar-page/domain/interactors/retrieve_records.dart';
+import 'features/record-calendar-page/domain/use-cases/delete_record.dart';
 import 'features/record-calendar-page/presentation/pages/ui_calendar_record_view.dart';
 import 'util/domain/use-cases/retrieve_properties.dart';
 import 'features/property-viewer/presentation/pages/property_list.dart';
@@ -138,7 +137,6 @@ class MyApp extends StatelessWidget {
     final calenderViewPage = _HomeWidgetContent(
       title: 'Calendar',
       builder: () {
-        final repository = OldRecordDb.InMemoryRecordRepository();
         return MultiProvider(
           providers: [
             Provider<RetrieveMonthlyRecordsUseCase>(
@@ -149,8 +147,8 @@ class MyApp extends StatelessWidget {
               create: (ctx) =>
                   RetrieveDailyRecordsInteractor(_recordRepository),
             ),
-            Provider<RecordDeleteUseCase>(
-              create: (ctx) => RecordDeleteInteractor(repository),
+            Provider<DeleteRecordUseCase>(
+              create: (ctx) => DeleteRecordInteractor(_recordRepository),
             ),
           ],
           child: CalendarRecordViewPage2(),

@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:household_accounts/features/input-page/domain/entities/record.dart';
-import 'package:household_accounts/features/record-calendar-page/domain/use-cases/record_use_case.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/use-cases/delete_record.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
@@ -19,7 +19,7 @@ class DailyRecordModel with ChangeNotifier {
 
   // Use cases
   late final RetrieveDailyRecordsUseCase _retrieve;
-  late final RecordDeleteUseCase _delete;
+  late final DeleteRecordUseCase _delete;
 
   DailyRecordModel(this._retrieve, this._delete)
       : _records = List.empty(),
@@ -53,6 +53,6 @@ class DailyRecordModel with ChangeNotifier {
   void deleteById(String id) {
     _records.removeWhere((element) => element.id == id);
     notifyListeners();
-    _delete.deleteById(id);
+    _delete.handle(DeleteRecordInput(id));
   }
 }
