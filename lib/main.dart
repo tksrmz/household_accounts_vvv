@@ -25,6 +25,7 @@ import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'features/property-viewer/domain/use-cases/delete_property.dart';
 import 'features/record-calendar-page/data/repositories/db_record_repository.dart'
     as OldRecordDb;
+import 'features/record-calendar-page/domain/interactors/retrieve_records.dart';
 import 'features/record-calendar-page/presentation/pages/ui_calendar_record_view.dart';
 import 'util/domain/use-cases/retrieve_properties.dart';
 import 'features/property-viewer/presentation/pages/property_list.dart';
@@ -144,7 +145,8 @@ class MyApp extends StatelessWidget {
               create: (ctx) => RetrieveMonthlyRecordsInteractor(repository),
             ),
             Provider<RetrieveDailyRecordsUseCase>(
-              create: (ctx) => RetrieveDailyRecordsInteractor(repository),
+              create: (ctx) =>
+                  RetrieveDailyRecordsInteractor(_recordRepository),
             ),
             Provider<RecordDeleteUseCase>(
               create: (ctx) => RecordDeleteInteractor(repository),

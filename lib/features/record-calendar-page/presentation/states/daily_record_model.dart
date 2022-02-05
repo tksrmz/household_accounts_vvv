@@ -1,9 +1,10 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:household_accounts/entity/record.dart';
+import 'package:household_accounts/features/input-page/domain/entities/record.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/record_use_case.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
+import 'package:household_accounts/util/failures/failure.dart';
 
 class DailyRecordModel with ChangeNotifier {
   // States
@@ -12,6 +13,9 @@ class DailyRecordModel with ChangeNotifier {
 
   /// Whether loading [_records] from a repository.
   bool _isLoading;
+
+  /// Failure that will happen when connect to DB.
+  Failure? _failure;
 
   // Use cases
   late final RetrieveDailyRecordsUseCase _retrieve;
@@ -24,28 +28,26 @@ class DailyRecordModel with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   UnmodifiableListView get incomes => UnmodifiableListView(
-      _records.where((element) => element.recordType == RecordType.income));
+      _records.where((element) => element.type == RecordType.income));
 
   UnmodifiableListView get expenses => UnmodifiableListView(
-      _records.where((element) => element.recordType == RecordType.expense));
+      _records.where((element) => element.type == RecordType.expense));
 
-  void loadRecords(int year, int month, int day) {
+  bool get hasFailure => _failure != null;
+
+  Failure? get failure => _failure;
+
+  Future<void> loadRecords(int year, int month, int day) async {
+    _failure = null;
     _isLoading = true;
     notifyListeners();
 
-    _retrieve.handle(RetrieveDailyRecordsInput(year, month, day)).then(
-      (records) {
-        _records = records;
-        _isLoading = false;
-        notifyListeners();
-      },
-    ).onError(
-      (error, stackTrace) {
-        _isLoading = false;
-        notifyListeners();
-        print(error);
-      },
-    );
+    final failureOrRecords =
+        await _retrieve.handle(RetrieveDailyRecordsInput(year, month, day));
+    failureOrRecords.fold(
+        (failure) => _failure = failure, (records) => _records = records);
+    _isLoading = false;
+    notifyListeners();
   }
 
   void deleteById(String id) {
