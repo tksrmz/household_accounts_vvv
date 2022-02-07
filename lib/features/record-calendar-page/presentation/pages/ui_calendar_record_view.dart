@@ -76,8 +76,9 @@ class _CalenderView extends StatelessWidget {
           child: Column(
             children: [
               Text('$day'),
-              Text('${summary.totalIncome}'),
-              Text('${summary.totalExpense}'),
+              Text('+${summary.totalIncome}'),
+              Text('-${summary.totalExpense}'),
+              Text('=${summary.totalTransfer}'),
             ],
           ),
         );
@@ -227,6 +228,10 @@ class _MinuteList extends StatelessWidget {
     if (model.expenses.isNotEmpty) {
       minutes.add(const Text('EXPENSES'));
       model.expenses.forEach((element) => minutes.add(_MinuteItem(element)));
+    }
+    if (model.transfer.isNotEmpty) {
+      minutes.add(const Text('TRANSFER'));
+      model.transfer.forEach((element) => minutes.add(_MinuteItem(element)));
     }
     return minutes.isEmpty
         ? Center(child: Text('No record'))

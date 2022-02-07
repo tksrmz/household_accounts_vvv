@@ -87,8 +87,14 @@ class CalendarRecordModel with ChangeNotifier {
             element.type == RecordType.expense && element.recordDate.day == day)
         .fold<int>(
             0, (previousValue, element) => previousValue + element.amount);
+    final int transfer = _records
+        .where((element) =>
+            element.type == RecordType.transfer &&
+            element.recordDate.day == day)
+        .fold<int>(
+            0, (previousValue, element) => previousValue + element.amount);
 
-    return DailyRecordSummary(_year, _month, day, income, expense);
+    return DailyRecordSummary(_year, _month, day, income, expense, transfer);
   }
 }
 
@@ -98,9 +104,16 @@ class DailyRecordSummary {
   final int _day;
   final int _totalIncome;
   final int _totalExpense;
+  final int _totalTransfer;
 
-  DailyRecordSummary(this._year, this._month, this._day, this._totalIncome,
-      this._totalExpense);
+  DailyRecordSummary(
+    this._year,
+    this._month,
+    this._day,
+    this._totalIncome,
+    this._totalExpense,
+    this._totalTransfer,
+  );
 
   int get year => _year;
 
@@ -111,4 +124,6 @@ class DailyRecordSummary {
   int get totalIncome => _totalIncome;
 
   int get totalExpense => _totalExpense;
+
+  int get totalTransfer => _totalTransfer;
 }

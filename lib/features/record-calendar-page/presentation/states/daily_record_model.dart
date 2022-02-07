@@ -33,6 +33,9 @@ class DailyRecordModel with ChangeNotifier {
   UnmodifiableListView get expenses => UnmodifiableListView(
       _records.where((element) => element.type == RecordType.expense));
 
+  UnmodifiableListView get transfer => UnmodifiableListView(
+      _records.where((element) => element.type == RecordType.transfer));
+
   bool get hasFailure => _failure != null;
 
   Failure? get failure => _failure;
