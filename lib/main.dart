@@ -150,6 +150,10 @@ class MyApp extends StatelessWidget {
             Provider<DeleteRecordUseCase>(
               create: (ctx) => DeleteRecordInteractor(_recordRepository),
             ),
+            Provider<RetrieveCategoriesUseCase>(
+              create: (ctx) =>
+                  RetrieveCategoriesInteractor(_categoryRepository),
+            ),
           ],
           child: CalendarRecordViewPage2(),
         );

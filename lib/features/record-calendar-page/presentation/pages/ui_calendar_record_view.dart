@@ -5,6 +5,7 @@ import 'package:household_accounts/features/record-calendar-page/presentation/st
 import 'package:household_accounts/features/record-calendar-page/presentation/states/daily_record_model.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
+import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:provider/provider.dart';
 
 class CalendarRecordViewPage2 extends StatelessWidget {
@@ -51,7 +52,7 @@ class _CalenderView extends StatelessWidget {
     return _Calendar(
       model.year,
       model.month,
-      (int year, int month, int day) {
+          (int year, int month, int day) {
         final summary = model.recordAt(day);
 
         return TextButton(
@@ -66,6 +67,9 @@ class _CalenderView extends StatelessWidget {
                     ),
                     Provider.value(
                       value: context.read<DeleteRecordUseCase>(),
+                    ),
+                    Provider.value(
+                      value: context.read<RetrieveCategoriesUseCase>(),
                     ),
                   ],
                   child: _DailyRecordMinute(year, month, day),
@@ -203,7 +207,10 @@ class _DailyRecordMinute extends StatelessWidget {
           create: (ctx) => DailyRecordModel(
             context.read<RetrieveDailyRecordsUseCase>(),
             context.read<DeleteRecordUseCase>(),
-          )..loadRecords(_year, _month, _day),
+            context.read<RetrieveCategoriesUseCase>(),
+          )
+            ..loadRecords(_year, _month, _day)
+            ..loadCategories(),
           child: _MinuteList(),
         ));
   }
@@ -220,18 +227,32 @@ class _MinuteList extends StatelessWidget {
       return const Text('loading');
     }
 
+    final forEachAction =
+        (List<Widget> children, Record record) => children.add(
+              _MinuteItem(
+                record: record,
+                categoryName: model.categoryNameOf(record),
+              ),
+            );
+
     final minutes = <Widget>[];
     if (model.incomes.isNotEmpty) {
       minutes.add(const Text('INCOMES'));
-      model.incomes.forEach((element) => minutes.add(_MinuteItem(element)));
+      model.incomes.forEach(
+        (element) => forEachAction(minutes, element),
+      );
     }
     if (model.expenses.isNotEmpty) {
       minutes.add(const Text('EXPENSES'));
-      model.expenses.forEach((element) => minutes.add(_MinuteItem(element)));
+      model.expenses.forEach(
+        (element) => forEachAction(minutes, element),
+      );
     }
     if (model.transfer.isNotEmpty) {
       minutes.add(const Text('TRANSFER'));
-      model.transfer.forEach((element) => minutes.add(_MinuteItem(element)));
+      model.transfer.forEach(
+        (element) => forEachAction(minutes, element),
+      );
     }
     return minutes.isEmpty
         ? Center(child: Text('No record'))
@@ -241,15 +262,22 @@ class _MinuteList extends StatelessWidget {
 
 class _MinuteItem extends StatelessWidget {
   final Record _record;
+  final String _categoryName;
 
-  const _MinuteItem(this._record, {Key? key}) : super(key: key);
+  const _MinuteItem({
+    Key? key,
+    required Record record,
+    required String categoryName,
+  })  : _record = record,
+        _categoryName = categoryName,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(
-          child: Text('${_record.note}'),
+          child: Text('${_record.note}@$_categoryName'),
         ),
         Text('${_record.amount} yen'),
         OutlinedButton(
