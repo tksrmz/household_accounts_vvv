@@ -1,6 +1,8 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:household_accounts/features/input-page/domain/entities/record.dart';
+import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
 import 'package:household_accounts/util/domain/entities/category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/add_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
@@ -12,6 +14,7 @@ import 'package:household_accounts/util/use_case.dart';
 class CategoryPageState with ChangeNotifier {
   // States
   List<Category> _categories = [];
+  List<Record> _records = [];
   bool _isLoading = false;
   Failure? _failure;
 
@@ -20,12 +23,14 @@ class CategoryPageState with ChangeNotifier {
   final DeleteCategoryUseCase _deleteCategoryUseCase;
   final AddCategoryUseCase _addCategoryUseCase;
   final UpdateCategoryUseCase _updateCategoryUseCase;
+  final RetrieveMonthlyRecordsUseCase _retrieveMonthlyRecordsUseCase;
 
   CategoryPageState(
     this._retrieveCategoriesUseCase,
     this._deleteCategoryUseCase,
     this._addCategoryUseCase,
     this._updateCategoryUseCase,
+    this._retrieveMonthlyRecordsUseCase,
   );
 
   UnmodifiableListView<Category> get incomeCategories => UnmodifiableListView(
@@ -57,6 +62,23 @@ class CategoryPageState with ChangeNotifier {
       (categories) {
         _categories = categories;
       },
+    );
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> loadRecordsOfThisMonth() async {
+    _isLoading = true;
+    _failure = null;
+    notifyListeners();
+
+    final now = DateTime.now();
+    final failureOrRecords = await _retrieveMonthlyRecordsUseCase.handle(
+      RetrieveMonthlyRecordsInput(now.year, now.month),
+    );
+    failureOrRecords.fold(
+      (failure) => _failure = failure,
+      (records) => _records = records,
     );
     _isLoading = false;
     notifyListeners();
@@ -137,4 +159,17 @@ class CategoryPageState with ChangeNotifier {
     });
     notifyListeners();
   }
+
+  int calculateExpenseFrom(Category category) =>
+      _records.where((record) => record is ExpenseRecord).fold<int>(
+        0,
+        (previousValue, record) {
+          final expense = record as ExpenseRecord;
+          final amount = expense.categoryId == category.id ? expense.amount : 0;
+          return previousValue + amount;
+        },
+      );
+
+  int calculateBalanceOf(Category category) =>
+      category.budget - calculateExpenseFrom(category);
 }

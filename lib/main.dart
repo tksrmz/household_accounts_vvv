@@ -204,6 +204,10 @@ class MyApp extends StatelessWidget {
             Provider<UpdateCategoryUseCase>(
               create: (ctx) => UpdateCategoryInteractor(_categoryRepository),
             ),
+            Provider<RetrieveMonthlyRecordsUseCase>(
+              create: (ctx) =>
+                  RetrieveMonthlyRecordsInteractor(_recordRepository),
+            ),
           ],
           child: CategoryListPage(),
         );
