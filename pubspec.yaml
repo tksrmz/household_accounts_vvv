@@ -39,6 +39,9 @@ dependencies:
   # Object equality
   equatable: ^2.0.0
 
+  # UUID generation
+  uuid: 3.0.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
