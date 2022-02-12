@@ -1,10 +1,15 @@
-class UUID {
-  static int _id = 1;
+import 'package:uuid/uuid.dart' as pkg;
 
-  static String generate([int version = 4]) {
-    // Mock
-    final stringId = _id.toString();
-    _id++;
-    return stringId;
+class UUID {
+  static String generate([int version = 1]) {
+    const uuid = const pkg.Uuid();
+    if (version == 1) {
+      return uuid.v1();
+    }
+    if (version == 4) {
+      return uuid.v4();
+    }
+
+    return '';
   }
 }
