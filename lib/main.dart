@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
+import 'package:household_accounts/features/category-page/data/repositories/firebase_category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
@@ -139,12 +140,14 @@ class AuthGate extends StatelessWidget {
 class MyAppHome extends StatelessWidget {
   late final RecordRepository _recordRepository;
   late final PropertyRepository _propertyRepository;
+  late final FirebaseCategoryRepository _firebaseCategoryRepository;
   late final CategoryRepository _categoryRepository;
 
   MyAppHome({Key? key}) : super(key: key) {
     _propertyRepository = InMemoryPropertyRepository();
     _recordRepository = InMemoryRecordRepository(_propertyRepository);
     _categoryRepository = InMemoryCategoryRepository();
+    _firebaseCategoryRepository = FirebaseCategoryRepository();
   }
 
   // This widget is the root of your application.
@@ -166,7 +169,7 @@ class MyAppHome extends StatelessWidget {
             ),
             Provider<RetrieveCategoriesUseCase>(
               create: (ctx) =>
-                  RetrieveCategoriesInteractor(_categoryRepository),
+                  RetrieveCategoriesInteractor(_firebaseCategoryRepository),
             ),
             Provider<RetrievePropertiesUseCase>(
               create: (ctx) =>
