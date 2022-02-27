@@ -6,14 +6,12 @@ class CategoryModel extends Category {
           json['id'] as String,
           json['name'] as String,
           RecordTypeParsing.fromShortString(json['type'] as String),
-          json['budget'] as int,
+          0, // Budget is not used (currently).
         );
 
   Map<String, Object?> toJson() =>
       {
         'id': id,
         'name': name,
-        'type': type.toShortString(),
-        'budget': budget,
-      };
+        'type': type.toShortString()};
 }
