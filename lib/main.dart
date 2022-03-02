@@ -11,6 +11,7 @@ import 'package:household_accounts/features/property-viewer/domain/use-cases/add
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'features/category-page/domain/interactors/retrieve_categories.dart';
 import 'features/category-page/domain/repositories/category_repository.dart';
@@ -29,67 +30,70 @@ import 'features/record-calendar-page/presentation/pages/ui_calendar_record_view
 import 'util/domain/use-cases/retrieve_properties.dart';
 import 'features/property-viewer/presentation/pages/property_list.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(App());
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp());
 }
 
-/// We are using a StatefulWidget such that we only create the [Future] once,
-/// no matter how many times our widget rebuild.
-/// If we used a [StatelessWidget], in the event where [App] is rebuilt, that
-/// would re-initialize FlutterFire and make our application re-enter loading state,
-/// which is undesired.
-class App extends StatefulWidget {
-  // Create the initialization Future outside of `build`:
-  @override
-  _AppState createState() => _AppState();
-}
-
-class _AppState extends State<App> {
-  /// The future is part of the state of our widget. We should not call `initializeApp`
-  /// directly inside [build].
-  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      // Initialize FlutterFire:
-      future: _initialization,
-      builder: (context, snapshot) {
-        // Check for errors
-        if (snapshot.hasError) {
-          return MaterialApp(
-              title: 'Household Accounts',
-              theme: ThemeData(
-                primarySwatch: Colors.blue,
-              ),
-              home: Scaffold(
-                body: Center(
-                  child: Text('Something went wrong'),
-                ),
-              ));
-        }
-
-        // Once complete, show your application
-        if (snapshot.connectionState == ConnectionState.done) {
-          return MyApp();
-        }
-
-        // Otherwise, show something whilst waiting for initialization to complete
-        return MaterialApp(
-            title: 'Household Accounts',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-            ),
-            home: Scaffold(
-              body: Center(
-                child: Text('Loading'),
-              ),
-            ));
-      },
-    );
-  }
-}
+// /// We are using a StatefulWidget such that we only create the [Future] once,
+// /// no matter how many times our widget rebuild.
+// /// If we used a [StatelessWidget], in the event where [App] is rebuilt, that
+// /// would re-initialize FlutterFire and make our application re-enter loading state,
+// /// which is undesired.
+// class App extends StatefulWidget {
+//   // Create the initialization Future outside of `build`:
+//   @override
+//   _AppState createState() => _AppState();
+// }
+//
+// class _AppState extends State<App> {
+//   /// The future is part of the state of our widget. We should not call `initializeApp`
+//   /// directly inside [build].
+//   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return FutureBuilder(
+//       // Initialize FlutterFire:
+//       future: _initialization,
+//       builder: (context, snapshot) {
+//         // Check for errors
+//         if (snapshot.hasError) {
+//           return MaterialApp(
+//               title: 'Household Accounts',
+//               theme: ThemeData(
+//                 primarySwatch: Colors.blue,
+//               ),
+//               home: Scaffold(
+//                 body: Center(
+//                   child: Text('Something went wrong'),
+//                 ),
+//               ));
+//         }
+//
+//         // Once complete, show your application
+//         if (snapshot.connectionState == ConnectionState.done) {
+//           return MyApp();
+//         }
+//
+//         // Otherwise, show something whilst waiting for initialization to complete
+//         return MaterialApp(
+//             title: 'Household Accounts',
+//             theme: ThemeData(
+//               primarySwatch: Colors.blue,
+//             ),
+//             home: Scaffold(
+//               body: Center(
+//                 child: Text('Loading'),
+//               ),
+//             ));
+//       },
+//     );
+//   }
+// }
 
 class MyApp extends StatelessWidget {
   late final RecordRepository _recordRepository;
