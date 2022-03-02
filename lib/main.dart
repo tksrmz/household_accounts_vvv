@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutterfire_ui/auth.dart';
 import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
@@ -96,11 +98,46 @@ void main() async {
 // }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Household Accounts',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: AuthGate(),
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        // User is not signed in
+        if (!snapshot.hasData) {
+          return SignInScreen(providerConfigs: []);
+        }
+
+        // Render your application if authenticated
+        return MyAppHome();
+      },
+    );
+  }
+}
+
+class MyAppHome extends StatelessWidget {
   late final RecordRepository _recordRepository;
   late final PropertyRepository _propertyRepository;
   late final CategoryRepository _categoryRepository;
 
-  MyApp({Key? key}) : super(key: key) {
+  MyAppHome({Key? key}) : super(key: key) {
     _propertyRepository = InMemoryPropertyRepository();
     _recordRepository = InMemoryRecordRepository(_propertyRepository);
     _categoryRepository = InMemoryCategoryRepository();
@@ -219,19 +256,13 @@ class MyApp extends StatelessWidget {
       iconData: Icons.accessibility,
     );
 
-    return MaterialApp(
-      title: 'Household Accounts',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: _HomeWidget(
-        [
-          recordRegisterPage,
-          calenderViewPage,
-          propertyPage,
-          categoryListPage,
-        ],
-      ),
+    return _HomeWidget(
+      [
+        recordRegisterPage,
+        calenderViewPage,
+        propertyPage,
+        categoryListPage,
+      ],
     );
   }
 }
@@ -242,10 +273,9 @@ class _HomeWidgetContent {
   final Widget Function() builder;
   final IconData iconData;
 
-  _HomeWidgetContent(
-      {required String title,
-      required Widget Function() builder,
-      required IconData iconData})
+  _HomeWidgetContent({required String title,
+    required Widget Function() builder,
+    required IconData iconData})
       : title = title,
         builder = builder,
         iconData = iconData;
@@ -270,7 +300,7 @@ class _HomeWidgetState extends State<_HomeWidget> {
 
     _bottomNavigationBarItems = List.of(
       widget.contents.map<BottomNavigationBarItem>(
-        (e) => BottomNavigationBarItem(
+            (e) => BottomNavigationBarItem(
           icon: Icon(e.iconData),
           label: e.title,
         ),
