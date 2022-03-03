@@ -277,10 +277,11 @@ class _HomeWidgetContent {
   final Widget Function() builder;
   final IconData iconData;
 
-  _HomeWidgetContent({required String title,
+  _HomeWidgetContent({
+    required String title,
     required Widget Function() builder,
-    required IconData iconData})
-      : title = title,
+    required IconData iconData,
+  })  : title = title,
         builder = builder,
         iconData = iconData;
 }
