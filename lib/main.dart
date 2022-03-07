@@ -324,8 +324,14 @@ class _HomeWidgetState extends State<_HomeWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.contents[_selectedIndex].title),
-      ),
+        title: Text(widget.contents[_selectedIndex].title), actions: [
+        IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () {
+            FirebaseAuth.instance.signOut();
+          },
+        ),
+      ]),
       body: widget.contents[_selectedIndex].builder(),
       bottomNavigationBar: BottomNavigationBar(
         items: _bottomNavigationBarItems,
