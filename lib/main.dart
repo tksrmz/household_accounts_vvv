@@ -305,7 +305,7 @@ class _HomeWidgetState extends State<_HomeWidget> {
 
     _bottomNavigationBarItems = List.of(
       widget.contents.map<BottomNavigationBarItem>(
-            (e) => BottomNavigationBarItem(
+        (e) => BottomNavigationBarItem(
           icon: Icon(e.iconData),
           label: e.title,
         ),
@@ -324,14 +324,16 @@ class _HomeWidgetState extends State<_HomeWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.contents[_selectedIndex].title), actions: [
-        IconButton(
-          icon: const Icon(Icons.logout),
-          onPressed: () {
-            FirebaseAuth.instance.signOut();
-          },
-        ),
-      ]),
+        title: Text(widget.contents[_selectedIndex].title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+            },
+          ),
+        ],
+      ),
       body: widget.contents[_selectedIndex].builder(),
       bottomNavigationBar: BottomNavigationBar(
         items: _bottomNavigationBarItems,
