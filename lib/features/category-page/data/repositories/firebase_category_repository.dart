@@ -29,9 +29,9 @@ class FirebaseCategoryRepository implements CategoryRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> register(Category value) {
-    // TODO: implement register
-    throw UnimplementedError();
+  Future<Either<Failure, Unit>> register(Category value) async {
+    await _categoriesCollectionRef.doc(value.id).set(value);
+    return Right(unit);
   }
 
   @override
