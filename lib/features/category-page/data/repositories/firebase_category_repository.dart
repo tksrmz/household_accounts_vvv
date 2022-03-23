@@ -5,16 +5,22 @@ import 'package:household_accounts/features/category-page/domain/repositories/ca
 import 'package:household_accounts/util/domain/entities/category.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
+import '../../../../constants/firebase/firebase_constant.dart';
+
 class FirebaseCategoryRepository implements CategoryRepository {
-  final _categoriesCollectionRef = FirebaseFirestore.instance
-      .collection('/notes/sample-note/categories')
-      .withConverter<CategoryModel>(
-        fromFirestore: (snapshot, _) {
-          final json = snapshot.data()!;
-          return CategoryModel.fromIdAndJson(snapshot.id, json);
-        },
-        toFirestore: (categoryModel, _) => categoryModel.toJson(),
-      );
+  late final _categoriesCollectionRef;
+
+  FirebaseCategoryRepository.of(String uid)
+      : _categoriesCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_CATEGORIES')
+            .withConverter<CategoryModel>(
+              fromFirestore: (snapshot, _) {
+                final json = snapshot.data()!;
+                return CategoryModel.fromIdAndJson(snapshot.id, json);
+              },
+              toFirestore: (categoryModel, _) => categoryModel.toJson(),
+            );
 
   @override
   Future<Either<Failure, Unit>> deleteById(String id) {

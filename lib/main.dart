@@ -131,7 +131,7 @@ class AuthGate extends StatelessWidget {
         }
 
         // Render your application if authenticated
-        return MyAppHome();
+        return MyAppHome(uid: snapshot.data!.uid);
       },
     );
   }
@@ -143,11 +143,11 @@ class MyAppHome extends StatelessWidget {
   late final FirebaseCategoryRepository _firebaseCategoryRepository;
   late final CategoryRepository _categoryRepository;
 
-  MyAppHome({Key? key}) : super(key: key) {
+  MyAppHome({Key? key, required String uid}) : super(key: key) {
     _propertyRepository = InMemoryPropertyRepository();
     _recordRepository = InMemoryRecordRepository(_propertyRepository);
     _categoryRepository = InMemoryCategoryRepository();
-    _firebaseCategoryRepository = FirebaseCategoryRepository();
+    _firebaseCategoryRepository = FirebaseCategoryRepository.of(uid);
   }
 
   // This widget is the root of your application.
