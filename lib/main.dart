@@ -241,13 +241,14 @@ class MyAppHome extends StatelessWidget {
           providers: [
             Provider<RetrieveCategoriesUseCase>(
               create: (ctx) =>
-                  RetrieveCategoriesInteractor(_categoryRepository),
+                  RetrieveCategoriesInteractor(_firebaseCategoryRepository),
             ),
             Provider<DeleteCategoryUseCase>(
               create: (ctx) => DeleteCategoryInteractor(_categoryRepository),
             ),
             Provider<AddCategoryUseCase>(
-              create: (ctx) => AddCategoryInteractor(_categoryRepository),
+              create: (ctx) =>
+                  AddCategoryInteractor(_firebaseCategoryRepository),
             ),
             Provider<UpdateCategoryUseCase>(
               create: (ctx) => UpdateCategoryInteractor(_categoryRepository),
