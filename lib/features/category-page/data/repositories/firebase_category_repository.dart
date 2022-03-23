@@ -11,8 +11,7 @@ class FirebaseCategoryRepository implements CategoryRepository {
       .withConverter<CategoryModel>(
         fromFirestore: (snapshot, _) {
           final json = snapshot.data()!;
-          json['id'] = snapshot.id;
-          return CategoryModel.fromJson(json);
+          return CategoryModel.fromIdAndJson(snapshot.id, json);
         },
         toFirestore: (categoryModel, _) => categoryModel.toJson(),
       );
