@@ -8,7 +8,7 @@ import 'package:household_accounts/util/failures/failure.dart';
 import '../../../../constants/firebase/firebase_constant.dart';
 
 class FirebaseCategoryRepository implements CategoryRepository {
-  late final _categoriesCollectionRef;
+  late final CollectionReference<Category> _categoriesCollectionRef;
 
   FirebaseCategoryRepository.of(String uid)
       : _categoriesCollectionRef = FirebaseFirestore.instance
