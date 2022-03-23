@@ -14,12 +14,13 @@ class FirebaseCategoryRepository implements CategoryRepository {
       : _categoriesCollectionRef = FirebaseFirestore.instance
             .collection(
                 '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_CATEGORIES')
-            .withConverter<CategoryModel>(
+            .withConverter<Category>(
               fromFirestore: (snapshot, _) {
                 final json = snapshot.data()!;
                 return CategoryModel.fromIdAndJson(snapshot.id, json);
               },
-              toFirestore: (categoryModel, _) => categoryModel.toJson(),
+              toFirestore: (category, _) =>
+                  CategoryModel.fromCategory(category).toJson(),
             );
 
   @override

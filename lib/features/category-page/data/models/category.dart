@@ -1,6 +1,14 @@
 import 'package:household_accounts/util/domain/entities/category.dart';
 
 class CategoryModel extends Category {
+  CategoryModel.fromCategory(Category category)
+      : super(
+          category.id,
+          category.name,
+          category.type,
+          category.budget,
+        );
+
   CategoryModel.fromIdAndJson(String id, Map<String, Object?> json)
       : super(
           id,
