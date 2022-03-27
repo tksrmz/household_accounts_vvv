@@ -24,9 +24,9 @@ class FirebaseCategoryRepository implements CategoryRepository {
             );
 
   @override
-  Future<Either<Failure, Unit>> deleteById(String id) {
-    // TODO: implement deleteById
-    throw UnimplementedError();
+  Future<Either<Failure, Unit>> deleteById(String id) async {
+    await _categoriesCollectionRef.doc(id).delete();
+    return Right(unit);
   }
 
   @override
