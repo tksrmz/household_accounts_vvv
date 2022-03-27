@@ -56,8 +56,11 @@ class FirebaseCategoryRepository implements CategoryRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> update(Category newValue) {
-    // TODO: implement update
-    throw UnimplementedError();
+  Future<Either<Failure, Unit>> update(Category newValue) async {
+    // TODO: Add error handling in the case a document with [newValue.id] doesn't exist.
+    await _categoriesCollectionRef
+        .doc(newValue.id)
+        .update(CategoryModel.fromCategory(newValue).toJson());
+    return Right(unit);
   }
 }
