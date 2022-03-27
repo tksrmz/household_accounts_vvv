@@ -36,9 +36,14 @@ class FirebaseCategoryRepository implements CategoryRepository {
   }
 
   @override
-  Future<Either<Failure, Category>> retrieveById(String id) {
-    // TODO: implement retrieveById
-    throw UnimplementedError();
+  Future<Either<Failure, Category>> retrieveById(String id) async {
+    DocumentSnapshot<Category> snapshot =
+        await _categoriesCollectionRef.doc(id).get();
+    if (!snapshot.exists) {
+      return Left(RepositoryFailure());
+    }
+
+    return Right(snapshot.data()!);
   }
 
   @override
