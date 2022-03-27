@@ -98,14 +98,15 @@ class _CategoryEditorState extends State<CategoryEditor> {
         break;
     }
 
-    children.add(TextField(
-      controller: _budgetController,
-      decoration: InputDecoration(
-        labelText: 'Budget',
-        border: OutlineInputBorder(),
-      ),
-      keyboardType: TextInputType.number,
-    ));
+    /// Remove this widget temporally as budget feature is not implemented now (220327)
+    // children.add(TextField(
+    //   controller: _budgetController,
+    //   decoration: InputDecoration(
+    //     labelText: 'Budget',
+    //     border: OutlineInputBorder(),
+    //   ),
+    //   keyboardType: TextInputType.number,
+    // ));
 
     children.add(
       ElevatedButton(

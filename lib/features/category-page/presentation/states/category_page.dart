@@ -109,6 +109,9 @@ class CategoryPageState with ChangeNotifier {
   ) async {
     _failure = null;
 
+    // Add this code as TextField to input budget string is removed.
+    budgetString = '0';
+
     // FIXME: Validate [budgetString] before parsing it into int.
     final budget = int.parse(budgetString);
 
