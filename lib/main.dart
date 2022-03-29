@@ -4,6 +4,7 @@ import 'package:flutterfire_ui/auth.dart';
 import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
 import 'package:household_accounts/features/category-page/data/repositories/firebase_category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
+import 'package:household_accounts/features/property-viewer/data/repositories/firebase_property_repository.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
@@ -139,6 +140,7 @@ class AuthGate extends StatelessWidget {
 
 class MyAppHome extends StatelessWidget {
   late final RecordRepository _recordRepository;
+  late final FirebasePropertyRepository _firebasePropertyRepository;
   late final PropertyRepository _propertyRepository;
   late final FirebaseCategoryRepository _firebaseCategoryRepository;
   late final CategoryRepository _categoryRepository;
@@ -148,6 +150,7 @@ class MyAppHome extends StatelessWidget {
     _recordRepository = InMemoryRecordRepository(_propertyRepository);
     _categoryRepository = InMemoryCategoryRepository();
     _firebaseCategoryRepository = FirebaseCategoryRepository.of(uid);
+    _firebasePropertyRepository = FirebasePropertyRepository.of(uid);
   }
 
   // This widget is the root of your application.
@@ -216,16 +219,19 @@ class MyAppHome extends StatelessWidget {
           providers: [
             Provider<RetrievePropertiesUseCase>(
               create: (ctx) =>
-                  RetrievePropertiesInteractor(_propertyRepository),
+                  RetrievePropertiesInteractor(_firebasePropertyRepository),
             ),
             Provider<AddPropertiesUseCase>(
-              create: (ctx) => AddPropertyInteractor(_propertyRepository),
+              create: (ctx) =>
+                  AddPropertyInteractor(_firebasePropertyRepository),
             ),
             Provider<UpdatePropertyUseCase>(
-              create: (ctx) => UpdatePropertyInteractor(_propertyRepository),
+              create: (ctx) =>
+                  UpdatePropertyInteractor(_firebasePropertyRepository),
             ),
             Provider<DeletePropertiesUseCase>(
-              create: (ctx) => DeletePropertyInteractor(_propertyRepository),
+              create: (ctx) =>
+                  DeletePropertyInteractor(_firebasePropertyRepository),
             ),
           ],
           child: PropertyListPage(),
