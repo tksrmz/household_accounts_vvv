@@ -8,6 +8,13 @@ class PropertyModel extends Property {
           json['amount'] as int,
         );
 
+  PropertyModel.fromIdAndJson(String id, Map<String, Object?> json)
+      : super(
+          id,
+          json['name'] as String,
+          json['amount'] as int,
+        );
+
   Map<String, Object?> toJson() => {
         'id': id,
         'name': name,
