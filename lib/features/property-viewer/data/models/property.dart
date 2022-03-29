@@ -23,7 +23,6 @@ class PropertyModel extends Property {
         );
 
   Map<String, Object?> toJson() => {
-        'id': id,
         'name': name,
         'amount': amount,
       };
