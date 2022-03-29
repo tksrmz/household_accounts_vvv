@@ -1,36 +1,67 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:household_accounts/features/property-viewer/data/models/property.dart';
 import 'package:household_accounts/features/property-viewer/domain/repositories/property_repository.dart';
 import 'package:household_accounts/util/domain/entities/property.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
+import '../../../../constants/firebase/firebase_constant.dart';
+
 class FirebasePropertyRepository implements PropertyRepository {
+  late final CollectionReference<Property> _propertiesCollectionRef;
+
+  FirebasePropertyRepository.of(String uid)
+      : _propertiesCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES')
+            .withConverter<Property>(
+              fromFirestore: (snapshot, _) {
+                final json = snapshot.data()!;
+                return PropertyModel.fromIdAndJson(snapshot.id, json);
+              },
+              toFirestore: (property, _) =>
+                  PropertyModel.fromProperty(property).toJson(),
+            );
+
   @override
-  Future<Either<Failure, Unit>> deleteById(String id) {
-    // TODO: implement deleteById
-    throw UnimplementedError();
+  Future<Either<Failure, Unit>> deleteById(String id) async {
+    await _propertiesCollectionRef.doc(id).delete();
+    return Right(unit);
   }
 
   @override
-  Future<Either<Failure, Unit>> register(Property value) {
-    // TODO: implement register
-    throw UnimplementedError();
+  Future<Either<Failure, Unit>> register(Property value) async {
+    await _propertiesCollectionRef.doc(value.id).set(value);
+    return Right(unit);
   }
 
   @override
-  Future<Either<Failure, Property>> retrieveById(String id) {
-    // TODO: implement retrieveById
-    throw UnimplementedError();
+  Future<Either<Failure, Property>> retrieveById(String id) async {
+    DocumentSnapshot<Property> snapshot =
+        await _propertiesCollectionRef.doc(id).get();
+    if (!snapshot.exists) {
+      return Left(RepositoryFailure());
+    }
+
+    return Right(snapshot.data()!);
   }
 
   @override
-  Future<Either<Failure, List<Property>>> retrieveProperties() {
-    // TODO: implement retrieveProperties
-    throw UnimplementedError();
+  Future<Either<Failure, List<Property>>> retrieveProperties() async {
+    List<QueryDocumentSnapshot<Property>> properties =
+        await _propertiesCollectionRef
+            .orderBy('name')
+            .get()
+            .then((snapshot) => snapshot.docs);
+    return Right(List.of(properties.map((prop) => prop.data())));
   }
 
   @override
-  Future<Either<Failure, Unit>> update(Property newValue) {
-    // TODO: implement update
-    throw UnimplementedError();
+  Future<Either<Failure, Unit>> update(Property newValue) async {
+    // TODO: Add error handling in the case a document with [newValue.id] doesn't exist.
+    await _propertiesCollectionRef
+        .doc(newValue.id)
+        .update(PropertyModel.fromProperty(newValue).toJson());
+    return Right(unit);
   }
 }
