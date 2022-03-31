@@ -4,6 +4,7 @@ import 'package:flutterfire_ui/auth.dart';
 import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
 import 'package:household_accounts/features/category-page/data/repositories/firebase_category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
+import 'package:household_accounts/features/input-page/data/repositories/firebase_record_repository.dart';
 import 'package:household_accounts/features/property-viewer/data/repositories/firebase_property_repository.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
@@ -139,6 +140,7 @@ class AuthGate extends StatelessWidget {
 }
 
 class MyAppHome extends StatelessWidget {
+  late final RecordRepositoryNew _firebaseRecordRepository;
   late final RecordRepository _recordRepository;
   late final FirebasePropertyRepository _firebasePropertyRepository;
   late final PropertyRepository _propertyRepository;
@@ -149,6 +151,7 @@ class MyAppHome extends StatelessWidget {
     _propertyRepository = InMemoryPropertyRepository();
     _recordRepository = InMemoryRecordRepository(_propertyRepository);
     _categoryRepository = InMemoryCategoryRepository();
+    _firebaseRecordRepository = FirebaseRecordRepository.of(uid);
     _firebaseCategoryRepository = FirebaseCategoryRepository.of(uid);
     _firebasePropertyRepository = FirebasePropertyRepository.of(uid);
   }
@@ -162,13 +165,16 @@ class MyAppHome extends StatelessWidget {
         return MultiProvider(
           providers: [
             Provider<AddIncomeRecordUseCase>(
-              create: (ctx) => AddIncomeRecordInteractor(_recordRepository),
+              create: (ctx) =>
+                  AddIncomeRecordInteractor(_firebaseRecordRepository),
             ),
             Provider<AddExpenseRecordUseCase>(
-              create: (ctx) => AddExpenseRecordInteractor(_recordRepository),
+              create: (ctx) =>
+                  AddExpenseRecordInteractor(_firebaseRecordRepository),
             ),
             Provider<AddTransferRecordUseCase>(
-              create: (ctx) => AddTransferRecordInteractor(_recordRepository),
+              create: (ctx) =>
+                  AddTransferRecordInteractor(_firebaseRecordRepository),
             ),
             Provider<RetrieveCategoriesUseCase>(
               create: (ctx) =>
@@ -176,7 +182,7 @@ class MyAppHome extends StatelessWidget {
             ),
             Provider<RetrievePropertiesUseCase>(
               create: (ctx) =>
-                  RetrievePropertiesInteractor(_propertyRepository),
+                  RetrievePropertiesInteractor(_firebasePropertyRepository),
             ),
           ],
           child: RecordInputPage(),

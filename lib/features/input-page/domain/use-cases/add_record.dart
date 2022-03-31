@@ -59,7 +59,7 @@ class AddIncomeRecordInput {
 }
 
 class AddIncomeRecordInteractor implements AddIncomeRecordUseCase {
-  final RecordRepository _repository;
+  final RecordRepositoryNew _repository;
 
   AddIncomeRecordInteractor(this._repository);
 
@@ -99,7 +99,7 @@ class AddExpenseRecordInput {
 }
 
 class AddExpenseRecordInteractor implements AddExpenseRecordUseCase {
-  final RecordRepository _repository;
+  final RecordRepositoryNew _repository;
 
   AddExpenseRecordInteractor(this._repository);
 
@@ -140,7 +140,7 @@ class AddTransferRecordInput {
 }
 
 class AddTransferRecordInteractor implements AddTransferRecordUseCase {
-  final RecordRepository _repository;
+  final RecordRepositoryNew _repository;
 
   AddTransferRecordInteractor(this._repository);
 
