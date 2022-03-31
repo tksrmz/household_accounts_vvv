@@ -145,8 +145,6 @@ create/view/edit/delete property(properties).
 }
 ```
 
-**WIP FROM HERE TO THE BOTTOM**
-
 ### /personalNotes/{uid}/calendars/{calendar-id}
 
 What is a trigger to create this document? Changes of months, the first creation of record in the
@@ -155,30 +153,27 @@ month, or... what?
 This document is a summary on a monthly basis. This document relates to use cases: view records(
 monthly), create/edit/delete a record.
 
-`incomes` and `expenses` are updated in transaction.
-`updatedAt` is used in verification of transactions.
+`summart` is updated from background function on writing income/expense/transfer records.
 
 ```text
 <calendar-id>: {
   year: integer,
   month: integer,
-  daysInMonth: integer,
-  incomes: Map<int, int> // keys are 1-31, and values are total incomes of the day.
-  expenses: Map<int, int> // keys are 1-31, and values are total expenses of the day.
-  updatedAt: timestamp
+  summary: Map< string: { // keys are in form of `dXXX` where XXX is day of the month(1-31)
+    income: int,
+    expense: int,
+    transfer: int
+  }> // max length is 31
 }
 ```
 
-### /personalNotes/{uid}/calendars/{calendar-id}/incomeRecords/{record-id}
+### /personalNotes/{uid}/incomes/{record-id}
 
-`updatedAt` is used in verification of transactions.
 `createdAt` is used to sort.
 
 ```text
 <record-id>: {
-  year: integer,
-  month: integer,
-  day: integer,
+  date: timestamp
   type: string (fixed to "income")
   amount: integer,
   property: {
@@ -187,22 +182,18 @@ monthly), create/edit/delete a record.
   category: {
     ref: reference to category
   },
-  memo: string,
-  updatedAt: timestamp,
+  note: string,
   createdAt: timestamp
 }
 ```
 
-### /personalNotes/{uid}/calendars/{calendar-id}/expenseRecords/{record-id}
+### /personalNotes/{uid}/expenses/{record-id}
 
-`updatedAt` is used in verification of transactions.
 `createdAt` is used to sort.
 
 ```text
 <record-id>: {
-  year: integer,
-  month: integer,
-  day: integer,
+  date: timestamp
   type: string (fixed to "expense")
   amount: integer,
   property: {
@@ -211,22 +202,18 @@ monthly), create/edit/delete a record.
   category: {
     ref: reference to category
   },
-  memo: string,
-  updatedAt: timestamp,
+  note: string,
   createdAt: timestamp
 }
 ```
 
-### /personalNotes/{uid}/calendars/{calendar-id}/transferRecords/{record-id}
+### /personalNotes/{uid}/calendars/{calendar-id}/transfers/{record-id}
 
-`updatedAt` is used in verification of transactions.
 `createdAt` is used to sort.
 
 ```text
 <record-id>: {
-  year: integer,
-  month: integer,
-  day: integer,
+  date: timestamp
   type: string (fixed to "transfer")
   amount: integer,
   fromProperty: {
@@ -235,149 +222,7 @@ monthly), create/edit/delete a record.
   toProperty: {
     ref: reference to property
   },
-  memo: string,
-  updatedAt: timestamp,
-  createdAt: timestamp
-}
-```
-
-### /notes/{note-id}
-
-This document contains general information of the note. This document relates to use cases: use
-registration and pair.
-
-When a new user is registered or two users becomes a pair, this document is automatically created by
-admin SDK.
-
-* Allow the owners to read(only get).
-* Allow admin SDK to create.
-
-```text
-<note-id>: {
-  owners: Array of references to users that own this note. This length of array is one or two,
-  createdAt: timestamp
-}
-```
-
-### /notes/{note-id}/categories/{category-id}
-
-This document contains information of the category. This document relates to use cases:
-create/view/edit/delete category(categories).
-
-`type` is one of `income` or `expense`.
-`name` is used to sort on display.
-
-* Allow the owners to read(get and list).
-* Allow the owners to write(create, update and delete).
-
-```text
-<category-id>: {
-  name: string,
-  type: string
-}
-```
-
-### /notes/{note-id}/properties/{property-id}
-
-This document contains information of the property. This document relates to use cases:
-create/view/edit/delete property(properties).
-
-`name` is used to sort on display.
-
-* Allow the owners to read(get and list).
-* Allow the owners to write(create, update and delete).
-
-```text
-<property-id>: {
-  name: string,
-  amount: integer
-}
-```
-
-### /notes/{note-id}/calendars/{calendar-id}
-
-`incomes` and `expenses` are updated in transaction.
-`updatedAt` is used in verification of transactions.
-
-```text
-<calendar-id>: {
-  year: integer,
-  month: integer,
-  daysInMonth: integer,
-  incomes: Map<int, int> // keys are 1-31, and values are total incomes of the day.
-  expenses: Map<int, int> // keys are 1-31, and values are total expenses of the day.
-  updatedAt: timestamp
-}
-```
-
-### /notes/{note-id}/calendars/{calendar-id}/incomeRecords/{record-id}
-
-`updatedAt` is used in verification of transactions.
-`createdAt` is used to sort.
-
-```text
-<record-id>: {
-  year: integer,
-  month: integer,
-  day: integer,
-  type: string (fixed to "income")
-  amount: integer,
-  property: {
-    ref: reference to property
-  },
-  category: {
-    ref: reference to category
-  },
-  memo: string,
-  updatedAt: timestamp,
-  createdAt: timestamp
-}
-```
-
-### /notes/{note-id}/calendars/{calendar-id}/expenseRecords/{record-id}
-
-`updatedAt` is used in verification of transactions.
-`createdAt` is used to sort.
-
-```text
-<record-id>: {
-  year: integer,
-  month: integer,
-  day: integer,
-  type: string (fixed to "expense")
-  amount: integer,
-  property: {
-    ref: reference to property
-  },
-  category: {
-    ref: reference to category
-  },
-  memo: string,
-  updatedAt: timestamp,
-  createdAt: timestamp
-}
-```
-
-### /notes/{note-id}/calendars/{calendar-id}/transferRecords/{record-id}
-
-`updatedAt` is used in verification of transactions.
-`createdAt` is used to sort.
-
-```text
-<record-id>: {
-  year: integer,
-  month: integer,
-  day: integer,
-  type: string (fixed to "transfer")
-  amount: integer,
-  fromProperty: {
-    ref: reference to property
-  },
-  toProperty: {
-    ref: reference to property
-  },
-  memo: string,
-  updatedAt: timestamp,
+  note: string,
   createdAt: timestamp
 }
 ```
