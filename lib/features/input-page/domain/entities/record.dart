@@ -24,6 +24,10 @@ class RecordOld extends Identifiable {
 
 enum RecordType { income, expense, transfer }
 
+extension RecordTypeParsing on RecordType {
+  String toShortString() => this.toString().split('.').last;
+}
+
 abstract class Record extends Identifiable {
   final DateTime recordDate;
   final int amount;
