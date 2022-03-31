@@ -8,19 +8,18 @@ import 'package:household_accounts/util/failures/failure.dart';
 import '../../../../constants/firebase/firebase_constant.dart';
 
 class FirebasePropertyRepository implements PropertyRepository {
-  late final CollectionReference<Property> _propertiesCollectionRef;
+  late final CollectionReference<PropertyModel> _propertiesCollectionRef;
 
   FirebasePropertyRepository.of(String uid)
       : _propertiesCollectionRef = FirebaseFirestore.instance
             .collection(
                 '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES')
-            .withConverter<Property>(
+            .withConverter<PropertyModel>(
               fromFirestore: (snapshot, _) {
                 final json = snapshot.data()!;
                 return PropertyModel.fromIdAndJson(snapshot.id, json);
               },
-              toFirestore: (property, _) =>
-                  PropertyModel.fromProperty(property).toJson(),
+              toFirestore: (propertyModel, _) => propertyModel.toJson(),
             );
 
   @override
@@ -31,13 +30,15 @@ class FirebasePropertyRepository implements PropertyRepository {
 
   @override
   Future<Either<Failure, Unit>> register(Property value) async {
-    await _propertiesCollectionRef.doc(value.id).set(value);
+    await _propertiesCollectionRef
+        .doc(value.id)
+        .set(PropertyModel.fromProperty(value));
     return Right(unit);
   }
 
   @override
   Future<Either<Failure, Property>> retrieveById(String id) async {
-    DocumentSnapshot<Property> snapshot =
+    DocumentSnapshot<PropertyModel> snapshot =
         await _propertiesCollectionRef.doc(id).get();
     if (!snapshot.exists) {
       return Left(RepositoryFailure());
@@ -48,7 +49,7 @@ class FirebasePropertyRepository implements PropertyRepository {
 
   @override
   Future<Either<Failure, List<Property>>> retrieveProperties() async {
-    List<QueryDocumentSnapshot<Property>> properties =
+    List<QueryDocumentSnapshot<PropertyModel>> properties =
         await _propertiesCollectionRef
             .orderBy('name')
             .get()
