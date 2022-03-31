@@ -8,19 +8,18 @@ import 'package:household_accounts/util/failures/failure.dart';
 import '../../../../constants/firebase/firebase_constant.dart';
 
 class FirebaseCategoryRepository implements CategoryRepository {
-  late final CollectionReference<Category> _categoriesCollectionRef;
+  late final CollectionReference<CategoryModel> _categoriesCollectionRef;
 
   FirebaseCategoryRepository.of(String uid)
       : _categoriesCollectionRef = FirebaseFirestore.instance
             .collection(
                 '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_CATEGORIES')
-            .withConverter<Category>(
+            .withConverter<CategoryModel>(
               fromFirestore: (snapshot, _) {
                 final json = snapshot.data()!;
                 return CategoryModel.fromIdAndJson(snapshot.id, json);
               },
-              toFirestore: (category, _) =>
-                  CategoryModel.fromCategory(category).toJson(),
+              toFirestore: (categoryModel, _) => categoryModel.toJson(),
             );
 
   @override
@@ -31,13 +30,15 @@ class FirebaseCategoryRepository implements CategoryRepository {
 
   @override
   Future<Either<Failure, Unit>> register(Category value) async {
-    await _categoriesCollectionRef.doc(value.id).set(value);
+    await _categoriesCollectionRef
+        .doc(value.id)
+        .set(CategoryModel.fromCategory(value));
     return Right(unit);
   }
 
   @override
   Future<Either<Failure, Category>> retrieveById(String id) async {
-    DocumentSnapshot<Category> snapshot =
+    DocumentSnapshot<CategoryModel> snapshot =
         await _categoriesCollectionRef.doc(id).get();
     if (!snapshot.exists) {
       return Left(RepositoryFailure());
@@ -48,7 +49,7 @@ class FirebaseCategoryRepository implements CategoryRepository {
 
   @override
   Future<Either<Failure, List<Category>>> retrieveCategories() async {
-    List<QueryDocumentSnapshot<Category>> categories =
+    List<QueryDocumentSnapshot<CategoryModel>> categories =
         await _categoriesCollectionRef
             .orderBy('name')
             .get()
