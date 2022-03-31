@@ -3,6 +3,7 @@ import 'package:household_accounts/features/input-page/domain/repositories/recor
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/delete_record.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
+@deprecated
 class DeleteRecordInteractor implements DeleteRecordUseCase {
   final RecordRepository _repository;
 
@@ -11,4 +12,14 @@ class DeleteRecordInteractor implements DeleteRecordUseCase {
   @override
   Future<Either<Failure, Unit>> handle(DeleteRecordInput input) =>
       _repository.deleteById(input.id);
+}
+
+class DeleteRecordInteractorNew implements DeleteRecordUseCaseNew {
+  final RecordRepositoryNew _repository;
+
+  DeleteRecordInteractorNew(this._repository);
+
+  @override
+  Future<Either<Failure, Unit>> handle(DeleteRecordInputNew input) =>
+      _repository.deleteById(input.id, input.type);
 }
