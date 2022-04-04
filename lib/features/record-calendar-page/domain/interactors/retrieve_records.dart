@@ -6,6 +6,7 @@ import 'package:household_accounts/features/record-calendar-page/domain/use-case
 import 'package:household_accounts/util/failures/failure.dart';
 
 /// Retrieves records of the day.
+@deprecated
 class RetrieveDailyRecordsInteractor implements RetrieveDailyRecordsUseCase {
   final RecordRepository _repository;
 
@@ -23,12 +24,51 @@ class RetrieveDailyRecordsInteractor implements RetrieveDailyRecordsUseCase {
   }
 }
 
+/// Retrieves records of the day.
+class RetrieveDailyRecordsInteractorNew implements RetrieveDailyRecordsUseCase {
+  final RecordRepositoryNew _repository;
+
+  const RetrieveDailyRecordsInteractorNew(this._repository);
+
+  @override
+  Future<Either<Failure, List<Record>>> handle(
+    RetrieveDailyRecordsInput input,
+  ) {
+    final begin = DateTime(input.year, input.month, input.day);
+
+    final end = begin.add(Duration(days: 1));
+
+    return _repository.retrieveRecordsOf(begin, end);
+  }
+}
+
 /// Retrieves records of the month.
+@deprecated
 class RetrieveMonthlyRecordsInteractor
     implements RetrieveMonthlyRecordsUseCase {
   final RecordRepository _repository;
 
   const RetrieveMonthlyRecordsInteractor(this._repository);
+
+  @override
+  Future<Either<Failure, List<Record>>> handle(
+    RetrieveMonthlyRecordsInput input,
+  ) {
+    final begin = DateTime(input.year, input.month);
+
+    final end = input.month == DateTime.december
+        ? DateTime(input.year + 1, DateTime.january)
+        : DateTime(input.year, input.month + 1);
+    return _repository.retrieveRecordsOf(begin, end);
+  }
+}
+
+/// Retrieves records of the month.
+class RetrieveMonthlyRecordsInteractorNew
+    implements RetrieveMonthlyRecordsUseCase {
+  final RecordRepositoryNew _repository;
+
+  const RetrieveMonthlyRecordsInteractorNew(this._repository);
 
   @override
   Future<Either<Failure, List<Record>>> handle(
