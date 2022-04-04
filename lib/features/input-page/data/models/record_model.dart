@@ -82,11 +82,7 @@ class IncomeRecordModel extends IncomeRecord {
         _createdAt = json['createdAt'] as FieldValue,
         super(
           id,
-          DateTime(
-            json['year'] as int,
-            json['month'] as int,
-            json['day'] as int,
-          ),
+          (json['date'] as Timestamp).toDate(),
           json['amount'] as int,
           json['note'] as String,
           (json['category'] as Map<String, DocumentReference>)['ref']!.id,
@@ -97,10 +93,9 @@ class IncomeRecordModel extends IncomeRecord {
   final DocumentReference<PropertyModel> propertyRef;
   final FieldValue _createdAt;
 
-  Map<String, Object?> toJson() => {
-        'year': recordDate.year,
-        'month': recordDate.month,
-        'day': recordDate.day,
+  Map<String, Object?> toJson() =>
+      {
+        'date': recordDate,
         'type': type.toShortString(),
         'amount': amount,
         'property': {
@@ -154,12 +149,8 @@ class ExpenseRecordModel extends ExpenseRecord {
         ),
         _createdAt = json['createdAt'] as FieldValue,
         super(
-          id,
-          DateTime(
-            json['year'] as int,
-            json['month'] as int,
-            json['day'] as int,
-          ),
+        id,
+          (json['date'] as Timestamp).toDate(),
           json['amount'] as int,
           json['note'] as String,
           (json['category'] as Map<String, DocumentReference>)['ref']!.id,
@@ -170,10 +161,9 @@ class ExpenseRecordModel extends ExpenseRecord {
   final DocumentReference<PropertyModel> propertyRef;
   final FieldValue _createdAt;
 
-  Map<String, Object?> toJson() => {
-        'year': recordDate.year,
-        'month': recordDate.month,
-        'day': recordDate.day,
+  Map<String, Object?> toJson() =>
+      {
+        'date': recordDate,
         'type': type.toShortString(),
         'amount': amount,
         'property': {
@@ -227,12 +217,8 @@ class TransferRecordModel extends TransferRecord {
         ),
         _createdAt = json['createdAt'] as FieldValue,
         super(
-          id,
-          DateTime(
-            json['year'] as int,
-            json['month'] as int,
-            json['day'] as int,
-          ),
+        id,
+          (json['date'] as Timestamp).toDate(),
           json['amount'] as int,
           json['note'] as String,
           (json['fromProperty'] as Map<String, DocumentReference>)['ref']!.id,
@@ -243,10 +229,9 @@ class TransferRecordModel extends TransferRecord {
   final DocumentReference<PropertyModel> toPropertyRef;
   final FieldValue _createdAt;
 
-  Map<String, Object?> toJson() => {
-        'year': recordDate.year,
-        'month': recordDate.month,
-        'day': recordDate.day,
+  Map<String, Object?> toJson() =>
+      {
+        'date': recordDate,
         'type': type.toShortString(),
         'amount': amount,
         'fromProperty': {
