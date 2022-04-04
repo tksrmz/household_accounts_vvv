@@ -204,8 +204,9 @@ class MyAppHome extends StatelessWidget {
               create: (ctx) =>
                   RetrieveDailyRecordsInteractor(_recordRepository),
             ),
-            Provider<DeleteRecordUseCase>(
-              create: (ctx) => DeleteRecordInteractor(_recordRepository),
+            Provider<DeleteRecordUseCaseNew>(
+              create: (ctx) =>
+                  DeleteRecordInteractorNew(_firebaseRecordRepository),
             ),
             Provider<RetrieveCategoriesUseCase>(
               create: (ctx) =>

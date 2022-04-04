@@ -25,7 +25,7 @@ class DailyRecordModel with ChangeNotifier {
 
   // Use cases
   late final RetrieveDailyRecordsUseCase _retrieve;
-  late final DeleteRecordUseCase _delete;
+  late final DeleteRecordUseCaseNew _delete;
   late final RetrieveCategoriesUseCase _retrieveCategoriesUseCase;
 
   DailyRecordModel(
@@ -79,10 +79,10 @@ class DailyRecordModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteById(String id) {
+  void deleteById(String id, RecordType type) {
     _records.removeWhere((element) => element.id == id);
     notifyListeners();
-    _delete.handle(DeleteRecordInput(id));
+    _delete.handle(DeleteRecordInputNew(id, type));
   }
 
   String categoryNameOf(Record record) {

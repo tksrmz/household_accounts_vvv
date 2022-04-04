@@ -52,7 +52,7 @@ class _CalenderView extends StatelessWidget {
     return _Calendar(
       model.year,
       model.month,
-          (int year, int month, int day) {
+      (int year, int month, int day) {
         final summary = model.recordAt(day);
 
         return TextButton(
@@ -66,7 +66,7 @@ class _CalenderView extends StatelessWidget {
                       value: context.read<RetrieveDailyRecordsUseCase>(),
                     ),
                     Provider.value(
-                      value: context.read<DeleteRecordUseCase>(),
+                      value: context.read<DeleteRecordUseCaseNew>(),
                     ),
                     Provider.value(
                       value: context.read<RetrieveCategoriesUseCase>(),
@@ -206,7 +206,7 @@ class _DailyRecordMinute extends StatelessWidget {
         body: ChangeNotifierProvider(
           create: (ctx) => DailyRecordModel(
             context.read<RetrieveDailyRecordsUseCase>(),
-            context.read<DeleteRecordUseCase>(),
+            context.read<DeleteRecordUseCaseNew>(),
             context.read<RetrieveCategoriesUseCase>(),
           )
             ..loadRecords(_year, _month, _day)
@@ -281,8 +281,10 @@ class _MinuteItem extends StatelessWidget {
         ),
         Text('${_record.amount} yen'),
         OutlinedButton(
-          onPressed: () =>
-              context.read<DailyRecordModel>().deleteById(_record.id),
+          onPressed: () => context.read<DailyRecordModel>().deleteById(
+                _record.id,
+                _record.type,
+              ),
           child: const Text('Delete'),
         ),
       ],
