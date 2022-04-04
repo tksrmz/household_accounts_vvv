@@ -104,9 +104,25 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   Future<Either<Failure, Record>> retrieveById(
     String id,
     RecordType type,
-  ) {
-    // TODO: implement retrieveById
-    throw UnimplementedError();
+  ) async {
+    DocumentSnapshot<dynamic> snapshot;
+    switch (type) {
+      case RecordType.income:
+        snapshot = await _incomeCollectionRef.doc(id).get();
+        break;
+      case RecordType.expense:
+        snapshot = await _expenseCollectionRef.doc(id).get();
+        break;
+      case RecordType.transfer:
+        snapshot = await _transferCollectionRef.doc(id).get();
+        break;
+    }
+
+    if (!snapshot.exists) {
+      return Left(RepositoryFailure());
+    }
+
+    return Right(snapshot.data()!);
   }
 
   @override
