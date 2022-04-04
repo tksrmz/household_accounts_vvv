@@ -51,9 +51,19 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   Future<Either<Failure, Unit>> deleteById(
     String id,
     RecordType type,
-  ) {
-    // TODO: implement deleteById
-    throw UnimplementedError();
+  ) async {
+    switch (type) {
+      case RecordType.income:
+        await _incomeCollectionRef.doc(id).delete();
+        break;
+      case RecordType.expense:
+        await _expenseCollectionRef.doc(id).delete();
+        break;
+      case RecordType.transfer:
+        await _transferCollectionRef.doc(id).delete();
+        break;
+    }
+    return Right(unit);
   }
 
   @override
