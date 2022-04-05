@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
-import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
 import 'package:household_accounts/features/category-page/data/repositories/firebase_category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/input-page/data/repositories/firebase_record_repository.dart';
@@ -19,7 +18,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 import 'features/category-page/domain/interactors/retrieve_categories.dart';
-import 'features/category-page/domain/repositories/category_repository.dart';
 import 'features/category-page/domain/use-cases/add_category.dart';
 import 'features/category-page/domain/use-cases/update_category.dart';
 import 'features/input-page/domain/repositories/record_repository.dart';
@@ -145,12 +143,10 @@ class MyAppHome extends StatelessWidget {
   late final FirebasePropertyRepository _firebasePropertyRepository;
   late final PropertyRepository _propertyRepository;
   late final FirebaseCategoryRepository _firebaseCategoryRepository;
-  late final CategoryRepository _categoryRepository;
 
   MyAppHome({Key? key, required String uid}) : super(key: key) {
     _propertyRepository = InMemoryPropertyRepository();
     _recordRepository = InMemoryRecordRepository(_propertyRepository);
-    _categoryRepository = InMemoryCategoryRepository();
     _firebaseRecordRepository = FirebaseRecordRepository.of(uid);
     _firebaseCategoryRepository = FirebaseCategoryRepository.of(uid);
     _firebasePropertyRepository = FirebasePropertyRepository.of(uid);
@@ -197,12 +193,13 @@ class MyAppHome extends StatelessWidget {
         return MultiProvider(
           providers: [
             Provider<RetrieveMonthlyRecordsUseCase>(
-              create: (ctx) =>
-                  RetrieveMonthlyRecordsInteractor(_recordRepository),
+              create: (ctx) => RetrieveMonthlyRecordsInteractorNew(
+                _firebaseRecordRepository,
+              ),
             ),
             Provider<RetrieveDailyRecordsUseCase>(
               create: (ctx) =>
-                  RetrieveDailyRecordsInteractor(_recordRepository),
+                  RetrieveDailyRecordsInteractorNew(_firebaseRecordRepository),
             ),
             Provider<DeleteRecordUseCaseNew>(
               create: (ctx) =>
@@ -210,7 +207,7 @@ class MyAppHome extends StatelessWidget {
             ),
             Provider<RetrieveCategoriesUseCase>(
               create: (ctx) =>
-                  RetrieveCategoriesInteractor(_categoryRepository),
+                  RetrieveCategoriesInteractor(_firebaseCategoryRepository),
             ),
           ],
           child: CalendarRecordViewPage2(),
