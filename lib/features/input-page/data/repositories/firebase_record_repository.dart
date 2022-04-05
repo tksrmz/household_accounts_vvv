@@ -129,8 +129,50 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   Future<Either<Failure, List<Record>>> retrieveRecordsOf(
     DateTime begin,
     DateTime end,
-  ) {
-    // TODO: implement retrieveRecordsOf
-    throw UnimplementedError();
+  ) async {
+    assert(
+      begin.isBefore(end),
+      '$begin is after or at the same moment as $end',
+    );
+
+    final List<Record> incomeModels = await _incomeCollectionRef
+        .where('date', isGreaterThanOrEqualTo: begin)
+        .where('date', isLessThan: end)
+        .get()
+        .then(
+          (QuerySnapshot<IncomeRecordModel> querySnapshot) => List.of(
+            querySnapshot.docs.map(
+              (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
+            ),
+          ),
+        );
+    final List<Record> expenseModels = await _expenseCollectionRef
+        .where('date', isGreaterThanOrEqualTo: begin)
+        .where('date', isLessThan: end)
+        .get()
+        .then(
+          (QuerySnapshot<ExpenseRecordModel> querySnapshot) => List.of(
+            querySnapshot.docs.map(
+              (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
+            ),
+          ),
+        );
+    final List<Record> transferModels = await _transferCollectionRef
+        .where('date', isGreaterThanOrEqualTo: begin)
+        .where('date', isLessThan: end)
+        .get()
+        .then(
+          (QuerySnapshot<TransferRecordModel> querySnapshot) => List.of(
+            querySnapshot.docs.map(
+              (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
+            ),
+          ),
+        );
+
+    return Right(List.from([
+      ...incomeModels,
+      ...expenseModels,
+      ...transferModels,
+    ]));
   }
 }
