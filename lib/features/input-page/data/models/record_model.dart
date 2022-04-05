@@ -53,7 +53,7 @@ class IncomeRecordModel extends IncomeRecord {
           propertyId: record.propertyId,
           uid: uid,
         ),
-        _createdAt = FieldValue.serverTimestamp(),
+        _createdAt = DateTime.now(),
         super(
           record.id,
           record.recordDate,
@@ -65,35 +65,34 @@ class IncomeRecordModel extends IncomeRecord {
 
   IncomeRecordModel.fromIdAndJson({
     required String id,
-    required Map<String, Object?> json,
+    required Map<String, dynamic> json,
     required String uid,
   })  : categoryRef =
-            (json['category'] as Map<String, DocumentReference>)['ref']!
-                .withConverter(
-          fromFirestore: _categoryModelFromFirestore,
-          toFirestore: _categoryModelToFirestore,
-        ),
+  (json['category']!['ref'] as DocumentReference).withConverter(
+    fromFirestore: _categoryModelFromFirestore,
+    toFirestore: _categoryModelToFirestore,
+  ),
         propertyRef =
-            (json['property'] as Map<String, DocumentReference>)['ref']!
-                .withConverter(
+        (json['property']!['ref'] as DocumentReference)
+            .withConverter(
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
-        _createdAt = json['createdAt'] as FieldValue,
+        _createdAt = (json['createdAt'] as Timestamp).toDate(),
         super(
-          id,
-          (json['date'] as Timestamp).toDate(),
-          json['amount'] as int,
-          json['note'] as String,
-          (json['category'] as Map<String, DocumentReference>)['ref']!.id,
-          (json['property'] as Map<String, DocumentReference>)['ref']!.id,
-        );
+        id,
+        (json['date'] as Timestamp).toDate(),
+        json['amount'] as int,
+        json['note'] as String,
+        (json['category']!['ref'] as DocumentReference).id,
+        (json['property']!['ref'] as DocumentReference).id,
+      );
 
   final DocumentReference<CategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
-  final FieldValue _createdAt;
+  final DateTime _createdAt;
 
-  Map<String, Object?> toJson() =>
+  Map<String, dynamic> toJson() =>
       {
         'date': recordDate,
         'type': type.toShortString(),
@@ -113,7 +112,8 @@ class ExpenseRecordModel extends ExpenseRecord {
   ExpenseRecordModel.fromExpenseRecord({
     required ExpenseRecord record,
     required String uid,
-  })  : categoryRef = _createCategoryDocumentReference(
+  })
+      : categoryRef = _createCategoryDocumentReference(
           categoryId: record.categoryId,
           uid: uid,
         ),
@@ -121,7 +121,7 @@ class ExpenseRecordModel extends ExpenseRecord {
           propertyId: record.propertyId,
           uid: uid,
         ),
-        _createdAt = FieldValue.serverTimestamp(),
+        _createdAt = DateTime.now(),
         super(
           record.id,
           record.recordDate,
@@ -133,35 +133,34 @@ class ExpenseRecordModel extends ExpenseRecord {
 
   ExpenseRecordModel.fromIdAndJson({
     required String id,
-    required Map<String, Object?> json,
+    required Map<String, dynamic> json,
     required String uid,
   })  : categoryRef =
-            (json['category'] as Map<String, DocumentReference>)['ref']!
-                .withConverter(
-          fromFirestore: _categoryModelFromFirestore,
-          toFirestore: _categoryModelToFirestore,
-        ),
+  (json['category']!['ref'] as DocumentReference).withConverter(
+    fromFirestore: _categoryModelFromFirestore,
+    toFirestore: _categoryModelToFirestore,
+  ),
         propertyRef =
-            (json['property'] as Map<String, DocumentReference>)['ref']!
-                .withConverter(
+        (json['property']!['ref'] as DocumentReference)
+            .withConverter(
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
-        _createdAt = json['createdAt'] as FieldValue,
+        _createdAt = (json['createdAt'] as Timestamp).toDate(),
         super(
         id,
-          (json['date'] as Timestamp).toDate(),
-          json['amount'] as int,
-          json['note'] as String,
-          (json['category'] as Map<String, DocumentReference>)['ref']!.id,
-          (json['property'] as Map<String, DocumentReference>)['ref']!.id,
-        );
+        (json['date'] as Timestamp).toDate(),
+        json['amount'] as int,
+        json['note'] as String,
+        (json['category']!['ref'] as DocumentReference).id,
+        (json['property']!['ref'] as DocumentReference).id,
+      );
 
   final DocumentReference<CategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
-  final FieldValue _createdAt;
+  final DateTime _createdAt;
 
-  Map<String, Object?> toJson() =>
+  Map<String, dynamic> toJson() =>
       {
         'date': recordDate,
         'type': type.toShortString(),
@@ -181,7 +180,8 @@ class TransferRecordModel extends TransferRecord {
   TransferRecordModel.fromTransferRecord({
     required TransferRecord record,
     required String uid,
-  })  : fromPropertyRef = _createPropertyDocumentReference(
+  })
+      : fromPropertyRef = _createPropertyDocumentReference(
           propertyId: record.srcPropertyId,
           uid: uid,
         ),
@@ -189,7 +189,7 @@ class TransferRecordModel extends TransferRecord {
           propertyId: record.destPropertyId,
           uid: uid,
         ),
-        _createdAt = FieldValue.serverTimestamp(),
+        _createdAt = DateTime.now(),
         super(
           record.id,
           record.recordDate,
@@ -201,35 +201,34 @@ class TransferRecordModel extends TransferRecord {
 
   TransferRecordModel.fromIdAndJson({
     required String id,
-    required Map<String, Object?> json,
+    required Map<String, dynamic> json,
     required String uid,
   })  : fromPropertyRef =
-            (json['fromProperty'] as Map<String, DocumentReference>)['ref']!
-                .withConverter(
-          fromFirestore: _propertyModelFromFirestore,
-          toFirestore: _propertyModelToFirestore,
-        ),
+  (json['fromProperty']!['ref'] as DocumentReference).withConverter(
+    fromFirestore: _propertyModelFromFirestore,
+    toFirestore: _propertyModelToFirestore,
+  ),
         toPropertyRef =
-            (json['toProperty'] as Map<String, DocumentReference>)['ref']!
-                .withConverter(
+        (json['toProperty']!['ref'] as DocumentReference)
+            .withConverter(
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
-        _createdAt = json['createdAt'] as FieldValue,
+        _createdAt = (json['createdAt'] as Timestamp).toDate(),
         super(
         id,
-          (json['date'] as Timestamp).toDate(),
-          json['amount'] as int,
-          json['note'] as String,
-          (json['fromProperty'] as Map<String, DocumentReference>)['ref']!.id,
-          (json['toProperty'] as Map<String, DocumentReference>)['ref']!.id,
-        );
+        (json['date'] as Timestamp).toDate(),
+        json['amount'] as int,
+        json['note'] as String,
+        (json['fromProperty']!['ref'] as DocumentReference).id,
+        (json['toProperty']!['ref'] as DocumentReference).id,
+      );
 
   final DocumentReference<PropertyModel> fromPropertyRef;
   final DocumentReference<PropertyModel> toPropertyRef;
-  final FieldValue _createdAt;
+  final DateTime _createdAt;
 
-  Map<String, Object?> toJson() =>
+  Map<String, dynamic> toJson() =>
       {
         'date': recordDate,
         'type': type.toShortString(),
