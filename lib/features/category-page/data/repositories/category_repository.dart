@@ -3,6 +3,8 @@ import 'package:household_accounts/util/domain/entities/category.dart';
 import 'package:household_accounts/features/category-page/domain/repositories/category_repository.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
+/// Although this class is not used, I won't delete this.
+/// There is a chance to use this as mock in tests.
 class InMemoryCategoryRepository implements CategoryRepository {
   final _repository = [
     Category('id1', 'Food', CategoryType.expense, 100),

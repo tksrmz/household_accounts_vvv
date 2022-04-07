@@ -4,6 +4,8 @@ import 'package:household_accounts/features/property-viewer/domain/repositories/
 import 'package:household_accounts/util/failures/exception.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
+/// Although this class is not used, I won't delete this.
+/// There is a chance to use this as mock in tests.
 class InMemoryPropertyRepository implements PropertyRepository {
   final _repository = <Property>[
     Property('id1', 'Cash', 100),

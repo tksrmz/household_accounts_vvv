@@ -5,6 +5,8 @@ import 'package:household_accounts/features/property-viewer/domain/repositories/
 import 'package:household_accounts/util/domain/entities/property.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
+/// Although this class is not used, I won't delete this.
+/// There is a chance to use this as mock in tests.
 class InMemoryRecordRepository implements RecordRepository {
   final _repository = <Record>[];
   final PropertyRepository _propertyRepository;
