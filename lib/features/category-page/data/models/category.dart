@@ -6,7 +6,7 @@ class CategoryModel extends Category {
           category.id,
           category.name,
           category.type,
-          category.budget,
+          // category.budget,
         );
 
   CategoryModel.fromIdAndJson(String id, Map<String, Object?> json)
@@ -14,7 +14,7 @@ class CategoryModel extends Category {
           id,
           json['name'] as String,
           RecordTypeParsing.fromShortString(json['type'] as String),
-          0, // Budget is not used (currently).
+    // 0, // Budget is not used (currently).
         );
 
   Map<String, Object?> toJson() => {

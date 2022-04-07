@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
 import 'package:household_accounts/util/domain/entities/category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/add_category.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
@@ -25,10 +24,7 @@ class CategoryListPage extends StatelessWidget {
         context.read<DeleteCategoryUseCase>(),
         context.read<AddCategoryUseCase>(),
         context.read<UpdateCategoryUseCase>(),
-        context.read<RetrieveMonthlyRecordsUseCase>(),
-      )
-        ..loadCategories()
-        ..loadRecordsOfThisMonth(),
+      )..loadCategories(),
       child: _PageContents(),
     );
   }
@@ -130,14 +126,10 @@ class _CategoryListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // I don't want to use [select] here, but [read] cannot be called.
-    final balance = context.select<CategoryPageState, int>(
-        (state) => state.calculateBalanceOf(_category));
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Text('${_category.name} ($balance out of ${_category.budget})'),
+        Text(_category.name),
         _EditCategoryButton(categoryId: _category.id),
         DeleteIconButton(
           onPressed: () {

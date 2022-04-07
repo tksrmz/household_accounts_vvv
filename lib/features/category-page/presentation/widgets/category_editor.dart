@@ -3,7 +3,7 @@ import 'package:household_accounts/util/domain/entities/category.dart';
 
 typedef CategoryPropertiesHandler = void Function(
   TextEditingController nameContrller,
-  TextEditingController budgetController,
+  // TextEditingController budgetController,
   CategoryType categoryType,
 );
 
@@ -111,7 +111,7 @@ class _CategoryEditorState extends State<CategoryEditor> {
     children.add(
       ElevatedButton(
         onPressed: () {
-          widget._onPressed(_nameController, _budgetController, _selected!);
+          widget._onPressed(_nameController, /*_budgetController,*/ _selected!);
           Navigator.pop(context);
         },
         child: widget._buttonChild,

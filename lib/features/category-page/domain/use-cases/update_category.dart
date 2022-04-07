@@ -10,15 +10,17 @@ typedef UpdateCategoryUseCase = UseCase<UpdateCategoryInput, Category>;
 class UpdateCategoryInput extends Equatable {
   final String id;
   final String? newCategoryName;
-  final int? newBudget;
+
+  // final int? newBudget;
 
   const UpdateCategoryInput({
     required String id,
     String? newCategoryName,
-    int? newBudget,
+    // int? newBudget,
   })  : this.id = id,
-        this.newCategoryName = newCategoryName,
-        this.newBudget = newBudget;
+        this.newCategoryName = newCategoryName;
+
+  // this.newBudget = newBudget;
 
   @override
   List<Object> get props {
@@ -26,9 +28,9 @@ class UpdateCategoryInput extends Equatable {
     if (newCategoryName != null) {
       props.add(newCategoryName!);
     }
-    if (newBudget != null) {
-      props.add(newBudget!);
-    }
+    // if (newBudget != null) {
+    //   props.add(newBudget!);
+    // }
     return props;
   }
 }
@@ -46,7 +48,7 @@ class UpdateCategoryInteractor extends UpdateCategoryUseCase {
         input.id,
         input.newCategoryName ?? currentValue.name,
         currentValue.type,
-        input.newBudget ?? currentValue.budget,
+        // input.newBudget ?? currentValue.budget,
       ),
     );
 

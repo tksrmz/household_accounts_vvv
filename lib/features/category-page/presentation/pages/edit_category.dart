@@ -21,11 +21,11 @@ class EditCategoryPage extends StatelessWidget {
         title: Text('Edit'),
       ),
       body: CategoryEditor(
-        onPressed: (nameController, budgetController, _) {
+        onPressed: (nameController, /*budgetController,*/ _) {
           _state.updateCategory(
             _targetCategoryId,
             nameController.text,
-            budgetController.text,
+            // budgetController.text,
           );
         },
         buttonChild: const Text('Edit'),

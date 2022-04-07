@@ -9,7 +9,6 @@ import 'package:household_accounts/features/record-calendar-page/domain/use-case
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
-import 'package:household_accounts/features/input-page/data/repositories/record_repository.dart';
 import 'package:household_accounts/features/input-page/presentation/pages/input_page.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
@@ -22,9 +21,7 @@ import 'features/category-page/domain/use-cases/add_category.dart';
 import 'features/category-page/domain/use-cases/update_category.dart';
 import 'features/input-page/domain/repositories/record_repository.dart';
 import 'features/input-page/domain/use-cases/add_record.dart';
-import 'features/property-viewer/data/repositories/property_repository.dart';
 import 'features/property-viewer/domain/interactors/retrieve_properties.dart';
-import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'features/property-viewer/domain/use-cases/delete_property.dart';
 import 'features/record-calendar-page/domain/interactors/delete_record.dart';
 import 'features/record-calendar-page/domain/interactors/retrieve_records.dart';
@@ -139,14 +136,10 @@ class AuthGate extends StatelessWidget {
 
 class MyAppHome extends StatelessWidget {
   late final RecordRepositoryNew _firebaseRecordRepository;
-  late final RecordRepository _recordRepository;
   late final FirebasePropertyRepository _firebasePropertyRepository;
-  late final PropertyRepository _propertyRepository;
   late final FirebaseCategoryRepository _firebaseCategoryRepository;
 
   MyAppHome({Key? key, required String uid}) : super(key: key) {
-    _propertyRepository = InMemoryPropertyRepository();
-    _recordRepository = InMemoryRecordRepository(_propertyRepository);
     _firebaseRecordRepository = FirebaseRecordRepository.of(uid);
     _firebaseCategoryRepository = FirebaseCategoryRepository.of(uid);
     _firebasePropertyRepository = FirebasePropertyRepository.of(uid);
@@ -265,10 +258,10 @@ class MyAppHome extends StatelessWidget {
               create: (ctx) =>
                   UpdateCategoryInteractor(_firebaseCategoryRepository),
             ),
-            Provider<RetrieveMonthlyRecordsUseCase>(
-              create: (ctx) =>
-                  RetrieveMonthlyRecordsInteractor(_recordRepository),
-            ),
+            // Provider<RetrieveMonthlyRecordsUseCase>(
+            //   create: (ctx) =>
+            //       RetrieveMonthlyRecordsInteractor(_recordRepository),
+            // ),
           ],
           child: CategoryListPage(),
         );

@@ -11,9 +11,9 @@ typedef AddCategoryUseCase = UseCase<AddCategoryInput, Category>;
 class AddCategoryInput extends Equatable {
   final String categoryName;
   final CategoryType type;
-  final int budget;
+  // final int budget;
 
-  const AddCategoryInput(this.categoryName, this.type, this.budget);
+  const AddCategoryInput(this.categoryName, this.type /*, this.budget*/);
 
   @override
   List<Object> get props => [categoryName, type];
@@ -30,7 +30,7 @@ class AddCategoryInteractor extends AddCategoryUseCase {
       UUID.generate(),
       input.categoryName,
       input.type,
-      input.budget,
+      // input.budget,
     );
     final result = await _repository.register(category);
     return result.replace(category);
