@@ -343,6 +343,41 @@ class _HomeWidgetState extends State<_HomeWidget> {
           ),
         ],
       ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Personal mode',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.group),
+              title: Text('Change to pair mode.'),
+              onTap: () {
+                // change app state...
+                Navigator.pop(context); // close the drawer
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Change to personal mode.'),
+              onTap: () {
+                // change app state...
+                Navigator.pop(context); // close the drawer
+              },
+            ),
+          ],
+        ),
+      ),
       body: widget.contents[_selectedIndex].builder(),
       bottomNavigationBar: BottomNavigationBar(
         items: _bottomNavigationBarItems,
