@@ -304,9 +304,15 @@ class _HomeWidget extends StatefulWidget {
   _HomeWidgetState createState() => _HomeWidgetState();
 }
 
+enum _SingleOrPair {
+  single,
+  pair,
+}
+
 class _HomeWidgetState extends State<_HomeWidget> {
   late final List<BottomNavigationBarItem> _bottomNavigationBarItems;
   int _selectedIndex = 0;
+  _SingleOrPair _singleOrPair = _SingleOrPair.single;
 
   @override
   void initState() {
@@ -329,8 +335,47 @@ class _HomeWidgetState extends State<_HomeWidget> {
     });
   }
 
+  void _setSingleOrPair(_SingleOrPair newValue) {
+    setState(() {
+      _singleOrPair = newValue;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    String modeText;
+    ListTile modeListTile;
+    Icon modeIcon;
+    switch (_singleOrPair) {
+      case _SingleOrPair.single:
+        modeText = 'Personal mode';
+        modeListTile = ListTile(
+          leading: const Icon(Icons.swap_horiz),
+          title: Text('Change to pair mode.'),
+          onTap: () {
+            _setSingleOrPair(_SingleOrPair.pair);
+            Navigator.pop(context); // close the drawer
+          },
+        );
+        modeIcon = const Icon(
+          Icons.person,
+          color: Colors.white,
+        );
+        break;
+      case _SingleOrPair.pair:
+        modeText = 'Pair mode';
+        modeListTile = ListTile(
+          leading: const Icon(Icons.swap_horiz),
+          title: Text('Change to personal mode.'),
+          onTap: () {
+            _setSingleOrPair(_SingleOrPair.single);
+            Navigator.pop(context); // close the drawer
+          },
+        );
+        modeIcon = const Icon(Icons.group, color: Colors.white);
+        break;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.contents[_selectedIndex].title),
@@ -351,30 +396,23 @@ class _HomeWidgetState extends State<_HomeWidget> {
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
-              child: Text(
-                'Personal mode',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: modeIcon,
+                  ),
+                  Text(
+                    modeText,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                ],
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.group),
-              title: Text('Change to pair mode.'),
-              onTap: () {
-                // change app state...
-                Navigator.pop(context); // close the drawer
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Change to personal mode.'),
-              onTap: () {
-                // change app state...
-                Navigator.pop(context); // close the drawer
-              },
-            ),
+            modeListTile,
           ],
         ),
       ),
