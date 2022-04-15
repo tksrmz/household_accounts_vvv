@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:household_accounts/features/category-page/data/repositories/firebase_category_repository.dart';
+import 'package:household_accounts/features/category-page/domain/repositories/category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/input-page/data/repositories/firebase_record_repository.dart';
 import 'package:household_accounts/features/property-viewer/data/repositories/firebase_property_repository.dart';
@@ -14,6 +15,7 @@ import 'package:household_accounts/features/property-viewer/domain/use-cases/add
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'firebase_options.dart';
 
 import 'features/category-page/domain/interactors/retrieve_categories.dart';
@@ -134,20 +136,32 @@ class AuthGate extends StatelessWidget {
   }
 }
 
-class MyAppHome extends StatelessWidget {
-  late final RecordRepositoryNew _firebaseRecordRepository;
-  late final FirebasePropertyRepository _firebasePropertyRepository;
-  late final FirebaseCategoryRepository _firebaseCategoryRepository;
+class MyAppHome extends StatefulWidget {
+  final String _uid;
 
-  MyAppHome({Key? key, required String uid}) : super(key: key) {
-    _firebaseRecordRepository = FirebaseRecordRepository.of(uid);
-    _firebaseCategoryRepository = FirebaseCategoryRepository.of(uid);
-    _firebasePropertyRepository = FirebasePropertyRepository.of(uid);
-  }
+  const MyAppHome({
+    Key? key,
+    required String uid,
+  })  : _uid = uid,
+        super(key: key);
+
+  @override
+  State<MyAppHome> createState() => MyAppHomeState();
+}
+
+class MyAppHomeState extends State<MyAppHome> {
+  _SingleOrPair _singleOrPair = _SingleOrPair.single;
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final RecordRepositoryNew _firebaseRecordRepository =
+        FirebaseRecordRepository.of(widget._uid);
+    final PropertyRepository _firebasePropertyRepository =
+        FirebasePropertyRepository.of(widget._uid);
+    final CategoryRepository _firebaseCategoryRepository =
+        FirebaseCategoryRepository.of(widget._uid);
+
     final recordRegisterPage = _HomeWidgetContent(
       title: 'Input',
       builder: () {
@@ -276,6 +290,12 @@ class MyAppHome extends StatelessWidget {
         propertyPage,
         categoryListPage,
       ],
+      singleOrPair: _singleOrPair,
+      setSingleOrPair: (newValue) => setState(
+        () {
+          _singleOrPair = newValue;
+        },
+      ),
     );
   }
 }
@@ -297,8 +317,17 @@ class _HomeWidgetContent {
 
 class _HomeWidget extends StatefulWidget {
   final List<_HomeWidgetContent> contents;
+  final _SingleOrPair _singleOrPair;
+  final void Function(_SingleOrPair newValue) _setSingleOrPair;
 
-  const _HomeWidget(this.contents, {Key? key}) : super(key: key);
+  const _HomeWidget(
+    this.contents, {
+    Key? key,
+    required _SingleOrPair singleOrPair,
+    required void Function(_SingleOrPair newValue) setSingleOrPair,
+  })  : _singleOrPair = singleOrPair,
+        _setSingleOrPair = setSingleOrPair,
+        super(key: key);
 
   @override
   _HomeWidgetState createState() => _HomeWidgetState();
@@ -312,7 +341,6 @@ enum _SingleOrPair {
 class _HomeWidgetState extends State<_HomeWidget> {
   late final List<BottomNavigationBarItem> _bottomNavigationBarItems;
   int _selectedIndex = 0;
-  _SingleOrPair _singleOrPair = _SingleOrPair.single;
 
   @override
   void initState() {
@@ -335,25 +363,19 @@ class _HomeWidgetState extends State<_HomeWidget> {
     });
   }
 
-  void _setSingleOrPair(_SingleOrPair newValue) {
-    setState(() {
-      _singleOrPair = newValue;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     String modeText;
     ListTile modeListTile;
     Icon modeIcon;
-    switch (_singleOrPair) {
+    switch (widget._singleOrPair) {
       case _SingleOrPair.single:
         modeText = 'Personal mode';
         modeListTile = ListTile(
           leading: const Icon(Icons.swap_horiz),
           title: Text('Change to pair mode.'),
           onTap: () {
-            _setSingleOrPair(_SingleOrPair.pair);
+            widget._setSingleOrPair(_SingleOrPair.pair);
             Navigator.pop(context); // close the drawer
           },
         );
@@ -368,7 +390,7 @@ class _HomeWidgetState extends State<_HomeWidget> {
           leading: const Icon(Icons.swap_horiz),
           title: Text('Change to personal mode.'),
           onTap: () {
-            _setSingleOrPair(_SingleOrPair.single);
+            widget._setSingleOrPair(_SingleOrPair.single);
             Navigator.pop(context); // close the drawer
           },
         );
