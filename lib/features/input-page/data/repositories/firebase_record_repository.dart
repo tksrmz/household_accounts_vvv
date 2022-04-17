@@ -9,33 +9,31 @@ import 'package:household_accounts/util/failures/failure.dart';
 class FirebaseRecordRepository implements RecordRepositoryNew {
   FirebaseRecordRepository.of(this.uid)
       : _incomeCollectionRef = FirebaseFirestore.instance
-            .collection(
-                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_INCOMES')
-            .withConverter(
-              fromFirestore: (snapshot, _) => IncomeRecordModel.fromIdAndJson(
-                uid: uid,
-                id: snapshot.id,
-                json: snapshot.data()!,
-              ),
-              toFirestore: (model, _) => model.toJson(),
-            ),
+      .collection(
+      '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_INCOMES')
+      .withConverter(
+    fromFirestore: (snapshot, _) => IncomeRecordModel.fromIdAndJson(
+      id: snapshot.id,
+      json: snapshot.data()!,
+    ),
+    toFirestore: (model, _) => model.toJson(),
+  ),
         _expenseCollectionRef = FirebaseFirestore.instance
             .collection(
                 '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_EXPENSES')
             .withConverter(
-              fromFirestore: (snapshot, _) => ExpenseRecordModel.fromIdAndJson(
-                uid: uid,
-                id: snapshot.id,
-                json: snapshot.data()!,
-              ),
-              toFirestore: (model, _) => model.toJson(),
-            ),
+          fromFirestore: (snapshot, _) => ExpenseRecordModel.fromIdAndJson(
+            id: snapshot.id,
+            json: snapshot.data()!,
+          ),
+          toFirestore: (model, _) => model.toJson(),
+        ),
         _transferCollectionRef = FirebaseFirestore.instance
             .collection(
                 '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_TRANSFERS')
             .withConverter(
-              fromFirestore: (snapshot, _) => TransferRecordModel.fromIdAndJson(
-                uid: uid,
+          fromFirestore: (snapshot, _) =>
+              TransferRecordModel.fromIdAndJson(
                 id: snapshot.id,
                 json: snapshot.data()!,
               ),
