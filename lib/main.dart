@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
@@ -15,6 +16,7 @@ import 'package:household_accounts/features/property-viewer/domain/use-cases/add
 import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'constants/firebase/firebase_constant.dart';
 import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'firebase_options.dart';
 
@@ -150,152 +152,209 @@ class MyAppHome extends StatefulWidget {
 }
 
 class MyAppHomeState extends State<MyAppHome> {
+  late final Future<DocumentSnapshot<Map<String, dynamic>>>
+      _privateProfileDocSnapshot;
   _SingleOrPair _singleOrPair = _SingleOrPair.single;
+
+  @override
+  void initState() {
+    super.initState();
+    _privateProfileDocSnapshot = FirebaseFirestore.instance
+        .collection('/$FIREBASE_COLLECTION_PRIVATE_PROFILES')
+        .doc(widget._uid)
+        .get();
+  }
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final RecordRepositoryNew _firebaseRecordRepository =
-        FirebaseRecordRepository.of(widget._uid);
-    final PropertyRepository _firebasePropertyRepository =
-        FirebasePropertyRepository.of(widget._uid);
-    final CategoryRepository _firebaseCategoryRepository =
-        FirebaseCategoryRepository.of(widget._uid);
+    return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      future: _privateProfileDocSnapshot,
+      builder: (context, snapshot) {
+        // Check for errors
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text('Something went wrong'),
+            ),
+          );
+        }
 
-    final recordRegisterPage = _HomeWidgetContent(
-      title: 'Input',
-      builder: () {
-        return MultiProvider(
-          providers: [
-            Provider<AddIncomeRecordUseCase>(
-              create: (ctx) =>
-                  AddIncomeRecordInteractor(_firebaseRecordRepository),
-            ),
-            Provider<AddExpenseRecordUseCase>(
-              create: (ctx) =>
-                  AddExpenseRecordInteractor(_firebaseRecordRepository),
-            ),
-            Provider<AddTransferRecordUseCase>(
-              create: (ctx) =>
-                  AddTransferRecordInteractor(_firebaseRecordRepository),
-            ),
-            Provider<RetrieveCategoriesUseCase>(
-              create: (ctx) =>
-                  RetrieveCategoriesInteractor(_firebaseCategoryRepository),
-            ),
-            Provider<RetrievePropertiesUseCase>(
-              create: (ctx) =>
-                  RetrievePropertiesInteractor(_firebasePropertyRepository),
-            ),
-          ],
-          child: RecordInputPage(),
+        // Once complete, show your application
+        if (snapshot.connectionState == ConnectionState.done) {
+          RecordRepositoryNew _firebaseRecordRepository;
+          PropertyRepository _firebasePropertyRepository;
+          CategoryRepository _firebaseCategoryRepository;
+
+          switch (_singleOrPair) {
+            case _SingleOrPair.single:
+              _firebaseRecordRepository =
+                  FirebaseRecordRepository.personal(widget._uid);
+              _firebasePropertyRepository =
+                  FirebasePropertyRepository.personal(widget._uid);
+              _firebaseCategoryRepository =
+                  FirebaseCategoryRepository.personal(widget._uid);
+              break;
+
+            case _SingleOrPair.pair:
+              _firebaseRecordRepository = FirebaseRecordRepository.personal(
+                  (snapshot.data!.get('sharedNote.ref') as DocumentReference)
+                      .id);
+              _firebasePropertyRepository = FirebasePropertyRepository.personal(
+                  (snapshot.data!.get('sharedNote.ref') as DocumentReference)
+                      .id);
+              _firebaseCategoryRepository = FirebaseCategoryRepository.personal(
+                  (snapshot.data!.get('sharedNote.ref') as DocumentReference)
+                      .id);
+              break;
+          }
+
+          final recordRegisterPage = _HomeWidgetContent(
+            title: 'Input',
+            builder: () {
+              return MultiProvider(
+                providers: [
+                  Provider<AddIncomeRecordUseCase>(
+                    create: (ctx) =>
+                        AddIncomeRecordInteractor(_firebaseRecordRepository),
+                  ),
+                  Provider<AddExpenseRecordUseCase>(
+                    create: (ctx) =>
+                        AddExpenseRecordInteractor(_firebaseRecordRepository),
+                  ),
+                  Provider<AddTransferRecordUseCase>(
+                    create: (ctx) =>
+                        AddTransferRecordInteractor(_firebaseRecordRepository),
+                  ),
+                  Provider<RetrieveCategoriesUseCase>(
+                    create: (ctx) => RetrieveCategoriesInteractor(
+                        _firebaseCategoryRepository),
+                  ),
+                  Provider<RetrievePropertiesUseCase>(
+                    create: (ctx) => RetrievePropertiesInteractor(
+                        _firebasePropertyRepository),
+                  ),
+                ],
+                child: RecordInputPage(),
+              );
+            },
+            iconData: Icons.cloud,
+          );
+
+          final calenderViewPage = _HomeWidgetContent(
+            title: 'Calendar',
+            builder: () {
+              return MultiProvider(
+                providers: [
+                  Provider<RetrieveMonthlyRecordsUseCase>(
+                    create: (ctx) => RetrieveMonthlyRecordsInteractorNew(
+                      _firebaseRecordRepository,
+                    ),
+                  ),
+                  Provider<RetrieveDailyRecordsUseCase>(
+                    create: (ctx) => RetrieveDailyRecordsInteractorNew(
+                        _firebaseRecordRepository),
+                  ),
+                  Provider<DeleteRecordUseCaseNew>(
+                    create: (ctx) =>
+                        DeleteRecordInteractorNew(_firebaseRecordRepository),
+                  ),
+                  Provider<RetrieveCategoriesUseCase>(
+                    create: (ctx) => RetrieveCategoriesInteractor(
+                        _firebaseCategoryRepository),
+                  ),
+                ],
+                child: CalendarRecordViewPage2(),
+              );
+            },
+            iconData: Icons.beach_access,
+          );
+
+          final propertyPage = _HomeWidgetContent(
+            title: 'Balance',
+            builder: () {
+              return MultiProvider(
+                providers: [
+                  Provider<RetrievePropertiesUseCase>(
+                    create: (ctx) => RetrievePropertiesInteractor(
+                        _firebasePropertyRepository),
+                  ),
+                  Provider<AddPropertiesUseCase>(
+                    create: (ctx) =>
+                        AddPropertyInteractor(_firebasePropertyRepository),
+                  ),
+                  Provider<UpdatePropertyUseCase>(
+                    create: (ctx) =>
+                        UpdatePropertyInteractor(_firebasePropertyRepository),
+                  ),
+                  Provider<DeletePropertiesUseCase>(
+                    create: (ctx) =>
+                        DeletePropertyInteractor(_firebasePropertyRepository),
+                  ),
+                ],
+                child: PropertyListPage(),
+              );
+            },
+            iconData: Icons.access_alarm,
+          );
+
+          final categoryListPage = _HomeWidgetContent(
+            title: 'Categories',
+            builder: () {
+              return MultiProvider(
+                providers: [
+                  Provider<RetrieveCategoriesUseCase>(
+                    create: (ctx) => RetrieveCategoriesInteractor(
+                        _firebaseCategoryRepository),
+                  ),
+                  Provider<DeleteCategoryUseCase>(
+                    create: (ctx) =>
+                        DeleteCategoryInteractor(_firebaseCategoryRepository),
+                  ),
+                  Provider<AddCategoryUseCase>(
+                    create: (ctx) =>
+                        AddCategoryInteractor(_firebaseCategoryRepository),
+                  ),
+                  Provider<UpdateCategoryUseCase>(
+                    create: (ctx) =>
+                        UpdateCategoryInteractor(_firebaseCategoryRepository),
+                  ),
+                  // Provider<RetrieveMonthlyRecordsUseCase>(
+                  //   create: (ctx) =>
+                  //       RetrieveMonthlyRecordsInteractor(_recordRepository),
+                  // ),
+                ],
+                child: CategoryListPage(),
+              );
+            },
+            iconData: Icons.accessibility,
+          );
+
+          return _HomeWidget(
+            [
+              recordRegisterPage,
+              calenderViewPage,
+              propertyPage,
+              categoryListPage,
+            ],
+            singleOrPair: _singleOrPair,
+            setSingleOrPair: snapshot.data!.get('sharedNote') != null
+                ? (newValue) => setState(
+                      () {
+                        _singleOrPair = newValue;
+                      },
+                    )
+                : null,
+          );
+        }
+
+        // Otherwise, show something whilst waiting for initialization to complete
+        return Scaffold(
+          body: Center(
+            child: Text('Loading'),
+          ),
         );
       },
-      iconData: Icons.cloud,
-    );
-
-    final calenderViewPage = _HomeWidgetContent(
-      title: 'Calendar',
-      builder: () {
-        return MultiProvider(
-          providers: [
-            Provider<RetrieveMonthlyRecordsUseCase>(
-              create: (ctx) => RetrieveMonthlyRecordsInteractorNew(
-                _firebaseRecordRepository,
-              ),
-            ),
-            Provider<RetrieveDailyRecordsUseCase>(
-              create: (ctx) =>
-                  RetrieveDailyRecordsInteractorNew(_firebaseRecordRepository),
-            ),
-            Provider<DeleteRecordUseCaseNew>(
-              create: (ctx) =>
-                  DeleteRecordInteractorNew(_firebaseRecordRepository),
-            ),
-            Provider<RetrieveCategoriesUseCase>(
-              create: (ctx) =>
-                  RetrieveCategoriesInteractor(_firebaseCategoryRepository),
-            ),
-          ],
-          child: CalendarRecordViewPage2(),
-        );
-      },
-      iconData: Icons.beach_access,
-    );
-
-    final propertyPage = _HomeWidgetContent(
-      title: 'Balance',
-      builder: () {
-        return MultiProvider(
-          providers: [
-            Provider<RetrievePropertiesUseCase>(
-              create: (ctx) =>
-                  RetrievePropertiesInteractor(_firebasePropertyRepository),
-            ),
-            Provider<AddPropertiesUseCase>(
-              create: (ctx) =>
-                  AddPropertyInteractor(_firebasePropertyRepository),
-            ),
-            Provider<UpdatePropertyUseCase>(
-              create: (ctx) =>
-                  UpdatePropertyInteractor(_firebasePropertyRepository),
-            ),
-            Provider<DeletePropertiesUseCase>(
-              create: (ctx) =>
-                  DeletePropertyInteractor(_firebasePropertyRepository),
-            ),
-          ],
-          child: PropertyListPage(),
-        );
-      },
-      iconData: Icons.access_alarm,
-    );
-
-    final categoryListPage = _HomeWidgetContent(
-      title: 'Categories',
-      builder: () {
-        return MultiProvider(
-          providers: [
-            Provider<RetrieveCategoriesUseCase>(
-              create: (ctx) =>
-                  RetrieveCategoriesInteractor(_firebaseCategoryRepository),
-            ),
-            Provider<DeleteCategoryUseCase>(
-              create: (ctx) =>
-                  DeleteCategoryInteractor(_firebaseCategoryRepository),
-            ),
-            Provider<AddCategoryUseCase>(
-              create: (ctx) =>
-                  AddCategoryInteractor(_firebaseCategoryRepository),
-            ),
-            Provider<UpdateCategoryUseCase>(
-              create: (ctx) =>
-                  UpdateCategoryInteractor(_firebaseCategoryRepository),
-            ),
-            // Provider<RetrieveMonthlyRecordsUseCase>(
-            //   create: (ctx) =>
-            //       RetrieveMonthlyRecordsInteractor(_recordRepository),
-            // ),
-          ],
-          child: CategoryListPage(),
-        );
-      },
-      iconData: Icons.accessibility,
-    );
-
-    return _HomeWidget(
-      [
-        recordRegisterPage,
-        calenderViewPage,
-        propertyPage,
-        categoryListPage,
-      ],
-      singleOrPair: _singleOrPair,
-      setSingleOrPair: (newValue) => setState(
-        () {
-          _singleOrPair = newValue;
-        },
-      ),
     );
   }
 }
@@ -318,13 +377,13 @@ class _HomeWidgetContent {
 class _HomeWidget extends StatefulWidget {
   final List<_HomeWidgetContent> contents;
   final _SingleOrPair _singleOrPair;
-  final void Function(_SingleOrPair newValue) _setSingleOrPair;
+  final void Function(_SingleOrPair newValue)? _setSingleOrPair;
 
   const _HomeWidget(
     this.contents, {
     Key? key,
     required _SingleOrPair singleOrPair,
-    required void Function(_SingleOrPair newValue) setSingleOrPair,
+    required void Function(_SingleOrPair newValue)? setSingleOrPair,
   })  : _singleOrPair = singleOrPair,
         _setSingleOrPair = setSingleOrPair,
         super(key: key);
@@ -366,19 +425,20 @@ class _HomeWidgetState extends State<_HomeWidget> {
   @override
   Widget build(BuildContext context) {
     String modeText;
-    ListTile modeListTile;
+    Widget modeListTile;
     Icon modeIcon;
     switch (widget._singleOrPair) {
       case _SingleOrPair.single:
         modeText = 'Personal mode';
-        modeListTile = ListTile(
-          leading: const Icon(Icons.swap_horiz),
-          title: Text('Change to pair mode.'),
-          onTap: () {
-            widget._setSingleOrPair(_SingleOrPair.pair);
-            Navigator.pop(context); // close the drawer
-          },
-        );
+        modeListTile = widget._setSingleOrPair != null
+            ? ListTile(
+                leading: const Icon(Icons.swap_horiz),
+                title: Text('Change to pair mode.'),
+                onTap: () {
+                  widget._setSingleOrPair!(_SingleOrPair.pair);
+                  Navigator.pop(context); // close the drawer
+                })
+            : SizedBox.shrink();
         modeIcon = const Icon(
           Icons.person,
           color: Colors.white,
@@ -386,14 +446,15 @@ class _HomeWidgetState extends State<_HomeWidget> {
         break;
       case _SingleOrPair.pair:
         modeText = 'Pair mode';
-        modeListTile = ListTile(
-          leading: const Icon(Icons.swap_horiz),
-          title: Text('Change to personal mode.'),
-          onTap: () {
-            widget._setSingleOrPair(_SingleOrPair.single);
-            Navigator.pop(context); // close the drawer
-          },
-        );
+        modeListTile = widget._setSingleOrPair != null
+            ? ListTile(
+                leading: const Icon(Icons.swap_horiz),
+                title: Text('Change to personal mode.'),
+                onTap: () {
+                  widget._setSingleOrPair!(_SingleOrPair.single);
+                  Navigator.pop(context); // close the drawer
+                })
+            : SizedBox.shrink();
         modeIcon = const Icon(Icons.group, color: Colors.white);
         break;
     }

@@ -6,3 +6,4 @@ const String FIREBASE_COLLECTION_CALENDARS = 'calendars';
 const String FIREBASE_COLLECTION_INCOMES = 'incomes';
 const String FIREBASE_COLLECTION_EXPENSES = 'expenses';
 const String FIREBASE_COLLECTION_TRANSFERS = 'transfers';
+const String FIREBASE_COLLECTION_PRIVATE_PROFILES = 'privateProfiles';
