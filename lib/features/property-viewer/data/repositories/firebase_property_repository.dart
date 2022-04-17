@@ -10,10 +10,35 @@ import '../../../../constants/firebase/firebase_constant.dart';
 class FirebasePropertyRepository implements PropertyRepository {
   late final CollectionReference<PropertyModel> _propertiesCollectionRef;
 
+  @deprecated
   FirebasePropertyRepository.of(String uid)
       : _propertiesCollectionRef = FirebaseFirestore.instance
             .collection(
                 '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES')
+            .withConverter<PropertyModel>(
+              fromFirestore: (snapshot, _) {
+                final json = snapshot.data()!;
+                return PropertyModel.fromIdAndJson(snapshot.id, json);
+              },
+              toFirestore: (propertyModel, _) => propertyModel.toJson(),
+            );
+
+  FirebasePropertyRepository.personal(String uid)
+      : _propertiesCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES')
+            .withConverter<PropertyModel>(
+              fromFirestore: (snapshot, _) {
+                final json = snapshot.data()!;
+                return PropertyModel.fromIdAndJson(snapshot.id, json);
+              },
+              toFirestore: (propertyModel, _) => propertyModel.toJson(),
+            );
+
+  FirebasePropertyRepository.shared(String pairId)
+      : _propertiesCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_PROPERTIES')
             .withConverter<PropertyModel>(
               fromFirestore: (snapshot, _) {
                 final json = snapshot.data()!;

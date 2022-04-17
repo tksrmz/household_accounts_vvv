@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/features/input-page/domain/entities/record.dart';
 
-import '../../../../constants/firebase/firebase_constant.dart';
 import '../../../category-page/data/models/category.dart';
 import '../../../property-viewer/data/models/property.dart';
 
@@ -17,11 +16,10 @@ final ToFirestore<PropertyModel> _propertyModelToFirestore =
 
 DocumentReference<CategoryModel> _createCategoryDocumentReference({
   required String categoryId,
-  required String uid,
+  required String categoryCollectionPath,
 }) =>
     FirebaseFirestore.instance
-        .collection(
-            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_CATEGORIES')
+        .collection(categoryCollectionPath)
         .doc(categoryId)
         .withConverter<CategoryModel>(
           fromFirestore: _categoryModelFromFirestore,
@@ -30,11 +28,10 @@ DocumentReference<CategoryModel> _createCategoryDocumentReference({
 
 DocumentReference<PropertyModel> _createPropertyDocumentReference({
   required String propertyId,
-  required String uid,
+  required String propertyCollectionPath,
 }) =>
     FirebaseFirestore.instance
-        .collection(
-            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES')
+        .collection(propertyCollectionPath)
         .doc(propertyId)
         .withConverter<PropertyModel>(
           fromFirestore: _propertyModelFromFirestore,
@@ -44,14 +41,15 @@ DocumentReference<PropertyModel> _createPropertyDocumentReference({
 class IncomeRecordModel extends IncomeRecord {
   IncomeRecordModel.fromIncomeRecord({
     required IncomeRecord record,
-    required String uid,
+    required String categoryCollectionPath,
+    required String propertyCollectionPath,
   })  : categoryRef = _createCategoryDocumentReference(
-          categoryId: record.categoryId,
-          uid: uid,
+    categoryId: record.categoryId,
+          categoryCollectionPath: categoryCollectionPath,
         ),
         propertyRef = _createPropertyDocumentReference(
           propertyId: record.propertyId,
-          uid: uid,
+          propertyCollectionPath: propertyCollectionPath,
         ),
         _createdAt = DateTime.now(),
         super(
@@ -108,14 +106,15 @@ class IncomeRecordModel extends IncomeRecord {
 class ExpenseRecordModel extends ExpenseRecord {
   ExpenseRecordModel.fromExpenseRecord({
     required ExpenseRecord record,
-    required String uid,
+    required String categoryCollectionPath,
+    required String propertyCollectionPath,
   })  : categoryRef = _createCategoryDocumentReference(
-          categoryId: record.categoryId,
-          uid: uid,
+    categoryId: record.categoryId,
+          categoryCollectionPath: categoryCollectionPath,
         ),
         propertyRef = _createPropertyDocumentReference(
           propertyId: record.propertyId,
-          uid: uid,
+          propertyCollectionPath: propertyCollectionPath,
         ),
         _createdAt = DateTime.now(),
         super(
@@ -172,14 +171,14 @@ class ExpenseRecordModel extends ExpenseRecord {
 class TransferRecordModel extends TransferRecord {
   TransferRecordModel.fromTransferRecord({
     required TransferRecord record,
-    required String uid,
+    required String propertyCollectionPath,
   })  : fromPropertyRef = _createPropertyDocumentReference(
-          propertyId: record.srcPropertyId,
-          uid: uid,
+    propertyId: record.srcPropertyId,
+          propertyCollectionPath: propertyCollectionPath,
         ),
         toPropertyRef = _createPropertyDocumentReference(
           propertyId: record.destPropertyId,
-          uid: uid,
+          propertyCollectionPath: propertyCollectionPath,
         ),
         _createdAt = DateTime.now(),
         super(

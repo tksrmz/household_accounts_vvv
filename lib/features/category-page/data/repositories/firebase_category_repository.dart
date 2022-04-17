@@ -10,10 +10,35 @@ import '../../../../constants/firebase/firebase_constant.dart';
 class FirebaseCategoryRepository implements CategoryRepository {
   late final CollectionReference<CategoryModel> _categoriesCollectionRef;
 
+  @deprecated
   FirebaseCategoryRepository.of(String uid)
       : _categoriesCollectionRef = FirebaseFirestore.instance
             .collection(
                 '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_CATEGORIES')
+            .withConverter<CategoryModel>(
+              fromFirestore: (snapshot, _) {
+                final json = snapshot.data()!;
+                return CategoryModel.fromIdAndJson(snapshot.id, json);
+              },
+              toFirestore: (categoryModel, _) => categoryModel.toJson(),
+            );
+
+  FirebaseCategoryRepository.personal(String uid)
+      : _categoriesCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_CATEGORIES')
+            .withConverter<CategoryModel>(
+              fromFirestore: (snapshot, _) {
+                final json = snapshot.data()!;
+                return CategoryModel.fromIdAndJson(snapshot.id, json);
+              },
+              toFirestore: (categoryModel, _) => categoryModel.toJson(),
+            );
+
+  FirebaseCategoryRepository.shared(String pairId)
+      : _categoriesCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_CATEGORIES')
             .withConverter<CategoryModel>(
               fromFirestore: (snapshot, _) {
                 final json = snapshot.data()!;

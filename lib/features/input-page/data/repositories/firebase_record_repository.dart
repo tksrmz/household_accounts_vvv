@@ -7,43 +7,118 @@ import 'package:household_accounts/features/input-page/domain/repositories/recor
 import 'package:household_accounts/util/failures/failure.dart';
 
 class FirebaseRecordRepository implements RecordRepositoryNew {
-  FirebaseRecordRepository.of(this.uid)
+  @deprecated
+  FirebaseRecordRepository.of(String uid)
       : _incomeCollectionRef = FirebaseFirestore.instance
-      .collection(
-      '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_INCOMES')
-      .withConverter(
-    fromFirestore: (snapshot, _) => IncomeRecordModel.fromIdAndJson(
-      id: snapshot.id,
-      json: snapshot.data()!,
-    ),
-    toFirestore: (model, _) => model.toJson(),
-  ),
-        _expenseCollectionRef = FirebaseFirestore.instance
             .collection(
-                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_EXPENSES')
+                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_INCOMES')
             .withConverter(
-          fromFirestore: (snapshot, _) => ExpenseRecordModel.fromIdAndJson(
-            id: snapshot.id,
-            json: snapshot.data()!,
-          ),
-          toFirestore: (model, _) => model.toJson(),
-        ),
-        _transferCollectionRef = FirebaseFirestore.instance
-            .collection(
-                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_TRANSFERS')
-            .withConverter(
-          fromFirestore: (snapshot, _) =>
-              TransferRecordModel.fromIdAndJson(
+              fromFirestore: (snapshot, _) => IncomeRecordModel.fromIdAndJson(
                 id: snapshot.id,
                 json: snapshot.data()!,
               ),
               toFirestore: (model, _) => model.toJson(),
-            );
+            ),
+        _expenseCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_EXPENSES')
+            .withConverter(
+              fromFirestore: (snapshot, _) => ExpenseRecordModel.fromIdAndJson(
+                id: snapshot.id,
+                json: snapshot.data()!,
+              ),
+              toFirestore: (model, _) => model.toJson(),
+            ),
+        _transferCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_TRANSFERS')
+            .withConverter(
+              fromFirestore: (snapshot, _) => TransferRecordModel.fromIdAndJson(
+                id: snapshot.id,
+                json: snapshot.data()!,
+              ),
+              toFirestore: (model, _) => model.toJson(),
+            ),
+        _propertyCollectionPath = '',
+        _categoryCollectionPath = '';
+
+  FirebaseRecordRepository.personal(String uid)
+      : _incomeCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_INCOMES')
+            .withConverter(
+              fromFirestore: (snapshot, _) => IncomeRecordModel.fromIdAndJson(
+                id: snapshot.id,
+                json: snapshot.data()!,
+              ),
+              toFirestore: (model, _) => model.toJson(),
+            ),
+        _expenseCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_EXPENSES')
+            .withConverter(
+              fromFirestore: (snapshot, _) => ExpenseRecordModel.fromIdAndJson(
+                id: snapshot.id,
+                json: snapshot.data()!,
+              ),
+              toFirestore: (model, _) => model.toJson(),
+            ),
+        _transferCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_TRANSFERS')
+            .withConverter(
+              fromFirestore: (snapshot, _) => TransferRecordModel.fromIdAndJson(
+                id: snapshot.id,
+                json: snapshot.data()!,
+              ),
+              toFirestore: (model, _) => model.toJson(),
+            ),
+        _propertyCollectionPath =
+            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_CATEGORIES',
+        _categoryCollectionPath =
+            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES';
+
+  FirebaseRecordRepository.shared(String pairId)
+      : _incomeCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_INCOMES')
+            .withConverter(
+              fromFirestore: (snapshot, _) => IncomeRecordModel.fromIdAndJson(
+                id: snapshot.id,
+                json: snapshot.data()!,
+              ),
+              toFirestore: (model, _) => model.toJson(),
+            ),
+        _expenseCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_EXPENSES')
+            .withConverter(
+              fromFirestore: (snapshot, _) => ExpenseRecordModel.fromIdAndJson(
+                id: snapshot.id,
+                json: snapshot.data()!,
+              ),
+              toFirestore: (model, _) => model.toJson(),
+            ),
+        _transferCollectionRef = FirebaseFirestore.instance
+            .collection(
+                '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_TRANSFERS')
+            .withConverter(
+              fromFirestore: (snapshot, _) => TransferRecordModel.fromIdAndJson(
+                id: snapshot.id,
+                json: snapshot.data()!,
+              ),
+              toFirestore: (model, _) => model.toJson(),
+            ),
+        _propertyCollectionPath =
+            '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_CATEGORIES',
+        _categoryCollectionPath =
+            '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_PROPERTIES';
 
   late final CollectionReference<IncomeRecordModel> _incomeCollectionRef;
   late final CollectionReference<ExpenseRecordModel> _expenseCollectionRef;
   late final CollectionReference<TransferRecordModel> _transferCollectionRef;
-  final String uid;
+  final String _categoryCollectionPath;
+  final String _propertyCollectionPath;
 
   @override
   Future<Either<Failure, Unit>> deleteById(
@@ -65,33 +140,33 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   }
 
   @override
-  Future<Either<Failure, Unit>> register(
-    Record value,
-  ) async {
+  Future<Either<Failure, Unit>> register(Record value,) async {
     switch (value.type) {
       case RecordType.income:
         await _incomeCollectionRef.doc(value.id).set(
-              IncomeRecordModel.fromIncomeRecord(
-                uid: uid,
-                record: value as IncomeRecord,
+          IncomeRecordModel.fromIncomeRecord(
+            record: value as IncomeRecord,
+                categoryCollectionPath: _categoryCollectionPath,
+                propertyCollectionPath: _propertyCollectionPath,
               ),
-            );
+        );
         break;
       case RecordType.expense:
         await _expenseCollectionRef.doc(value.id).set(
-              ExpenseRecordModel.fromExpenseRecord(
+          ExpenseRecordModel.fromExpenseRecord(
+                categoryCollectionPath: _categoryCollectionPath,
+                propertyCollectionPath: _propertyCollectionPath,
                 record: value as ExpenseRecord,
-                uid: uid,
               ),
-            );
+        );
         break;
       case RecordType.transfer:
         await _transferCollectionRef.doc(value.id).set(
-              TransferRecordModel.fromTransferRecord(
-                record: value as TransferRecord,
-                uid: uid,
+          TransferRecordModel.fromTransferRecord(
+            record: value as TransferRecord,
+                propertyCollectionPath: _propertyCollectionPath,
               ),
-            );
+        );
         break;
     }
 
@@ -99,10 +174,8 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   }
 
   @override
-  Future<Either<Failure, Record>> retrieveById(
-    String id,
-    RecordType type,
-  ) async {
+  Future<Either<Failure, Record>> retrieveById(String id,
+      RecordType type,) async {
     DocumentSnapshot<dynamic> snapshot;
     switch (type) {
       case RecordType.income:
@@ -124,13 +197,11 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   }
 
   @override
-  Future<Either<Failure, List<Record>>> retrieveRecordsOf(
-    DateTime begin,
-    DateTime end,
-  ) async {
+  Future<Either<Failure, List<Record>>> retrieveRecordsOf(DateTime begin,
+      DateTime end,) async {
     assert(
-      begin.isBefore(end),
-      '$begin is after or at the same moment as $end',
+    begin.isBefore(end),
+    '$begin is after or at the same moment as $end',
     );
 
     final List<Record> incomeModels = await _incomeCollectionRef
@@ -139,33 +210,33 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
         .get()
         .then(
           (QuerySnapshot<IncomeRecordModel> querySnapshot) => List.of(
-            querySnapshot.docs.map(
+        querySnapshot.docs.map(
               (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
-            ),
-          ),
-        );
+        ),
+      ),
+    );
     final List<Record> expenseModels = await _expenseCollectionRef
         .where('date', isGreaterThanOrEqualTo: begin)
         .where('date', isLessThan: end)
         .get()
         .then(
           (QuerySnapshot<ExpenseRecordModel> querySnapshot) => List.of(
-            querySnapshot.docs.map(
+        querySnapshot.docs.map(
               (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
-            ),
-          ),
-        );
+        ),
+      ),
+    );
     final List<Record> transferModels = await _transferCollectionRef
         .where('date', isGreaterThanOrEqualTo: begin)
         .where('date', isLessThan: end)
         .get()
         .then(
           (QuerySnapshot<TransferRecordModel> querySnapshot) => List.of(
-            querySnapshot.docs.map(
+        querySnapshot.docs.map(
               (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
-            ),
-          ),
-        );
+        ),
+      ),
+    );
 
     return Right(List.from([
       ...incomeModels,
