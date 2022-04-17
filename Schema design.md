@@ -63,6 +63,19 @@
 
 ## Documents
 
+### /privateProfiles/{uid}
+
+```text
+<uid>: {
+  partner: {
+    ref: // Reference to /publicProfiles/{partner's-uid}
+  }
+  sharedNote: {
+    ref: // reference to /sharedNote/{user's-pair-id}
+  }
+}
+```
+
 ### /publicProfiles/{uid}
 
 This document contains public profile information of the user. This document relates to use cases:
@@ -208,6 +221,150 @@ monthly), create/edit/delete a record.
 ```
 
 ### /personalNotes/{uid}/calendars/{calendar-id}/transfers/{record-id}
+
+`createdAt` is used to sort.
+
+```text
+<record-id>: {
+  date: timestamp
+  type: string (fixed to "transfer")
+  amount: integer,
+  fromProperty: {
+    ref: reference to property
+  },
+  toProperty: {
+    ref: reference to property
+  },
+  note: string,
+  createdAt: timestamp
+}
+```
+
+### /sharedNotes/{pair-id}
+
+This document and sub-collections can only be read and/or written by the owners. This document
+relates to use cases: register a pair.
+
+This document is created with batch at the same moment when public information of the user is
+created.
+`createdAt` is used in verification of the batch operations.
+
+* Allow the user to read.
+  * Relates to "register a user".
+* Created by Admin SDK.
+  * Relates to "register a user".
+
+```text
+<pair-id>: {
+  // Length of `owners` is two.
+  // Its elements are user IDs, not references to owners' public/private profiles.
+  owners: Array<string>, 
+  createdAt: timestamp
+}
+```
+
+### /sharedNotes/{pair-id}/categories/{category-id}
+
+This document contains information of the category. This document relates to use cases:
+create/view/edit/delete category(categories).
+
+`type` is one of `income` or `expense`.
+`name` is used to sort on display.
+
+* Allow the user to read(get and list).
+  * Relates to "view categories".
+* Allow the user to write(create, update and delete).
+  * Relates to "create/edit/delete a category"
+
+```text
+<category-id>: {
+  name: string,
+  type: string
+}
+```
+
+### /sharedNotes/{pair-id}/properties/{property-id}
+
+This document contains information of the property. This document relates to use cases:
+create/view/edit/delete property(properties).
+
+`name` is used to sort on display.
+
+* Allow the user to read(get and list).
+  * Relates to "view properties".
+* Allow the user to write(create, update and delete).
+  * Relates to "create/edit/delete a property"
+
+```text
+<property-id>: {
+  name: string,
+  amount: integer
+}
+```
+
+### /sharedNotes/{pair-id}/calendars/{calendar-id}
+
+What is a trigger to create this document? Changes of months, the first creation of record in the
+month, or... what?
+
+This document is a summary on a monthly basis. This document relates to use cases: view records(
+monthly), create/edit/delete a record.
+
+`summart` is updated from background function on writing income/expense/transfer records.
+
+```text
+<calendar-id>: {
+  year: integer,
+  month: integer,
+  summary: Map< string: { // keys are in form of `dXXX` where XXX is day of the month(1-31)
+    income: int,
+    expense: int,
+    transfer: int
+  }> // max length is 31
+}
+```
+
+### /sharedNotes/{pair-id}/incomes/{record-id}
+
+`createdAt` is used to sort.
+
+```text
+<record-id>: {
+  date: timestamp
+  type: string (fixed to "income")
+  amount: integer,
+  property: {
+    ref: reference to property
+  },
+  category: {
+    ref: reference to category
+  },
+  note: string,
+  createdAt: timestamp
+}
+```
+
+### /sharedNotes/{pair-id}/expenses/{record-id}
+
+`createdAt` is used to sort.
+
+```text
+<record-id>: {
+  date: timestamp
+  type: string (fixed to "expense")
+  amount: integer,
+  property: {
+    ref: reference to property
+  },
+  category: {
+    ref: reference to category
+  },
+  note: string,
+  createdAt: timestamp
+}
+```
+
+### /sharedNotes/{pair-id}/calendars/{calendar-id}/transfers/{record-id}
 
 `createdAt` is used to sort.
 
