@@ -197,13 +197,13 @@ class MyAppHomeState extends State<MyAppHome> {
               break;
 
             case _SingleOrPair.pair:
-              _firebaseRecordRepository = FirebaseRecordRepository.personal(
+              _firebaseRecordRepository = FirebaseRecordRepository.shared(
                   (snapshot.data!.get('sharedNote.ref') as DocumentReference)
                       .id);
-              _firebasePropertyRepository = FirebasePropertyRepository.personal(
+              _firebasePropertyRepository = FirebasePropertyRepository.shared(
                   (snapshot.data!.get('sharedNote.ref') as DocumentReference)
                       .id);
-              _firebaseCategoryRepository = FirebaseCategoryRepository.personal(
+              _firebaseCategoryRepository = FirebaseCategoryRepository.shared(
                   (snapshot.data!.get('sharedNote.ref') as DocumentReference)
                       .id);
               break;
