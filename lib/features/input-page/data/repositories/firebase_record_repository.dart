@@ -74,9 +74,9 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
               toFirestore: (model, _) => model.toJson(),
             ),
         _propertyCollectionPath =
-            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_CATEGORIES',
+            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES',
         _categoryCollectionPath =
-            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES';
+            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_CATEGORIES';
 
   FirebaseRecordRepository.shared(String pairId)
       : _incomeCollectionRef = FirebaseFirestore.instance
@@ -110,9 +110,9 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
               toFirestore: (model, _) => model.toJson(),
             ),
         _propertyCollectionPath =
-            '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_CATEGORIES',
+            '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_PROPERTIES',
         _categoryCollectionPath =
-            '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_PROPERTIES';
+            '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_CATEGORIES';
 
   late final CollectionReference<IncomeRecordModel> _incomeCollectionRef;
   late final CollectionReference<ExpenseRecordModel> _expenseCollectionRef;

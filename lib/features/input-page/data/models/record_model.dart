@@ -44,14 +44,14 @@ class IncomeRecordModel extends IncomeRecord {
     required String categoryCollectionPath,
     required String propertyCollectionPath,
   })  : categoryRef = _createCategoryDocumentReference(
-    categoryId: record.categoryId,
+          categoryId: record.categoryId,
           categoryCollectionPath: categoryCollectionPath,
         ),
         propertyRef = _createPropertyDocumentReference(
           propertyId: record.propertyId,
           propertyCollectionPath: propertyCollectionPath,
         ),
-        _createdAt = DateTime.now(),
+        _createdAt = FieldValue.serverTimestamp(),
         super(
           record.id,
           record.recordDate,
@@ -64,7 +64,8 @@ class IncomeRecordModel extends IncomeRecord {
   IncomeRecordModel.fromIdAndJson({
     required String id,
     required Map<String, dynamic> json,
-  })  : categoryRef =
+  })
+      : categoryRef =
             (json['category']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _categoryModelFromFirestore,
           toFirestore: _categoryModelToFirestore,
@@ -74,7 +75,7 @@ class IncomeRecordModel extends IncomeRecord {
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
-        _createdAt = (json['createdAt'] as Timestamp).toDate(),
+        _createdAt = json['createdAt'] as Timestamp,
         super(
           id,
           (json['date'] as Timestamp).toDate(),
@@ -86,7 +87,7 @@ class IncomeRecordModel extends IncomeRecord {
 
   final DocumentReference<CategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
-  final DateTime _createdAt;
+  final dynamic _createdAt;
 
   Map<String, dynamic> toJson() => {
         'date': recordDate,
@@ -108,15 +109,16 @@ class ExpenseRecordModel extends ExpenseRecord {
     required ExpenseRecord record,
     required String categoryCollectionPath,
     required String propertyCollectionPath,
-  })  : categoryRef = _createCategoryDocumentReference(
-    categoryId: record.categoryId,
+  })
+      : categoryRef = _createCategoryDocumentReference(
+          categoryId: record.categoryId,
           categoryCollectionPath: categoryCollectionPath,
         ),
         propertyRef = _createPropertyDocumentReference(
           propertyId: record.propertyId,
           propertyCollectionPath: propertyCollectionPath,
         ),
-        _createdAt = DateTime.now(),
+        _createdAt = FieldValue.serverTimestamp(),
         super(
           record.id,
           record.recordDate,
@@ -129,7 +131,8 @@ class ExpenseRecordModel extends ExpenseRecord {
   ExpenseRecordModel.fromIdAndJson({
     required String id,
     required Map<String, dynamic> json,
-  })  : categoryRef =
+  })
+      : categoryRef =
             (json['category']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _categoryModelFromFirestore,
           toFirestore: _categoryModelToFirestore,
@@ -139,7 +142,7 @@ class ExpenseRecordModel extends ExpenseRecord {
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
-        _createdAt = (json['createdAt'] as Timestamp).toDate(),
+        _createdAt = json['createdAt'] as Timestamp,
         super(
           id,
           (json['date'] as Timestamp).toDate(),
@@ -151,7 +154,7 @@ class ExpenseRecordModel extends ExpenseRecord {
 
   final DocumentReference<CategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
-  final DateTime _createdAt;
+  final dynamic _createdAt;
 
   Map<String, dynamic> toJson() => {
         'date': recordDate,
@@ -172,15 +175,16 @@ class TransferRecordModel extends TransferRecord {
   TransferRecordModel.fromTransferRecord({
     required TransferRecord record,
     required String propertyCollectionPath,
-  })  : fromPropertyRef = _createPropertyDocumentReference(
-    propertyId: record.srcPropertyId,
+  })
+      : fromPropertyRef = _createPropertyDocumentReference(
+          propertyId: record.srcPropertyId,
           propertyCollectionPath: propertyCollectionPath,
         ),
         toPropertyRef = _createPropertyDocumentReference(
           propertyId: record.destPropertyId,
           propertyCollectionPath: propertyCollectionPath,
         ),
-        _createdAt = DateTime.now(),
+        _createdAt = FieldValue.serverTimestamp(),
         super(
           record.id,
           record.recordDate,
@@ -193,7 +197,8 @@ class TransferRecordModel extends TransferRecord {
   TransferRecordModel.fromIdAndJson({
     required String id,
     required Map<String, dynamic> json,
-  })  : fromPropertyRef =
+  })
+      : fromPropertyRef =
             (json['fromProperty']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
@@ -203,7 +208,7 @@ class TransferRecordModel extends TransferRecord {
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
-        _createdAt = (json['createdAt'] as Timestamp).toDate(),
+        _createdAt = json['createdAt'] as Timestamp,
         super(
           id,
           (json['date'] as Timestamp).toDate(),
@@ -215,7 +220,7 @@ class TransferRecordModel extends TransferRecord {
 
   final DocumentReference<PropertyModel> fromPropertyRef;
   final DocumentReference<PropertyModel> toPropertyRef;
-  final DateTime _createdAt;
+  final dynamic _createdAt;
 
   Map<String, dynamic> toJson() => {
         'date': recordDate,
