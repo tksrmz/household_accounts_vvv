@@ -141,34 +141,71 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
 
   @override
   Future<Either<Failure, Unit>> register(Record value,) async {
+    final batch = FirebaseFirestore.instance.batch();
     switch (value.type) {
       case RecordType.income:
-        await _incomeCollectionRef.doc(value.id).set(
+        final income = value as IncomeRecord;
+        batch.update(
+          FirebaseFirestore.instance
+              .doc('$_propertyCollectionPath/${income.propertyId}'),
+          {
+            'amount': FieldValue.increment(income.amount),
+          },
+        );
+        batch.set(
+          _incomeCollectionRef.doc(value.id),
           IncomeRecordModel.fromIncomeRecord(
-            record: value as IncomeRecord,
-                categoryCollectionPath: _categoryCollectionPath,
-                propertyCollectionPath: _propertyCollectionPath,
-              ),
+            record: income,
+            categoryCollectionPath: _categoryCollectionPath,
+            propertyCollectionPath: _propertyCollectionPath,
+          ),
         );
         break;
       case RecordType.expense:
-        await _expenseCollectionRef.doc(value.id).set(
+        final expense = value as ExpenseRecord;
+        batch.update(
+          FirebaseFirestore.instance
+              .doc('$_propertyCollectionPath/${expense.propertyId}'),
+          {
+            'amount': FieldValue.increment(-expense.amount),
+          },
+        );
+        batch.set(
+          _expenseCollectionRef.doc(value.id),
           ExpenseRecordModel.fromExpenseRecord(
-                categoryCollectionPath: _categoryCollectionPath,
-                propertyCollectionPath: _propertyCollectionPath,
-                record: value as ExpenseRecord,
-              ),
+            record: expense,
+            categoryCollectionPath: _categoryCollectionPath,
+            propertyCollectionPath: _propertyCollectionPath,
+          ),
         );
         break;
       case RecordType.transfer:
-        await _transferCollectionRef.doc(value.id).set(
+        final transfer = value as TransferRecord;
+        batch.update(
+          FirebaseFirestore.instance
+              .doc('$_propertyCollectionPath/${transfer.srcPropertyId}'),
+          {
+            'amount': FieldValue.increment(-transfer.amount),
+          },
+        );
+        batch.update(
+          FirebaseFirestore.instance
+              .doc('$_propertyCollectionPath/${transfer.destPropertyId}'),
+          {
+            'amount': FieldValue.increment(transfer.amount),
+          },
+        );
+        batch.set(
+          _transferCollectionRef.doc(value.id),
           TransferRecordModel.fromTransferRecord(
-            record: value as TransferRecord,
-                propertyCollectionPath: _propertyCollectionPath,
-              ),
+            record: transfer,
+            propertyCollectionPath: _propertyCollectionPath,
+          ),
         );
         break;
     }
+
+    await batch.commit();
 
     return Right(unit);
   }
