@@ -203,7 +203,9 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   }
 
   @override
-  Future<Either<Failure, Unit>> register(Record value,) async {
+  Future<Either<Failure, Unit>> register(
+    Record value,
+  ) async {
     final batch = FirebaseFirestore.instance.batch();
     switch (value.type) {
       case RecordType.income:
@@ -274,8 +276,10 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   }
 
   @override
-  Future<Either<Failure, Record>> retrieveById(String id,
-      RecordType type,) async {
+  Future<Either<Failure, Record>> retrieveById(
+    String id,
+    RecordType type,
+  ) async {
     DocumentSnapshot<dynamic> snapshot;
     switch (type) {
       case RecordType.income:
@@ -297,11 +301,13 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   }
 
   @override
-  Future<Either<Failure, List<Record>>> retrieveRecordsOf(DateTime begin,
-      DateTime end,) async {
+  Future<Either<Failure, List<Record>>> retrieveRecordsOf(
+    DateTime begin,
+    DateTime end,
+  ) async {
     assert(
-    begin.isBefore(end),
-    '$begin is after or at the same moment as $end',
+      begin.isBefore(end),
+      '$begin is after or at the same moment as $end',
     );
 
     final List<Record> incomeModels = await _incomeCollectionRef
@@ -310,33 +316,33 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
         .get()
         .then(
           (QuerySnapshot<IncomeRecordModel> querySnapshot) => List.of(
-        querySnapshot.docs.map(
+            querySnapshot.docs.map(
               (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
-        ),
-      ),
-    );
+            ),
+          ),
+        );
     final List<Record> expenseModels = await _expenseCollectionRef
         .where('date', isGreaterThanOrEqualTo: begin)
         .where('date', isLessThan: end)
         .get()
         .then(
           (QuerySnapshot<ExpenseRecordModel> querySnapshot) => List.of(
-        querySnapshot.docs.map(
+            querySnapshot.docs.map(
               (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
-        ),
-      ),
-    );
+            ),
+          ),
+        );
     final List<Record> transferModels = await _transferCollectionRef
         .where('date', isGreaterThanOrEqualTo: begin)
         .where('date', isLessThan: end)
         .get()
         .then(
           (QuerySnapshot<TransferRecordModel> querySnapshot) => List.of(
-        querySnapshot.docs.map(
+            querySnapshot.docs.map(
               (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
-        ),
-      ),
-    );
+            ),
+          ),
+        );
 
     return Right(List.from([
       ...incomeModels,

@@ -64,8 +64,7 @@ class IncomeRecordModel extends IncomeRecord {
   IncomeRecordModel.fromIdAndJson({
     required String id,
     required Map<String, dynamic> json,
-  })
-      : categoryRef =
+  })  : categoryRef =
             (json['category']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _categoryModelFromFirestore,
           toFirestore: _categoryModelToFirestore,
@@ -109,8 +108,7 @@ class ExpenseRecordModel extends ExpenseRecord {
     required ExpenseRecord record,
     required String categoryCollectionPath,
     required String propertyCollectionPath,
-  })
-      : categoryRef = _createCategoryDocumentReference(
+  })  : categoryRef = _createCategoryDocumentReference(
           categoryId: record.categoryId,
           categoryCollectionPath: categoryCollectionPath,
         ),
@@ -131,8 +129,7 @@ class ExpenseRecordModel extends ExpenseRecord {
   ExpenseRecordModel.fromIdAndJson({
     required String id,
     required Map<String, dynamic> json,
-  })
-      : categoryRef =
+  })  : categoryRef =
             (json['category']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _categoryModelFromFirestore,
           toFirestore: _categoryModelToFirestore,
@@ -175,8 +172,7 @@ class TransferRecordModel extends TransferRecord {
   TransferRecordModel.fromTransferRecord({
     required TransferRecord record,
     required String propertyCollectionPath,
-  })
-      : fromPropertyRef = _createPropertyDocumentReference(
+  })  : fromPropertyRef = _createPropertyDocumentReference(
           propertyId: record.srcPropertyId,
           propertyCollectionPath: propertyCollectionPath,
         ),
@@ -197,8 +193,7 @@ class TransferRecordModel extends TransferRecord {
   TransferRecordModel.fromIdAndJson({
     required String id,
     required Map<String, dynamic> json,
-  })
-      : fromPropertyRef =
+  })  : fromPropertyRef =
             (json['fromProperty']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,

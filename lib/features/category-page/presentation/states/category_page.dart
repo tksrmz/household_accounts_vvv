@@ -111,7 +111,7 @@ class CategoryPageState with ChangeNotifier {
   Future<void> updateCategory(
     String id,
     String newCategoryName,
-      // String newBudgetString,
+    // String newBudgetString,
   ) async {
     _failure = null;
 

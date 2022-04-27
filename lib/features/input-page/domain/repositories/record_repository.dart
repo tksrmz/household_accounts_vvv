@@ -32,7 +32,10 @@ abstract class RecordRepository {
   /// Retrieves records in the specified date range ([begin] included, [end] excluded).
   ///
   /// The records are sorted in ascending order of [Record.dateOfRecord].
-  Future<Either<Failure, List<Record>>> retrieveRecordsOf(DateTime begin, DateTime end);
+  Future<Either<Failure, List<Record>>> retrieveRecordsOf(
+    DateTime begin,
+    DateTime end,
+  );
 
   /// Deletes a record that is identified by [id].
   ///

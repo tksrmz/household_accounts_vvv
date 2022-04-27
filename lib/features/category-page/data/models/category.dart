@@ -14,7 +14,7 @@ class CategoryModel extends Category {
           id,
           json['name'] as String,
           RecordTypeParsing.fromShortString(json['type'] as String),
-    // 0, // Budget is not used (currently).
+          // 0, // Budget is not used (currently).
         );
 
   Map<String, Object?> toJson() => {

@@ -179,7 +179,7 @@ class _PageContentsState extends State<_PageContents> {
                 onChanged: _setDestPropertyState,
               )
             : _CategoryDropDownMenu(
-          categories: _categoriesFuture,
+                categories: _categoriesFuture,
                 value: _category,
                 categoryType: _recordType == RecordType.income
                     ? CategoryType.income
