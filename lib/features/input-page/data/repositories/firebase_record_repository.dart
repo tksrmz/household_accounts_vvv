@@ -125,17 +125,80 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
     String id,
     RecordType type,
   ) async {
+    TransactionHandler handler;
     switch (type) {
       case RecordType.income:
-        await _incomeCollectionRef.doc(id).delete();
+        handler = (Transaction transaction) async {
+          final recordDocument = _incomeCollectionRef.doc(id);
+          // Get the document
+          DocumentSnapshot<IncomeRecordModel> snapshot =
+              await transaction.get(recordDocument);
+
+          if (!snapshot.exists) {
+            return;
+          }
+
+          IncomeRecordModel model = snapshot.data()!;
+          transaction.update(
+            model.propertyRef,
+            {
+              'amount': FieldValue.increment(-model.amount),
+            },
+          ).delete(recordDocument);
+          return;
+        };
         break;
       case RecordType.expense:
-        await _expenseCollectionRef.doc(id).delete();
+        handler = (Transaction transaction) async {
+          final recordDocument = _expenseCollectionRef.doc(id);
+          // Get the document
+          DocumentSnapshot<ExpenseRecordModel> snapshot =
+              await transaction.get(recordDocument);
+
+          if (!snapshot.exists) {
+            return;
+          }
+
+          ExpenseRecordModel model = snapshot.data()!;
+          transaction.update(
+            model.propertyRef,
+            {
+              'amount': FieldValue.increment(model.amount),
+            },
+          ).delete(recordDocument);
+          return;
+        };
         break;
       case RecordType.transfer:
-        await _transferCollectionRef.doc(id).delete();
+        handler = (Transaction transaction) async {
+          final recordDocument = _transferCollectionRef.doc(id);
+          // Get the document
+          DocumentSnapshot<TransferRecordModel> snapshot =
+              await transaction.get(recordDocument);
+
+          if (!snapshot.exists) {
+            return;
+          }
+
+          TransferRecordModel model = snapshot.data()!;
+          transaction.update(
+            model.fromPropertyRef,
+            {
+              'amount': FieldValue.increment(model.amount),
+            },
+          ).update(
+            model.toPropertyRef,
+            {
+              'amount': FieldValue.increment(-model.amount),
+            },
+          ).delete(recordDocument);
+          return;
+        };
         break;
     }
+
+    await FirebaseFirestore.instance.runTransaction(handler);
+
     return Right(unit);
   }
 
