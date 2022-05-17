@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.household_accounts">
    <application
-       android:label="household_accounts"
+       android:label="かけーぼα"
        android:icon="@mipmap/alpha_icon">
        <activity
            android:name=".MainActivity"
@@ -38,4 +38,5 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
