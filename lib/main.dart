@@ -338,7 +338,8 @@ class MyAppHomeState extends State<MyAppHome> {
               categoryListPage,
             ],
             singleOrPair: _singleOrPair,
-            setSingleOrPair: snapshot.data!.get('sharedNote') != null
+            setSingleOrPair:
+              snapshot.data!.exists && snapshot.data!.get('sharedNote') != null
                 ? (newValue) => setState(
                       () {
                         _singleOrPair = newValue;
@@ -504,6 +505,7 @@ class _HomeWidgetState extends State<_HomeWidget> {
         items: _bottomNavigationBarItems,
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Theme.of(context).colorScheme.primary,
         onTap: _onItemTapped,
       ),
     );
