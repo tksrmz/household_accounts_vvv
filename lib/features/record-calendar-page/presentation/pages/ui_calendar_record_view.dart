@@ -30,7 +30,7 @@ class _Page extends StatelessWidget {
     bool isLoading =
         context.select<CalendarRecordModel, bool>((model) => model.isLoading);
 
-    return Column(
+    return ListView(
       children: [
         _DateLabelWidget2(),
         const _WeekdayWidget(),
