@@ -211,6 +211,13 @@ class _PageContentsState extends State<_PageContents> {
                 _submitTransferRecord(context.read<AddTransferRecordUseCase>());
                 break;
             }
+
+            // Tell the user that the record has been created
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Record created!'),
+              ),
+            );
           },
         ),
       ],
