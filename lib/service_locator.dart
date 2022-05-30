@@ -22,95 +22,65 @@ import 'package:household_accounts/features/record-calendar-page/domain/use-case
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_properties.dart';
 
-class ServiceLocator {
-  /// Factory constructor
-  factory ServiceLocator() {
-    if (_sl == null) {
-      _sl = ServiceLocator._(false);
-    }
-    return _sl!;
-  }
+final sl = GetIt.instance;
 
-  /// Private constructor
-  ServiceLocator._(this._hasInitialized) : getIt = GetIt.instance;
+void initialize(String uid) {
+  // Repositories
+  sl.registerLazySingleton<RecordRepositoryNew>(
+    () => FirebaseRecordRepository.personal(uid),
+  );
+  sl.registerLazySingleton<PropertyRepository>(
+    () => FirebasePropertyRepository.personal(uid),
+  );
+  sl.registerLazySingleton<CategoryRepository>(
+    () => FirebaseCategoryRepository.personal(uid),
+  );
 
-  static ServiceLocator? _sl;
-  final GetIt getIt;
-  bool _hasInitialized;
+  // Use cases - record
+  sl.registerLazySingleton<AddIncomeRecordUseCase>(
+        () => AddIncomeRecordInteractor(sl<RecordRepositoryNew>()),
+  );
+  sl.registerLazySingleton<AddExpenseRecordUseCase>(
+        () => AddExpenseRecordInteractor(sl<RecordRepositoryNew>()),
+  );
+  sl.registerLazySingleton<AddTransferRecordUseCase>(
+        () => AddTransferRecordInteractor(sl<RecordRepositoryNew>()),
+  );
+  sl.registerLazySingleton<RetrieveMonthlyRecordsUseCase>(
+        () => RetrieveMonthlyRecordsInteractorNew(sl<RecordRepositoryNew>()),
+  );
+  sl.registerLazySingleton<RetrieveDailyRecordsUseCase>(
+        () => RetrieveDailyRecordsInteractorNew(sl<RecordRepositoryNew>()),
+  );
+  sl.registerLazySingleton<DeleteRecordUseCaseNew>(
+        () => DeleteRecordInteractorNew(sl<RecordRepositoryNew>()),
+  );
 
-  bool get hasInitialized => _hasInitialized;
+  // Use cases - property
+  sl.registerLazySingleton<AddPropertiesUseCase>(
+        () => AddPropertyInteractor(sl<PropertyRepository>()),
+  );
+  sl.registerLazySingleton<RetrievePropertiesUseCase>(
+        () => RetrievePropertiesInteractor(sl<PropertyRepository>()),
+  );
+  sl.registerLazySingleton<UpdatePropertyUseCase>(
+        () => UpdatePropertyInteractor(sl<PropertyRepository>()),
+  );
+  sl.registerLazySingleton<DeletePropertiesUseCase>(
+        () => DeletePropertyInteractor(sl<PropertyRepository>()),
+  );
 
-  /// Initialize this ServiceLocator.
-  /// If this is the first execution on this singleton, `true` is returned.
-  /// Otherwise, `false` is returned.
-  bool initialize(String uid) {
-    if (_hasInitialized) {
-      return false;
-    }
-
-    // Repositories
-    getIt.registerLazySingleton<RecordRepositoryNew>(
-      () => FirebaseRecordRepository.personal(uid),
-    );
-    getIt.registerLazySingleton<PropertyRepository>(
-      () => FirebasePropertyRepository.personal(uid),
-    );
-    getIt.registerLazySingleton<CategoryRepository>(
-      () => FirebaseCategoryRepository.personal(uid),
-    );
-
-    // Use cases - record
-    getIt.registerLazySingleton<AddIncomeRecordUseCase>(
-      () => AddIncomeRecordInteractor(getIt<RecordRepositoryNew>()),
-    );
-    getIt.registerLazySingleton<AddExpenseRecordUseCase>(
-      () => AddExpenseRecordInteractor(getIt<RecordRepositoryNew>()),
-    );
-    getIt.registerLazySingleton<AddTransferRecordUseCase>(
-      () => AddTransferRecordInteractor(getIt<RecordRepositoryNew>()),
-    );
-    getIt.registerLazySingleton<RetrieveMonthlyRecordsUseCase>(
-      () => RetrieveMonthlyRecordsInteractorNew(getIt<RecordRepositoryNew>()),
-    );
-    getIt.registerLazySingleton<RetrieveDailyRecordsUseCase>(
-      () => RetrieveDailyRecordsInteractorNew(getIt<RecordRepositoryNew>()),
-    );
-    getIt.registerLazySingleton<DeleteRecordUseCaseNew>(
-      () => DeleteRecordInteractorNew(getIt<RecordRepositoryNew>()),
-    );
-
-    // Use cases - property
-    getIt.registerLazySingleton<AddPropertiesUseCase>(
-      () => AddPropertyInteractor(getIt<PropertyRepository>()),
-    );
-    getIt.registerLazySingleton<RetrievePropertiesUseCase>(
-      () => RetrievePropertiesInteractor(getIt<PropertyRepository>()),
-    );
-    getIt.registerLazySingleton<UpdatePropertyUseCase>(
-      () => UpdatePropertyInteractor(getIt<PropertyRepository>()),
-    );
-    getIt.registerLazySingleton<DeletePropertiesUseCase>(
-      () => DeletePropertyInteractor(getIt<PropertyRepository>()),
-    );
-
-    // Use cases - category
-    getIt.registerLazySingleton<AddCategoryUseCase>(
-      () => AddCategoryInteractor(getIt<CategoryRepository>()),
-    );
-    getIt.registerLazySingleton<RetrieveCategoriesUseCase>(
-      () => RetrieveCategoriesInteractor(getIt<CategoryRepository>()),
-    );
-    getIt.registerLazySingleton<UpdateCategoryUseCase>(
-      () => UpdateCategoryInteractor(getIt<CategoryRepository>()),
-    );
-    getIt.registerLazySingleton<DeleteCategoryUseCase>(
-      () => DeleteCategoryInteractor(getIt<CategoryRepository>()),
-    );
-
-    _hasInitialized = true;
-    return true;
-  }
-
-  /// Retrieves registered instance of Type [T].
-  T call<T extends Object>() => getIt<T>();
+  // Use cases - category
+  sl.registerLazySingleton<AddCategoryUseCase>(
+        () => AddCategoryInteractor(sl<CategoryRepository>()),
+  );
+  sl.registerLazySingleton<RetrieveCategoriesUseCase>(
+        () => RetrieveCategoriesInteractor(sl<CategoryRepository>()),
+  );
+  sl.registerLazySingleton<UpdateCategoryUseCase>(
+        () => UpdateCategoryInteractor(sl<CategoryRepository>()),
+  );
+  sl.registerLazySingleton<DeleteCategoryUseCase>(
+        () => DeleteCategoryInteractor(sl<CategoryRepository>()),
+  );
 }
