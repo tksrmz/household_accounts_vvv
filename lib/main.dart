@@ -9,6 +9,7 @@ import 'package:household_accounts/features/input-page/data/repositories/firebas
 import 'package:household_accounts/features/property-viewer/data/repositories/firebase_property_repository.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
+import 'package:household_accounts/service_locator.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
 import 'package:household_accounts/features/input-page/presentation/pages/input_page.dart';
@@ -194,6 +195,7 @@ class MyAppHomeState extends State<MyAppHome> {
                   FirebasePropertyRepository.personal(widget._uid);
               _firebaseCategoryRepository =
                   FirebaseCategoryRepository.personal(widget._uid);
+              initialize(widget._uid);
               break;
 
             case _SingleOrPair.pair:
@@ -338,13 +340,16 @@ class MyAppHomeState extends State<MyAppHome> {
               categoryListPage,
             ],
             singleOrPair: _singleOrPair,
-            setSingleOrPair:
-              snapshot.data!.exists && snapshot.data!.get('sharedNote') != null
-                ? (newValue) => setState(
+            setSingleOrPair: snapshot.data!.exists &&
+                    snapshot.data!.get('sharedNote') != null
+                ? (newValue) async {
+                    await sl.reset();
+                    setState(
                       () {
                         _singleOrPair = newValue;
                       },
-                    )
+                    );
+                  }
                 : null,
           );
         }
@@ -466,7 +471,8 @@ class _HomeWidgetState extends State<_HomeWidget> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
+            onPressed: () async {
+              await sl.reset();
               FirebaseAuth.instance.signOut();
             },
           ),
