@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:household_accounts/service_locator.dart';
 import 'package:household_accounts/util/domain/entities/property.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
 import 'package:household_accounts/features/property-viewer/domain/use-cases/delete_property.dart';
@@ -22,10 +23,10 @@ class PropertyListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (ctx) => PropertyListState(
-        context.read<RetrievePropertiesUseCase>(),
-        context.read<AddPropertiesUseCase>(),
-        context.read<UpdatePropertyUseCase>(),
-        context.read<DeletePropertiesUseCase>(),
+        sl<RetrievePropertiesUseCase>(),
+        sl<AddPropertiesUseCase>(),
+        sl<UpdatePropertyUseCase>(),
+        sl<DeletePropertiesUseCase>(),
       )..loadProperties(),
       child: _PageContents(),
     );

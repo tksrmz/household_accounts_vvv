@@ -13,8 +13,6 @@ import 'package:household_accounts/service_locator.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
 import 'package:household_accounts/features/input-page/presentation/pages/input_page.dart';
-import 'package:household_accounts/features/property-viewer/domain/use-cases/add_properties.dart';
-import 'package:household_accounts/features/property-viewer/domain/use-cases/update_property.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'constants/firebase/firebase_constant.dart';
@@ -27,7 +25,6 @@ import 'features/category-page/domain/use-cases/update_category.dart';
 import 'features/input-page/domain/repositories/record_repository.dart';
 import 'features/input-page/domain/use-cases/add_record.dart';
 import 'features/property-viewer/domain/interactors/retrieve_properties.dart';
-import 'features/property-viewer/domain/use-cases/delete_property.dart';
 import 'features/record-calendar-page/domain/interactors/delete_record.dart';
 import 'features/record-calendar-page/domain/interactors/retrieve_records.dart';
 import 'features/record-calendar-page/domain/use-cases/delete_record.dart';
@@ -274,29 +271,7 @@ class MyAppHomeState extends State<MyAppHome> {
 
           final propertyPage = _HomeWidgetContent(
             title: 'Balance',
-            builder: () {
-              return MultiProvider(
-                providers: [
-                  Provider<RetrievePropertiesUseCase>(
-                    create: (ctx) => RetrievePropertiesInteractor(
-                        _firebasePropertyRepository),
-                  ),
-                  Provider<AddPropertiesUseCase>(
-                    create: (ctx) =>
-                        AddPropertyInteractor(_firebasePropertyRepository),
-                  ),
-                  Provider<UpdatePropertyUseCase>(
-                    create: (ctx) =>
-                        UpdatePropertyInteractor(_firebasePropertyRepository),
-                  ),
-                  Provider<DeletePropertiesUseCase>(
-                    create: (ctx) =>
-                        DeletePropertyInteractor(_firebasePropertyRepository),
-                  ),
-                ],
-                child: PropertyListPage(),
-              );
-            },
+            builder: () => PropertyListPage(),
             iconData: Icons.access_alarm,
           );
 
