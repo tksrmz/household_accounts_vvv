@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:household_accounts/features/category-page/data/repositories/firebase_category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/repositories/category_repository.dart';
-import 'package:household_accounts/features/category-page/domain/use-cases/delete_category.dart';
 import 'package:household_accounts/features/input-page/data/repositories/firebase_record_repository.dart';
 import 'package:household_accounts/features/property-viewer/data/repositories/firebase_property_repository.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
@@ -20,8 +19,6 @@ import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'firebase_options.dart';
 
 import 'features/category-page/domain/interactors/retrieve_categories.dart';
-import 'features/category-page/domain/use-cases/add_category.dart';
-import 'features/category-page/domain/use-cases/update_category.dart';
 import 'features/input-page/domain/repositories/record_repository.dart';
 import 'features/input-page/domain/use-cases/add_record.dart';
 import 'features/property-viewer/domain/interactors/retrieve_properties.dart';
@@ -277,33 +274,7 @@ class MyAppHomeState extends State<MyAppHome> {
 
           final categoryListPage = _HomeWidgetContent(
             title: 'Categories',
-            builder: () {
-              return MultiProvider(
-                providers: [
-                  Provider<RetrieveCategoriesUseCase>(
-                    create: (ctx) => RetrieveCategoriesInteractor(
-                        _firebaseCategoryRepository),
-                  ),
-                  Provider<DeleteCategoryUseCase>(
-                    create: (ctx) =>
-                        DeleteCategoryInteractor(_firebaseCategoryRepository),
-                  ),
-                  Provider<AddCategoryUseCase>(
-                    create: (ctx) =>
-                        AddCategoryInteractor(_firebaseCategoryRepository),
-                  ),
-                  Provider<UpdateCategoryUseCase>(
-                    create: (ctx) =>
-                        UpdateCategoryInteractor(_firebaseCategoryRepository),
-                  ),
-                  // Provider<RetrieveMonthlyRecordsUseCase>(
-                  //   create: (ctx) =>
-                  //       RetrieveMonthlyRecordsInteractor(_recordRepository),
-                  // ),
-                ],
-                child: CategoryListPage(),
-              );
-            },
+            builder: () => CategoryListPage(),
             iconData: Icons.accessibility,
           );
 
