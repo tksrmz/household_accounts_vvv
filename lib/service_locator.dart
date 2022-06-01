@@ -23,8 +23,13 @@ import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dar
 import 'package:household_accounts/util/domain/use-cases/retrieve_properties.dart';
 
 final sl = GetIt.instance;
+bool _slIsInitialized = false;
 
 void initialize(String uid) {
+  if (_slIsInitialized) {
+    return;
+  }
+
   // Repositories
   sl.registerLazySingleton<RecordRepositoryNew>(
     () => FirebaseRecordRepository.personal(uid),
