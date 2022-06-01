@@ -2,26 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
-import 'package:household_accounts/features/category-page/data/repositories/firebase_category_repository.dart';
-import 'package:household_accounts/features/category-page/domain/repositories/category_repository.dart';
-import 'package:household_accounts/features/input-page/data/repositories/firebase_record_repository.dart';
-import 'package:household_accounts/features/property-viewer/data/repositories/firebase_property_repository.dart';
 import 'package:household_accounts/service_locator.dart';
-import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
 import 'package:household_accounts/features/input-page/presentation/pages/input_page.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'constants/firebase/firebase_constant.dart';
-import 'features/property-viewer/domain/repositories/property_repository.dart';
 import 'firebase_options.dart';
 
-import 'features/category-page/domain/interactors/retrieve_categories.dart';
-import 'features/input-page/domain/repositories/record_repository.dart';
-import 'features/input-page/domain/use-cases/add_record.dart';
-import 'features/property-viewer/domain/interactors/retrieve_properties.dart';
 import 'features/record-calendar-page/presentation/pages/ui_calendar_record_view.dart';
-import 'util/domain/use-cases/retrieve_properties.dart';
 import 'features/property-viewer/presentation/pages/property_list.dart';
 
 void main() async {
@@ -172,63 +160,27 @@ class MyAppHomeState extends State<MyAppHome> {
 
         // Once complete, show your application
         if (snapshot.connectionState == ConnectionState.done) {
-          RecordRepositoryNew _firebaseRecordRepository;
-          PropertyRepository _firebasePropertyRepository;
-          CategoryRepository _firebaseCategoryRepository;
-
           switch (_singleOrPair) {
             case _SingleOrPair.single:
-              _firebaseRecordRepository =
-                  FirebaseRecordRepository.personal(widget._uid);
-              _firebasePropertyRepository =
-                  FirebasePropertyRepository.personal(widget._uid);
-              _firebaseCategoryRepository =
-                  FirebaseCategoryRepository.personal(widget._uid);
               initialize(widget._uid);
               break;
 
             case _SingleOrPair.pair:
-              _firebaseRecordRepository = FirebaseRecordRepository.shared(
-                  (snapshot.data!.get('sharedNote.ref') as DocumentReference)
-                      .id);
-              _firebasePropertyRepository = FirebasePropertyRepository.shared(
-                  (snapshot.data!.get('sharedNote.ref') as DocumentReference)
-                      .id);
-              _firebaseCategoryRepository = FirebaseCategoryRepository.shared(
-                  (snapshot.data!.get('sharedNote.ref') as DocumentReference)
-                      .id);
+              // _firebaseRecordRepository = FirebaseRecordRepository.shared(
+              //     (snapshot.data!.get('sharedNote.ref') as DocumentReference)
+              //         .id);
+              // _firebasePropertyRepository = FirebasePropertyRepository.shared(
+              //     (snapshot.data!.get('sharedNote.ref') as DocumentReference)
+              //         .id);
+              // _firebaseCategoryRepository = FirebaseCategoryRepository.shared(
+              //     (snapshot.data!.get('sharedNote.ref') as DocumentReference)
+              //         .id);
               break;
           }
 
           final recordRegisterPage = _HomeWidgetContent(
             title: 'Input',
-            builder: () {
-              return MultiProvider(
-                providers: [
-                  Provider<AddIncomeRecordUseCase>(
-                    create: (ctx) =>
-                        AddIncomeRecordInteractor(_firebaseRecordRepository),
-                  ),
-                  Provider<AddExpenseRecordUseCase>(
-                    create: (ctx) =>
-                        AddExpenseRecordInteractor(_firebaseRecordRepository),
-                  ),
-                  Provider<AddTransferRecordUseCase>(
-                    create: (ctx) =>
-                        AddTransferRecordInteractor(_firebaseRecordRepository),
-                  ),
-                  Provider<RetrieveCategoriesUseCase>(
-                    create: (ctx) => RetrieveCategoriesInteractor(
-                        _firebaseCategoryRepository),
-                  ),
-                  Provider<RetrievePropertiesUseCase>(
-                    create: (ctx) => RetrievePropertiesInteractor(
-                        _firebasePropertyRepository),
-                  ),
-                ],
-                child: RecordInputPage(),
-              );
-            },
+            builder: () => RecordInputPage(),
             iconData: Icons.cloud,
           );
 

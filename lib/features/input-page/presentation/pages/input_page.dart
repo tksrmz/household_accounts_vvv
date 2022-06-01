@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
+import 'package:household_accounts/service_locator.dart';
 import 'package:household_accounts/util/domain/entities/property.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_properties.dart';
 import 'package:household_accounts/util/domain/entities/category.dart';
@@ -9,7 +10,6 @@ import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dar
 import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/string-parser.dart';
 import 'package:household_accounts/util/use_case.dart';
-import 'package:provider/provider.dart';
 
 class RecordInputPage extends StatelessWidget {
   const RecordInputPage({Key? key}) : super(key: key);
@@ -42,10 +42,8 @@ class _PageContentsState extends State<_PageContents> {
   @override
   void initState() {
     super.initState();
-    _categoriesFuture =
-        context.read<RetrieveCategoriesUseCase>().handle(const NoParam());
-    _propertiesFuture =
-        context.read<RetrievePropertiesUseCase>().handle(const NoParam());
+    _categoriesFuture = sl<RetrieveCategoriesUseCase>().handle(const NoParam());
+    _propertiesFuture = sl<RetrievePropertiesUseCase>().handle(const NoParam());
   }
 
   void _setRecordDateState(DateTime value) {
@@ -202,13 +200,13 @@ class _PageContentsState extends State<_PageContents> {
 
             switch (_recordType) {
               case RecordType.income:
-                _submitIncomeRecord(context.read<AddIncomeRecordUseCase>());
+                _submitIncomeRecord(sl<AddIncomeRecordUseCase>());
                 break;
               case RecordType.expense:
-                _submitExpenseRecord(context.read<AddExpenseRecordUseCase>());
+                _submitExpenseRecord(sl<AddExpenseRecordUseCase>());
                 break;
               case RecordType.transfer:
-                _submitTransferRecord(context.read<AddTransferRecordUseCase>());
+                _submitTransferRecord(sl<AddTransferRecordUseCase>());
                 break;
             }
 
