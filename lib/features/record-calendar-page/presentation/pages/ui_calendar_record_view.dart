@@ -5,6 +5,7 @@ import 'package:household_accounts/features/record-calendar-page/presentation/st
 import 'package:household_accounts/features/record-calendar-page/presentation/states/daily_record_model.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
 import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
+import 'package:household_accounts/service_locator.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:provider/provider.dart';
 
@@ -15,8 +16,8 @@ class CalendarRecordViewPage2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (ctx) =>
-          CalendarRecordModel(context.read<RetrieveMonthlyRecordsUseCase>())
-            ..loadRecords(),
+      CalendarRecordModel(sl<RetrieveMonthlyRecordsUseCase>())
+        ..loadRecords(),
       child: _Page(),
     );
   }
@@ -63,13 +64,13 @@ class _CalenderView extends StatelessWidget {
                 builder: (newContext) => MultiProvider(
                   providers: [
                     Provider.value(
-                      value: context.read<RetrieveDailyRecordsUseCase>(),
+                      value: sl<RetrieveDailyRecordsUseCase>(),
                     ),
                     Provider.value(
-                      value: context.read<DeleteRecordUseCaseNew>(),
+                      value: sl<DeleteRecordUseCaseNew>(),
                     ),
                     Provider.value(
-                      value: context.read<RetrieveCategoriesUseCase>(),
+                      value: sl<RetrieveCategoriesUseCase>(),
                     ),
                   ],
                   child: _DailyRecordMinute(year, month, day),
@@ -205,9 +206,9 @@ class _DailyRecordMinute extends StatelessWidget {
         ),
         body: ChangeNotifierProvider(
           create: (ctx) => DailyRecordModel(
-            context.read<RetrieveDailyRecordsUseCase>(),
-            context.read<DeleteRecordUseCaseNew>(),
-            context.read<RetrieveCategoriesUseCase>(),
+            sl<RetrieveDailyRecordsUseCase>(),
+            sl<DeleteRecordUseCaseNew>(),
+            sl<RetrieveCategoriesUseCase>(),
           )
             ..loadRecords(_year, _month, _day)
             ..loadCategories(),

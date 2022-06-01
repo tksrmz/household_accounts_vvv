@@ -6,8 +6,6 @@ import 'package:household_accounts/features/category-page/data/repositories/fire
 import 'package:household_accounts/features/category-page/domain/repositories/category_repository.dart';
 import 'package:household_accounts/features/input-page/data/repositories/firebase_record_repository.dart';
 import 'package:household_accounts/features/property-viewer/data/repositories/firebase_property_repository.dart';
-import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_daily_records.dart';
-import 'package:household_accounts/features/record-calendar-page/domain/use-cases/retrieve_monthly_records.dart';
 import 'package:household_accounts/service_locator.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
@@ -22,9 +20,6 @@ import 'features/category-page/domain/interactors/retrieve_categories.dart';
 import 'features/input-page/domain/repositories/record_repository.dart';
 import 'features/input-page/domain/use-cases/add_record.dart';
 import 'features/property-viewer/domain/interactors/retrieve_properties.dart';
-import 'features/record-calendar-page/domain/interactors/delete_record.dart';
-import 'features/record-calendar-page/domain/interactors/retrieve_records.dart';
-import 'features/record-calendar-page/domain/use-cases/delete_record.dart';
 import 'features/record-calendar-page/presentation/pages/ui_calendar_record_view.dart';
 import 'util/domain/use-cases/retrieve_properties.dart';
 import 'features/property-viewer/presentation/pages/property_list.dart';
@@ -239,30 +234,7 @@ class MyAppHomeState extends State<MyAppHome> {
 
           final calenderViewPage = _HomeWidgetContent(
             title: 'Calendar',
-            builder: () {
-              return MultiProvider(
-                providers: [
-                  Provider<RetrieveMonthlyRecordsUseCase>(
-                    create: (ctx) => RetrieveMonthlyRecordsInteractorNew(
-                      _firebaseRecordRepository,
-                    ),
-                  ),
-                  Provider<RetrieveDailyRecordsUseCase>(
-                    create: (ctx) => RetrieveDailyRecordsInteractorNew(
-                        _firebaseRecordRepository),
-                  ),
-                  Provider<DeleteRecordUseCaseNew>(
-                    create: (ctx) =>
-                        DeleteRecordInteractorNew(_firebaseRecordRepository),
-                  ),
-                  Provider<RetrieveCategoriesUseCase>(
-                    create: (ctx) => RetrieveCategoriesInteractor(
-                        _firebaseCategoryRepository),
-                  ),
-                ],
-                child: CalendarRecordViewPage2(),
-              );
-            },
+            builder: () => CalendarRecordViewPage2(),
             iconData: Icons.beach_access,
           );
 
