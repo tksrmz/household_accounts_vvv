@@ -15,6 +15,7 @@ class DeleteCategoryInput extends Equatable {
   List<Object> get props => [id];
 }
 
+@deprecated
 class DeleteCategoryInteractor extends DeleteCategoryUseCase {
   final CategoryRepository _repository;
 
