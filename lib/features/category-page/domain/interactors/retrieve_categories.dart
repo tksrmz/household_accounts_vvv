@@ -26,3 +26,14 @@ class RetrieveIncomeCategoriesInteractor
   Future<Either<Failure, List<IncomeCategory>>> handle(NoParam notUsed) =>
       _repository.retrieveIncomeCategories();
 }
+
+class RetrieveExpenseCategoriesInteractor
+    extends RetrieveExpenseCategoriesUseCase {
+  final CategoryRepository2 _repository;
+
+  RetrieveExpenseCategoriesInteractor(this._repository);
+
+  @override
+  Future<Either<Failure, List<ExpenseCategory>>> handle(NoParam notUsed) =>
+      _repository.retrieveExpenseCategories();
+}
