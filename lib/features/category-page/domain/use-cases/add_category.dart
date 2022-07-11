@@ -6,11 +6,16 @@ import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/use_case.dart';
 import 'package:household_accounts/util/uuid.dart';
 
+@deprecated
 typedef AddCategoryUseCase = UseCase<AddCategoryInput, Category>;
 
+typedef AddCategoryUseCase2 = UseCase<AddCategoryInput2, Category2>;
+
+@deprecated
 class AddCategoryInput extends Equatable {
   final String categoryName;
   final CategoryType type;
+
   // final int budget;
 
   const AddCategoryInput(this.categoryName, this.type /*, this.budget*/);
@@ -19,6 +24,29 @@ class AddCategoryInput extends Equatable {
   List<Object> get props => [categoryName, type];
 }
 
+class AddCategoryInput2 extends Equatable {
+  final String name;
+  final CategoryType type;
+  final int budgetAmount;
+
+  const AddCategoryInput2({
+    required this.name,
+    required this.type,
+    this.budgetAmount = 0,
+  }) : assert(budgetAmount >= 0, 'budgetAmount has a negative value.');
+
+  @override
+  List<Object?> get props => [
+        name,
+        type,
+        budgetAmount,
+      ];
+
+  @override
+  bool? get stringify => true;
+}
+
+@deprecated
 class AddCategoryInteractor extends AddCategoryUseCase {
   final CategoryRepository _repository;
 
