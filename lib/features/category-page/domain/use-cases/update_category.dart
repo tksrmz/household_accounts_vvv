@@ -7,6 +7,7 @@ import 'package:household_accounts/util/use_case.dart';
 
 typedef UpdateCategoryUseCase = UseCase<UpdateCategoryInput, Category>;
 
+@deprecated
 class UpdateCategoryInput extends Equatable {
   final String id;
   final String? newCategoryName;
@@ -35,6 +36,42 @@ class UpdateCategoryInput extends Equatable {
   }
 }
 
+class UpdateIncomeCategoryInput extends Equatable {
+  final String id;
+  final String? newName;
+
+  const UpdateIncomeCategoryInput({
+    required this.id,
+    this.newName,
+  });
+
+  @override
+  List<Object?> get props => [
+        id,
+        newName,
+      ];
+}
+
+class UpdateExpenseCategoryInput extends Equatable {
+  final String id;
+  final String? newName;
+  final int? newBudgetAmount;
+
+  const UpdateExpenseCategoryInput({
+    required this.id,
+    this.newName,
+    this.newBudgetAmount,
+  });
+
+  @override
+  List<Object?> get props => [
+        id,
+        newName,
+        newBudgetAmount,
+      ];
+}
+
+@deprecated
 class UpdateCategoryInteractor extends UpdateCategoryUseCase {
   final CategoryRepository _repository;
 
@@ -46,16 +83,16 @@ class UpdateCategoryInteractor extends UpdateCategoryUseCase {
     final failureOrNewValue = failureOrCurrentValue.map(
       (currentValue) => Category(
         input.id,
-        input.newCategoryName ?? currentValue.name,
-        currentValue.type,
-        // input.newBudget ?? currentValue.budget,
-      ),
+            input.newCategoryName ?? currentValue.name,
+            currentValue.type,
+            // input.newBudget ?? currentValue.budget,
+          ),
     );
 
     final result =
-        await failureOrNewValue.fold<Future<Either<Failure, Category>>>(
-      (failure) async => Left(failure),
-      (newValue) async {
+    await failureOrNewValue.fold<Future<Either<Failure, Category>>>(
+          (failure) async => Left(failure),
+          (newValue) async {
         final failureOrSuccess = await _repository.update(newValue);
         return failureOrSuccess.replace(newValue);
       },
