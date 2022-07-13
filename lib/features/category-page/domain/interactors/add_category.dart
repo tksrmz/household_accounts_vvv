@@ -11,7 +11,7 @@ class AddCategoryInteractor2 extends AddCategoryUseCase2 {
   AddCategoryInteractor2(this._repository);
 
   @override
-  Future<Either<Failure, Category2>> handle(AddCategoryInput2 input) async {
+  Future<Either<Failure, Unit>> handle(AddCategoryInput2 input) {
     final Category2 category;
     switch (input.type) {
       case CategoryType.income:
@@ -30,7 +30,6 @@ class AddCategoryInteractor2 extends AddCategoryUseCase2 {
         break;
     }
 
-    final result = await _repository.register(category);
-    return result.replace(category);
+    return _repository.register(category);
   }
 }

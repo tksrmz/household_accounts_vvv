@@ -9,7 +9,7 @@ import 'package:household_accounts/util/uuid.dart';
 @deprecated
 typedef AddCategoryUseCase = UseCase<AddCategoryInput, Category>;
 
-typedef AddCategoryUseCase2 = UseCase<AddCategoryInput2, Category2>;
+typedef AddCategoryUseCase2 = UseCase<AddCategoryInput2, Unit>;
 
 @deprecated
 class AddCategoryInput extends Equatable {
