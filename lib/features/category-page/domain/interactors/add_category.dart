@@ -6,30 +6,33 @@ import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/uuid.dart';
 
 class AddCategoryInteractor2 extends AddCategoryUseCase2 {
-  final CategoryRepository2 _repository;
+  final IncomeCategoryRepository _incomeCategoryRepository;
+  final ExpenseCategoryRepository _expenseCategoryRepository;
 
-  AddCategoryInteractor2(this._repository);
+  AddCategoryInteractor2(
+    this._incomeCategoryRepository,
+    this._expenseCategoryRepository,
+  );
 
   @override
   Future<Either<Failure, Unit>> handle(AddCategoryInput2 input) {
-    final Category2 category;
     switch (input.type) {
       case CategoryType.income:
-        category = IncomeCategory(
-          id: UUID.generate(),
-          name: input.name,
+        return _incomeCategoryRepository.register(
+          IncomeCategory(
+            id: UUID.generate(),
+            name: input.name,
+          ),
         );
-        break;
 
       case CategoryType.expense:
-        category = ExpenseCategory(
-          id: UUID.generate(),
-          name: input.name,
-          totalBudget: input.budgetAmount,
+        return _expenseCategoryRepository.register(
+          ExpenseCategory(
+            id: UUID.generate(),
+            name: input.name,
+            totalBudget: input.budgetAmount,
+          ),
         );
-        break;
     }
-
-    return _repository.register(category);
   }
 }

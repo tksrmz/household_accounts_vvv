@@ -5,7 +5,7 @@ import 'package:household_accounts/util/domain/entities/category.dart';
 import 'package:household_accounts/util/failures/failure.dart';
 
 class UpdateIncomeCategoryInteractor extends UpdateIncomeCategoryUseCase {
-  final CategoryRepository2 _repository;
+  final IncomeCategoryRepository _repository;
 
   UpdateIncomeCategoryInteractor(this._repository);
 
@@ -20,7 +20,7 @@ class UpdateIncomeCategoryInteractor extends UpdateIncomeCategoryUseCase {
 }
 
 class UpdateExpenseCategoryInteractor extends UpdateExpenseCategoryUseCase {
-  final CategoryRepository2 _repository;
+  final ExpenseCategoryRepository _repository;
 
   UpdateExpenseCategoryInteractor(this._repository);
 

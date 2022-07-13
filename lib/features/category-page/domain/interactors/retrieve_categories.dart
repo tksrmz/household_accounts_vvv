@@ -18,7 +18,7 @@ class RetrieveCategoriesInteractor extends RetrieveCategoriesUseCase {
 
 class RetrieveIncomeCategoriesInteractor
     extends RetrieveIncomeCategoriesUseCase {
-  final CategoryRepository2 _repository;
+  final IncomeCategoryRepository _repository;
 
   RetrieveIncomeCategoriesInteractor(this._repository);
 
@@ -29,7 +29,7 @@ class RetrieveIncomeCategoriesInteractor
 
 class RetrieveExpenseCategoriesInteractor
     extends RetrieveExpenseCategoriesUseCase {
-  final CategoryRepository2 _repository;
+  final ExpenseCategoryRepository _repository;
 
   RetrieveExpenseCategoriesInteractor(this._repository);
 

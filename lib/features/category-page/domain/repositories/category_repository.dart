@@ -12,13 +12,15 @@ abstract class CategoryRepository extends Repository<Category> {
   Future<Either<Failure, List<Category>>> retrieveCategories();
 }
 
-abstract class CategoryRepository2 extends Repository<Category2> {
+abstract class IncomeCategoryRepository extends Repository<IncomeCategory> {
   /// Retrieves all income categories.
   ///
   /// The list order has no meanings.
   /// Fails if something goes wrong with the repository.
   Future<Either<Failure, List<IncomeCategory>>> retrieveIncomeCategories();
+}
 
+abstract class ExpenseCategoryRepository extends Repository<ExpenseCategory> {
   /// Retrieves all expense categories.
   ///
   /// The list order has no meanings.
