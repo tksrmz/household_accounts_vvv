@@ -8,10 +8,9 @@ import 'package:household_accounts/util/use_case.dart';
 @deprecated
 typedef UpdateCategoryUseCase = UseCase<UpdateCategoryInput, Category>;
 
-typedef UpdateIncomeCategoryUseCase
-    = UseCase<UpdateIncomeCategoryInput, IncomeCategory>;
+typedef UpdateIncomeCategoryUseCase = UseCase<UpdateIncomeCategoryInput, Unit>;
 typedef UpdateExpenseCategoryUseCase
-    = UseCase<UpdateExpenseCategoryInput, ExpenseCategory>;
+    = UseCase<UpdateExpenseCategoryInput, Unit>;
 
 @deprecated
 class UpdateCategoryInput extends Equatable {
@@ -43,35 +42,36 @@ class UpdateCategoryInput extends Equatable {
 }
 
 class UpdateIncomeCategoryInput extends Equatable {
-  final String id;
+  final IncomeCategory original;
   final String? newName;
 
   const UpdateIncomeCategoryInput({
-    required this.id,
+    required this.original,
     this.newName,
   });
 
   @override
   List<Object?> get props => [
-        id,
+        ...original.props,
         newName,
       ];
 }
 
 class UpdateExpenseCategoryInput extends Equatable {
-  final String id;
+  final ExpenseCategory original;
   final String? newName;
   final int? newBudgetAmount;
 
   const UpdateExpenseCategoryInput({
-    required this.id,
+    required this.original,
     this.newName,
     this.newBudgetAmount,
   });
 
   @override
-  List<Object?> get props => [
-        id,
+  List<Object?> get props =>
+      [
+        ...original.props,
         newName,
         newBudgetAmount,
       ];
