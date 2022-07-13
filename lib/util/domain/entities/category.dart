@@ -16,16 +16,16 @@ class Category extends Identifiable {
   Category(String id, this.name, this.type /*, this.budget*/)
       : assert(name.length > 0, 'Category name is empty string.'),
         assert(name.length <= Category.maxNameLength,
-        'Category name is too long.'),
-  // assert(budget >= 0, 'Budget is negative.'),
+            'Category name is too long.'),
+        // assert(budget >= 0, 'Budget is negative.'),
         super(id);
 
   @override
   List<Object> get props => [
-    id,
-    name,
-    type /*, budget*/
-  ];
+        id,
+        name,
+        type /*, budget*/
+      ];
 }
 
 enum CategoryType { income, expense }
@@ -102,4 +102,10 @@ class ExpenseCategory extends Category2 {
           name: name,
           type: CategoryType.expense,
         );
+
+  @override
+  List<Object> get props => [
+        ...super.props,
+        ..._budget.props,
+      ];
 }
