@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
-import 'package:household_accounts/features/category-page/data/repositories/firebase_category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/interactors/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/domain/repositories/category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/add_category.dart';
@@ -41,9 +40,6 @@ void initialize(String uid) {
   );
   sl.registerLazySingleton<PropertyRepository>(
     () => FirebasePropertyRepository.personal(uid),
-  );
-  sl.registerLazySingleton<CategoryRepository>(
-    () => FirebaseCategoryRepository.personal(uid),
   );
   sl.registerLazySingleton<IncomeCategoryRepository>(
     () => InMemoryIncomeCategoryRepository(),
@@ -86,19 +82,6 @@ void initialize(String uid) {
         () => DeletePropertyInteractor(sl<PropertyRepository>()),
   );
 
-  // Use cases - category
-  sl.registerLazySingleton<AddCategoryUseCase>(
-        () => AddCategoryInteractor(sl<CategoryRepository>()),
-  );
-  sl.registerLazySingleton<RetrieveCategoriesUseCase>(
-    () => RetrieveCategoriesInteractor(sl<CategoryRepository>()),
-  );
-  sl.registerLazySingleton<UpdateCategoryUseCase>(
-    () => UpdateCategoryInteractor(sl<CategoryRepository>()),
-  );
-  sl.registerLazySingleton<DeleteCategoryUseCase>(
-    () => DeleteCategoryInteractor(sl<CategoryRepository>()),
-  );
   sl.registerLazySingleton<AddCategoryUseCase2>(
     () => AddCategoryInteractor2(
       sl<IncomeCategoryRepository>(),

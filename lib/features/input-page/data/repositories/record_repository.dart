@@ -7,7 +7,7 @@ import 'package:household_accounts/util/failures/failure.dart';
 
 /// Although this class is not used, I won't delete this.
 /// There is a chance to use this as mock in tests.
-class InMemoryRecordRepository implements RecordRepository {
+class InMemoryRecordRepository implements RecordRepositoryNew {
   final _repository = <Record>[];
   final PropertyRepository _propertyRepository;
 
@@ -29,14 +29,19 @@ class InMemoryRecordRepository implements RecordRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> deleteById(String id) async {
-    _repository.removeWhere((record) => record.id == id);
+  Future<Either<Failure, Unit>> deleteById(String id, RecordType type) async {
+    _repository.removeWhere((record) => record.id == id && record.type == type);
     return Right(unit);
   }
 
   @override
-  Future<Either<Failure, Record>> retrieveById(String id) async {
-    final index = _repository.indexWhere((record) => record.id == id);
+  Future<Either<Failure, Record>> retrieveById(
+    String id,
+    RecordType type,
+  ) async {
+    final index = _repository.indexWhere(
+      (record) => record.id == id && record.type == type,
+    );
     return index >= 0 ? Right(_repository[index]) : Left(RepositoryFailure());
   }
 

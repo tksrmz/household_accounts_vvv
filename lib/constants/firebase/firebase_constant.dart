@@ -1,6 +1,5 @@
 const String FIREBASE_COLLECTION_PERSONAL_NOTES = 'personalNotes';
 const String FIREBASE_COLLECTION_SHARED_NOTES = 'sharedNotes';
-const String FIREBASE_COLLECTION_CATEGORIES = 'categories';
 const String FIREBASE_COLLECTION_INCOME_CATEGORIES = 'incomeCategories';
 const String FIREBASE_COLLECTION_EXPENSE_CATEGORIES = 'expenseCategories';
 const String FIREBASE_COLLECTION_PROPERTIES = 'properties';
