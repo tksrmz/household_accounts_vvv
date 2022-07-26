@@ -15,8 +15,7 @@ class CalendarRecordViewPage2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (ctx) =>
-      CalendarRecordModel(sl<RetrieveMonthlyRecordsUseCase>())
+      create: (ctx) => CalendarRecordModel(sl<RetrieveMonthlyRecordsUseCase>())
         ..loadRecords(),
       child: _Page(),
     );
@@ -61,20 +60,7 @@ class _CalenderView extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (newContext) => MultiProvider(
-                  providers: [
-                    Provider.value(
-                      value: sl<RetrieveDailyRecordsUseCase>(),
-                    ),
-                    Provider.value(
-                      value: sl<DeleteRecordUseCaseNew>(),
-                    ),
-                    Provider.value(
-                      value: sl<RetrieveCategoriesUseCase>(),
-                    ),
-                  ],
-                  child: _DailyRecordMinute(year, month, day),
-                ),
+                builder: (newContext) => _DailyRecordMinute(year, month, day),
               ),
             );
           },
@@ -208,7 +194,8 @@ class _DailyRecordMinute extends StatelessWidget {
           create: (ctx) => DailyRecordModel(
             sl<RetrieveDailyRecordsUseCase>(),
             sl<DeleteRecordUseCaseNew>(),
-            sl<RetrieveCategoriesUseCase>(),
+            sl<RetrieveIncomeCategoriesUseCase>(),
+            sl<RetrieveExpenseCategoriesUseCase>(),
           )
             ..loadRecords(_year, _month, _day)
             ..loadCategories(),

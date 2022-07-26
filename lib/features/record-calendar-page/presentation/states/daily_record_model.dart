@@ -15,7 +15,8 @@ class DailyRecordModel with ChangeNotifier {
   List<Record> _records;
 
   /// Categories
-  List<Category> _categories;
+  List<IncomeCategory> _incomeCategories;
+  List<ExpenseCategory> _expenseCategories;
 
   /// Whether loading [_records] from a repository.
   bool _isLoading;
@@ -26,14 +27,17 @@ class DailyRecordModel with ChangeNotifier {
   // Use cases
   late final RetrieveDailyRecordsUseCase _retrieve;
   late final DeleteRecordUseCaseNew _delete;
-  late final RetrieveCategoriesUseCase _retrieveCategoriesUseCase;
+  late final RetrieveIncomeCategoriesUseCase _retrieveIncomeCategoriesUseCase;
+  late final RetrieveExpenseCategoriesUseCase _retrieveExpenseCategoriesUseCase;
 
   DailyRecordModel(
     this._retrieve,
     this._delete,
-    this._retrieveCategoriesUseCase,
+    this._retrieveIncomeCategoriesUseCase,
+    this._retrieveExpenseCategoriesUseCase,
   )   : _records = List.empty(),
-        _categories = List.empty(),
+        _incomeCategories = List.empty(),
+        _expenseCategories = List.empty(),
         _isLoading = false;
 
   bool get isLoading => _isLoading;
@@ -69,11 +73,17 @@ class DailyRecordModel with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final failureOrCategories =
-        await _retrieveCategoriesUseCase.handle(const NoParam());
-    failureOrCategories.fold(
+    final failureOrIncomeCategories =
+        await _retrieveIncomeCategoriesUseCase.handle(noparam);
+    failureOrIncomeCategories.fold(
       (failure) => _failure = failure,
-      (categories) => _categories = categories,
+      (categories) => _incomeCategories = categories,
+    );
+    final failureOrExpenseCategories =
+        await _retrieveExpenseCategoriesUseCase.handle(noparam);
+    failureOrExpenseCategories.fold(
+      (failure) => _failure = failure,
+      (categories) => _expenseCategories = categories,
     );
     _isLoading = false;
     notifyListeners();
@@ -88,16 +98,20 @@ class DailyRecordModel with ChangeNotifier {
   String categoryNameOf(Record record) {
     const categoryNameWhenFailed = 'Not found';
     if (record is IncomeRecord) {
-      final index = _categories.indexWhere(
+      final index = _incomeCategories.indexWhere(
         (category) => category.id == record.categoryId,
       );
-      return index >= 0 ? _categories[index].name : categoryNameWhenFailed;
+      return index >= 0
+          ? _incomeCategories[index].name
+          : categoryNameWhenFailed;
     }
     if (record is ExpenseRecord) {
-      final index = _categories.indexWhere(
+      final index = _expenseCategories.indexWhere(
         (category) => category.id == record.categoryId,
       );
-      return index >= 0 ? _categories[index].name : categoryNameWhenFailed;
+      return index >= 0
+          ? _expenseCategories[index].name
+          : categoryNameWhenFailed;
     }
     if (record is TransferRecord) {
       return 'Transfer';
