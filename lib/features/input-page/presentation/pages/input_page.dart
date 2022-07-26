@@ -31,19 +31,25 @@ class _PageContentsState extends State<_PageContents> {
   DateTime _recordDate = DateTime.now();
   String _amount = '';
   RecordType _recordType = RecordType.income;
-  Category? _category;
+  Category2? _category;
   Property? _srcProperty;
   Property? _destProperty;
   String _note = '';
 
-  late final Future<dartz.Either<Failure, List<Category>>> _categoriesFuture;
+  late final Future<dartz.Either<Failure, List<IncomeCategory>>>
+      _incomeCategoriesFuture;
+  late final Future<dartz.Either<Failure, List<ExpenseCategory>>>
+      _expenseCategoriesFuture;
   late final Future<dartz.Either<Failure, List<Property>>> _propertiesFuture;
 
   @override
   void initState() {
     super.initState();
-    _categoriesFuture = sl<RetrieveCategoriesUseCase>().handle(const NoParam());
-    _propertiesFuture = sl<RetrievePropertiesUseCase>().handle(const NoParam());
+    _incomeCategoriesFuture =
+        sl<RetrieveIncomeCategoriesUseCase>().handle(noparam);
+    _expenseCategoriesFuture =
+        sl<RetrieveExpenseCategoriesUseCase>().handle(noparam);
+    _propertiesFuture = sl<RetrievePropertiesUseCase>().handle(noparam);
   }
 
   void _setRecordDateState(DateTime value) {
@@ -73,7 +79,7 @@ class _PageContentsState extends State<_PageContents> {
     });
   }
 
-  void _setCategoryState(Category? value) {
+  void _setCategoryState(Category2? value) {
     setState(() {
       _category = value;
       print('category name: $_category');
@@ -177,7 +183,9 @@ class _PageContentsState extends State<_PageContents> {
                 onChanged: _setDestPropertyState,
               )
             : _CategoryDropDownMenu(
-                categories: _categoriesFuture,
+                categories: _recordType == RecordType.income
+                    ? _incomeCategoriesFuture
+                    : _expenseCategoriesFuture,
                 value: _category,
                 categoryType: _recordType == RecordType.income
                     ? CategoryType.income
@@ -333,17 +341,17 @@ class _RecordTypeSelector extends StatelessWidget {
 }
 
 class _CategoryDropDownMenu extends StatelessWidget {
-  final Future<dartz.Either<Failure, List<Category>>> _categories;
-  final Category? _value;
+  final Future<dartz.Either<Failure, List<Category2>>> _categories;
+  final Category2? _value;
   final CategoryType _displayedType;
-  final ValueChanged<Category?>? _onChanged;
+  final ValueChanged<Category2?>? _onChanged;
 
   const _CategoryDropDownMenu({
     Key? key,
-    required Future<dartz.Either<Failure, List<Category>>> categories,
-    Category? value,
+    required Future<dartz.Either<Failure, List<Category2>>> categories,
+    Category2? value,
     required CategoryType categoryType,
-    required ValueChanged<Category?>? onChanged,
+    required ValueChanged<Category2?>? onChanged,
   })  : _categories = categories,
         _value = value,
         _displayedType = categoryType,
@@ -352,12 +360,12 @@ class _CategoryDropDownMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<dartz.Either<Failure, List<Category>>>(
+    return FutureBuilder<dartz.Either<Failure, List<Category2>>>(
       future: _categories,
       builder: (context, snapshot) {
-        Category? value;
+        Category2? value;
         Text? disabledHint;
-        List<DropdownMenuItem<Category>>? items;
+        List<DropdownMenuItem<Category2>>? items;
         if (snapshot.hasData) {
           // succeeded, but there may be a failure
           snapshot.data!.fold(
@@ -373,7 +381,7 @@ class _CategoryDropDownMenu extends StatelessWidget {
               disabledHint = null;
               items = categories
                   .where((category) => category.type == _displayedType)
-                  .map<DropdownMenuItem<Category>>(
+                  .map<DropdownMenuItem<Category2>>(
                     (category) => DropdownMenuItem(
                       value: category,
                       child: Text(category.name),
@@ -396,7 +404,7 @@ class _CategoryDropDownMenu extends StatelessWidget {
           items = null;
         }
 
-        return DropdownButton<Category>(
+        return DropdownButton<Category2>(
           value: value,
           hint: const Text('Select category'),
           disabledHint: disabledHint,

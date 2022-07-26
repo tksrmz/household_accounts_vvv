@@ -40,7 +40,8 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
               toFirestore: (model, _) => model.toJson(),
             ),
         _propertyCollectionPath = '',
-        _categoryCollectionPath = '';
+        _incomeCategoryCollectionPath = '',
+        _expenseCategoryCollectionPath = '';
 
   FirebaseRecordRepository.personal(String uid)
       : _incomeCollectionRef = FirebaseFirestore.instance
@@ -75,8 +76,10 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
             ),
         _propertyCollectionPath =
             '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES',
-        _categoryCollectionPath =
-            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_CATEGORIES';
+        _incomeCategoryCollectionPath =
+            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_INCOME_CATEGORIES',
+        _expenseCategoryCollectionPath =
+            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_EXPENSE_CATEGORIES';
 
   FirebaseRecordRepository.shared(String pairId)
       : _incomeCollectionRef = FirebaseFirestore.instance
@@ -111,13 +114,16 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
             ),
         _propertyCollectionPath =
             '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_PROPERTIES',
-        _categoryCollectionPath =
-            '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_CATEGORIES';
+        _incomeCategoryCollectionPath =
+            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$pairId/$FIREBASE_COLLECTION_INCOME_CATEGORIES',
+        _expenseCategoryCollectionPath =
+            '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$pairId/$FIREBASE_COLLECTION_EXPENSE_CATEGORIES';
 
   late final CollectionReference<IncomeRecordModel> _incomeCollectionRef;
   late final CollectionReference<ExpenseRecordModel> _expenseCollectionRef;
   late final CollectionReference<TransferRecordModel> _transferCollectionRef;
-  final String _categoryCollectionPath;
+  final String _incomeCategoryCollectionPath;
+  final String _expenseCategoryCollectionPath;
   final String _propertyCollectionPath;
 
   @override
@@ -221,7 +227,7 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
           _incomeCollectionRef.doc(value.id),
           IncomeRecordModel.fromIncomeRecord(
             record: income,
-            categoryCollectionPath: _categoryCollectionPath,
+            categoryCollectionPath: _incomeCategoryCollectionPath,
             propertyCollectionPath: _propertyCollectionPath,
           ),
         );
@@ -239,7 +245,7 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
           _expenseCollectionRef.doc(value.id),
           ExpenseRecordModel.fromExpenseRecord(
             record: expense,
-            categoryCollectionPath: _categoryCollectionPath,
+            categoryCollectionPath: _expenseCategoryCollectionPath,
             propertyCollectionPath: _propertyCollectionPath,
           ),
         );

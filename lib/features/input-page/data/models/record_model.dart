@@ -4,27 +4,51 @@ import 'package:household_accounts/features/input-page/domain/entities/record.da
 import '../../../category-page/data/models/category.dart';
 import '../../../property-viewer/data/models/property.dart';
 
-final FromFirestore<CategoryModel> _categoryModelFromFirestore =
-    (snapshot, _) => CategoryModel.fromIdAndJson(snapshot.id, snapshot.data()!);
-final ToFirestore<CategoryModel> _categoryModelToFirestore =
-    (categoryModel, _) => categoryModel.toJson();
+final FromFirestore<IncomeCategoryModel> _incomeCategoryModelFromFirestore =
+    (snapshot, _) => IncomeCategoryModel.fromIdAndJson(
+          snapshot.id,
+          snapshot.data()!,
+        );
+final ToFirestore<IncomeCategoryModel> _incomeCategoryModelToFirestore =
+    (model, _) => model.toJson();
+
+final FromFirestore<ExpenseCategoryModel> _expenseCategoryModelFromFirestore =
+    (snapshot, _) => ExpenseCategoryModel.fromIdAndJson(
+          snapshot.id,
+          snapshot.data()!,
+        );
+final ToFirestore<ExpenseCategoryModel> _expenseCategoryModelToFirestore =
+    (model, _) => model.toJson();
 
 final FromFirestore<PropertyModel> _propertyModelFromFirestore =
     (snapshot, _) => PropertyModel.fromIdAndJson(snapshot.id, snapshot.data()!);
 final ToFirestore<PropertyModel> _propertyModelToFirestore =
     (propertyModel, _) => propertyModel.toJson();
 
-DocumentReference<CategoryModel> _createCategoryDocumentReference({
+DocumentReference<IncomeCategoryModel> _createIncomeCategoryDocumentReference({
   required String categoryId,
   required String categoryCollectionPath,
 }) =>
     FirebaseFirestore.instance
         .collection(categoryCollectionPath)
         .doc(categoryId)
-        .withConverter<CategoryModel>(
-          fromFirestore: _categoryModelFromFirestore,
-          toFirestore: _categoryModelToFirestore,
+        .withConverter<IncomeCategoryModel>(
+          fromFirestore: _incomeCategoryModelFromFirestore,
+          toFirestore: _incomeCategoryModelToFirestore,
         );
+
+DocumentReference<ExpenseCategoryModel>
+    _createExpenseCategoryDocumentReference({
+  required String categoryId,
+  required String categoryCollectionPath,
+}) =>
+        FirebaseFirestore.instance
+            .collection(categoryCollectionPath)
+            .doc(categoryId)
+            .withConverter<ExpenseCategoryModel>(
+              fromFirestore: _expenseCategoryModelFromFirestore,
+              toFirestore: _expenseCategoryModelToFirestore,
+            );
 
 DocumentReference<PropertyModel> _createPropertyDocumentReference({
   required String propertyId,
@@ -43,7 +67,7 @@ class IncomeRecordModel extends IncomeRecord {
     required IncomeRecord record,
     required String categoryCollectionPath,
     required String propertyCollectionPath,
-  })  : categoryRef = _createCategoryDocumentReference(
+  })  : categoryRef = _createIncomeCategoryDocumentReference(
           categoryId: record.categoryId,
           categoryCollectionPath: categoryCollectionPath,
         ),
@@ -66,8 +90,8 @@ class IncomeRecordModel extends IncomeRecord {
     required Map<String, dynamic> json,
   })  : categoryRef =
             (json['category']!['ref'] as DocumentReference).withConverter(
-          fromFirestore: _categoryModelFromFirestore,
-          toFirestore: _categoryModelToFirestore,
+          fromFirestore: _incomeCategoryModelFromFirestore,
+          toFirestore: _incomeCategoryModelToFirestore,
         ),
         propertyRef =
             (json['property']!['ref'] as DocumentReference).withConverter(
@@ -84,7 +108,7 @@ class IncomeRecordModel extends IncomeRecord {
           (json['property']!['ref'] as DocumentReference).id,
         );
 
-  final DocumentReference<CategoryModel> categoryRef;
+  final DocumentReference<IncomeCategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
   final dynamic _createdAt;
 
@@ -108,7 +132,7 @@ class ExpenseRecordModel extends ExpenseRecord {
     required ExpenseRecord record,
     required String categoryCollectionPath,
     required String propertyCollectionPath,
-  })  : categoryRef = _createCategoryDocumentReference(
+  })  : categoryRef = _createExpenseCategoryDocumentReference(
           categoryId: record.categoryId,
           categoryCollectionPath: categoryCollectionPath,
         ),
@@ -131,8 +155,8 @@ class ExpenseRecordModel extends ExpenseRecord {
     required Map<String, dynamic> json,
   })  : categoryRef =
             (json['category']!['ref'] as DocumentReference).withConverter(
-          fromFirestore: _categoryModelFromFirestore,
-          toFirestore: _categoryModelToFirestore,
+          fromFirestore: _expenseCategoryModelFromFirestore,
+          toFirestore: _expenseCategoryModelToFirestore,
         ),
         propertyRef =
             (json['property']!['ref'] as DocumentReference).withConverter(
@@ -149,7 +173,7 @@ class ExpenseRecordModel extends ExpenseRecord {
           (json['property']!['ref'] as DocumentReference).id,
         );
 
-  final DocumentReference<CategoryModel> categoryRef;
+  final DocumentReference<ExpenseCategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
   final dynamic _createdAt;
 
