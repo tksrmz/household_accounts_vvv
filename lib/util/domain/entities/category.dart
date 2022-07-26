@@ -58,7 +58,8 @@ abstract class Category2 extends Identifiable {
     required String id,
     required this.name,
     required this.type,
-  }) : super(id);
+  })  : assert(name.length <= maxNameLength, 'Too long name.'),
+        super(id);
 
   @override
   List<Object> get props => [

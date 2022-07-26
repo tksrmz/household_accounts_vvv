@@ -198,7 +198,7 @@ class MyAppHomeState extends State<MyAppHome> {
 
           final categoryListPage = _HomeWidgetContent(
             title: 'Categories',
-            builder: () => CategoryListPage(),
+            builder: () => CategoryListPage2(),
             iconData: Icons.accessibility,
           );
 

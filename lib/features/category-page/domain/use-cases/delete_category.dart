@@ -4,11 +4,13 @@ import 'package:household_accounts/features/category-page/domain/repositories/ca
 import 'package:household_accounts/util/failures/failure.dart';
 import 'package:household_accounts/util/use_case.dart';
 
+@deprecated
 typedef DeleteCategoryUseCase = UseCase<DeleteCategoryInput, Unit>;
 typedef DeleteIncomeCategoryUseCase = UseCase<DeleteIncomeCategoryInput, Unit>;
 typedef DeleteExpenseCategoryUseCase
     = UseCase<DeleteExpenseCategoryInput, Unit>;
 
+@deprecated
 class DeleteCategoryInput extends Equatable {
   final String id;
 

@@ -3,7 +3,7 @@ import 'package:household_accounts/util/domain/entities/category.dart';
 
 typedef CategoryPropertiesHandler = void Function(
   TextEditingController nameContrller,
-  // TextEditingController budgetController,
+  TextEditingController budgetController,
   CategoryType categoryType,
 );
 
@@ -98,21 +98,22 @@ class _CategoryEditorState extends State<CategoryEditor> {
         break;
     }
 
-    /// Remove this widget temporally as budget feature is not implemented now (220327)
-    // children.add(TextField(
-    //   controller: _budgetController,
-    //   decoration: InputDecoration(
-    //     labelText: 'Budget',
-    //     border: OutlineInputBorder(),
-    //   ),
-    //   keyboardType: TextInputType.number,
-    // ));
+    if (_selected == CategoryType.expense) {
+      children.add(TextField(
+        controller: _budgetController,
+        decoration: InputDecoration(
+          labelText: 'Budget',
+          border: OutlineInputBorder(),
+        ),
+        keyboardType: TextInputType.number,
+      ));
+    }
 
     children.add(
       ElevatedButton(
         onPressed: () {
-          widget._onPressed(_nameController, /*_budgetController,*/ _selected!);
-          Navigator.pop(context);
+          widget._onPressed(_nameController, _budgetController, _selected!);
+          Navigator.pop(context, _selected);
         },
         child: widget._buttonChild,
       ),

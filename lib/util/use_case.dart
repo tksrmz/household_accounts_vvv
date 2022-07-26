@@ -17,3 +17,5 @@ class NoParam extends Equatable {
 
   List<Object> get props => const [];
 }
+
+const NoParam noparam = const NoParam();

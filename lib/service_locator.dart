@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
 import 'package:household_accounts/features/category-page/data/repositories/firebase_category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/interactors/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/domain/repositories/category_repository.dart';
@@ -22,6 +23,10 @@ import 'package:household_accounts/features/record-calendar-page/domain/use-case
 import 'package:household_accounts/util/domain/use-cases/retrieve_categories.dart';
 import 'package:household_accounts/util/domain/use-cases/retrieve_properties.dart';
 
+import 'features/category-page/domain/interactors/add_category.dart';
+import 'features/category-page/domain/interactors/delete_category.dart';
+import 'features/category-page/domain/interactors/update_category.dart';
+
 final sl = GetIt.instance;
 bool _slIsInitialized = false;
 
@@ -40,16 +45,22 @@ void initialize(String uid) {
   sl.registerLazySingleton<CategoryRepository>(
     () => FirebaseCategoryRepository.personal(uid),
   );
+  sl.registerLazySingleton<IncomeCategoryRepository>(
+    () => InMemoryIncomeCategoryRepository(),
+  );
+  sl.registerLazySingleton<ExpenseCategoryRepository>(
+    () => InMemoryExpenseCategoryRepository(),
+  );
 
   // Use cases - record
   sl.registerLazySingleton<AddIncomeRecordUseCase>(
-        () => AddIncomeRecordInteractor(sl<RecordRepositoryNew>()),
+    () => AddIncomeRecordInteractor(sl<RecordRepositoryNew>()),
   );
   sl.registerLazySingleton<AddExpenseRecordUseCase>(
-        () => AddExpenseRecordInteractor(sl<RecordRepositoryNew>()),
+    () => AddExpenseRecordInteractor(sl<RecordRepositoryNew>()),
   );
   sl.registerLazySingleton<AddTransferRecordUseCase>(
-        () => AddTransferRecordInteractor(sl<RecordRepositoryNew>()),
+    () => AddTransferRecordInteractor(sl<RecordRepositoryNew>()),
   );
   sl.registerLazySingleton<RetrieveMonthlyRecordsUseCase>(
         () => RetrieveMonthlyRecordsInteractorNew(sl<RecordRepositoryNew>()),
@@ -80,12 +91,48 @@ void initialize(String uid) {
         () => AddCategoryInteractor(sl<CategoryRepository>()),
   );
   sl.registerLazySingleton<RetrieveCategoriesUseCase>(
-        () => RetrieveCategoriesInteractor(sl<CategoryRepository>()),
+    () => RetrieveCategoriesInteractor(sl<CategoryRepository>()),
   );
   sl.registerLazySingleton<UpdateCategoryUseCase>(
-        () => UpdateCategoryInteractor(sl<CategoryRepository>()),
+    () => UpdateCategoryInteractor(sl<CategoryRepository>()),
   );
   sl.registerLazySingleton<DeleteCategoryUseCase>(
-        () => DeleteCategoryInteractor(sl<CategoryRepository>()),
+    () => DeleteCategoryInteractor(sl<CategoryRepository>()),
+  );
+  sl.registerLazySingleton<AddCategoryUseCase2>(
+    () => AddCategoryInteractor2(
+      sl<IncomeCategoryRepository>(),
+      sl<ExpenseCategoryRepository>(),
+    ),
+  );
+  sl.registerLazySingleton<RetrieveIncomeCategoriesUseCase>(
+    () => RetrieveIncomeCategoriesInteractor(
+      sl<IncomeCategoryRepository>(),
+    ),
+  );
+  sl.registerLazySingleton<UpdateIncomeCategoryUseCase>(
+    () => UpdateIncomeCategoryInteractor(
+      sl<IncomeCategoryRepository>(),
+    ),
+  );
+  sl.registerLazySingleton<DeleteIncomeCategoryUseCase>(
+    () => DeleteIncomeCategoryInteractor(
+      sl<IncomeCategoryRepository>(),
+    ),
+  );
+  sl.registerLazySingleton<RetrieveExpenseCategoriesUseCase>(
+    () => RetrieveExpenseCategoriesInteractor(
+      sl<ExpenseCategoryRepository>(),
+    ),
+  );
+  sl.registerLazySingleton<UpdateExpenseCategoryUseCase>(
+    () => UpdateExpenseCategoryInteractor(
+      sl<ExpenseCategoryRepository>(),
+    ),
+  );
+  sl.registerLazySingleton<DeleteExpenseCategoryUseCase>(
+    () => DeleteExpenseCategoryInteractor(
+      sl<ExpenseCategoryRepository>(),
+    ),
   );
 }
