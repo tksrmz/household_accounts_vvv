@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
-import 'package:household_accounts/features/category-page/data/repositories/category_repository.dart';
+import 'package:household_accounts/features/budget-viewer/domain/interactor/budget_interactor.dart';
+import 'package:household_accounts/features/budget-viewer/domain/use-cases/budget_use_case.dart';
+import 'package:household_accounts/features/category-page/data/repositories/firebase_category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/interactors/retrieve_categories.dart';
 import 'package:household_accounts/features/category-page/domain/repositories/category_repository.dart';
 import 'package:household_accounts/features/category-page/domain/use-cases/add_category.dart';
@@ -42,10 +44,12 @@ void initialize(String uid) {
     () => FirebasePropertyRepository.personal(uid),
   );
   sl.registerLazySingleton<IncomeCategoryRepository>(
-    () => InMemoryIncomeCategoryRepository(),
+    // () => InMemoryIncomeCategoryRepository(),
+    () => FirebaseIncomeCategoryRepository.personal(uid),
   );
   sl.registerLazySingleton<ExpenseCategoryRepository>(
-    () => InMemoryExpenseCategoryRepository(),
+    // () => InMemoryExpenseCategoryRepository(),
+    () => FirebaseExpenseCategoryRepository.personal(uid),
   );
 
   // Use cases - record
@@ -82,6 +86,7 @@ void initialize(String uid) {
         () => DeletePropertyInteractor(sl<PropertyRepository>()),
   );
 
+  // Use cases - category
   sl.registerLazySingleton<AddCategoryUseCase2>(
     () => AddCategoryInteractor2(
       sl<IncomeCategoryRepository>(),
