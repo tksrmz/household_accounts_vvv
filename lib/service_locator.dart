@@ -118,4 +118,12 @@ void initialize(String uid) {
       sl<ExpenseCategoryRepository>(),
     ),
   );
+
+  // Use cases - budget
+  sl.registerLazySingleton<RetrieveBudgetStateUseCase>(
+    () => RetrieveBudgetStateInteractor(
+      sl<RecordRepositoryNew>(),
+      sl<ExpenseCategoryRepository>(),
+    ),
+  );
 }
