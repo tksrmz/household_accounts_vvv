@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
+import 'package:household_accounts/features/budget-viewer/presentation/pages/budget_biewer_page.dart';
 import 'package:household_accounts/service_locator.dart';
 import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
 import 'package:household_accounts/features/input-page/presentation/pages/input_page.dart';
@@ -202,12 +203,19 @@ class MyAppHomeState extends State<MyAppHome> {
             iconData: Icons.accessibility,
           );
 
+          final budgetListPage = _HomeWidgetContent(
+            title: 'Budget',
+            builder: () => BudgetViewerPage(),
+            iconData: Icons.next_plan_outlined,
+          );
+
           return _HomeWidget(
             [
               recordRegisterPage,
               calenderViewPage,
               propertyPage,
               categoryListPage,
+              budgetListPage,
             ],
             singleOrPair: _singleOrPair,
             setSingleOrPair: snapshot.data!.exists &&
