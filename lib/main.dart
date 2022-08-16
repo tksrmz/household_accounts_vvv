@@ -133,7 +133,7 @@ class MyAppHome extends StatefulWidget {
 class MyAppHomeState extends State<MyAppHome> {
   late final Future<DocumentSnapshot<Map<String, dynamic>>>
       _privateProfileDocSnapshot;
-  _SingleOrPair _singleOrPair = _SingleOrPair.single;
+  SingleOrPair _singleOrPair = SingleOrPair.single;
 
   @override
   void initState() {
@@ -162,11 +162,11 @@ class MyAppHomeState extends State<MyAppHome> {
         // Once complete, show your application
         if (snapshot.connectionState == ConnectionState.done) {
           switch (_singleOrPair) {
-            case _SingleOrPair.single:
+            case SingleOrPair.single:
               initialize(widget._uid);
               break;
 
-            case _SingleOrPair.pair:
+            case SingleOrPair.pair:
               // _firebaseRecordRepository = FirebaseRecordRepository.shared(
               //     (snapshot.data!.get('sharedNote.ref') as DocumentReference)
               //         .id);
@@ -260,14 +260,14 @@ class _HomeWidgetContent {
 
 class _HomeWidget extends StatefulWidget {
   final List<_HomeWidgetContent> contents;
-  final _SingleOrPair _singleOrPair;
-  final void Function(_SingleOrPair newValue)? _setSingleOrPair;
+  final SingleOrPair _singleOrPair;
+  final void Function(SingleOrPair newValue)? _setSingleOrPair;
 
   const _HomeWidget(
     this.contents, {
     Key? key,
-    required _SingleOrPair singleOrPair,
-    required void Function(_SingleOrPair newValue)? setSingleOrPair,
+    required SingleOrPair singleOrPair,
+    required void Function(SingleOrPair newValue)? setSingleOrPair,
   })  : _singleOrPair = singleOrPair,
         _setSingleOrPair = setSingleOrPair,
         super(key: key);
@@ -276,7 +276,7 @@ class _HomeWidget extends StatefulWidget {
   _HomeWidgetState createState() => _HomeWidgetState();
 }
 
-enum _SingleOrPair {
+enum SingleOrPair {
   single,
   pair,
 }
@@ -312,14 +312,14 @@ class _HomeWidgetState extends State<_HomeWidget> {
     Widget modeListTile;
     Icon modeIcon;
     switch (widget._singleOrPair) {
-      case _SingleOrPair.single:
+      case SingleOrPair.single:
         modeText = 'Personal mode';
         modeListTile = widget._setSingleOrPair != null
             ? ListTile(
                 leading: const Icon(Icons.swap_horiz),
                 title: Text('Change to pair mode.'),
                 onTap: () {
-                  widget._setSingleOrPair!(_SingleOrPair.pair);
+                  widget._setSingleOrPair!(SingleOrPair.pair);
                   Navigator.pop(context); // close the drawer
                 })
             : SizedBox.shrink();
@@ -328,14 +328,14 @@ class _HomeWidgetState extends State<_HomeWidget> {
           color: Colors.white,
         );
         break;
-      case _SingleOrPair.pair:
+      case SingleOrPair.pair:
         modeText = 'Pair mode';
         modeListTile = widget._setSingleOrPair != null
             ? ListTile(
                 leading: const Icon(Icons.swap_horiz),
                 title: Text('Change to personal mode.'),
                 onTap: () {
-                  widget._setSingleOrPair!(_SingleOrPair.single);
+                  widget._setSingleOrPair!(SingleOrPair.single);
                   Navigator.pop(context); // close the drawer
                 })
             : SizedBox.shrink();
