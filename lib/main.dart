@@ -179,37 +179,37 @@ class MyAppHomeState extends State<MyAppHome> {
               break;
           }
 
-          final recordRegisterPage = _HomeWidgetContent(
+          final recordRegisterPage = MainPageContent(
             title: 'Input',
             builder: () => RecordInputPage(),
             iconData: Icons.cloud,
           );
 
-          final calenderViewPage = _HomeWidgetContent(
+          final calenderViewPage = MainPageContent(
             title: 'Calendar',
             builder: () => CalendarRecordViewPage2(),
             iconData: Icons.beach_access,
           );
 
-          final propertyPage = _HomeWidgetContent(
+          final propertyPage = MainPageContent(
             title: 'Balance',
             builder: () => PropertyListPage(),
             iconData: Icons.access_alarm,
           );
 
-          final categoryListPage = _HomeWidgetContent(
+          final categoryListPage = MainPageContent(
             title: 'Categories',
             builder: () => CategoryListPage2(),
             iconData: Icons.accessibility,
           );
 
-          final budgetListPage = _HomeWidgetContent(
+          final budgetListPage = MainPageContent(
             title: 'Budget',
             builder: () => BudgetViewerPage(),
             iconData: Icons.next_plan_outlined,
           );
 
-          return _HomeWidget(
+          return MainPage(
             [
               recordRegisterPage,
               calenderViewPage,
@@ -244,12 +244,12 @@ class MyAppHomeState extends State<MyAppHome> {
 }
 
 @immutable
-class _HomeWidgetContent {
+class MainPageContent {
   final String title;
   final Widget Function() builder;
   final IconData iconData;
 
-  _HomeWidgetContent({
+  MainPageContent({
     required String title,
     required Widget Function() builder,
     required IconData iconData,
@@ -258,12 +258,12 @@ class _HomeWidgetContent {
         iconData = iconData;
 }
 
-class _HomeWidget extends StatefulWidget {
-  final List<_HomeWidgetContent> contents;
+class MainPage extends StatefulWidget {
+  final List<MainPageContent> contents;
   final SingleOrPair _singleOrPair;
   final void Function(SingleOrPair newValue)? _setSingleOrPair;
 
-  const _HomeWidget(
+  const MainPage(
     this.contents, {
     Key? key,
     required SingleOrPair singleOrPair,
@@ -273,7 +273,7 @@ class _HomeWidget extends StatefulWidget {
         super(key: key);
 
   @override
-  _HomeWidgetState createState() => _HomeWidgetState();
+  MainPageState createState() => MainPageState();
 }
 
 enum SingleOrPair {
@@ -281,7 +281,7 @@ enum SingleOrPair {
   pair,
 }
 
-class _HomeWidgetState extends State<_HomeWidget> {
+class MainPageState extends State<MainPage> {
   late final List<BottomNavigationBarItem> _bottomNavigationBarItems;
   int _selectedIndex = 0;
 
