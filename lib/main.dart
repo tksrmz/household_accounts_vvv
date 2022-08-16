@@ -2,16 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
-import 'package:household_accounts/features/budget-viewer/presentation/pages/budget_biewer_page.dart';
-import 'package:household_accounts/service_locator.dart';
-import 'package:household_accounts/features/category-page/presentation/pages/category_list.dart';
-import 'package:household_accounts/features/input-page/presentation/pages/input_page.dart';
+import 'package:household_accounts/presentation/budget_viewer/budget_viewer_page.dart';
+import 'package:household_accounts/util/service_locator/service_locator.dart';
+import 'package:household_accounts/presentation/category_viewer/category_viewer_page.dart';
+import 'package:household_accounts/presentation/record_register/record_register_page.dart';
+import 'package:household_accounts/util/constant/firebase_constant.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'constants/firebase/firebase_constant.dart';
 import 'firebase_options.dart';
 
-import 'features/record-calendar-page/presentation/pages/ui_calendar_record_view.dart';
-import 'features/property-viewer/presentation/pages/property_list.dart';
+import 'presentation/monthly_record_viewer/monthly_record_viewer_page.dart';
+import 'presentation/property_viewer/property_viewer_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
