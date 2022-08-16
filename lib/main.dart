@@ -8,6 +8,7 @@ import 'package:household_accounts/presentation/category_viewer/category_viewer_
 import 'package:household_accounts/presentation/record_register/record_register_page.dart';
 import 'package:household_accounts/util/constant/firebase_constant.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:household_accounts/util/type/single_or_pair.dart';
 import 'firebase_options.dart';
 
 import 'presentation/monthly_record_viewer/monthly_record_viewer_page.dart';
@@ -274,11 +275,6 @@ class MainPage extends StatefulWidget {
 
   @override
   MainPageState createState() => MainPageState();
-}
-
-enum SingleOrPair {
-  single,
-  pair,
 }
 
 class MainPageState extends State<MainPage> {
