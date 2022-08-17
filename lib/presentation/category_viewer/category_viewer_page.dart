@@ -52,9 +52,10 @@ class _PageContent2 extends StatelessWidget {
         Expanded(
           child: ListView(
             children: [
-              const Text('INCOME CATEGORIES'),
+              _SectionTitle(text: 'INCOME CATEGORIES'),
               _IncomeCategoryList(),
-              const Text('EXPENSE CATEGORIES'),
+              SizedBox(height: 40),
+              _SectionTitle(text: 'EXPENSE CATEGORIES'),
               _ExpenseCategoryList(),
             ],
           ),
@@ -93,6 +94,22 @@ class _PageContent2 extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({Key? key, required this.text}) : super(key: key);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        text,
+        style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.25),
+      ),
     );
   }
 }
@@ -153,6 +170,7 @@ class _IncomeCategoryListItem extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Text(_incomeCategory.name),
+        Spacer(),
         _EditCategoryButton2(originalData: _incomeCategory),
         DeleteIconButton(
           onPressed: () {
@@ -224,6 +242,7 @@ class _ExpenseCategoryListItem extends StatelessWidget {
         Text(
           '${_expenseCategory.name} (Budget: ${_expenseCategory.totalBudget})',
         ),
+        Spacer(),
         _EditCategoryButton2(originalData: _expenseCategory),
         DeleteIconButton(
           onPressed: () {
