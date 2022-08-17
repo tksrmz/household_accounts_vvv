@@ -53,7 +53,6 @@ class _PageContents extends StatelessWidget {
     }
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
           child: _PropertyListView(properties: state.properties),
@@ -76,11 +75,10 @@ class _PropertyListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      children: List.of(
-        _properties.map(
-          (e) => _PropertyListItem(property: e),
-        ),
-      ),
+      padding: const EdgeInsets.all(8),
+      children: _properties
+          .map((e) => _PropertyListItem(property: e))
+          .toList(growable: false),
     );
   }
 }
@@ -97,8 +95,17 @@ class _PropertyListItem extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Text(_property.name),
-        Text(_property.amount.toString()),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _property.name,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(_property.amount.toString()),
+          ],
+        ),
+        Spacer(),
         _EditPropertyButton(propertyId: _property.id),
         DeleteIconButton(
           onPressed: () {
