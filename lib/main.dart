@@ -194,7 +194,7 @@ class MyAppHomeState extends State<MyAppHome> {
           );
 
           final propertyPage = MainPageContent(
-            title: 'Balance',
+            title: 'Property',
             builder: () => PropertyListPage(),
             iconData: Icons.access_alarm,
           );
