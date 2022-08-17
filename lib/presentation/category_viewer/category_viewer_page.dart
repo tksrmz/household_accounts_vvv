@@ -50,14 +50,15 @@ class _PageContent2 extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-            child: ListView(
-          children: [
-            const Text('INCOME CATEGORIES'),
-            _IncomeCategoryList(),
-            const Text('EXPENSE CATEGORIES'),
-            _ExpenseCategoryList(),
-          ],
-        )),
+          child: ListView(
+            children: [
+              const Text('INCOME CATEGORIES'),
+              _IncomeCategoryList(),
+              const Text('EXPENSE CATEGORIES'),
+              _ExpenseCategoryList(),
+            ],
+          ),
+        ),
         OutlinedButton(
           onPressed: () {
             Navigator.push(
