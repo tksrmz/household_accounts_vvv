@@ -55,22 +55,37 @@ class _CalenderView extends StatelessWidget {
       (int year, int month, int day) {
         final summary = model.recordAt(day);
 
-        return TextButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (newContext) => _DailyRecordMinute(year, month, day),
-              ),
-            );
-          },
-          child: Column(
-            children: [
-              Text('$day'),
-              Text('+${summary.totalIncome}'),
-              Text('-${summary.totalExpense}'),
-              Text('=${summary.totalTransfer}'),
-            ],
+        return Padding(
+          padding: EdgeInsets.all(4),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (newContext) => _DailyRecordMinute(year, month, day),
+                ),
+              );
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Center(
+                  child: Text('$day'),
+                ),
+                Text(
+                  '${summary.totalIncome}',
+                  style: TextStyle(color: Colors.green),
+                ),
+                Text(
+                  '${summary.totalExpense}',
+                  style: TextStyle(color: Colors.orange),
+                ),
+                Text(
+                  '${summary.totalTransfer}',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
           ),
         );
       },
