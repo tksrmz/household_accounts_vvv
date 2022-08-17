@@ -1,4 +1,6 @@
-import 'package:flutter/widgets.dart';
+import 'dart:math';
+
+import 'package:flutter/material.dart';
 import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_use_case.dart';
 import 'package:household_accounts/util/service_locator/service_locator.dart';
 import 'package:household_accounts/util/type/failure_or.dart';
@@ -51,16 +53,22 @@ class _PageContentsState extends State<_PageContents> {
 
         if (snapshot.connectionState == ConnectionState.done) {
           return snapshot.data!.fold(
-            (failure) => Center(
+                (failure) => Center(
               child: Text(failure.toString()),
             ),
-            (output) => ListView(
-              children: List.of(
-                output.states.map(
-                  (e) => _BudgetListItem(budgetState: e),
-                ),
-              ),
-            ),
+            (output) {
+              return ListView.separated(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: output.states.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _BudgetListItem(budgetState: output.states[index]);
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return const Divider(
+                      color: Colors.black,
+                    );
+                  });
+            },
           );
         }
 
@@ -83,12 +91,33 @@ class _BudgetListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Column(
       children: [
-        Text(_budgetState.name),
-        Spacer(),
-        Text('${_budgetState.spentAmount} / ${_budgetState.totalAmount}'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text(_budgetState.name),
+            Spacer(),
+            Text('${_budgetState.spentAmount} / ${_budgetState.totalAmount}'),
+          ],
+        ),
+        SizedBox(
+          height: 20,
+          width: double.infinity,
+          child: Container(
+            color: Colors.grey,
+            child: Transform.scale(
+              alignment: Alignment.centerLeft,
+              scaleX: min(
+                1.0, // avoiding scaleX from being larger than 1.0
+                _budgetState.spentAmount / _budgetState.totalAmount,
+              ),
+              child: Container(
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
