@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
+import 'package:household_accounts/presentation/common_widget/number_text_form_field.dart';
 import 'package:household_accounts/util/service_locator/service_locator.dart';
 import 'package:household_accounts/entity/property_entity.dart';
 import 'package:household_accounts/feature/property_retrieve/property_retrieve_use_case.dart';
@@ -28,6 +29,8 @@ class _PageContents extends StatefulWidget {
 }
 
 class _PageContentsState extends State<_PageContents> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   DateTime _recordDate = DateTime.now();
   String _amount = '';
   RecordType _recordType = RecordType.income;
@@ -39,7 +42,7 @@ class _PageContentsState extends State<_PageContents> {
   late final Future<dartz.Either<Failure, List<IncomeCategory>>>
       _incomeCategoriesFuture;
   late final Future<dartz.Either<Failure, List<ExpenseCategory>>>
-      _expenseCategoriesFuture;
+  _expenseCategoriesFuture;
   late final Future<dartz.Either<Failure, List<Property>>> _propertiesFuture;
 
   @override
@@ -151,82 +154,106 @@ class _PageContentsState extends State<_PageContents> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        _RecordDatePicker(
-          value: _recordDate,
-          recordDateUpdater: _setRecordDateState,
-        ),
-        _AmountTextField(
-          onChanged: _setAmountState,
-        ),
-        _RecordTypeSelector(
-          incomeButtonOnPressed: _recordType == RecordType.income
-              ? null
-              : () => _setRecordTypeState(RecordType.income),
-          expenseButtonOnPressed: _recordType == RecordType.expense
-              ? null
-              : () => _setRecordTypeState(RecordType.expense),
-          transferButtonOnPressed: _recordType == RecordType.transfer
-              ? null
-              : () => _setRecordTypeState(RecordType.transfer),
-        ),
-        _PropertyDropDownMenu(
-          properties: _propertiesFuture,
-          value: _srcProperty,
-          onChanged: _setSrcPropertyState,
-        ),
-        _recordType == RecordType.transfer
-            ? _PropertyDropDownMenu(
-                properties: _propertiesFuture,
-                value: _destProperty,
-                onChanged: _setDestPropertyState,
-              )
-            : _CategoryDropDownMenu(
-                categories: _recordType == RecordType.income
-                    ? _incomeCategoriesFuture
-                    : _expenseCategoriesFuture,
-                value: _category,
-                categoryType: _recordType == RecordType.income
-                    ? CategoryType.income
-                    : CategoryType.expense,
-                onChanged: _setCategoryState,
-              ),
-        _NoteTextField(
-          onChanged: _setNoteState,
-        ),
-        _SubmitButton(
-          onPressed: () {
-            print('Current state');
-            print('amount: $_amount');
-            print('record date: $_recordDate');
-            print('category type: $_recordType');
-            print('category name: $_category');
-            print('source property: $_srcProperty');
-            print('destination property: $_destProperty');
-            print('note: $_note');
+    return Form(
+      key: _formKey,
+      child: ListView(
+        children: [
+          _RecordDatePicker(
+            value: _recordDate,
+            recordDateUpdater: _setRecordDateState,
+          ),
+          _AmountTextField(
+            onSaved: (String? value) {
+              assert(value != null, 'amount value is null!');
+              _setAmountState(value!);
+            },
+          ),
+          _RecordTypeSelector(
+            incomeButtonOnPressed: _recordType == RecordType.income
+                ? null
+                : () => _setRecordTypeState(RecordType.income),
+            expenseButtonOnPressed: _recordType == RecordType.expense
+                ? null
+                : () => _setRecordTypeState(RecordType.expense),
+            transferButtonOnPressed: _recordType == RecordType.transfer
+                ? null
+                : () => _setRecordTypeState(RecordType.transfer),
+          ),
+          _PropertyDropDownMenu(
+            properties: _propertiesFuture,
+            value: _srcProperty,
+            onChanged: _setSrcPropertyState,
+          ),
+          _recordType == RecordType.transfer
+              ? _PropertyDropDownMenu(
+                  properties: _propertiesFuture,
+                  value: _destProperty,
+                  onChanged: _setDestPropertyState,
+                )
+              : _CategoryDropDownMenu(
+                  categories: _recordType == RecordType.income
+                      ? _incomeCategoriesFuture
+                      : _expenseCategoriesFuture,
+                  value: _category,
+                  categoryType: _recordType == RecordType.income
+                      ? CategoryType.income
+                      : CategoryType.expense,
+                  onChanged: _setCategoryState,
+                ),
+          _NoteTextField(
+            onSaved: (String? value) {
+              assert(value != null, 'note value is null');
+              _setNoteState(value!);
+            },
+          ),
+          _SubmitButton(
+            onPressed: () {
+              print('Current state');
+              print('amount: $_amount');
+              print('record date: $_recordDate');
+              print('category type: $_recordType');
+              print('category name: $_category');
+              print('source property: $_srcProperty');
+              print('destination property: $_destProperty');
+              print('note: $_note');
 
-            switch (_recordType) {
-              case RecordType.income:
-                _submitIncomeRecord(sl<AddIncomeRecordUseCase>());
-                break;
-              case RecordType.expense:
-                _submitExpenseRecord(sl<AddExpenseRecordUseCase>());
-                break;
-              case RecordType.transfer:
-                _submitTransferRecord(sl<AddTransferRecordUseCase>());
-                break;
-            }
+              if (!_formKey.currentState!.validate()) {
+                // Tell the user that the input data is invalid.
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Invalid input.'),
+                  ),
+                );
+                return;
+              }
 
-            // Tell the user that the record has been created
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Record created!'),
-              ),
-            );
-          },
-        ),
-      ],
+              // Updates states
+              _formKey.currentState!.save();
+              // Process data
+              switch (_recordType) {
+                case RecordType.income:
+                  _submitIncomeRecord(sl<AddIncomeRecordUseCase>());
+                  break;
+                case RecordType.expense:
+                  _submitExpenseRecord(sl<AddExpenseRecordUseCase>());
+                  break;
+                case RecordType.transfer:
+                  _submitTransferRecord(sl<AddTransferRecordUseCase>());
+                  break;
+              }
+              // Reset states
+              _formKey.currentState!.reset();
+
+              // Tell the user that the record has been created
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Record created!'),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -277,23 +304,23 @@ class _RecordDatePicker extends StatelessWidget {
 }
 
 class _AmountTextField extends StatelessWidget {
-  final ValueChanged<String>? _onChanged;
+  final FormFieldSetter<String>? _onSaved;
 
   _AmountTextField({
-    ValueChanged<String>? onChanged,
+    FormFieldSetter<String>? onSaved,
     Key? key,
-  })  : _onChanged = onChanged,
+  })  : _onSaved = onSaved,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return NumberTextFormField(
       decoration: InputDecoration(
         labelText: 'Amount',
         border: OutlineInputBorder(),
       ),
-      keyboardType: TextInputType.number,
-      onChanged: _onChanged,
+      initialValue: '',
+      onSaved: _onSaved,
     );
   }
 }
@@ -503,24 +530,31 @@ class _PropertyDropDownMenu extends StatelessWidget {
 }
 
 class _NoteTextField extends StatelessWidget {
-  final ValueChanged<String>? _onChanged;
+  final FormFieldSetter<String>? _onSaved;
 
   const _NoteTextField({
-    ValueChanged<String>? onChanged,
+    FormFieldSetter<String>? onSaved,
     Key? key,
-  })  : _onChanged = onChanged,
+  })  : _onSaved = onSaved,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        labelText: 'Note',
-        border: OutlineInputBorder(),
-      ),
-      keyboardType: TextInputType.text,
-      onChanged: _onChanged,
-    );
+    return TextFormField(
+        decoration: InputDecoration(
+          labelText: 'Note',
+          border: OutlineInputBorder(),
+        ),
+        initialValue: '',
+        keyboardType: TextInputType.text,
+        onSaved: _onSaved,
+        validator: (String? value) {
+          if (value == null) {
+            return 'Please input some value.';
+          }
+
+          return null;
+        });
   }
 }
 
