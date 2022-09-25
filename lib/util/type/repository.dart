@@ -4,7 +4,7 @@ import 'package:household_accounts/util/type/identifiable.dart';
 import 'exception_or.dart';
 
 /// Base class for repositories that store data of type [T].
-abstract class Repository2<T extends Identifiable> {
+abstract class Repository<T extends Identifiable> {
   /// Registers the [value] in the repository.
   ///
   /// Fails when there is already a record that is identified by [value.id],

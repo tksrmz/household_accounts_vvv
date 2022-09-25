@@ -3,7 +3,7 @@ import 'package:household_accounts/util/type/repository.dart';
 
 import '../../util/type/exception_or.dart';
 
-abstract class IncomeCategoryRepository extends Repository2<IncomeCategory> {
+abstract class IncomeCategoryRepository extends Repository<IncomeCategory> {
   /// Retrieves all income categories.
   ///
   /// The list order has no meanings.
@@ -11,7 +11,7 @@ abstract class IncomeCategoryRepository extends Repository2<IncomeCategory> {
   Future<ExceptionOr<List<IncomeCategory>>> retrieveIncomeCategories();
 }
 
-abstract class ExpenseCategoryRepository extends Repository2<ExpenseCategory> {
+abstract class ExpenseCategoryRepository extends Repository<ExpenseCategory> {
   /// Retrieves all expense categories.
   ///
   /// The list order has no meanings.

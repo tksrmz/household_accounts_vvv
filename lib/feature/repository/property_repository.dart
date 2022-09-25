@@ -3,7 +3,7 @@ import 'package:household_accounts/util/type/repository.dart';
 
 import '../../util/type/exception_or.dart';
 
-abstract class PropertyRepository extends Repository2<Property> {
+abstract class PropertyRepository extends Repository<Property> {
   /// Retrieves all properties.
   ///
   /// The list order has no meanings.
