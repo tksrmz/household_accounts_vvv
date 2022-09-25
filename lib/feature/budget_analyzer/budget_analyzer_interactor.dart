@@ -1,10 +1,11 @@
 import 'package:dartz/dartz.dart';
+import 'package:household_accounts/entity/category_entity.dart';
+import 'package:household_accounts/entity/record_entity.dart';
 import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_use_case.dart';
 import 'package:household_accounts/feature/repository/category_repository.dart';
-import 'package:household_accounts/entity/record_entity.dart';
 import 'package:household_accounts/feature/repository/record_repository.dart';
-import 'package:household_accounts/entity/category_entity.dart';
-import 'package:household_accounts/util/type/failure_or.dart';
+
+import '../../util/type/exception_or.dart';
 
 class RetrieveBudgetStateInteractor extends RetrieveBudgetStateUseCase {
   RetrieveBudgetStateInteractor(
@@ -16,22 +17,22 @@ class RetrieveBudgetStateInteractor extends RetrieveBudgetStateUseCase {
   final ExpenseCategoryRepository _expenseCategoryRepository;
 
   @override
-  Future<FailureOr<RetrieveBudgetStateOutput>> handle(
+  Future<ExceptionOr<RetrieveBudgetStateOutput>> call(
     RetrieveBudgetStateInput input,
   ) async {
-    final FailureOr<List<Record>> failureOrRecords =
+    final ExceptionOr<List<Record>> failureOrRecords =
         await _recordRepository.retrieveRecordsOf(
       input.begin,
       input.end,
     );
     if (failureOrRecords.isLeft()) {
-      return failureOrRecords as FailureOr<RetrieveBudgetStateOutput>;
+      return failureOrRecords as ExceptionOr<RetrieveBudgetStateOutput>;
     }
 
     final failureOrCategories =
         await _expenseCategoryRepository.retrieveExpenseCategories();
     if (failureOrCategories.isLeft()) {
-      return failureOrCategories as FailureOr<RetrieveBudgetStateOutput>;
+      return failureOrCategories as ExceptionOr<RetrieveBudgetStateOutput>;
     }
 
     final List<ExpenseRecord> records = _extractExpenseRecord(

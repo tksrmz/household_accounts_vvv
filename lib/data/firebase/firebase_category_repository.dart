@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/data/firebase/category_model.dart';
+import 'package:household_accounts/entity/category_entity.dart';
 import 'package:household_accounts/feature/repository/category_repository.dart';
 import 'package:household_accounts/util/constant/firebase_constant.dart';
-import 'package:household_accounts/entity/category_entity.dart';
-import 'package:household_accounts/util/type/failure.dart';
+
+import '../../util/type/exception.dart';
+import '../../util/type/exception_or.dart';
 
 class FirebaseIncomeCategoryRepository implements IncomeCategoryRepository {
   late final CollectionReference<IncomeCategoryModel> _categoriesCollectionRef;
@@ -34,13 +36,13 @@ class FirebaseIncomeCategoryRepository implements IncomeCategoryRepository {
             );
 
   @override
-  Future<Either<Failure, Unit>> deleteById(String id) async {
+  Future<ExceptionOr<Unit>> deleteById(String id) async {
     await _categoriesCollectionRef.doc(id).delete();
     return Right(unit);
   }
 
   @override
-  Future<Either<Failure, Unit>> register(IncomeCategory value) async {
+  Future<ExceptionOr<Unit>> register(IncomeCategory value) async {
     await _categoriesCollectionRef
         .doc(value.id)
         .set(IncomeCategoryModel.fromIncomeCategory(value));
@@ -48,19 +50,18 @@ class FirebaseIncomeCategoryRepository implements IncomeCategoryRepository {
   }
 
   @override
-  Future<Either<Failure, IncomeCategory>> retrieveById(String id) async {
+  Future<ExceptionOr<IncomeCategory>> retrieveById(String id) async {
     DocumentSnapshot<IncomeCategoryModel> snapshot =
         await _categoriesCollectionRef.doc(id).get();
     if (!snapshot.exists) {
-      return Left(RepositoryFailure());
+      return Left(RepositoryException('No record with ID $id.'));
     }
 
     return Right(snapshot.data()!);
   }
 
   @override
-  Future<Either<Failure, List<IncomeCategory>>>
-      retrieveIncomeCategories() async {
+  Future<ExceptionOr<List<IncomeCategory>>> retrieveIncomeCategories() async {
     List<QueryDocumentSnapshot<IncomeCategoryModel>> categories =
         await _categoriesCollectionRef
             .orderBy('name')
@@ -74,7 +75,7 @@ class FirebaseIncomeCategoryRepository implements IncomeCategoryRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> update(IncomeCategory newValue) async {
+  Future<ExceptionOr<Unit>> update(IncomeCategory newValue) async {
     // TODO: Add error handling in the case a document with [newValue.id] doesn't exist.
     await _categoriesCollectionRef
         .doc(newValue.id)
@@ -111,13 +112,13 @@ class FirebaseExpenseCategoryRepository implements ExpenseCategoryRepository {
             );
 
   @override
-  Future<Either<Failure, Unit>> deleteById(String id) async {
+  Future<ExceptionOr<Unit>> deleteById(String id) async {
     await _categoriesCollectionRef.doc(id).delete();
     return Right(unit);
   }
 
   @override
-  Future<Either<Failure, Unit>> register(ExpenseCategory value) async {
+  Future<ExceptionOr<Unit>> register(ExpenseCategory value) async {
     await _categoriesCollectionRef
         .doc(value.id)
         .set(ExpenseCategoryModel.fromExpenseCategory(value));
@@ -125,19 +126,18 @@ class FirebaseExpenseCategoryRepository implements ExpenseCategoryRepository {
   }
 
   @override
-  Future<Either<Failure, ExpenseCategory>> retrieveById(String id) async {
+  Future<ExceptionOr<ExpenseCategory>> retrieveById(String id) async {
     DocumentSnapshot<ExpenseCategoryModel> snapshot =
         await _categoriesCollectionRef.doc(id).get();
     if (!snapshot.exists) {
-      return Left(RepositoryFailure());
+      return Left(RepositoryException('No record with ID $id`'));
     }
 
     return Right(snapshot.data()!);
   }
 
   @override
-  Future<Either<Failure, List<ExpenseCategory>>>
-      retrieveExpenseCategories() async {
+  Future<ExceptionOr<List<ExpenseCategory>>> retrieveExpenseCategories() async {
     List<QueryDocumentSnapshot<ExpenseCategoryModel>> categories =
         await _categoriesCollectionRef
             .orderBy('name')
@@ -151,7 +151,7 @@ class FirebaseExpenseCategoryRepository implements ExpenseCategoryRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> update(ExpenseCategory newValue) async {
+  Future<ExceptionOr<Unit>> update(ExpenseCategory newValue) async {
     // TODO: Add error handling in the case a document with [newValue.id] doesn't exist.
     await _categoriesCollectionRef
         .doc(newValue.id)

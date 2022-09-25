@@ -1,8 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/feature/repository/category_repository.dart';
-import 'package:household_accounts/feature/category_editing/update_category_use_case.dart';
 import 'package:household_accounts/entity/category_entity.dart';
-import 'package:household_accounts/util/type/failure.dart';
+import 'package:household_accounts/feature/category_editing/update_category_use_case.dart';
+import 'package:household_accounts/feature/repository/category_repository.dart';
+
+import '../../util/type/exception_or.dart';
 
 class UpdateIncomeCategoryInteractor extends UpdateIncomeCategoryUseCase {
   final IncomeCategoryRepository _repository;
@@ -10,7 +11,7 @@ class UpdateIncomeCategoryInteractor extends UpdateIncomeCategoryUseCase {
   UpdateIncomeCategoryInteractor(this._repository);
 
   @override
-  Future<Either<Failure, Unit>> handle(UpdateIncomeCategoryInput input) =>
+  Future<ExceptionOr<Unit>> call(UpdateIncomeCategoryInput input) =>
       _repository.update(
         IncomeCategory(
           id: input.original.id,
@@ -25,7 +26,7 @@ class UpdateExpenseCategoryInteractor extends UpdateExpenseCategoryUseCase {
   UpdateExpenseCategoryInteractor(this._repository);
 
   @override
-  Future<Either<Failure, Unit>> handle(UpdateExpenseCategoryInput input) =>
+  Future<ExceptionOr<Unit>> call(UpdateExpenseCategoryInput input) =>
       _repository.update(
         ExpenseCategory(
           id: input.original.id,

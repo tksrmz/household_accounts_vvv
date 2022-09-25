@@ -1,19 +1,18 @@
 import 'dart:collection';
 
+import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:household_accounts/entity/property_entity.dart';
-import 'package:household_accounts/feature/property_register/property_register_use_case.dart';
 import 'package:household_accounts/feature/property_deletion/delete_property_use_case.dart';
-import 'package:household_accounts/feature/property_retrieve/property_retrieve_use_case.dart';
 import 'package:household_accounts/feature/property_editing/update_property_use_case.dart';
-import 'package:household_accounts/util/type/failure.dart';
-import 'package:household_accounts/util/type/use_case.dart';
+import 'package:household_accounts/feature/property_register/property_register_use_case.dart';
+import 'package:household_accounts/feature/property_retrieve/property_retrieve_use_case.dart';
 
 class PropertyListState with ChangeNotifier {
   // States
   List<Property> _properties;
   bool _isLoading;
-  Failure? _failure;
+  Exception? _failure;
 
   // Use cases
   final RetrievePropertiesUseCase _retrievePropertiesUseCase;
@@ -37,15 +36,14 @@ class PropertyListState with ChangeNotifier {
 
   bool get hasFailure => _failure != null;
 
-  Failure? get failure => _failure;
+  Exception? get failure => _failure;
 
   Future<void> loadProperties() async {
     _isLoading = true;
     _failure = null;
     notifyListeners();
 
-    final failureOrProperties =
-        await _retrievePropertiesUseCase.handle(NoParam());
+    final failureOrProperties = await _retrievePropertiesUseCase(unit);
     failureOrProperties.fold(
       (failure) {
         _failure = failure;
@@ -67,7 +65,7 @@ class PropertyListState with ChangeNotifier {
     // FIXME: Validate [propertyName] before passing it to [AddPropertyInput()].
     final input = AddPropertyInput(propertyName, amount);
 
-    final failureOrProperty = await _addPropertiesUseCase.handle(input);
+    final failureOrProperty = await _addPropertiesUseCase(input);
     failureOrProperty.fold(
       (failure) {
         _failure = failure;
@@ -97,7 +95,7 @@ class PropertyListState with ChangeNotifier {
       newPropertyAmount: nullableAmount,
     );
 
-    final failureOrProperty = await _updatePropertyUseCase.handle(input);
+    final failureOrProperty = await _updatePropertyUseCase(input);
     failureOrProperty.fold(
       (failure) {
         _failure = failure;
@@ -118,7 +116,7 @@ class PropertyListState with ChangeNotifier {
     _failure = null;
 
     final failureOrUnit =
-        await _deletePropertiesUseCase.handle(DeletePropertyInput(id));
+        await _deletePropertiesUseCase(DeletePropertyInput(id));
     failureOrUnit.fold(
       (failure) {
         _failure = failure;

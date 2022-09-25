@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/entity/category_entity.dart';
-import 'package:household_accounts/feature/repository/category_repository.dart';
 import 'package:household_accounts/feature/category_retrieve/retrieve_categories_use_case.dart';
-import 'package:household_accounts/util/type/failure.dart';
-import 'package:household_accounts/util/type/use_case.dart';
+import 'package:household_accounts/feature/repository/category_repository.dart';
+
+import '../../util/type/exception_or.dart';
 
 class RetrieveIncomeCategoriesInteractor
     extends RetrieveIncomeCategoriesUseCase {
@@ -12,7 +12,7 @@ class RetrieveIncomeCategoriesInteractor
   RetrieveIncomeCategoriesInteractor(this._repository);
 
   @override
-  Future<Either<Failure, List<IncomeCategory>>> handle(NoParam notUsed) =>
+  Future<ExceptionOr<List<IncomeCategory>>> call(Unit notUsed) =>
       _repository.retrieveIncomeCategories();
 }
 
@@ -23,6 +23,6 @@ class RetrieveExpenseCategoriesInteractor
   RetrieveExpenseCategoriesInteractor(this._repository);
 
   @override
-  Future<Either<Failure, List<ExpenseCategory>>> handle(NoParam notUsed) =>
+  Future<ExceptionOr<List<ExpenseCategory>>> call(Unit notUsed) =>
       _repository.retrieveExpenseCategories();
 }

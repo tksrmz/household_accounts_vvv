@@ -1,19 +1,18 @@
 import 'dart:collection';
 
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/category_entity.dart';
-import 'package:household_accounts/feature/category_register/category_register_use_case.dart';
 import 'package:household_accounts/feature/category_deletion/delete_category_use_case.dart';
-import 'package:household_accounts/feature/category_retrieve/retrieve_categories_use_case.dart';
 import 'package:household_accounts/feature/category_editing/update_category_use_case.dart';
-import 'package:household_accounts/util/type/failure.dart';
-import 'package:household_accounts/util/type/use_case.dart';
+import 'package:household_accounts/feature/category_register/category_register_use_case.dart';
+import 'package:household_accounts/feature/category_retrieve/retrieve_categories_use_case.dart';
 
 class IncomeCategoryListState with ChangeNotifier {
   // States
   List<IncomeCategory> _categories = [];
   bool _isLoading = false;
-  Failure? _failure;
+  Exception? _failure;
 
   // Use cases
   final RetrieveIncomeCategoriesUseCase _retrieveCategoriesUseCase;
@@ -35,15 +34,14 @@ class IncomeCategoryListState with ChangeNotifier {
 
   bool get hasFailure => _failure != null;
 
-  Failure? get failure => _failure;
+  Exception? get failure => _failure;
 
   Future<void> loadState() async {
     _isLoading = true;
     _failure = null;
     notifyListeners();
 
-    final failureOrCategories =
-        await _retrieveCategoriesUseCase.handle(noparam);
+    final failureOrCategories = await _retrieveCategoriesUseCase(unit);
     failureOrCategories.fold(
       (failure) {
         _failure = failure;
@@ -59,7 +57,7 @@ class IncomeCategoryListState with ChangeNotifier {
 
   Future<void> deleteCategory(String id) async {
     final failureOrUnit =
-        await _deleteCategoryUseCase.handle(DeleteIncomeCategoryInput(id));
+        await _deleteCategoryUseCase(DeleteIncomeCategoryInput(id));
     failureOrUnit.fold(
       (failure) {
         _failure = failure;
@@ -75,7 +73,7 @@ class IncomeCategoryListState with ChangeNotifier {
   }
 
   Future<void> addCategory(String name) async {
-    final failureOrUnit = await _addCategoryUseCase.handle(
+    final failureOrUnit = await _addCategoryUseCase(
       AddCategoryInput2(
         name: name,
         type: CategoryType.income,
@@ -96,7 +94,7 @@ class IncomeCategoryListState with ChangeNotifier {
 
   Future<void> updateCategory(
       IncomeCategory original, String? newCategoryName) async {
-    final failureOrCategory = await _updateCategoryUseCase.handle(
+    final failureOrCategory = await _updateCategoryUseCase(
       UpdateIncomeCategoryInput(
         original: original,
         newName: newCategoryName,
@@ -117,7 +115,7 @@ class ExpenseCategoryListState with ChangeNotifier {
   // States
   List<ExpenseCategory> _categories = [];
   bool _isLoading = false;
-  Failure? _failure;
+  Exception? _failure;
 
   // Use cases
   final RetrieveExpenseCategoriesUseCase _retrieveCategoriesUseCase;
@@ -139,15 +137,14 @@ class ExpenseCategoryListState with ChangeNotifier {
 
   bool get hasFailure => _failure != null;
 
-  Failure? get failure => _failure;
+  Exception? get failure => _failure;
 
   Future<void> loadState() async {
     _isLoading = true;
     _failure = null;
     notifyListeners();
 
-    final failureOrCategories =
-        await _retrieveCategoriesUseCase.handle(noparam);
+    final failureOrCategories = await _retrieveCategoriesUseCase(unit);
     failureOrCategories.fold(
       (failure) {
         _failure = failure;
@@ -163,7 +160,7 @@ class ExpenseCategoryListState with ChangeNotifier {
 
   Future<void> deleteCategory(String id) async {
     final failureOrUnit =
-        await _deleteCategoryUseCase.handle(DeleteExpenseCategoryInput(id));
+        await _deleteCategoryUseCase(DeleteExpenseCategoryInput(id));
     failureOrUnit.fold(
       (failure) {
         _failure = failure;
@@ -179,7 +176,7 @@ class ExpenseCategoryListState with ChangeNotifier {
   }
 
   Future<void> addCategory(String name, int budgetAmount) async {
-    final failureOrUnit = await _addCategoryUseCase.handle(
+    final failureOrUnit = await _addCategoryUseCase(
       AddCategoryInput2(
         name: name,
         type: CategoryType.expense,
@@ -204,7 +201,7 @@ class ExpenseCategoryListState with ChangeNotifier {
     String? newCategoryName,
     int? newBudget,
   ) async {
-    final failureOrCategory = await _updateCategoryUseCase.handle(
+    final failureOrCategory = await _updateCategoryUseCase(
       UpdateExpenseCategoryInput(
         original: original,
         newName: newCategoryName,

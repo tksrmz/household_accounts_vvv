@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:household_accounts/util/type/use_case.dart';
 
 typedef RetrieveBudgetStateUseCase
-    = UseCase<RetrieveBudgetStateInput, RetrieveBudgetStateOutput>;
+    = UseCase2<RetrieveBudgetStateInput, RetrieveBudgetStateOutput>;
 
 class RetrieveBudgetStateInput extends Equatable {
   const RetrieveBudgetStateInput({

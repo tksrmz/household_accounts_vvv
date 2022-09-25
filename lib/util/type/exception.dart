@@ -1,6 +1,8 @@
 class RepositoryException implements Exception {
-  RepositoryException();
+  final String message;
+
+  RepositoryException([this.message = 'default message']);
 
   @override
-  String toString() => 'RepositoryException';
+  String toString() => 'RepositoryException: $message';
 }

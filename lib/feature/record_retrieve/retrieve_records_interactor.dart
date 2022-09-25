@@ -1,10 +1,10 @@
-import 'package:dartz/dartz.dart';
 import 'package:household_accounts/entity/record_entity.dart';
-import 'package:household_accounts/feature/repository/record_repository.dart';
 import 'package:household_accounts/feature/record_retrieve/retrieve_daily_records_use_case.dart';
 import 'package:household_accounts/feature/record_retrieve/retrieve_monthly_records_use_case.dart';
-import 'package:household_accounts/util/type/failure.dart';
+import 'package:household_accounts/feature/repository/record_repository.dart';
 import 'package:household_accounts/util/extension/date-time.dart';
+
+import '../../util/type/exception_or.dart';
 
 /// Retrieves records of the day.
 class RetrieveDailyRecordsInteractorNew implements RetrieveDailyRecordsUseCase {
@@ -13,7 +13,7 @@ class RetrieveDailyRecordsInteractorNew implements RetrieveDailyRecordsUseCase {
   const RetrieveDailyRecordsInteractorNew(this._repository);
 
   @override
-  Future<Either<Failure, List<Record>>> handle(
+  Future<ExceptionOr<List<Record>>> call(
     RetrieveDailyRecordsInput input,
   ) {
     final begin = DateTime(input.year, input.month, input.day);
@@ -32,7 +32,7 @@ class RetrieveMonthlyRecordsInteractorNew
   const RetrieveMonthlyRecordsInteractorNew(this._repository);
 
   @override
-  Future<Either<Failure, List<Record>>> handle(
+  Future<ExceptionOr<List<Record>>> call(
     RetrieveMonthlyRecordsInput input,
   ) {
     final begin = DateTime(input.year, input.month);

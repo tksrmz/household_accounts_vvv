@@ -1,16 +1,16 @@
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
-import 'package:household_accounts/presentation/common_widget/number_text_form_field.dart';
-import 'package:household_accounts/util/service_locator/service_locator.dart';
-import 'package:household_accounts/entity/property_entity.dart';
-import 'package:household_accounts/feature/property_retrieve/property_retrieve_use_case.dart';
 import 'package:household_accounts/entity/category_entity.dart';
+import 'package:household_accounts/entity/property_entity.dart';
 import 'package:household_accounts/entity/record_entity.dart';
-import 'package:household_accounts/feature/record_register/record_register_use_case.dart';
 import 'package:household_accounts/feature/category_retrieve/retrieve_categories_use_case.dart';
-import 'package:household_accounts/util/type/failure.dart';
+import 'package:household_accounts/feature/property_retrieve/property_retrieve_use_case.dart';
+import 'package:household_accounts/feature/record_register/record_register_use_case.dart';
+import 'package:household_accounts/presentation/common_widget/number_text_form_field.dart';
 import 'package:household_accounts/util/extension/string.dart';
-import 'package:household_accounts/util/type/use_case.dart';
+import 'package:household_accounts/util/service_locator/service_locator.dart';
+
+import '../../util/type/exception_or.dart';
 
 class RecordInputPage extends StatelessWidget {
   const RecordInputPage({Key? key}) : super(key: key);
@@ -39,20 +39,18 @@ class _PageContentsState extends State<_PageContents> {
   Property? _destProperty;
   String _note = '';
 
-  late final Future<dartz.Either<Failure, List<IncomeCategory>>>
-      _incomeCategoriesFuture;
-  late final Future<dartz.Either<Failure, List<ExpenseCategory>>>
-  _expenseCategoriesFuture;
-  late final Future<dartz.Either<Failure, List<Property>>> _propertiesFuture;
+  late final Future<ExceptionOr<List<IncomeCategory>>> _incomeCategoriesFuture;
+  late final Future<ExceptionOr<List<ExpenseCategory>>>
+      _expenseCategoriesFuture;
+  late final Future<ExceptionOr<List<Property>>> _propertiesFuture;
 
   @override
   void initState() {
     super.initState();
-    _incomeCategoriesFuture =
-        sl<RetrieveIncomeCategoriesUseCase>().handle(noparam);
+    _incomeCategoriesFuture = sl<RetrieveIncomeCategoriesUseCase>()(dartz.unit);
     _expenseCategoriesFuture =
-        sl<RetrieveExpenseCategoriesUseCase>().handle(noparam);
-    _propertiesFuture = sl<RetrievePropertiesUseCase>().handle(noparam);
+        sl<RetrieveExpenseCategoriesUseCase>()(dartz.unit);
+    _propertiesFuture = sl<RetrievePropertiesUseCase>()(dartz.unit);
   }
 
   void _setRecordDateState(DateTime value) {
@@ -112,7 +110,7 @@ class _PageContentsState extends State<_PageContents> {
 
   void _submitIncomeRecord(AddIncomeRecordUseCase useCase) {
     if (_category != null && _srcProperty != null) {
-      useCase.handle(
+      useCase(
         AddIncomeRecordInput(
           _recordDate,
           _amount.tryToInt() | 0,
@@ -126,7 +124,7 @@ class _PageContentsState extends State<_PageContents> {
 
   void _submitExpenseRecord(AddExpenseRecordUseCase useCae) {
     if (_category != null && _srcProperty != null) {
-      useCae.handle(
+      useCae(
         AddExpenseRecordInput(
           _recordDate,
           _amount.tryToInt() | 0,
@@ -140,7 +138,7 @@ class _PageContentsState extends State<_PageContents> {
 
   void _submitTransferRecord(AddTransferRecordUseCase useCase) {
     if (_srcProperty != null && _destProperty != null) {
-      useCase.handle(
+      useCase(
         AddTransferRecordInput(
           _recordDate,
           _amount.tryToInt() | 0,
@@ -368,14 +366,14 @@ class _RecordTypeSelector extends StatelessWidget {
 }
 
 class _CategoryDropDownMenu extends StatelessWidget {
-  final Future<dartz.Either<Failure, List<Category2>>> _categories;
+  final Future<ExceptionOr<List<Category2>>> _categories;
   final Category2? _value;
   final CategoryType _displayedType;
   final ValueChanged<Category2?>? _onChanged;
 
   const _CategoryDropDownMenu({
     Key? key,
-    required Future<dartz.Either<Failure, List<Category2>>> categories,
+    required Future<ExceptionOr<List<Category2>>> categories,
     Category2? value,
     required CategoryType categoryType,
     required ValueChanged<Category2?>? onChanged,
@@ -387,7 +385,7 @@ class _CategoryDropDownMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<dartz.Either<Failure, List<Category2>>>(
+    return FutureBuilder<ExceptionOr<List<Category2>>>(
       future: _categories,
       builder: (context, snapshot) {
         Category2? value;
@@ -451,13 +449,13 @@ class _CategoryDropDownMenu extends StatelessWidget {
 }
 
 class _PropertyDropDownMenu extends StatelessWidget {
-  final Future<dartz.Either<Failure, List<Property>>> _properties;
+  final Future<ExceptionOr<List<Property>>> _properties;
   final Property? _value;
   final ValueChanged<Property?>? _onChanged;
 
   const _PropertyDropDownMenu({
     Key? key,
-    required Future<dartz.Either<Failure, List<Property>>> properties,
+    required Future<ExceptionOr<List<Property>>> properties,
     Property? value,
     required ValueChanged<Property?>? onChanged,
   })  : _properties = properties,
@@ -467,7 +465,7 @@ class _PropertyDropDownMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<dartz.Either<Failure, List<Property>>>(
+    return FutureBuilder<ExceptionOr<List<Property>>>(
       future: _properties,
       builder: (context, snapshot) {
         Property? value;

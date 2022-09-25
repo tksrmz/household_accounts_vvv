@@ -3,9 +3,9 @@ import 'package:equatable/equatable.dart';
 import 'package:household_accounts/entity/category_entity.dart';
 import 'package:household_accounts/util/type/use_case.dart';
 
-typedef UpdateIncomeCategoryUseCase = UseCase<UpdateIncomeCategoryInput, Unit>;
+typedef UpdateIncomeCategoryUseCase = UseCase2<UpdateIncomeCategoryInput, Unit>;
 typedef UpdateExpenseCategoryUseCase
-    = UseCase<UpdateExpenseCategoryInput, Unit>;
+    = UseCase2<UpdateExpenseCategoryInput, Unit>;
 
 class UpdateIncomeCategoryInput extends Equatable {
   final IncomeCategory original;
@@ -35,8 +35,7 @@ class UpdateExpenseCategoryInput extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [
+  List<Object?> get props => [
         ...original.props,
         newName,
         newBudgetAmount,

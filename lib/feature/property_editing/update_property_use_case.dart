@@ -2,10 +2,11 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:household_accounts/entity/property_entity.dart';
 import 'package:household_accounts/feature/repository/property_repository.dart';
-import 'package:household_accounts/util/type/failure.dart';
 import 'package:household_accounts/util/type/use_case.dart';
 
-typedef UpdatePropertyUseCase = UseCase<UpdatePropertyInput, Property>;
+import '../../util/type/exception_or.dart';
+
+typedef UpdatePropertyUseCase = UseCase2<UpdatePropertyInput, Property>;
 
 class UpdatePropertyInput extends Equatable {
   final String id;
@@ -39,7 +40,7 @@ class UpdatePropertyInteractor extends UpdatePropertyUseCase {
   UpdatePropertyInteractor(this._repository);
 
   @override
-  Future<Either<Failure, Property>> handle(UpdatePropertyInput input) async {
+  Future<ExceptionOr<Property>> call(UpdatePropertyInput input) async {
     final failureOrCurrentValue = await _repository.retrieveById(input.id);
     final failureOrNewValue = failureOrCurrentValue.map((currentValue) {
       final name = input.newPropertyName ?? currentValue.name;
@@ -47,7 +48,7 @@ class UpdatePropertyInteractor extends UpdatePropertyUseCase {
       return Property(input.id, name, amount);
     });
 
-    return await failureOrNewValue.fold<Future<Either<Failure, Property>>>(
+    return await failureOrNewValue.fold(
       (failure) async => Left(failure),
       (newValue) async {
         final failureOrSuccess = await _repository.update(newValue);

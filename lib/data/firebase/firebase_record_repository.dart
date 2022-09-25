@@ -4,7 +4,9 @@ import 'package:household_accounts/data/firebase/record_model.dart';
 import 'package:household_accounts/entity/record_entity.dart';
 import 'package:household_accounts/feature/repository/record_repository.dart';
 import 'package:household_accounts/util/constant/firebase_constant.dart';
-import 'package:household_accounts/util/type/failure.dart';
+
+import '../../util/type/exception.dart';
+import '../../util/type/exception_or.dart';
 
 class FirebaseRecordRepository implements RecordRepositoryNew {
   FirebaseRecordRepository.personal(String uid)
@@ -91,7 +93,7 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   final String _propertyCollectionPath;
 
   @override
-  Future<Either<Failure, Unit>> deleteById(
+  Future<ExceptionOr<Unit>> deleteById(
     String id,
     RecordType type,
   ) async {
@@ -173,7 +175,7 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   }
 
   @override
-  Future<Either<Failure, Unit>> register(
+  Future<ExceptionOr<Unit>> register(
     Record value,
   ) async {
     final batch = FirebaseFirestore.instance.batch();
@@ -246,7 +248,7 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
   }
 
   @override
-  Future<Either<Failure, Record>> retrieveById(
+  Future<ExceptionOr<Record>> retrieveById(
     String id,
     RecordType type,
   ) async {
@@ -264,14 +266,14 @@ class FirebaseRecordRepository implements RecordRepositoryNew {
     }
 
     if (!snapshot.exists) {
-      return Left(RepositoryFailure());
+      return Left(RepositoryException('No record with ID $id'));
     }
 
     return Right(snapshot.data()!);
   }
 
   @override
-  Future<Either<Failure, List<Record>>> retrieveRecordsOf(
+  Future<ExceptionOr<List<Record>>> retrieveRecordsOf(
     DateTime begin,
     DateTime end,
   ) async {

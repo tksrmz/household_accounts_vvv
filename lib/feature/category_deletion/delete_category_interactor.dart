@@ -1,7 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/feature/repository/category_repository.dart';
 import 'package:household_accounts/feature/category_deletion/delete_category_use_case.dart';
-import 'package:household_accounts/util/type/failure.dart';
+import 'package:household_accounts/feature/repository/category_repository.dart';
+
+import '../../util/type/exception_or.dart';
 
 class DeleteIncomeCategoryInteractor extends DeleteIncomeCategoryUseCase {
   final IncomeCategoryRepository _repository;
@@ -9,7 +10,7 @@ class DeleteIncomeCategoryInteractor extends DeleteIncomeCategoryUseCase {
   DeleteIncomeCategoryInteractor(this._repository);
 
   @override
-  Future<Either<Failure, Unit>> handle(DeleteIncomeCategoryInput input) =>
+  Future<ExceptionOr<Unit>> call(DeleteIncomeCategoryInput input) =>
       _repository.deleteById(input.id);
 }
 
@@ -19,6 +20,6 @@ class DeleteExpenseCategoryInteractor extends DeleteExpenseCategoryUseCase {
   DeleteExpenseCategoryInteractor(this._repository);
 
   @override
-  Future<Either<Failure, Unit>> handle(DeleteExpenseCategoryInput input) =>
+  Future<ExceptionOr<Unit>> call(DeleteExpenseCategoryInput input) =>
       _repository.deleteById(input.id);
 }

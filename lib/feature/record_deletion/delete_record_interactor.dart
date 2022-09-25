@@ -1,7 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/feature/repository/record_repository.dart';
 import 'package:household_accounts/feature/record_deletion/delete_record_use_case.dart';
-import 'package:household_accounts/util/type/failure.dart';
+import 'package:household_accounts/feature/repository/record_repository.dart';
+
+import '../../util/type/exception_or.dart';
 
 class DeleteRecordInteractorNew implements DeleteRecordUseCaseNew {
   final RecordRepositoryNew _repository;
@@ -9,6 +10,6 @@ class DeleteRecordInteractorNew implements DeleteRecordUseCaseNew {
   DeleteRecordInteractorNew(this._repository);
 
   @override
-  Future<Either<Failure, Unit>> handle(DeleteRecordInputNew input) =>
+  Future<ExceptionOr<Unit>> call(DeleteRecordInputNew input) =>
       _repository.deleteById(input.id, input.type);
 }

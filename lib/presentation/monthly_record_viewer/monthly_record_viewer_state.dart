@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/record_entity.dart';
 import 'package:household_accounts/feature/record_retrieve/retrieve_monthly_records_use_case.dart';
-import 'package:household_accounts/util/type/failure.dart';
 
 class CalendarRecordModel with ChangeNotifier {
   // States
@@ -18,7 +17,7 @@ class CalendarRecordModel with ChangeNotifier {
   bool _isLoading;
 
   /// Failure that will happen when connect to DB.
-  Failure? _failure;
+  Exception? _failure;
 
   // Use cases
   late final RetrieveMonthlyRecordsUseCase _useCase;
@@ -37,7 +36,7 @@ class CalendarRecordModel with ChangeNotifier {
 
   bool get hasFailure => _failure != null;
 
-  Failure? get failure => _failure;
+  Exception? get failure => _failure;
 
   Future<void> loadRecords() async {
     _failure = null;
@@ -45,7 +44,7 @@ class CalendarRecordModel with ChangeNotifier {
     notifyListeners();
 
     final failureOrRecords =
-        await _useCase.handle(RetrieveMonthlyRecordsInput(_year, _month));
+        await _useCase(RetrieveMonthlyRecordsInput(_year, _month));
     failureOrRecords.fold(
       (failure) => _failure = failure,
       (records) => _records = records,

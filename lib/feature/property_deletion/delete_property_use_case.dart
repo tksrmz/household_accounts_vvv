@@ -1,10 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:household_accounts/feature/repository/property_repository.dart';
-import 'package:household_accounts/util/type/failure.dart';
 import 'package:household_accounts/util/type/use_case.dart';
 
-typedef DeletePropertiesUseCase = UseCase<DeletePropertyInput, Unit>;
+import '../../util/type/exception_or.dart';
+
+typedef DeletePropertiesUseCase = UseCase2<DeletePropertyInput, Unit>;
 
 class DeletePropertyInput extends Equatable {
   final String id;
@@ -21,7 +22,7 @@ class DeletePropertyInteractor extends DeletePropertiesUseCase {
   DeletePropertyInteractor(this._repository);
 
   @override
-  Future<Either<Failure, Unit>> handle(DeletePropertyInput input) {
+  Future<ExceptionOr<Unit>> call(DeletePropertyInput input) {
     return _repository.deleteById(input.id);
   }
 }

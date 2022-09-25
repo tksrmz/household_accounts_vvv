@@ -2,10 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_use_case.dart';
-import 'package:household_accounts/util/service_locator/service_locator.dart';
-import 'package:household_accounts/util/type/failure_or.dart';
 import 'package:household_accounts/presentation/common_widget/loading.dart';
 import 'package:household_accounts/util/extension/date-time.dart';
+import 'package:household_accounts/util/service_locator/service_locator.dart';
+
+import '../../util/type/exception_or.dart';
 
 class BudgetViewerPage extends StatelessWidget {
   const BudgetViewerPage({Key? key}) : super(key: key);
@@ -24,7 +25,7 @@ class _PageContents extends StatefulWidget {
 }
 
 class _PageContentsState extends State<_PageContents> {
-  late Future<FailureOr<RetrieveBudgetStateOutput>> _budgetFuture;
+  late Future<ExceptionOr<RetrieveBudgetStateOutput>> _budgetFuture;
   DateTime _date = DateTime.now();
 
   @override
@@ -32,7 +33,7 @@ class _PageContentsState extends State<_PageContents> {
     super.initState();
     final begin = DateTime(_date.year, _date.month);
     final end = begin.nextMonth();
-    _budgetFuture = sl<RetrieveBudgetStateUseCase>().handle(
+    _budgetFuture = sl<RetrieveBudgetStateUseCase>()(
       RetrieveBudgetStateInput(
         begin: begin,
         end: end,
@@ -42,7 +43,7 @@ class _PageContentsState extends State<_PageContents> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<FailureOr<RetrieveBudgetStateOutput>>(
+    return FutureBuilder<ExceptionOr<RetrieveBudgetStateOutput>>(
       future: _budgetFuture,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -53,7 +54,7 @@ class _PageContentsState extends State<_PageContents> {
 
         if (snapshot.connectionState == ConnectionState.done) {
           return snapshot.data!.fold(
-                (failure) => Center(
+            (failure) => Center(
               child: Text(failure.toString()),
             ),
             (output) {

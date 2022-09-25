@@ -2,9 +2,9 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:household_accounts/util/type/use_case.dart';
 
-typedef DeleteIncomeCategoryUseCase = UseCase<DeleteIncomeCategoryInput, Unit>;
+typedef DeleteIncomeCategoryUseCase = UseCase2<DeleteIncomeCategoryInput, Unit>;
 typedef DeleteExpenseCategoryUseCase
-    = UseCase<DeleteExpenseCategoryInput, Unit>;
+    = UseCase2<DeleteExpenseCategoryInput, Unit>;
 
 class DeleteIncomeCategoryInput extends Equatable {
   final String id;

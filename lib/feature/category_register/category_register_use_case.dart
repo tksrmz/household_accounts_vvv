@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:household_accounts/entity/category_entity.dart';
 import 'package:household_accounts/util/type/use_case.dart';
 
-typedef AddCategoryUseCase2 = UseCase<AddCategoryInput2, Unit>;
+typedef AddCategoryUseCase2 = UseCase2<AddCategoryInput2, Unit>;
 
 class AddCategoryInput2 extends Equatable {
   final String name;

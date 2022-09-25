@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/data/firebase/property_model.dart';
-import 'package:household_accounts/feature/repository/property_repository.dart';
 import 'package:household_accounts/entity/property_entity.dart';
-import 'package:household_accounts/util/type/failure.dart';
+import 'package:household_accounts/feature/repository/property_repository.dart';
 import 'package:household_accounts/util/constant/firebase_constant.dart';
+
+import '../../util/type/exception.dart';
+import '../../util/type/exception_or.dart';
 
 class FirebasePropertyRepository implements PropertyRepository {
   late final CollectionReference<PropertyModel> _propertiesCollectionRef;
@@ -34,13 +36,13 @@ class FirebasePropertyRepository implements PropertyRepository {
             );
 
   @override
-  Future<Either<Failure, Unit>> deleteById(String id) async {
+  Future<ExceptionOr<Unit>> deleteById(String id) async {
     await _propertiesCollectionRef.doc(id).delete();
     return Right(unit);
   }
 
   @override
-  Future<Either<Failure, Unit>> register(Property value) async {
+  Future<ExceptionOr<Unit>> register(Property value) async {
     await _propertiesCollectionRef
         .doc(value.id)
         .set(PropertyModel.fromProperty(value));
@@ -48,18 +50,22 @@ class FirebasePropertyRepository implements PropertyRepository {
   }
 
   @override
-  Future<Either<Failure, Property>> retrieveById(String id) async {
+  Future<ExceptionOr<Property>> retrieveById(String id) async {
     DocumentSnapshot<PropertyModel> snapshot =
         await _propertiesCollectionRef.doc(id).get();
     if (!snapshot.exists) {
-      return Left(RepositoryFailure());
+      return Left(
+        RepositoryException(
+          'Property with ID $id does not exist.',
+        ),
+      );
     }
 
     return Right(snapshot.data()!);
   }
 
   @override
-  Future<Either<Failure, List<Property>>> retrieveProperties() async {
+  Future<ExceptionOr<List<Property>>> retrieveProperties() async {
     List<QueryDocumentSnapshot<PropertyModel>> properties =
         await _propertiesCollectionRef
             .orderBy('name')
@@ -69,7 +75,7 @@ class FirebasePropertyRepository implements PropertyRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> update(Property newValue) async {
+  Future<ExceptionOr<Unit>> update(Property newValue) async {
     // TODO: Add error handling in the case a document with [newValue.id] doesn't exist.
     await _propertiesCollectionRef
         .doc(newValue.id)

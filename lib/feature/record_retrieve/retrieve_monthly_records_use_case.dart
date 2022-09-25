@@ -2,7 +2,7 @@ import 'package:household_accounts/entity/record_entity.dart';
 import 'package:household_accounts/util/type/use_case.dart';
 
 typedef RetrieveMonthlyRecordsUseCase
-    = UseCase<RetrieveMonthlyRecordsInput, List<Record>>;
+    = UseCase2<RetrieveMonthlyRecordsInput, List<Record>>;
 
 class RetrieveMonthlyRecordsInput {
   final int year;

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:household_accounts/util/type/failure.dart';
 
 /// Debug purpose
 class FailureDisplayWidget extends StatelessWidget {
-  final Failure _failure;
+  final Exception _failure;
 
-  const FailureDisplayWidget({required Failure failure, Key? key})
+  const FailureDisplayWidget({required Exception failure, Key? key})
       : _failure = failure,
         super(key: key);
 

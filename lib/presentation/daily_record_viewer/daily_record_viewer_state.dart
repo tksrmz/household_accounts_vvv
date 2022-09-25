@@ -1,13 +1,12 @@
 import 'dart:collection';
 
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:household_accounts/entity/category_entity.dart';
 import 'package:household_accounts/entity/record_entity.dart';
+import 'package:household_accounts/feature/category_retrieve/retrieve_categories_use_case.dart';
 import 'package:household_accounts/feature/record_deletion/delete_record_use_case.dart';
 import 'package:household_accounts/feature/record_retrieve/retrieve_daily_records_use_case.dart';
-import 'package:household_accounts/entity/category_entity.dart';
-import 'package:household_accounts/feature/category_retrieve/retrieve_categories_use_case.dart';
-import 'package:household_accounts/util/type/failure.dart';
-import 'package:household_accounts/util/type/use_case.dart';
 
 class DailyRecordModel with ChangeNotifier {
   // States
@@ -22,7 +21,7 @@ class DailyRecordModel with ChangeNotifier {
   bool _isLoading;
 
   /// Failure that will happen when connect to DB.
-  Failure? _failure;
+  Exception? _failure;
 
   // Use cases
   late final RetrieveDailyRecordsUseCase _retrieve;
@@ -53,7 +52,7 @@ class DailyRecordModel with ChangeNotifier {
 
   bool get hasFailure => _failure != null;
 
-  Failure? get failure => _failure;
+  Exception? get failure => _failure;
 
   Future<void> loadRecords(int year, int month, int day) async {
     _failure = null;
@@ -61,7 +60,7 @@ class DailyRecordModel with ChangeNotifier {
     notifyListeners();
 
     final failureOrRecords =
-        await _retrieve.handle(RetrieveDailyRecordsInput(year, month, day));
+        await _retrieve(RetrieveDailyRecordsInput(year, month, day));
     failureOrRecords.fold(
         (failure) => _failure = failure, (records) => _records = records);
     _isLoading = false;
@@ -74,13 +73,13 @@ class DailyRecordModel with ChangeNotifier {
     notifyListeners();
 
     final failureOrIncomeCategories =
-        await _retrieveIncomeCategoriesUseCase.handle(noparam);
+        await _retrieveIncomeCategoriesUseCase(unit);
     failureOrIncomeCategories.fold(
       (failure) => _failure = failure,
       (categories) => _incomeCategories = categories,
     );
     final failureOrExpenseCategories =
-        await _retrieveExpenseCategoriesUseCase.handle(noparam);
+        await _retrieveExpenseCategoriesUseCase(unit);
     failureOrExpenseCategories.fold(
       (failure) => _failure = failure,
       (categories) => _expenseCategories = categories,
@@ -92,7 +91,7 @@ class DailyRecordModel with ChangeNotifier {
   void deleteById(String id, RecordType type) {
     _records.removeWhere((element) => element.id == id);
     notifyListeners();
-    _delete.handle(DeleteRecordInputNew(id, type));
+    _delete(DeleteRecordInputNew(id, type));
   }
 
   String categoryNameOf(Record record) {

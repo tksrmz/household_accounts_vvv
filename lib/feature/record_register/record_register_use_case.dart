@@ -1,11 +1,11 @@
-import 'package:dartz/dartz.dart';
 import 'package:household_accounts/entity/record_entity.dart';
 import 'package:household_accounts/feature/repository/record_repository.dart';
-import 'package:household_accounts/util/type/failure.dart';
 import 'package:household_accounts/util/type/use_case.dart';
 import 'package:household_accounts/util/uuid/uuid.dart';
 
-typedef AddIncomeRecordUseCase = UseCase<AddIncomeRecordInput, IncomeRecord>;
+import '../../util/type/exception_or.dart';
+
+typedef AddIncomeRecordUseCase = UseCase2<AddIncomeRecordInput, IncomeRecord>;
 
 class AddIncomeRecordInput {
   final DateTime recordDate;
@@ -29,7 +29,7 @@ class AddIncomeRecordInteractor implements AddIncomeRecordUseCase {
   AddIncomeRecordInteractor(this._repository);
 
   @override
-  Future<Either<Failure, IncomeRecord>> handle(
+  Future<ExceptionOr<IncomeRecord>> call(
     AddIncomeRecordInput input,
   ) async {
     final record = IncomeRecord(
@@ -45,7 +45,8 @@ class AddIncomeRecordInteractor implements AddIncomeRecordUseCase {
   }
 }
 
-typedef AddExpenseRecordUseCase = UseCase<AddExpenseRecordInput, ExpenseRecord>;
+typedef AddExpenseRecordUseCase
+    = UseCase2<AddExpenseRecordInput, ExpenseRecord>;
 
 class AddExpenseRecordInput {
   final DateTime recordDate;
@@ -69,7 +70,7 @@ class AddExpenseRecordInteractor implements AddExpenseRecordUseCase {
   AddExpenseRecordInteractor(this._repository);
 
   @override
-  Future<Either<Failure, ExpenseRecord>> handle(
+  Future<ExceptionOr<ExpenseRecord>> call(
     AddExpenseRecordInput input,
   ) async {
     final record = ExpenseRecord(
@@ -86,7 +87,7 @@ class AddExpenseRecordInteractor implements AddExpenseRecordUseCase {
 }
 
 typedef AddTransferRecordUseCase
-    = UseCase<AddTransferRecordInput, TransferRecord>;
+    = UseCase2<AddTransferRecordInput, TransferRecord>;
 
 class AddTransferRecordInput {
   final DateTime recordDate;
@@ -110,7 +111,7 @@ class AddTransferRecordInteractor implements AddTransferRecordUseCase {
   AddTransferRecordInteractor(this._repository);
 
   @override
-  Future<Either<Failure, TransferRecord>> handle(
+  Future<ExceptionOr<TransferRecord>> call(
     AddTransferRecordInput input,
   ) async {
     final record = TransferRecord(

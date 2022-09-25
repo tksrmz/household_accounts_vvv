@@ -1,7 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/entity/category_entity.dart';
 import 'package:household_accounts/feature/repository/category_repository.dart';
-import 'package:household_accounts/util/type/failure.dart';
+
+import '../../util/type/exception_or.dart';
 
 /// Although this class is not used, I won't delete this.
 /// There is a chance to use this as mock in tests.
@@ -22,35 +23,34 @@ class InMemoryIncomeCategoryRepository implements IncomeCategoryRepository {
   ];
 
   @override
-  Future<Either<Failure, Unit>> deleteById(String id) async {
+  Future<ExceptionOr<Unit>> deleteById(String id) async {
     _repository.removeWhere((element) => element.id == id);
     return Right(unit);
   }
 
   @override
-  Future<Either<Failure, Unit>> register(IncomeCategory value) async {
+  Future<ExceptionOr<Unit>> register(IncomeCategory value) async {
     if (_repository.every((element) => element.id != value.id)) {
       _repository.add(value);
       return Right(unit);
     }
 
-    return Left(RepositoryFailure());
+    return Left(Exception('dummy'));
   }
 
   @override
-  Future<Either<Failure, IncomeCategory>> retrieveById(String id) async {
+  Future<ExceptionOr<IncomeCategory>> retrieveById(String id) async {
     final index = _repository.indexWhere((element) => element.id == id);
-    return index >= 0 ? Right(_repository[index]) : Left(RepositoryFailure());
+    return index >= 0 ? Right(_repository[index]) : Left(Exception('dummy'));
   }
 
   @override
-  Future<Either<Failure, List<IncomeCategory>>>
-      retrieveIncomeCategories() async {
+  Future<ExceptionOr<List<IncomeCategory>>> retrieveIncomeCategories() async {
     return Right([..._repository]);
   }
 
   @override
-  Future<Either<Failure, Unit>> update(IncomeCategory newValue) async {
+  Future<ExceptionOr<Unit>> update(IncomeCategory newValue) async {
     if (_repository.any((element) => element.id == newValue.id)) {
       final index =
           _repository.indexWhere((element) => element.id == newValue.id);
@@ -58,7 +58,7 @@ class InMemoryIncomeCategoryRepository implements IncomeCategoryRepository {
       return Right(unit);
     }
 
-    return Left(RepositoryFailure());
+    return Left(Exception('dummy'));
   }
 }
 
@@ -84,35 +84,34 @@ class InMemoryExpenseCategoryRepository implements ExpenseCategoryRepository {
   ];
 
   @override
-  Future<Either<Failure, Unit>> deleteById(String id) async {
+  Future<ExceptionOr<Unit>> deleteById(String id) async {
     _repository.removeWhere((element) => element.id == id);
     return Right(unit);
   }
 
   @override
-  Future<Either<Failure, Unit>> register(ExpenseCategory value) async {
+  Future<ExceptionOr<Unit>> register(ExpenseCategory value) async {
     if (_repository.every((element) => element.id != value.id)) {
       _repository.add(value);
       return Right(unit);
     }
 
-    return Left(RepositoryFailure());
+    return Left(Exception('dummy'));
   }
 
   @override
-  Future<Either<Failure, ExpenseCategory>> retrieveById(String id) async {
+  Future<ExceptionOr<ExpenseCategory>> retrieveById(String id) async {
     final index = _repository.indexWhere((element) => element.id == id);
-    return index >= 0 ? Right(_repository[index]) : Left(RepositoryFailure());
+    return index >= 0 ? Right(_repository[index]) : Left(Exception('dummy'));
   }
 
   @override
-  Future<Either<Failure, List<ExpenseCategory>>>
-      retrieveExpenseCategories() async {
+  Future<ExceptionOr<List<ExpenseCategory>>> retrieveExpenseCategories() async {
     return Right([..._repository]);
   }
 
   @override
-  Future<Either<Failure, Unit>> update(ExpenseCategory newValue) async {
+  Future<ExceptionOr<Unit>> update(ExpenseCategory newValue) async {
     if (_repository.any((element) => element.id == newValue.id)) {
       final index =
           _repository.indexWhere((element) => element.id == newValue.id);
@@ -120,6 +119,6 @@ class InMemoryExpenseCategoryRepository implements ExpenseCategoryRepository {
       return Right(unit);
     }
 
-    return Left(RepositoryFailure());
+    return Left(Exception('dummy'));
   }
 }
