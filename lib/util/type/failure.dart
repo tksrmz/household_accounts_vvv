@@ -12,9 +12,4 @@ abstract class Failure extends Equatable {
   bool get stringify => true;
 }
 
-class RepositoryFailure extends Failure {
-  @override
-  String toString() => 'RepositoryFailure';
-}
-
 class StringToIntFailure extends Failure {}

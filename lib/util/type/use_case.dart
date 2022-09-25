@@ -1,28 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 
 import 'exception_or.dart';
-import 'failure.dart';
-
-/// Base class for all use cases.
-///
-/// Use case accepts input class T, then returns output of Future<Either<Failure, R>>.
-/// If UseCase.handle returns nothing in success, set R to Unit.
-@Deprecated('Use `UseCase2<T,R>` instead')
-abstract class UseCase<T, R> {
-  Future<Either<Failure, R>> handle(T input);
-}
-
-/// Class for use cases that have no input and/or output.
-@Deprecated('`Unit` class from dartz lib is enough')
-class NoParam extends Equatable {
-  const NoParam();
-
-  List<Object> get props => const [];
-}
-
-@Deprecated('`unit` from dartz lib is enough')
-const NoParam noparam = const NoParam();
 
 /// Base class for all use cases.
 ///
