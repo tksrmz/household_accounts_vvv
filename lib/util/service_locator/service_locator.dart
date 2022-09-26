@@ -28,6 +28,8 @@ import 'package:household_accounts/feature/category_register/category_register_i
 import 'package:household_accounts/feature/category_deletion/delete_category_interactor.dart';
 import 'package:household_accounts/feature/category_editing/update_category_interactor.dart';
 
+import '../../data/firebase/firebase_property_repository2.dart';
+
 final sl = GetIt.instance;
 bool _slIsInitialized = false;
 
@@ -63,27 +65,27 @@ void initialize(String uid) {
     () => AddTransferRecordInteractor(sl<RecordRepositoryNew>()),
   );
   sl.registerLazySingleton<RetrieveMonthlyRecordsUseCase>(
-        () => RetrieveMonthlyRecordsInteractorNew(sl<RecordRepositoryNew>()),
+    () => RetrieveMonthlyRecordsInteractorNew(sl<RecordRepositoryNew>()),
   );
   sl.registerLazySingleton<RetrieveDailyRecordsUseCase>(
-        () => RetrieveDailyRecordsInteractorNew(sl<RecordRepositoryNew>()),
+    () => RetrieveDailyRecordsInteractorNew(sl<RecordRepositoryNew>()),
   );
   sl.registerLazySingleton<DeleteRecordUseCaseNew>(
-        () => DeleteRecordInteractorNew(sl<RecordRepositoryNew>()),
+    () => DeleteRecordInteractorNew(sl<RecordRepositoryNew>()),
   );
 
   // Use cases - property
   sl.registerLazySingleton<AddPropertiesUseCase>(
-        () => AddPropertyInteractor(sl<PropertyRepository>()),
+    () => AddPropertyInteractor(sl<PropertyRepository>()),
   );
   sl.registerLazySingleton<RetrievePropertiesUseCase>(
-        () => RetrievePropertiesInteractor(sl<PropertyRepository>()),
+    () => RetrievePropertiesInteractor(sl<PropertyRepository>()),
   );
   sl.registerLazySingleton<UpdatePropertyUseCase>(
-        () => UpdatePropertyInteractor(sl<PropertyRepository>()),
+    () => UpdatePropertyInteractor(sl<PropertyRepository>()),
   );
   sl.registerLazySingleton<DeletePropertiesUseCase>(
-        () => DeletePropertyInteractor(sl<PropertyRepository>()),
+    () => DeletePropertyInteractor(sl<PropertyRepository>()),
   );
 
   // Use cases - category
@@ -130,5 +132,29 @@ void initialize(String uid) {
       sl<RecordRepositoryNew>(),
       sl<ExpenseCategoryRepository>(),
     ),
+  );
+
+  // initialize new use cases
+  _initPersonalUseCases();
+  _initSharedUseCases();
+}
+
+/// Register use cases related to personal actions.
+void _initPersonalUseCases() {
+  PropertyRepository2 propertyRepo = FirebasePersonalPropertyRepository();
+
+  // Use case - property
+  sl.registerFactory<DeletePersonalPropertiesUseCase>(
+    () => DeletePersonalPropertyInteractor(propertyRepo),
+  );
+}
+
+/// Register use cases related to shared actions.
+void _initSharedUseCases() {
+  PropertyRepository2 propertyRepo = FirebaseSharedPropertyRepository();
+
+  // Use case - property
+  sl.registerFactory<DeleteSharedPropertiesUseCase>(
+    () => DeleteSharedPropertyInteractor(propertyRepo),
   );
 }

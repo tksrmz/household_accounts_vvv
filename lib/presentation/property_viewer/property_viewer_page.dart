@@ -26,7 +26,7 @@ class PropertyListPage extends StatelessWidget {
         sl<RetrievePropertiesUseCase>(),
         sl<AddPropertiesUseCase>(),
         sl<UpdatePropertyUseCase>(),
-        sl<DeletePropertiesUseCase>(),
+        sl<DeletePersonalPropertiesUseCase>(),
       )..loadProperties(),
       child: _PageContents(),
     );

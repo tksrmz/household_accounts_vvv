@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:dartz/dartz.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:household_accounts/entity/property_entity.dart';
 import 'package:household_accounts/feature/property_deletion/delete_property_use_case.dart';
@@ -18,7 +19,7 @@ class PropertyListState with ChangeNotifier {
   final RetrievePropertiesUseCase _retrievePropertiesUseCase;
   final AddPropertiesUseCase _addPropertiesUseCase;
   final UpdatePropertyUseCase _updatePropertyUseCase;
-  final DeletePropertiesUseCase _deletePropertiesUseCase;
+  final DeletePersonalPropertiesUseCase _deletePropertiesUseCase;
 
   PropertyListState(
     this._retrievePropertiesUseCase,
@@ -86,6 +87,7 @@ class PropertyListState with ChangeNotifier {
     // FIXME: Validate [newPropertyName] before parsing it into int.
     final nullableName = newPropertyName.isNotEmpty ? newPropertyName : null;
     // FIXME: Validate [newPropertyValue] before parsing it into int.
+
     final nullableAmount =
         newPropertyValue.isNotEmpty ? int.parse(newPropertyValue) : null;
 
@@ -115,8 +117,13 @@ class PropertyListState with ChangeNotifier {
   Future<void> deleteProperty(String id) async {
     _failure = null;
 
-    final failureOrUnit =
-        await _deletePropertiesUseCase(DeletePropertyInput(id));
+    final failureOrUnit = await _deletePropertiesUseCase(
+      DeletePersonalPropertyInput(
+        propertyId: id,
+        // TODO: Avoid using FirebaseAuth directly here.
+        uid: FirebaseAuth.instance.currentUser!.uid,
+      ),
+    );
     failureOrUnit.fold(
       (failure) {
         _failure = failure;
