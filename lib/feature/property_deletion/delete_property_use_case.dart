@@ -30,7 +30,7 @@ class DeletePropertyInteractor extends DeletePropertiesUseCase {
   }
 }
 
-typedef DeletePersonalPropertiesUseCase
+typedef DeletePersonalPropertyUseCase
     = UseCase2<DeletePersonalPropertyInput, Unit>;
 
 class DeletePersonalPropertyInput {
@@ -47,7 +47,7 @@ class DeletePersonalPropertyInput {
 }
 
 class DeletePersonalPropertyInteractor
-    implements DeletePersonalPropertiesUseCase {
+    implements DeletePersonalPropertyUseCase {
   final PropertyRepository2 _repository;
 
   DeletePersonalPropertyInteractor(this._repository);
@@ -60,7 +60,7 @@ class DeletePersonalPropertyInteractor
       );
 }
 
-typedef DeleteSharedPropertiesUseCase
+typedef DeleteSharedPropertyUseCase
     = UseCase2<DeleteSharedPropertyInput, Unit>;
 
 class DeleteSharedPropertyInput {
@@ -76,7 +76,7 @@ class DeleteSharedPropertyInput {
   });
 }
 
-class DeleteSharedPropertyInteractor implements DeleteSharedPropertiesUseCase {
+class DeleteSharedPropertyInteractor implements DeleteSharedPropertyUseCase {
   final PropertyRepository2 _repository;
 
   DeleteSharedPropertyInteractor(this._repository);

@@ -1,32 +1,31 @@
 import 'package:get_it/get_it.dart';
+import 'package:household_accounts/data/firebase/firebase_category_repository.dart';
+import 'package:household_accounts/data/firebase/firebase_property_repository.dart';
+import 'package:household_accounts/data/firebase/firebase_record_repository.dart';
 import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_interactor.dart';
 import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_use_case.dart';
-import 'package:household_accounts/data/firebase/firebase_category_repository.dart';
-import 'package:household_accounts/feature/category_retrieve/retrieve_categories_interactor.dart';
-import 'package:household_accounts/feature/repository/category_repository.dart';
-import 'package:household_accounts/feature/category_register/category_register_use_case.dart';
+import 'package:household_accounts/feature/category_deletion/delete_category_interactor.dart';
 import 'package:household_accounts/feature/category_deletion/delete_category_use_case.dart';
+import 'package:household_accounts/feature/category_editing/update_category_interactor.dart';
 import 'package:household_accounts/feature/category_editing/update_category_use_case.dart';
-import 'package:household_accounts/data/firebase/firebase_record_repository.dart';
+import 'package:household_accounts/feature/category_register/category_register_interactor.dart';
+import 'package:household_accounts/feature/category_register/category_register_use_case.dart';
+import 'package:household_accounts/feature/category_retrieve/retrieve_categories_interactor.dart';
 import 'package:household_accounts/feature/category_retrieve/retrieve_categories_use_case.dart';
-import 'package:household_accounts/feature/repository/record_repository.dart';
-import 'package:household_accounts/feature/record_register/record_register_use_case.dart';
-import 'package:household_accounts/data/firebase/firebase_property_repository.dart';
-import 'package:household_accounts/feature/property_retrieve/property_retrieve_interactor.dart';
-import 'package:household_accounts/feature/repository/property_repository.dart';
-import 'package:household_accounts/feature/property_register/property_register_use_case.dart';
 import 'package:household_accounts/feature/property_deletion/delete_property_use_case.dart';
 import 'package:household_accounts/feature/property_editing/update_property_use_case.dart';
+import 'package:household_accounts/feature/property_register/property_register_use_case.dart';
+import 'package:household_accounts/feature/property_retrieve/property_retrieve_interactor.dart';
+import 'package:household_accounts/feature/property_retrieve/property_retrieve_use_case.dart';
 import 'package:household_accounts/feature/record_deletion/delete_record_interactor.dart';
-import 'package:household_accounts/feature/record_retrieve/retrieve_records_interactor.dart';
 import 'package:household_accounts/feature/record_deletion/delete_record_use_case.dart';
+import 'package:household_accounts/feature/record_register/record_register_use_case.dart';
 import 'package:household_accounts/feature/record_retrieve/retrieve_daily_records_use_case.dart';
 import 'package:household_accounts/feature/record_retrieve/retrieve_monthly_records_use_case.dart';
-import 'package:household_accounts/feature/property_retrieve/property_retrieve_use_case.dart';
-
-import 'package:household_accounts/feature/category_register/category_register_interactor.dart';
-import 'package:household_accounts/feature/category_deletion/delete_category_interactor.dart';
-import 'package:household_accounts/feature/category_editing/update_category_interactor.dart';
+import 'package:household_accounts/feature/record_retrieve/retrieve_records_interactor.dart';
+import 'package:household_accounts/feature/repository/category_repository.dart';
+import 'package:household_accounts/feature/repository/property_repository.dart';
+import 'package:household_accounts/feature/repository/record_repository.dart';
 
 import '../../data/firebase/firebase_property_repository2.dart';
 
@@ -65,27 +64,27 @@ void initialize(String uid) {
     () => AddTransferRecordInteractor(sl<RecordRepositoryNew>()),
   );
   sl.registerLazySingleton<RetrieveMonthlyRecordsUseCase>(
-    () => RetrieveMonthlyRecordsInteractorNew(sl<RecordRepositoryNew>()),
+        () => RetrieveMonthlyRecordsInteractorNew(sl<RecordRepositoryNew>()),
   );
   sl.registerLazySingleton<RetrieveDailyRecordsUseCase>(
-    () => RetrieveDailyRecordsInteractorNew(sl<RecordRepositoryNew>()),
+        () => RetrieveDailyRecordsInteractorNew(sl<RecordRepositoryNew>()),
   );
   sl.registerLazySingleton<DeleteRecordUseCaseNew>(
-    () => DeleteRecordInteractorNew(sl<RecordRepositoryNew>()),
+        () => DeleteRecordInteractorNew(sl<RecordRepositoryNew>()),
   );
 
   // Use cases - property
   sl.registerLazySingleton<AddPropertiesUseCase>(
-    () => AddPropertyInteractor(sl<PropertyRepository>()),
+        () => AddPropertyInteractor(sl<PropertyRepository>()),
   );
   sl.registerLazySingleton<RetrievePropertiesUseCase>(
-    () => RetrievePropertiesInteractor(sl<PropertyRepository>()),
+        () => RetrievePropertiesInteractor(sl<PropertyRepository>()),
   );
   sl.registerLazySingleton<UpdatePropertyUseCase>(
-    () => UpdatePropertyInteractor(sl<PropertyRepository>()),
+        () => UpdatePropertyInteractor(sl<PropertyRepository>()),
   );
   sl.registerLazySingleton<DeletePropertiesUseCase>(
-    () => DeletePropertyInteractor(sl<PropertyRepository>()),
+        () => DeletePropertyInteractor(sl<PropertyRepository>()),
   );
 
   // Use cases - category
@@ -144,7 +143,7 @@ void _initPersonalUseCases() {
   PropertyRepository2 propertyRepo = FirebasePersonalPropertyRepository();
 
   // Use case - property
-  sl.registerFactory<DeletePersonalPropertiesUseCase>(
+  sl.registerFactory<DeletePersonalPropertyUseCase>(
     () => DeletePersonalPropertyInteractor(propertyRepo),
   );
 }
@@ -154,7 +153,7 @@ void _initSharedUseCases() {
   PropertyRepository2 propertyRepo = FirebaseSharedPropertyRepository();
 
   // Use case - property
-  sl.registerFactory<DeleteSharedPropertiesUseCase>(
+  sl.registerFactory<DeleteSharedPropertyUseCase>(
     () => DeleteSharedPropertyInteractor(propertyRepo),
   );
 }

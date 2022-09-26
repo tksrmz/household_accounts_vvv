@@ -1,16 +1,16 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:household_accounts/util/service_locator/service_locator.dart';
 import 'package:household_accounts/entity/property_entity.dart';
-import 'package:household_accounts/feature/property_register/property_register_use_case.dart';
 import 'package:household_accounts/feature/property_deletion/delete_property_use_case.dart';
-import 'package:household_accounts/feature/property_retrieve/property_retrieve_use_case.dart';
 import 'package:household_accounts/feature/property_editing/update_property_use_case.dart';
-import 'package:household_accounts/presentation/property_viewer/property_viewer_state.dart';
+import 'package:household_accounts/feature/property_register/property_register_use_case.dart';
+import 'package:household_accounts/feature/property_retrieve/property_retrieve_use_case.dart';
 import 'package:household_accounts/presentation/common_widget/delete_icon_button.dart';
 import 'package:household_accounts/presentation/common_widget/failure.dart';
 import 'package:household_accounts/presentation/common_widget/loading.dart';
+import 'package:household_accounts/presentation/property_viewer/property_viewer_state.dart';
+import 'package:household_accounts/util/service_locator/service_locator.dart';
 import 'package:provider/provider.dart';
 
 import '../property_editor/add_property_page.dart';
@@ -26,7 +26,7 @@ class PropertyListPage extends StatelessWidget {
         sl<RetrievePropertiesUseCase>(),
         sl<AddPropertiesUseCase>(),
         sl<UpdatePropertyUseCase>(),
-        sl<DeletePersonalPropertiesUseCase>(),
+        sl<DeletePersonalPropertyUseCase>(),
       )..loadProperties(),
       child: _PageContents(),
     );

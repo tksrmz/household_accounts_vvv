@@ -19,7 +19,7 @@ class PropertyListState with ChangeNotifier {
   final RetrievePropertiesUseCase _retrievePropertiesUseCase;
   final AddPropertiesUseCase _addPropertiesUseCase;
   final UpdatePropertyUseCase _updatePropertyUseCase;
-  final DeletePersonalPropertiesUseCase _deletePropertiesUseCase;
+  final DeletePersonalPropertyUseCase _deletePropertiesUseCase;
 
   PropertyListState(
     this._retrievePropertiesUseCase,
