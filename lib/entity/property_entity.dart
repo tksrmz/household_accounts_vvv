@@ -12,6 +12,9 @@ class Property extends Identifiable {
             'Property name is too long.'),
         super(id);
 
+  Property copyWith({String? id, String? name, int? amount}) =>
+      Property(id ?? this.id, name ?? this.name, amount ?? this.amount);
+
   @override
   List<Object> get props => [id, name, amount];
 }
