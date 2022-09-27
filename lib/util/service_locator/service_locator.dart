@@ -64,7 +64,7 @@ void initialize(String uid) {
     () => AddTransferRecordInteractor(sl<RecordRepositoryNew>()),
   );
   sl.registerLazySingleton<RetrieveMonthlyRecordsUseCase>(
-        () => RetrieveMonthlyRecordsInteractorNew(sl<RecordRepositoryNew>()),
+    () => RetrieveMonthlyRecordsInteractorNew(sl<RecordRepositoryNew>()),
   );
   sl.registerLazySingleton<RetrieveDailyRecordsUseCase>(
         () => RetrieveDailyRecordsInteractorNew(sl<RecordRepositoryNew>()),
@@ -146,6 +146,9 @@ void _initPersonalUseCases() {
   sl.registerFactory<DeletePersonalPropertyUseCase>(
     () => DeletePersonalPropertyInteractor(propertyRepo),
   );
+  sl.registerFactory<UpdatePersonalPropertyUseCase>(
+    () => UpdatePersonalPropertyInteractor(propertyRepo),
+  );
 }
 
 /// Register use cases related to shared actions.
@@ -155,5 +158,8 @@ void _initSharedUseCases() {
   // Use case - property
   sl.registerFactory<DeleteSharedPropertyUseCase>(
     () => DeleteSharedPropertyInteractor(propertyRepo),
+  );
+  sl.registerFactory<UpdateSharedPropertyUseCase>(
+    () => UpdateSharedPropertyInteractor(propertyRepo),
   );
 }

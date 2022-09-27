@@ -18,7 +18,7 @@ class PropertyListState with ChangeNotifier {
   // Use cases
   final RetrievePropertiesUseCase _retrievePropertiesUseCase;
   final AddPropertiesUseCase _addPropertiesUseCase;
-  final UpdatePropertyUseCase _updatePropertyUseCase;
+  final UpdatePersonalPropertyUseCase _updatePropertyUseCase;
   final DeletePersonalPropertyUseCase _deletePropertiesUseCase;
 
   PropertyListState(
@@ -87,14 +87,15 @@ class PropertyListState with ChangeNotifier {
     // FIXME: Validate [newPropertyName] before parsing it into int.
     final nullableName = newPropertyName.isNotEmpty ? newPropertyName : null;
     // FIXME: Validate [newPropertyValue] before parsing it into int.
-
     final nullableAmount =
         newPropertyValue.isNotEmpty ? int.parse(newPropertyValue) : null;
 
-    final input = UpdatePropertyInput(
-      id: id,
-      newPropertyName: nullableName,
-      newPropertyAmount: nullableAmount,
+    final input = UpdatePersonalPropertyInput(
+      // TODO: Avoid using FirebaseAuth directly here.
+      uid: FirebaseAuth.instance.currentUser!.uid,
+      propertyId: id,
+      name: nullableName,
+      amount: nullableAmount,
     );
 
     final failureOrProperty = await _updatePropertyUseCase(input);
