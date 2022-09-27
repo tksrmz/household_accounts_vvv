@@ -60,8 +60,7 @@ class DeletePersonalPropertyInteractor
       );
 }
 
-typedef DeleteSharedPropertyUseCase
-    = UseCase2<DeleteSharedPropertyInput, Unit>;
+typedef DeleteSharedPropertyUseCase = UseCase2<DeleteSharedPropertyInput, Unit>;
 
 class DeleteSharedPropertyInput {
   /// Pair ID.
