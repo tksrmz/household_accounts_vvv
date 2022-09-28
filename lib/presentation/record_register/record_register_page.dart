@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart' as dartz;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/category_entity.dart';
 import 'package:household_accounts/entity/property_entity.dart';
@@ -50,7 +51,12 @@ class _PageContentsState extends State<_PageContents> {
     _incomeCategoriesFuture = sl<RetrieveIncomeCategoriesUseCase>()(dartz.unit);
     _expenseCategoriesFuture =
         sl<RetrieveExpenseCategoriesUseCase>()(dartz.unit);
-    _propertiesFuture = sl<RetrievePropertiesUseCase>()(dartz.unit);
+    _propertiesFuture = sl<RetrievePersonalPropertiesUseCase>()(
+      RetrievePersonalPropertiesInput(
+        // TODO: Avoid using FirebaseAuth directly here.
+        uid: FirebaseAuth.instance.currentUser!.uid,
+      ),
+    );
   }
 
   void _setRecordDateState(DateTime value) {

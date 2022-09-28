@@ -1,6 +1,5 @@
 import 'dart:collection';
 
-import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:household_accounts/entity/property_entity.dart';
@@ -16,7 +15,7 @@ class PropertyListState with ChangeNotifier {
   Exception? _failure;
 
   // Use cases
-  final RetrievePropertiesUseCase _retrievePropertiesUseCase;
+  final RetrievePersonalPropertiesUseCase _retrievePropertiesUseCase;
   final AddPersonalPropertyUseCase _addPropertiesUseCase;
   final UpdatePersonalPropertyUseCase _updatePropertyUseCase;
   final DeletePersonalPropertyUseCase _deletePropertiesUseCase;
@@ -44,7 +43,12 @@ class PropertyListState with ChangeNotifier {
     _failure = null;
     notifyListeners();
 
-    final failureOrProperties = await _retrievePropertiesUseCase(unit);
+    final failureOrProperties = await _retrievePropertiesUseCase(
+      RetrievePersonalPropertiesInput(
+        // TODO: Avoid using FirebaseAuth directly here.
+        uid: FirebaseAuth.instance.currentUser!.uid,
+      ),
+    );
     failureOrProperties.fold(
       (failure) {
         _failure = failure;

@@ -152,6 +152,9 @@ void _initPersonalUseCases() {
   sl.registerFactory<AddPersonalPropertyUseCase>(
     () => AddPersonalPropertyInteractor(propertyRepo),
   );
+  sl.registerFactory<RetrievePersonalPropertiesUseCase>(
+    () => RetrievePersonalPropertiesInteractor(propertyRepo),
+  );
 }
 
 /// Register use cases related to shared actions.
@@ -167,5 +170,8 @@ void _initSharedUseCases() {
   );
   sl.registerFactory<AddSharedPropertyUseCase>(
     () => AddSharedPropertyInteractor(propertyRepo),
+  );
+  sl.registerFactory<RetrieveSharedPropertiesUseCase>(
+    () => RetrieveSharedPropertiesInteractor(propertyRepo),
   );
 }
