@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:household_accounts/data/firebase/firebase_category_repository.dart';
-import 'package:household_accounts/data/firebase/firebase_property_repository.dart';
 import 'package:household_accounts/data/firebase/firebase_record_repository.dart';
 import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_interactor.dart';
 import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_use_case.dart';
@@ -41,9 +40,6 @@ void initialize(String uid) {
   sl.registerLazySingleton<RecordRepositoryNew>(
     () => FirebaseRecordRepository.personal(uid),
   );
-  sl.registerLazySingleton<PropertyRepository>(
-    () => FirebasePropertyRepository.personal(uid),
-  );
   sl.registerLazySingleton<IncomeCategoryRepository>(
     // () => InMemoryIncomeCategoryRepository(),
     () => FirebaseIncomeCategoryRepository.personal(uid),
@@ -71,20 +67,6 @@ void initialize(String uid) {
   );
   sl.registerLazySingleton<DeleteRecordUseCaseNew>(
         () => DeleteRecordInteractorNew(sl<RecordRepositoryNew>()),
-  );
-
-  // Use cases - property
-  sl.registerLazySingleton<AddPropertiesUseCase>(
-        () => AddPropertyInteractor(sl<PropertyRepository>()),
-  );
-  sl.registerLazySingleton<RetrievePropertiesUseCase>(
-        () => RetrievePropertiesInteractor(sl<PropertyRepository>()),
-  );
-  sl.registerLazySingleton<UpdatePropertyUseCase>(
-        () => UpdatePropertyInteractor(sl<PropertyRepository>()),
-  );
-  sl.registerLazySingleton<DeletePropertiesUseCase>(
-        () => DeletePropertyInteractor(sl<PropertyRepository>()),
   );
 
   // Use cases - category

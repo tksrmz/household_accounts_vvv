@@ -1,34 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 
 import '../../util/type/exception_or.dart';
 import '../../util/type/use_case.dart';
 import '../repository/property_repository.dart';
-
-@deprecated
-typedef DeletePropertiesUseCase = UseCase2<DeletePropertyInput, Unit>;
-
-@deprecated
-class DeletePropertyInput extends Equatable {
-  final String id;
-
-  DeletePropertyInput(this.id);
-
-  @override
-  List<Object> get props => [id];
-}
-
-@deprecated
-class DeletePropertyInteractor extends DeletePropertiesUseCase {
-  final PropertyRepository _repository;
-
-  DeletePropertyInteractor(this._repository);
-
-  @override
-  Future<ExceptionOr<Unit>> call(DeletePropertyInput input) {
-    return _repository.deleteById(input.id);
-  }
-}
 
 typedef DeletePersonalPropertyUseCase
     = UseCase2<DeletePersonalPropertyInput, Unit>;
