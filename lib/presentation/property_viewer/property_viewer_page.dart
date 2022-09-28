@@ -24,7 +24,7 @@ class PropertyListPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (ctx) => PropertyListState(
         sl<RetrievePropertiesUseCase>(),
-        sl<AddPropertiesUseCase>(),
+        sl<AddPersonalPropertyUseCase>(),
         sl<UpdatePersonalPropertyUseCase>(),
         sl<DeletePersonalPropertyUseCase>(),
       )..loadProperties(),
