@@ -4,219 +4,111 @@ import 'package:dartz/dartz.dart';
 import '../../entity/property_entity.dart';
 import '../../feature/repository/property_repository.dart';
 import '../../util/constant/firebase_constant.dart';
-import '../../util/type/exception.dart';
 import '../../util/type/exception_or.dart';
+import 'firebase_repository.dart';
 import 'property_model.dart';
+import 'util/type/collection_reference_builder.dart';
 
-class FirebasePersonalPropertyRepository implements PropertyRepository2 {
-  final delegation = _FirebasePropertyRepository();
-
-  @override
-  Future<ExceptionOr<Unit>> deleteById({
-    required String repoId,
-    required String id,
-  }) =>
-      delegation.deleteById(
-        ref: _collectionReferenceOf(repoId),
-        id: id,
-      );
-
-  @override
-  Future<ExceptionOr<Unit>> register({
-    required String repoId,
-    required Property value,
-  }) =>
-      delegation.register(
-        ref: _collectionReferenceOf(repoId),
-        value: value,
-      );
-
-  @override
-  Future<ExceptionOr<List<Property>>> retrieveAll({
-    required String repoId,
-  }) =>
-      delegation.retrieveAll(
-        ref: _collectionReferenceOf(repoId),
-      );
-
-  @override
-  Future<ExceptionOr<Property>> retrieveById({
-    required String repoId,
-    required String id,
-  }) =>
-      delegation.retrieveById(
-        ref: _collectionReferenceOf(repoId),
-        id: id,
-      );
-
-  @override
-  Future<ExceptionOr<Unit>> update({
-    required String repoId,
-    required Property newValue,
-  }) =>
-      delegation.update(
-        ref: _collectionReferenceOf(repoId),
-        newValue: newValue,
-      );
-
-  CollectionReference<PropertyModel> _collectionReferenceOf(String uid) =>
-      FirebaseFirestore.instance
-          .collection(
-              '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES')
-          .withConverter<PropertyModel>(
-            fromFirestore: (snapshot, _) {
-              final json = snapshot.data()!;
-              return PropertyModel.fromIdAndJson(snapshot.id, json);
-            },
-            toFirestore: (propertyModel, _) => propertyModel.toJson(),
-          );
+class FirebasePersonalPropertyRepository extends _FirebasePropertyRepository {
+  FirebasePersonalPropertyRepository()
+      : super._(
+          (String uid) => FirebaseFirestore.instance
+              .collection(
+                  '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES')
+              .withConverter<PropertyModel>(
+                fromFirestore: _fromFirestore,
+                toFirestore: _toFirestore,
+              ),
+        );
 }
 
-class FirebaseSharedPropertyRepository implements PropertyRepository2 {
-  final delegation = _FirebasePropertyRepository();
-
-  @override
-  Future<ExceptionOr<Unit>> deleteById({
-    required String repoId,
-    required String id,
-  }) =>
-      delegation.deleteById(
-        ref: _collectionReferenceOf(repoId),
-        id: id,
-      );
-
-  @override
-  Future<ExceptionOr<Unit>> register({
-    required String repoId,
-    required Property value,
-  }) =>
-      delegation.register(
-        ref: _collectionReferenceOf(repoId),
-        value: value,
-      );
-
-  @override
-  Future<ExceptionOr<List<Property>>> retrieveAll({
-    required String repoId,
-  }) =>
-      delegation.retrieveAll(
-        ref: _collectionReferenceOf(repoId),
-      );
-
-  @override
-  Future<ExceptionOr<Property>> retrieveById({
-    required String repoId,
-    required String id,
-  }) =>
-      delegation.retrieveById(
-        ref: _collectionReferenceOf(repoId),
-        id: id,
-      );
-
-  @override
-  Future<ExceptionOr<Unit>> update({
-    required String repoId,
-    required Property newValue,
-  }) =>
-      delegation.update(
-        ref: _collectionReferenceOf(repoId),
-        newValue: newValue,
-      );
-
-  CollectionReference<PropertyModel> _collectionReferenceOf(String pairId) =>
-      FirebaseFirestore.instance
-          .collection(
-              '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_PROPERTIES')
-          .withConverter<PropertyModel>(
-            fromFirestore: (snapshot, _) {
-              final json = snapshot.data()!;
-              return PropertyModel.fromIdAndJson(snapshot.id, json);
-            },
-            toFirestore: (propertyModel, _) => propertyModel.toJson(),
-          );
+class FirebaseSharedPropertyRepository extends _FirebasePropertyRepository {
+  FirebaseSharedPropertyRepository()
+      : super._(
+          (String pairId) => FirebaseFirestore.instance
+              .collection(
+                  '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_PROPERTIES')
+              .withConverter<PropertyModel>(
+                fromFirestore: _fromFirestore,
+                toFirestore: _toFirestore,
+              ),
+        );
 }
 
-class _FirebasePropertyRepository {
-  Future<ExceptionOr<Unit>> deleteById({
-    required CollectionReference<PropertyModel> ref,
-    required String id,
-  }) async {
-    try {
-      await ref.doc(id).delete();
-    } on FirebaseException catch (e) {
-      print(e);
-      return Left(e);
-    }
-    return Right(unit);
-  }
-
-  Future<ExceptionOr<Unit>> register({
-    required CollectionReference<PropertyModel> ref,
-    required Property value,
-  }) async {
-    try {
-      await ref.doc(value.id).set(PropertyModel.fromProperty(value));
-    } on FirebaseException catch (e) {
-      print(e);
-      return Left(e);
-    }
-    return Right(unit);
-  }
-
-  Future<ExceptionOr<Property>> retrieveById({
-    required CollectionReference<PropertyModel> ref,
-    required String id,
-  }) async {
-    final DocumentSnapshot<PropertyModel> snapshot;
-    try {
-      snapshot = await ref.doc(id).get();
-    } on FirebaseException catch (e) {
-      print(e);
-      return Left(e);
-    }
-
-    if (!snapshot.exists) {
-      return Left(
-        RepositoryException(
-          'Property with ID $id does not exist.',
-        ),
-      );
-    }
-
-    return Right(snapshot.data()!);
-  }
-
-  Future<ExceptionOr<List<Property>>> retrieveAll({
-    required CollectionReference<PropertyModel> ref,
-  }) async {
-    final QuerySnapshot<PropertyModel> snapshot;
-    try {
-      snapshot = await ref.orderBy('name').get();
-    } on FirebaseException catch (e) {
-      print(e);
-      return Left(e);
-    }
-    return Right(
-      List.of(
-        snapshot.docs.map(
-          (prop) => prop.data(),
-        ),
-      ),
+final _fromFirestore = (
+  DocumentSnapshot<Map<String, dynamic>> snapshot,
+  SnapshotOptions? _,
+) =>
+    PropertyModel.fromIdAndJson(
+      snapshot.id,
+      snapshot.data()!,
     );
-  }
 
+final _toFirestore = (
+  PropertyModel value,
+  SetOptions? _,
+) =>
+    value.toJson();
+
+class _FirebasePropertyRepository implements PropertyRepository2 {
+  final CollectionReferenceBuilder<PropertyModel> _collectionReferenceBuilder;
+  final _operation =
+      FirebaseRepositoryBasicOperation<Property, PropertyModel>();
+
+  _FirebasePropertyRepository._(this._collectionReferenceBuilder);
+
+  @override
+  Future<ExceptionOr<Unit>> deleteById({
+    required String repoId,
+    required String id,
+  }) =>
+      _operation.deleteById(
+        ref: _collectionReferenceBuilder(repoId),
+        id: id,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> register({
+    required String repoId,
+    required Property value,
+  }) =>
+      _operation.register(
+        ref: _collectionReferenceBuilder(repoId),
+        entity: value,
+        entityToModel: PropertyModel.fromProperty,
+      );
+
+  @override
+  Future<ExceptionOr<List<Property>>> retrieveAll({
+    required String repoId,
+  }) =>
+      _operation.retrieveAll(
+        ref: _collectionReferenceBuilder(repoId),
+        sortKey: 'name',
+      );
+
+  @override
+  Future<ExceptionOr<Property>> retrieveById({
+    required String repoId,
+    required String id,
+  }) =>
+      _operation.retrieveById(
+        ref: _collectionReferenceBuilder(repoId),
+        id: id,
+      );
+
+  @override
   Future<ExceptionOr<Unit>> update({
-    required CollectionReference<PropertyModel> ref,
+    required String repoId,
     required Property newValue,
-  }) async {
-    try {
-      await ref
-          .doc(newValue.id)
-          .update(PropertyModel.fromProperty(newValue).toJson());
-    } on FirebaseException catch (e) {
-      print(e);
-      return Left(e);
-    }
-    return Right(unit);
+  }) {
+    final toJson =
+        (Property property) => PropertyModel.fromProperty(property).toJson();
+
+    return _operation.update(
+      ref: _collectionReferenceBuilder(repoId),
+      newValue: newValue,
+      entityToJson: toJson,
+    );
   }
 }
