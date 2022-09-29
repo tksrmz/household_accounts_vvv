@@ -29,8 +29,7 @@ class RetrieveBudgetStateInteractor extends RetrieveBudgetStateUseCase {
       return failureOrRecords as ExceptionOr<RetrieveBudgetStateOutput>;
     }
 
-    final failureOrCategories =
-        await _expenseCategoryRepository.retrieveExpenseCategories();
+    final failureOrCategories = await _expenseCategoryRepository.retrieveAll();
     if (failureOrCategories.isLeft()) {
       return failureOrCategories as ExceptionOr<RetrieveBudgetStateOutput>;
     }

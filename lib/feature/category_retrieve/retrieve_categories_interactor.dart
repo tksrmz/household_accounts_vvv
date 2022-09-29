@@ -13,7 +13,7 @@ class RetrieveIncomeCategoriesInteractor
 
   @override
   Future<ExceptionOr<List<IncomeCategory>>> call(Unit notUsed) =>
-      _repository.retrieveIncomeCategories();
+      _repository.retrieveAll();
 }
 
 class RetrieveExpenseCategoriesInteractor
@@ -24,5 +24,5 @@ class RetrieveExpenseCategoriesInteractor
 
   @override
   Future<ExceptionOr<List<ExpenseCategory>>> call(Unit notUsed) =>
-      _repository.retrieveExpenseCategories();
+      _repository.retrieveAll();
 }

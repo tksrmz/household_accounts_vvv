@@ -61,7 +61,7 @@ class FirebaseIncomeCategoryRepository implements IncomeCategoryRepository {
   }
 
   @override
-  Future<ExceptionOr<List<IncomeCategory>>> retrieveIncomeCategories() async {
+  Future<ExceptionOr<List<IncomeCategory>>> retrieveAll() async {
     List<QueryDocumentSnapshot<IncomeCategoryModel>> categories =
         await _categoriesCollectionRef
             .orderBy('name')
@@ -137,7 +137,7 @@ class FirebaseExpenseCategoryRepository implements ExpenseCategoryRepository {
   }
 
   @override
-  Future<ExceptionOr<List<ExpenseCategory>>> retrieveExpenseCategories() async {
+  Future<ExceptionOr<List<ExpenseCategory>>> retrieveAll() async {
     List<QueryDocumentSnapshot<ExpenseCategoryModel>> categories =
         await _categoriesCollectionRef
             .orderBy('name')

@@ -45,7 +45,7 @@ class InMemoryIncomeCategoryRepository implements IncomeCategoryRepository {
   }
 
   @override
-  Future<ExceptionOr<List<IncomeCategory>>> retrieveIncomeCategories() async {
+  Future<ExceptionOr<List<IncomeCategory>>> retrieveAll() async {
     return Right([..._repository]);
   }
 
@@ -106,7 +106,7 @@ class InMemoryExpenseCategoryRepository implements ExpenseCategoryRepository {
   }
 
   @override
-  Future<ExceptionOr<List<ExpenseCategory>>> retrieveExpenseCategories() async {
+  Future<ExceptionOr<List<ExpenseCategory>>> retrieveAll() async {
     return Right([..._repository]);
   }
 
