@@ -48,7 +48,7 @@ class FirebaseRepositoryBasicOperation<E extends Identifiable, M extends E> {
     if (!snapshot.exists) {
       return Left(
         RepositoryException(
-          'Any records in the repository do not have ID %id',
+          'Any records in the repository do not have ID $id',
         ),
       );
     }
