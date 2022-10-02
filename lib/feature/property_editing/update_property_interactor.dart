@@ -26,6 +26,6 @@ class UpdatePropertyInteractor implements UpdatePropertyUseCase {
           newValue: value,
         );
 
-    return failureOrNewValue.fold(toFutuerLeft, update);
+    return failureOrNewValue.fold(toFutureLeft, update);
   }
 }
