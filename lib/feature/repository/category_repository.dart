@@ -23,3 +23,15 @@ abstract class ExpenseCategoryRepository extends Repository<ExpenseCategory> {
 
 typedef IncomeCategoryRepository2 = Repository2<IncomeCategory>;
 typedef ExpenseCategoryRepository2 = Repository2<ExpenseCategory>;
+
+abstract class PersonalIncomeCategoryRepository
+    extends Repository2<IncomeCategory> {}
+
+abstract class SharedIncomeCategoryRepository
+    extends Repository2<IncomeCategory> {}
+
+abstract class PersonalExpenseCategoryRepository
+    extends Repository2<ExpenseCategory> {}
+
+abstract class SharedExpenseCategoryRepository
+    extends Repository2<ExpenseCategory> {}

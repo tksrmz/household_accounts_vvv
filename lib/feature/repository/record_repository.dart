@@ -1,9 +1,12 @@
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/entity/record_entity.dart';
 
+import '../../entity/record_entity.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/identifiable.dart';
+import '../../util/type/repository.dart';
 
 /// Base class for repositories that store [Record]
+@deprecated
 abstract class RecordRepositoryNew {
   /// Registers the [value] in the repository.
   ///
@@ -20,8 +23,7 @@ abstract class RecordRepositoryNew {
   /// Retrieves records in the specified date range ([begin] included, [end] excluded).
   ///
   /// The records are sorted in ascending order of [Record.dateOfRecord].
-  Future<ExceptionOr<List<Record>>> retrieveRecordsOf(
-      DateTime begin, DateTime end);
+  Future<ExceptionOr<List<Record>>> retrieveRecordsOf(DateTime begin, DateTime end);
 
   /// Deletes a record with [id] and [type].
   ///
@@ -30,4 +32,37 @@ abstract class RecordRepositoryNew {
   /// It's not a failure that a record with [id] and [type] doesn't exist in the repository.
   /// Such operations do nothing.
   Future<ExceptionOr<Unit>> deleteById(String id, RecordType type);
+}
+
+abstract class PersonalIncomeRecordRepository
+    extends RecordRepository<IncomeRecord> {}
+
+abstract class PersonalExpenseRecordRepository
+    extends RecordRepository<ExpenseRecord> {}
+
+abstract class PersonalTransferRecordRepository
+    extends RecordRepository<TransferRecord> {}
+
+abstract class SharedIncomeRecordRepository
+    extends RecordRepository<IncomeRecord> {}
+
+abstract class SharedExpenseRecordRepository
+    extends RecordRepository<ExpenseRecord> {}
+
+abstract class SharedTransferRecordRepository
+    extends RecordRepository<TransferRecord> {}
+
+abstract class RecordRepository<T extends Identifiable> extends Repository2<T> {
+  @override
+  Future<ExceptionOr<List<T>>> retrieveAll({required String repoId}) {
+    throw UnsupportedError('DO NOT TRY TO RETRIEVE ALL THE TRANSACTIONS.');
+  }
+
+  /// Retrieves records in the specified date range ([begin] included, [end] excluded).
+  ///
+  /// The records are sorted in ascending order of [Record.dateOfRecord].
+  Future<ExceptionOr<List<T>>> retrieveRecordsOf({
+    DateTime begin,
+    DateTime end,
+  });
 }
