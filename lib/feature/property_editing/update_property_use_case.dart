@@ -2,12 +2,14 @@ import 'package:dartz/dartz.dart';
 
 import '../../entity/property_entity.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 import '../repository/property_repository.dart';
 
 typedef UpdatePersonalPropertyUseCase
     = UseCase2<UpdatePersonalPropertyInput, Property>;
 
+@deprecated
 class UpdatePersonalPropertyInput {
   /// User ID.
   final String uid;
@@ -33,7 +35,9 @@ class UpdatePersonalPropertyInput {
   });
 }
 
-class UpdatePersonalPropertyInteractor extends UpdatePersonalPropertyUseCase {
+@deprecated
+class UpdatePersonalPropertyInteractor
+    implements UpdatePersonalPropertyUseCase {
   final PropertyRepository2 _repository;
 
   UpdatePersonalPropertyInteractor(this._repository);
@@ -67,6 +71,7 @@ class UpdatePersonalPropertyInteractor extends UpdatePersonalPropertyUseCase {
 typedef UpdateSharedPropertyUseCase
     = UseCase2<UpdateSharedPropertyInput, Property>;
 
+@deprecated
 class UpdateSharedPropertyInput {
   /// User ID.
   final String pairId;
@@ -92,7 +97,8 @@ class UpdateSharedPropertyInput {
   });
 }
 
-class UpdateSharedPropertyInteractor extends UpdateSharedPropertyUseCase {
+@deprecated
+class UpdateSharedPropertyInteractor implements UpdateSharedPropertyUseCase {
   final PropertyRepository2 _repository;
 
   UpdateSharedPropertyInteractor(this._repository);
@@ -121,4 +127,35 @@ class UpdateSharedPropertyInteractor extends UpdateSharedPropertyUseCase {
       },
     );
   }
+}
+
+typedef UpdatePropertyUseCase = UseCase2<UpdatePropertyInput, Unit>;
+
+class UpdatePropertyInput {
+  /// User ID or pair ID.
+  final String uid;
+
+  /// ID of the property to be updated.
+  final String propertyId;
+
+  /// New property name.
+  ///
+  /// If this value is null, the property name will not change.
+  final String? name;
+
+  /// New property amount.
+  ///
+  /// If this value is null, the property amount will not change.
+  final int? amount;
+
+  /// Repository where the target property exists.
+  final Repository2<Property> repository;
+
+  const UpdatePropertyInput({
+    required this.uid,
+    required this.propertyId,
+    this.name,
+    this.amount,
+    required this.repository,
+  });
 }
