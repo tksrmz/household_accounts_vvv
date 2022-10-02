@@ -1,12 +1,15 @@
 import 'package:dartz/dartz.dart';
 
+import '../../entity/property_entity.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 import '../repository/property_repository.dart';
 
 typedef DeletePersonalPropertyUseCase
     = UseCase2<DeletePersonalPropertyInput, Unit>;
 
+@deprecated
 class DeletePersonalPropertyInput {
   /// User ID.
   final String uid;
@@ -20,6 +23,7 @@ class DeletePersonalPropertyInput {
   });
 }
 
+@deprecated
 class DeletePersonalPropertyInteractor
     implements DeletePersonalPropertyUseCase {
   final PropertyRepository2 _repository;
@@ -36,6 +40,7 @@ class DeletePersonalPropertyInteractor
 
 typedef DeleteSharedPropertyUseCase = UseCase2<DeleteSharedPropertyInput, Unit>;
 
+@deprecated
 class DeleteSharedPropertyInput {
   /// Pair ID.
   final String pairId;
@@ -49,6 +54,7 @@ class DeleteSharedPropertyInput {
   });
 }
 
+@deprecated
 class DeleteSharedPropertyInteractor implements DeleteSharedPropertyUseCase {
   final PropertyRepository2 _repository;
 
@@ -60,4 +66,23 @@ class DeleteSharedPropertyInteractor implements DeleteSharedPropertyUseCase {
         repoId: input.pairId,
         id: input.propertyId,
       );
+}
+
+typedef DeletePropertyUseCase = UseCase2<DeletePropertyInput, Unit>;
+
+class DeletePropertyInput {
+  /// User ID or pair ID.
+  final String uid;
+
+  /// ID of the property to be deleted.
+  final String propertyId;
+
+  /// Repository from which delete the property.
+  final Repository2<Property> repository;
+
+  DeletePropertyInput({
+    required this.uid,
+    required this.propertyId,
+    required this.repository,
+  });
 }
