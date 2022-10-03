@@ -1,0 +1,29 @@
+import 'package:dartz/dartz.dart';
+
+import '../../entity/category_entity.dart';
+import '../../util/type/repository.dart';
+import '../../util/type/use_case.dart';
+
+typedef UpdateIncomeCategoryUseCase = UseCase2<UpdateIncomeCategoryInput, Unit>;
+
+class UpdateIncomeCategoryInput {
+  /// User ID or Pair ID.
+  final String uid;
+
+  /// ID of the income category to be updated.
+  final String categoryId;
+
+  /// New category name.
+  ///
+  /// If this value is null, the category name will not change.
+  final String? name;
+
+  final Repository2<IncomeCategory> repository;
+
+  UpdateIncomeCategoryInput({
+    required this.uid,
+    required this.categoryId,
+    this.name,
+    required this.repository,
+  });
+}
