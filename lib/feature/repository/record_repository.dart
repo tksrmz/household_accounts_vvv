@@ -22,7 +22,10 @@ abstract class RecordRepositoryNew {
   /// Retrieves records in the specified date range ([begin] included, [end] excluded).
   ///
   /// The records are sorted in ascending order of [Record.dateOfRecord].
-  Future<ExceptionOr<List<Record>>> retrieveRecordsOf(DateTime begin, DateTime end);
+  Future<ExceptionOr<List<Record>>> retrieveRecordsOf(
+    DateTime begin,
+    DateTime end,
+  );
 
   /// Deletes a record with [id] and [type].
   ///
