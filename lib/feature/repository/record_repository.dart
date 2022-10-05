@@ -43,7 +43,8 @@ abstract class RecordRepository<T extends Record> extends Repository2<T> {
   ///
   /// The records are sorted in ascending order of [Record.dateOfRecord].
   Future<ExceptionOr<List<T>>> retrieveRecordsOf({
-    DateTime begin,
-    DateTime end,
+    required String repoId,
+    required DateTime begin,
+    required DateTime end,
   });
 }
