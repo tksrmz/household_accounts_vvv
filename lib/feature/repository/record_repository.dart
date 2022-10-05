@@ -36,7 +36,7 @@ abstract class RecordRepositoryNew {
 abstract class RecordRepository<T extends Record> extends Repository2<T> {
   @override
   Future<ExceptionOr<List<T>>> retrieveAll({required String repoId}) {
-    throw UnsupportedError('DO NOT TRY TO RETRIEVE ALL THE TRANSACTIONS.');
+    throw UnsupportedError('DO NOT TRY TO RETRIEVE ALL THE RECORDS.');
   }
 
   /// Retrieves records in the specified date range ([begin] included, [end] excluded).
