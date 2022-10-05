@@ -56,6 +56,15 @@ class IncomeCategory extends Category2 {
           name: name,
           type: CategoryType.income,
         );
+
+  IncomeCategory copyWith({
+    String? id,
+    String? name,
+  }) =>
+      IncomeCategory(
+        id: id ?? this.id,
+        name: name ?? this.name,
+      );
 }
 
 /// Category for expense records.
@@ -77,6 +86,17 @@ class ExpenseCategory extends Category2 {
           name: name,
           type: CategoryType.expense,
         );
+
+  ExpenseCategory copyWith({
+    String? id,
+    String? name,
+    int? totalBudget,
+  }) =>
+      ExpenseCategory(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        totalBudget: totalBudget ?? this.totalBudget,
+      );
 
   @override
   List<Object> get props => [
