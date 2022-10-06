@@ -21,9 +21,6 @@ abstract class ExpenseCategoryRepository extends Repository<ExpenseCategory> {
   Future<ExceptionOr<List<ExpenseCategory>>> retrieveAll();
 }
 
-typedef IncomeCategoryRepository2 = Repository2<IncomeCategory>;
-typedef ExpenseCategoryRepository2 = Repository2<ExpenseCategory>;
-
 abstract class PersonalIncomeCategoryRepository
     extends Repository2<IncomeCategory> {}
 
