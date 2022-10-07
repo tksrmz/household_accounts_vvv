@@ -8,28 +8,26 @@ import 'package:household_accounts/feature/repository/record_repository.dart';
 import '../../util/type/exception_or.dart';
 
 class RetrieveBudgetStateInteractor extends RetrieveBudgetStateUseCase {
-  RetrieveBudgetStateInteractor(
-    this._recordRepository,
-    this._expenseCategoryRepository,
-  );
-
-  final RecordRepositoryNew _recordRepository;
-  final ExpenseCategoryRepository _expenseCategoryRepository;
-
   @override
   Future<ExceptionOr<RetrieveBudgetStateOutput>> call(
     RetrieveBudgetStateInput input,
   ) async {
+    final recordRepository = input.recordRepository;
+    final expenseCategoryRepository = input.categoryRepository;
+
     final ExceptionOr<List<Record>> failureOrRecords =
-        await _recordRepository.retrieveRecordsOf(
-      input.begin,
-      input.end,
+        await recordRepository.retrieveRecordsOf(
+      repoId: input.uid,
+      begin: input.begin,
+      end: input.end,
     );
     if (failureOrRecords.isLeft()) {
       return failureOrRecords as ExceptionOr<RetrieveBudgetStateOutput>;
     }
 
-    final failureOrCategories = await _expenseCategoryRepository.retrieveAll();
+    final failureOrCategories = await expenseCategoryRepository.retrieveAll(
+      repoId: input.uid,
+    );
     if (failureOrCategories.isLeft()) {
       return failureOrCategories as ExceptionOr<RetrieveBudgetStateOutput>;
     }

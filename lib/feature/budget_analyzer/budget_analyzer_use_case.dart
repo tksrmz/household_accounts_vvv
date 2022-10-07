@@ -1,14 +1,24 @@
-import 'package:equatable/equatable.dart';
 import 'package:household_accounts/util/type/use_case.dart';
+
+import '../../entity/category_entity.dart';
+import '../../entity/record_entity.dart';
+import '../../util/type/repository.dart';
+import '../repository/record_repository.dart';
 
 typedef RetrieveBudgetStateUseCase
     = UseCase2<RetrieveBudgetStateInput, RetrieveBudgetStateOutput>;
 
-class RetrieveBudgetStateInput extends Equatable {
+class RetrieveBudgetStateInput {
   const RetrieveBudgetStateInput({
+    required this.uid,
     required this.begin,
     required this.end,
+    required this.recordRepository,
+    required this.categoryRepository,
   });
+
+  /// Use ID or pair ID.
+  final String uid;
 
   /// From when to retrieve budget state(included)
   final DateTime begin;
@@ -16,14 +26,14 @@ class RetrieveBudgetStateInput extends Equatable {
   /// To when to retrieve budget state(excluded)
   final DateTime end;
 
-  @override
-  List<Object?> get props => [
-        begin,
-        end,
-      ];
+  /// Record repository
+  final RecordRepository<ExpenseRecord> recordRepository;
+
+  /// Expense category repository
+  final Repository2<ExpenseCategory> categoryRepository;
 }
 
-class BudgetState extends Equatable {
+class BudgetState {
   const BudgetState({
     required this.name,
     required this.totalAmount,
@@ -38,16 +48,9 @@ class BudgetState extends Equatable {
 
   /// Spent amount.
   final int spentAmount;
-
-  @override
-  List<Object?> get props => [
-        name,
-        totalAmount,
-        spentAmount,
-      ];
 }
 
-class RetrieveBudgetStateOutput extends Equatable {
+class RetrieveBudgetStateOutput {
   const RetrieveBudgetStateOutput({
     required this.begin,
     required this.end,
@@ -60,11 +63,4 @@ class RetrieveBudgetStateOutput extends Equatable {
   /// To when to retrieve budget state(excluded)
   final DateTime end;
   final List<BudgetState> states;
-
-  @override
-  List<Object?> get props => [
-        begin,
-        end,
-        states,
-      ];
 }
