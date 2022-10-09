@@ -3,19 +3,20 @@ import 'package:dartz/dartz.dart';
 
 import '../../entity/category_entity.dart';
 import '../../feature/repository/category_repository.dart';
-import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/repository.dart';
 import 'category_model.dart';
 import 'firebase_repository.dart';
+import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
 class FirebasePersonalIncomeCategoryRepository
-    extends _FirebaseIncomeCategoryRepository {
+    extends _FirebaseIncomeCategoryRepository
+    implements PersonalIncomeCategoryRepository {
   FirebasePersonalIncomeCategoryRepository()
       : super._(
           (String uid) => FirebaseFirestore.instance
-              .collection(
-                  '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_INCOME_CATEGORIES')
+              .collection(getPersonalIncomeCategoryCollectionPath(uid))
               .withConverter<IncomeCategoryModel>(
                 fromFirestore: _fromFirestore,
                 toFirestore: _toFirestore,
@@ -24,12 +25,12 @@ class FirebasePersonalIncomeCategoryRepository
 }
 
 class FirebaseSharedIncomeCategoryRepository
-    extends _FirebaseIncomeCategoryRepository {
+    extends _FirebaseIncomeCategoryRepository
+    implements SharedIncomeCategoryRepository {
   FirebaseSharedIncomeCategoryRepository()
       : super._(
           (String pairId) => FirebaseFirestore.instance
-              .collection(
-                  '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_INCOME_CATEGORIES')
+              .collection(getSharedIncomeCategoryCollectionPath(pairId))
               .withConverter<IncomeCategoryModel>(
                 fromFirestore: _fromFirestore,
                 toFirestore: _toFirestore,
@@ -52,7 +53,7 @@ final _toFirestore = (
 ) =>
     value.toJson();
 
-class _FirebaseIncomeCategoryRepository implements IncomeCategoryRepository2 {
+class _FirebaseIncomeCategoryRepository implements Repository2<IncomeCategory> {
   final CollectionReferenceBuilder<IncomeCategoryModel>
       _collectionReferenceBuilder;
   final _operation =

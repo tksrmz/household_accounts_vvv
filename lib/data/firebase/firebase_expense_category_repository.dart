@@ -3,19 +3,20 @@ import 'package:dartz/dartz.dart';
 
 import '../../entity/category_entity.dart';
 import '../../feature/repository/category_repository.dart';
-import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/repository.dart';
 import 'category_model.dart';
 import 'firebase_repository.dart';
+import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
 class FirebasePersonalExpenseCategoryRepository
-    extends _FirebaseExpenseCategoryRepository {
+    extends _FirebaseExpenseCategoryRepository
+    implements PersonalExpenseCategoryRepository {
   FirebasePersonalExpenseCategoryRepository()
       : super._(
           (String uid) => FirebaseFirestore.instance
-              .collection(
-                  '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_EXPENSE_CATEGORIES')
+              .collection(getPersonalExpenseCategoryCollectionPath(uid))
               .withConverter<ExpenseCategoryModel>(
                 fromFirestore: _fromFirestore,
                 toFirestore: _toFirestore,
@@ -24,12 +25,12 @@ class FirebasePersonalExpenseCategoryRepository
 }
 
 class FirebaseSharedExpenseCategoryRepository
-    extends _FirebaseExpenseCategoryRepository {
+    extends _FirebaseExpenseCategoryRepository
+    implements SharedExpenseCategoryRepository {
   FirebaseSharedExpenseCategoryRepository()
       : super._(
           (String pairId) => FirebaseFirestore.instance
-              .collection(
-                  '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_EXPENSE_CATEGORIES')
+              .collection(getSharedExpenseCategoryCollectionPath(pairId))
               .withConverter<ExpenseCategoryModel>(
                 fromFirestore: _fromFirestore,
                 toFirestore: _toFirestore,
@@ -52,7 +53,8 @@ final _toFirestore = (
 ) =>
     value.toJson();
 
-class _FirebaseExpenseCategoryRepository implements ExpenseCategoryRepository2 {
+class _FirebaseExpenseCategoryRepository
+    implements Repository2<ExpenseCategory> {
   final CollectionReferenceBuilder<ExpenseCategoryModel>
       _collectionReferenceBuilder;
   final _operation =

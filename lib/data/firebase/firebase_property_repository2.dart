@@ -3,18 +3,19 @@ import 'package:dartz/dartz.dart';
 
 import '../../entity/property_entity.dart';
 import '../../feature/repository/property_repository.dart';
-import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/repository.dart';
 import 'firebase_repository.dart';
 import 'property_model.dart';
+import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
-class FirebasePersonalPropertyRepository extends _FirebasePropertyRepository {
+class FirebasePersonalPropertyRepository extends _FirebasePropertyRepository
+    implements PersonalPropertyRepository {
   FirebasePersonalPropertyRepository()
       : super._(
           (String uid) => FirebaseFirestore.instance
-              .collection(
-                  '/$FIREBASE_COLLECTION_PERSONAL_NOTES/$uid/$FIREBASE_COLLECTION_PROPERTIES')
+              .collection(getPersonalPropertyCollectionPath(uid))
               .withConverter<PropertyModel>(
                 fromFirestore: _fromFirestore,
                 toFirestore: _toFirestore,
@@ -22,12 +23,12 @@ class FirebasePersonalPropertyRepository extends _FirebasePropertyRepository {
         );
 }
 
-class FirebaseSharedPropertyRepository extends _FirebasePropertyRepository {
+class FirebaseSharedPropertyRepository extends _FirebasePropertyRepository
+    implements PersonalPropertyRepository {
   FirebaseSharedPropertyRepository()
       : super._(
           (String pairId) => FirebaseFirestore.instance
-              .collection(
-                  '/$FIREBASE_COLLECTION_SHARED_NOTES/$pairId/$FIREBASE_COLLECTION_PROPERTIES')
+              .collection(getSharedPropertyCollectionPath(pairId))
               .withConverter<PropertyModel>(
                 fromFirestore: _fromFirestore,
                 toFirestore: _toFirestore,
@@ -50,7 +51,7 @@ final _toFirestore = (
 ) =>
     value.toJson();
 
-class _FirebasePropertyRepository implements PropertyRepository2 {
+class _FirebasePropertyRepository implements Repository2<Property> {
   final CollectionReferenceBuilder<PropertyModel> _collectionReferenceBuilder;
   final _operation =
       FirebaseRepositoryBasicOperation<Property, PropertyModel>();
