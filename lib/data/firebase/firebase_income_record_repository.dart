@@ -8,14 +8,39 @@ import 'record_model.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
-class FirebaseIncomeRecordRepository extends PersonalIncomeRecordRepository {
-  final CollectionReferenceBuilder<IncomeRecordModel> _builder = (String uid) =>
-      FirebaseFirestore.instance
-          .collection(getPersonalIncomeRecordCollectionPath(uid))
-          .withConverter(
-            fromFirestore: _fromFirestore,
-            toFirestore: _toFirestore,
-          );
+class FirebasePersonalIncomeRecordRepository
+    extends _FirebaseIncomeRecordRepository
+    implements PersonalIncomeRecordRepository {
+  FirebasePersonalIncomeRecordRepository()
+      : super(
+          (String uid) => FirebaseFirestore.instance
+              .collection(getPersonalIncomeRecordCollectionPath(uid))
+              .withConverter(
+                fromFirestore: _fromFirestore,
+                toFirestore: _toFirestore,
+              ),
+        );
+}
+
+class FirebaseSharedIncomeRecordRepository
+    extends _FirebaseIncomeRecordRepository
+    implements SharedIncomeRecordRepository {
+  FirebaseSharedIncomeRecordRepository()
+      : super(
+          (String uid) => FirebaseFirestore.instance
+              .collection(getSharedIncomeRecordCollectionPath(uid))
+              .withConverter(
+                fromFirestore: _fromFirestore,
+                toFirestore: _toFirestore,
+              ),
+        );
+}
+
+abstract class _FirebaseIncomeRecordRepository
+    extends RecordRepository<IncomeRecord> {
+  final CollectionReferenceBuilder<IncomeRecordModel> _builder;
+
+  _FirebaseIncomeRecordRepository(this._builder);
 
   @override
   Future<ExceptionOr<Unit>> deleteById({

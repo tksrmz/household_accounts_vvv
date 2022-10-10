@@ -24,7 +24,7 @@ class FirebasePersonalPropertyRepository extends _FirebasePropertyRepository
 }
 
 class FirebaseSharedPropertyRepository extends _FirebasePropertyRepository
-    implements PersonalPropertyRepository {
+    implements SharedPropertyRepository {
   FirebaseSharedPropertyRepository()
       : super._(
           (String pairId) => FirebaseFirestore.instance

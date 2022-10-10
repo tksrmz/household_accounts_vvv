@@ -8,15 +8,39 @@ import 'record_model.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
-class FirebaseTransferRecordRepository
-    extends PersonalTransferRecordRepository {
-  final CollectionReferenceBuilder<TransferRecordModel> _builder =
-      (String uid) => FirebaseFirestore.instance
-          .collection(getPersonalTransferRecordCollectionPath(uid))
-          .withConverter(
-            fromFirestore: _fromFirestore,
-            toFirestore: _toFirestore,
-          );
+class FirebasePersonalTransferRecordRepository
+    extends _FirebaseTransferRecordRepository
+    implements PersonalTransferRecordRepository {
+  FirebasePersonalTransferRecordRepository()
+      : super(
+          (String uid) => FirebaseFirestore.instance
+              .collection(getPersonalTransferRecordCollectionPath(uid))
+              .withConverter(
+                fromFirestore: _fromFirestore,
+                toFirestore: _toFirestore,
+              ),
+        );
+}
+
+class FirebaseSharedTransferRecordRepository
+    extends _FirebaseTransferRecordRepository
+    implements SharedTransferRecordRepository {
+  FirebaseSharedTransferRecordRepository()
+      : super(
+          (String uid) => FirebaseFirestore.instance
+              .collection(getSharedTransferRecordCollectionPath(uid))
+              .withConverter(
+                fromFirestore: _fromFirestore,
+                toFirestore: _toFirestore,
+              ),
+        );
+}
+
+class _FirebaseTransferRecordRepository
+    extends RecordRepository<TransferRecord> {
+  final CollectionReferenceBuilder<TransferRecordModel> _builder;
+
+  _FirebaseTransferRecordRepository(this._builder);
 
   @override
   Future<ExceptionOr<Unit>> deleteById({

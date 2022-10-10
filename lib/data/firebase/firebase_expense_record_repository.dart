@@ -8,14 +8,38 @@ import 'record_model.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
-class FirebaseExpenseRecordRepository extends PersonalExpenseRecordRepository {
-  final CollectionReferenceBuilder<ExpenseRecordModel> _builder =
-      (String uid) => FirebaseFirestore.instance
-          .collection(getPersonalExpenseRecordCollectionPath(uid))
-          .withConverter(
-            fromFirestore: _fromFirestore,
-            toFirestore: _toFirestore,
-          );
+class FirebasePersonalExpenseRecordRepository
+    extends _FirebaseExpenseRecordRepository
+    implements PersonalExpenseRecordRepository {
+  FirebasePersonalExpenseRecordRepository()
+      : super(
+          (String uid) => FirebaseFirestore.instance
+              .collection(getPersonalExpenseRecordCollectionPath(uid))
+              .withConverter(
+                fromFirestore: _fromFirestore,
+                toFirestore: _toFirestore,
+              ),
+        );
+}
+
+class FirebaseSharedExpenseRecordRepository
+    extends _FirebaseExpenseRecordRepository
+    implements SharedExpenseRecordRepository {
+  FirebaseSharedExpenseRecordRepository()
+      : super(
+          (String uid) => FirebaseFirestore.instance
+              .collection(getSharedExpenseRecordCollectionPath(uid))
+              .withConverter(
+                fromFirestore: _fromFirestore,
+                toFirestore: _toFirestore,
+              ),
+        );
+}
+
+class _FirebaseExpenseRecordRepository extends RecordRepository<ExpenseRecord> {
+  final CollectionReferenceBuilder<ExpenseRecordModel> _builder;
+
+  _FirebaseExpenseRecordRepository(this._builder);
 
   @override
   Future<ExceptionOr<Unit>> deleteById({
