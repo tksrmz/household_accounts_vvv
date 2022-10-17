@@ -1,5 +1,9 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import '../../util/service_locator/main.dart';
+import '../../util/type/single_or_pair.dart';
 
 // import '../../util/constant/firebase_constant.dart';
 // import '../../util/service_locator/main.dart';
@@ -19,22 +23,27 @@ class MyAppHome extends StatefulWidget {
 }
 
 class _MyAppHomeState extends State<MyAppHome> {
-  final titles = [
+  final _titles = [
     'index 0',
     'index 1',
     'index 2',
   ];
+  SingleOrPair _singleOrPair = SingleOrPair.single;
 
   int _index = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(titles[_index]),
+      appBar: _AppHomePageAppBar(
+        title: _titles[_index],
+      ),
+      drawer: _AppHomePageDrawer(
+        mode: _singleOrPair,
+        setter: _setSingleOrPair,
       ),
       body: Center(
-        child: Text(titles[_index]),
+        child: Text('${_titles[_index]}: ${_singleOrPair.name}'),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
@@ -61,6 +70,141 @@ class _MyAppHomeState extends State<MyAppHome> {
     setState(() {
       _index = newIndex;
     });
+  }
+
+  void _setSingleOrPair(SingleOrPair newValue) {
+    setState(() {
+      _singleOrPair = newValue;
+    });
+  }
+}
+
+class _AppHomePageAppBar extends AppBar {
+  _AppHomePageAppBar({
+    required String title,
+    Key? key,
+  }) : super(
+          title: Text(title),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await sl.reset();
+                FirebaseAuth.instance.signOut();
+              },
+            ),
+          ],
+          key: key,
+        );
+}
+
+class _AppHomePageDrawer extends StatelessWidget {
+  const _AppHomePageDrawer({
+    required this.mode,
+    required this.setter,
+    Key? key,
+  }) : super(key: key);
+
+  final SingleOrPair mode;
+  final void Function(SingleOrPair) setter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: _getIcon(),
+                ),
+                Text(
+                  _getHeaderTitle(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _getListTile(context),
+        ],
+      ),
+    );
+  }
+
+  String _getHeaderTitle() {
+    final modeText;
+
+    switch (mode) {
+      case SingleOrPair.single:
+        modeText = 'Personal mode';
+        break;
+
+      case SingleOrPair.pair:
+        modeText = 'Pair mode';
+        break;
+    }
+
+    return modeText;
+  }
+
+  ListTile _getListTile(BuildContext context) {
+    final Text title;
+    final void Function() onTap;
+
+    switch (mode) {
+      case SingleOrPair.single:
+        title = Text('Change to pair mode.');
+        onTap = () {
+          setter(SingleOrPair.pair);
+          Navigator.pop(context); // close the drawer
+        };
+        break;
+
+      case SingleOrPair.pair:
+        title = Text('Change to personal mode.');
+        onTap = () {
+          setter(SingleOrPair.single);
+          Navigator.pop(context); // close the drawer
+        };
+        break;
+    }
+
+    return ListTile(
+      leading: const Icon(Icons.swap_horiz),
+      title: title,
+      onTap: onTap,
+    );
+  }
+
+  Icon _getIcon() {
+    final Icon icon;
+
+    switch (mode) {
+      case SingleOrPair.single:
+        icon = const Icon(
+          Icons.person,
+          color: Colors.white,
+        );
+        break;
+
+      case SingleOrPair.pair:
+        icon = const Icon(
+          Icons.group,
+          color: Colors.white,
+        );
+        break;
+    }
+
+    return icon;
   }
 }
 
