@@ -1,9 +1,15 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../util/constant/firebase_constant.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/single_or_pair.dart';
+import '../common_widget/loading.dart';
+import '../util/future_builder_helper.dart';
+import '../util/model/user_info.dart' as myapp;
 
 // import '../../util/constant/firebase_constant.dart';
 // import '../../util/service_locator/main.dart';
@@ -16,34 +22,117 @@ import '../../util/type/single_or_pair.dart';
 // import '../record_register/record_register_page.dart';
 
 class MyAppHome extends StatefulWidget {
-  const MyAppHome({Key? key}) : super(key: key);
+  const MyAppHome({
+    required this.uid,
+    Key? key,
+  }) : super(key: key);
+
+  final String uid;
 
   @override
   State<MyAppHome> createState() => _MyAppHomeState();
 }
 
 class _MyAppHomeState extends State<MyAppHome> {
+  late final Future<DocumentSnapshot<Map<String, dynamic>>>
+      _privateProfileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _privateProfileFuture = FirebaseFirestore.instance
+        .collection('/$FIREBASE_COLLECTION_PRIVATE_PROFILES')
+        .doc(widget.uid)
+        .get();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      future: _privateProfileFuture,
+      builder: (context, snapshot) {
+        return FutureBuilderHelper<DocumentSnapshot<Map<String, dynamic>>>(
+          snapshot: snapshot,
+          onSuccess: _onSuccess,
+          onError: _onError,
+          onLoading: _onLoading,
+        );
+      },
+    );
+  }
+
+  Widget _onSuccess(
+    BuildContext context,
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    final Map<String, dynamic>? sharedNote = snapshot.get('sharedNote');
+    final String? pairId;
+    if (sharedNote == null) {
+      pairId = null;
+    } else {
+      final DocumentReference ref = sharedNote['ref'] as DocumentReference;
+      pairId = ref.id;
+    }
+
+    final info = myapp.UserInfo(
+      uid: widget.uid,
+      pairId: pairId,
+    );
+    return Provider<myapp.UserInfo>.value(
+      value: info,
+      child: _MainPage(),
+    );
+  }
+
+  Widget _onError(BuildContext context, Object error) {
+    return Scaffold(
+      body: Center(
+        child: Text(error.toString()),
+      ),
+    );
+  }
+
+  Widget _onLoading(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: LoadingWidget(),
+      ),
+    );
+  }
+}
+
+class _MainPage extends StatefulWidget {
+  const _MainPage({Key? key}) : super(key: key);
+
+  @override
+  State<_MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<_MainPage> {
   final _titles = [
     'index 0',
     'index 1',
     'index 2',
   ];
   SingleOrPair _singleOrPair = SingleOrPair.single;
-
   int _index = 0;
 
   @override
   Widget build(BuildContext context) {
+    final bodies = _titles.map((title) => _PageBody(text: title));
+
     return Scaffold(
       appBar: _AppHomePageAppBar(
         title: _titles[_index],
       ),
       drawer: _AppHomePageDrawer(
         mode: _singleOrPair,
-        setter: _setSingleOrPair,
+        setter:
+            context.read<myapp.UserInfo>().hasPair ? _setSingleOrPair : null,
       ),
-      body: Center(
-        child: Text('${_titles[_index]}: ${_singleOrPair.name}'),
+      body: Provider<SingleOrPair>.value(
+        value: _singleOrPair,
+        child: bodies.elementAt(_index),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
@@ -79,6 +168,22 @@ class _MyAppHomeState extends State<MyAppHome> {
   }
 }
 
+class _PageBody extends StatelessWidget {
+  const _PageBody({required this.text, Key? key}) : super(key: key);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(children: [
+        Text(text),
+        Text(context.watch<SingleOrPair>().name),
+      ]),
+    );
+  }
+}
+
 class _AppHomePageAppBar extends AppBar {
   _AppHomePageAppBar({
     required String title,
@@ -101,12 +206,12 @@ class _AppHomePageAppBar extends AppBar {
 class _AppHomePageDrawer extends StatelessWidget {
   const _AppHomePageDrawer({
     required this.mode,
-    required this.setter,
+    this.setter,
     Key? key,
   }) : super(key: key);
 
   final SingleOrPair mode;
-  final void Function(SingleOrPair) setter;
+  final void Function(SingleOrPair)? setter;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +239,7 @@ class _AppHomePageDrawer extends StatelessWidget {
               ],
             ),
           ),
-          _getListTile(context),
+          setter != null ? _getListTile(context, setter!) : SizedBox.shrink(),
         ],
       ),
     );
@@ -156,7 +261,10 @@ class _AppHomePageDrawer extends StatelessWidget {
     return modeText;
   }
 
-  ListTile _getListTile(BuildContext context) {
+  ListTile _getListTile(
+    BuildContext context,
+    void Function(SingleOrPair) setter,
+  ) {
     final Text title;
     final void Function() onTap;
 

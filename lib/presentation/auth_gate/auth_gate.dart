@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutterfire_ui/auth.dart';
-import 'package:provider/provider.dart';
 
 import '../app_home_page/page.dart';
 
@@ -23,10 +22,7 @@ class AuthGate extends StatelessWidget {
         }
 
         // Render your application if authenticated
-        return Provider<User>.value(
-          value: snapshot.data!,
-          child: MyAppHome(),
-        );
+        return MyAppHome(uid: snapshot.data!.uid);
       },
     );
   }
