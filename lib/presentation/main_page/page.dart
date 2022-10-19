@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../util/type/single_or_pair.dart';
-
 // import '../property_viewer/property_viewer_page.dart';
 import '../util/model/user_info.dart';
 import 'app_bar.dart';
@@ -64,6 +63,8 @@ class _MainPageState extends State<MainPage> {
         ],
         currentIndex: _index,
         onTap: _onTapped,
+        selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Theme.of(context).colorScheme.primary,
       ),
     );
   }
