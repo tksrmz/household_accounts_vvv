@@ -10,7 +10,7 @@ import '../../feature/repository/category_repository.dart';
 import '../../feature/repository/property_repository.dart';
 import '../../feature/repository/record_repository.dart';
 
-/// Register personal repositories.
+/// Register Shared repositories.
 void initSharedRepository(GetIt sl) {
   _initSharedPropertyRepository(sl);
   _initSharedCategoryRepository(sl);
@@ -37,9 +37,9 @@ void _initSharedRecordRepository(GetIt sl) {
     () => FirebaseSharedIncomeRecordRepository(),
   );
   sl.registerFactory<SharedExpenseRecordRepository>(
-    () => FirebaseSharedExpenseRecordRepository(),
+        () => FirebaseSharedExpenseRecordRepository(),
   );
   sl.registerFactory<SharedTransferRecordRepository>(
-    () => FirebaseSharedTransferRecordRepository(),
+        () => FirebaseSharedTransferRecordRepository(),
   );
 }
