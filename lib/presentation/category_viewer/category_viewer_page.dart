@@ -4,7 +4,10 @@ import 'package:household_accounts/presentation/category_viewer/category_viewer_
 import 'package:household_accounts/presentation/common_widget/delete_icon_button.dart';
 import 'package:provider/provider.dart';
 
+import '../../feature/category_deletion/delete_income_category_use_case.dart';
+import '../../util/service_locator/main.dart';
 import '../../util/type/single_or_pair.dart';
+import '../category_editor/add_category_page.dart';
 import '../common_widget/failure.dart';
 import '../common_widget/loading.dart';
 import '../util/model/user_info.dart';
@@ -62,31 +65,18 @@ class _PageContent2 extends StatelessWidget {
           ),
         ),
         OutlinedButton(
-          onPressed: null,
-          //  onPressed: () {
-          //    Navigator.push(
-          //      context,
-          //      MaterialPageRoute(
-          //        builder: (newContext) => AddCategoryPage2(
-          //          onSubmit: (name, budget, categoryType) {
-          //            switch (categoryType) {
-          //              case CategoryType.income:
-          //                context
-          //                    .read<IncomeCategoryListState>()
-          //                    .addCategory(name);
-          //                break;
-          //              case CategoryType.expense:
-          //                context
-          //                    .read<ExpenseCategoryListState>()
-          //                    .addCategory(name, budget);
-          //                break;
-          //            }
-          //            Navigator.pop(newContext);
-          //          },
-          //        ),
-          //      ),
-          //    );
-          //  },
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (newContext) => AddCategoryPage2(
+                  singleOrPair: context.read<SingleOrPair>(),
+                  userInfo: context.read<UserInfo>(),
+                ),
+              ),
+            );
+            await _reloadIncomeCategoryState(context);
+          },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -278,3 +268,9 @@ class _EditCategoryButton2 extends StatelessWidget {
     );
   }
 }
+
+Future<void> _reloadIncomeCategoryState(BuildContext context) =>
+    context.read<IncomeCategoryListState>().fetch(
+          singleOrPair: context.read<SingleOrPair>(),
+          userInfo: context.read<UserInfo>(),
+        );
