@@ -21,8 +21,8 @@ class PropertyListBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProxyProvider<SingleOrPair, PropertyListState2>(
-      create: (context) => PropertyListState2(),
+    return ChangeNotifierProxyProvider<SingleOrPair, PropertyListState>(
+      create: (context) => PropertyListState(),
       update: (context, singleOrPair, state) {
         return state!
           ..fetch(
@@ -40,7 +40,7 @@ class _PageContents extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<PropertyListState2>();
+    final state = context.watch<PropertyListState>();
 
     if (state.hasFailure) {
       return Center(
@@ -213,7 +213,7 @@ class _AddPropertyButton extends StatelessWidget {
 }
 
 Future<void> _reloadState(BuildContext context) =>
-    context.read<PropertyListState2>().fetch(
+    context.read<PropertyListState>().fetch(
           singleOrPair: context.read<SingleOrPair>(),
           userInfo: context.read<UserInfo>(),
         );

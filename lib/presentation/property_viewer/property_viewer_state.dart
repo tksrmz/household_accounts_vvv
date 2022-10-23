@@ -9,7 +9,7 @@ import '../../util/type/single_or_pair.dart';
 import '../util/model/user_info.dart';
 import '../util/repository_selector.dart';
 
-class PropertyListState2 with ChangeNotifier {
+class PropertyListState with ChangeNotifier {
   // States
   List<Property> _properties = [];
   bool _isLoading = false;
@@ -28,7 +28,7 @@ class PropertyListState2 with ChangeNotifier {
     required SingleOrPair singleOrPair,
     required UserInfo userInfo,
   }) async {
-    print('$PropertyListState2#$fetch(${singleOrPair.name}, $userInfo)');
+    print('$PropertyListState#$fetch(${singleOrPair.name}, $userInfo)');
     _isLoading = true;
     _failure = null;
     notifyListeners();
@@ -42,13 +42,12 @@ class PropertyListState2 with ChangeNotifier {
     );
     failureOrProperties.fold(
       (failure) {
-        print(
-            '$PropertyListState2#$fetch: retrieve use case failed. $_failure');
+        print('$PropertyListState#$fetch: retrieve use case failed. $_failure');
         _failure = failure;
         _properties = [];
       },
       (props) {
-        print('$PropertyListState2#$fetch: retrieve use case succeeded.');
+        print('$PropertyListState#$fetch: retrieve use case succeeded.');
         _properties = props;
       },
     );
