@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../util/type/single_or_pair.dart';
+import '../category_viewer/category_viewer_page.dart';
 import '../property_viewer/property_viewer_page.dart';
 import '../util/model/user_info.dart';
 import 'app_bar.dart';
@@ -18,7 +19,7 @@ class _MainPageState extends State<MainPage> {
   final _titles = [
     'index 0',
     'index 1',
-    'index 2',
+    'Category',
     'Property',
   ];
   SingleOrPair _singleOrPair = SingleOrPair.single;
@@ -28,6 +29,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final bodies =
         _titles.map<Widget>((title) => _PageBody(text: title)).toList();
+    bodies[2] = CategoryListPage2();
     bodies[3] = PropertyListBody();
 
     return Scaffold(
@@ -54,7 +56,7 @@ class _MainPageState extends State<MainPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.cable_sharp),
-            label: 'c',
+            label: 'Category',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.access_alarms),

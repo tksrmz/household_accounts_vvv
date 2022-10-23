@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:household_accounts/util/service_locator/service_locator.dart';
 import 'package:household_accounts/entity/category_entity.dart';
-import 'package:household_accounts/feature/category_register/category_register_use_case.dart';
-import 'package:household_accounts/feature/category_deletion/delete_category_use_case.dart';
-import 'package:household_accounts/feature/category_retrieve/retrieve_categories_use_case.dart';
-import 'package:household_accounts/feature/category_editing/update_category_use_case.dart';
 import 'package:household_accounts/presentation/category_viewer/category_viewer_state.dart';
 import 'package:household_accounts/presentation/common_widget/delete_icon_button.dart';
 import 'package:provider/provider.dart';
 
-import '../category_editor/add_category_page.dart';
-import '../category_editor/edit_category_page.dart';
+import '../../util/type/single_or_pair.dart';
+import '../common_widget/failure.dart';
+import '../common_widget/loading.dart';
+import '../util/model/user_info.dart';
 
 class CategoryListPage2 extends StatelessWidget {
   const CategoryListPage2({Key? key}) : super(key: key);
@@ -19,21 +16,25 @@ class CategoryListPage2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (context) => IncomeCategoryListState(
-            sl<RetrieveIncomeCategoriesUseCase>(),
-            sl<DeleteIncomeCategoryUseCase>(),
-            sl<AddCategoryUseCase2>(),
-            sl<UpdateIncomeCategoryUseCase>(),
-          )..loadState(),
+        ChangeNotifierProxyProvider<SingleOrPair, IncomeCategoryListState>(
+          create: (context) => IncomeCategoryListState(),
+          update: (context, singleOrPair, state) {
+            return state!
+              ..fetch(
+                singleOrPair: singleOrPair,
+                userInfo: context.read<UserInfo>(),
+              );
+          },
         ),
-        ChangeNotifierProvider(
-          create: (context) => ExpenseCategoryListState(
-            sl<RetrieveExpenseCategoriesUseCase>(),
-            sl<DeleteExpenseCategoryUseCase>(),
-            sl<AddCategoryUseCase2>(),
-            sl<UpdateExpenseCategoryUseCase>(),
-          )..loadState(),
+        ChangeNotifierProxyProvider<SingleOrPair, ExpenseCategoryListState>(
+          create: (context) => ExpenseCategoryListState(),
+          update: (context, singleOrPair, state) {
+            return state!
+              ..fetch(
+                singleOrPair: singleOrPair,
+                userInfo: context.read<UserInfo>(),
+              );
+          },
         ),
       ],
       child: _PageContent2(),
@@ -61,30 +62,31 @@ class _PageContent2 extends StatelessWidget {
           ),
         ),
         OutlinedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (newContext) => AddCategoryPage2(
-                  onSubmit: (name, budget, categoryType) {
-                    switch (categoryType) {
-                      case CategoryType.income:
-                        context
-                            .read<IncomeCategoryListState>()
-                            .addCategory(name);
-                        break;
-                      case CategoryType.expense:
-                        context
-                            .read<ExpenseCategoryListState>()
-                            .addCategory(name, budget);
-                        break;
-                    }
-                    Navigator.pop(newContext);
-                  },
-                ),
-              ),
-            );
-          },
+          onPressed: null,
+          //  onPressed: () {
+          //    Navigator.push(
+          //      context,
+          //      MaterialPageRoute(
+          //        builder: (newContext) => AddCategoryPage2(
+          //          onSubmit: (name, budget, categoryType) {
+          //            switch (categoryType) {
+          //              case CategoryType.income:
+          //                context
+          //                    .read<IncomeCategoryListState>()
+          //                    .addCategory(name);
+          //                break;
+          //              case CategoryType.expense:
+          //                context
+          //                    .read<ExpenseCategoryListState>()
+          //                    .addCategory(name, budget);
+          //                break;
+          //            }
+          //            Navigator.pop(newContext);
+          //          },
+          //        ),
+          //      ),
+          //    );
+          //  },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -122,23 +124,11 @@ class _IncomeCategoryList extends StatelessWidget {
     final state = context.watch<IncomeCategoryListState>();
 
     if (state.hasFailure) {
-      return Text(state.failure!.toString());
+      return FailureDisplayWidget(failure: state.failure!);
     }
 
     if (state.isLoading) {
-      return Column(
-        children: [
-          const SizedBox(
-            width: 60,
-            height: 60,
-            child: CircularProgressIndicator(),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(top: 16),
-            child: Text('Awaiting result...'),
-          )
-        ],
-      );
+      return LoadingWidget();
     }
 
     return state.categories.isEmpty
@@ -174,9 +164,9 @@ class _IncomeCategoryListItem extends StatelessWidget {
         _EditCategoryButton2(originalData: _incomeCategory),
         DeleteIconButton(
           onPressed: () {
-            context.read<IncomeCategoryListState>().deleteCategory(
-                  _incomeCategory.id,
-                );
+            // context.read<IncomeCategoryListState>().deleteCategory(
+            //       _incomeCategory.id,
+            //     );
           },
         ),
       ],
@@ -192,23 +182,11 @@ class _ExpenseCategoryList extends StatelessWidget {
     final state = context.watch<ExpenseCategoryListState>();
 
     if (state.hasFailure) {
-      return Text(state.failure!.toString());
+      return FailureDisplayWidget(failure: state.failure!);
     }
 
     if (state.isLoading) {
-      return Column(
-        children: [
-          const SizedBox(
-            width: 60,
-            height: 60,
-            child: CircularProgressIndicator(),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(top: 16),
-            child: Text('Awaiting result...'),
-          )
-        ],
-      );
+      return LoadingWidget();
     }
 
     return state.categories.isEmpty
@@ -246,9 +224,9 @@ class _ExpenseCategoryListItem extends StatelessWidget {
         _EditCategoryButton2(originalData: _expenseCategory),
         DeleteIconButton(
           onPressed: () {
-            context
-                .read<ExpenseCategoryListState>()
-                .deleteCategory(_expenseCategory.id);
+            // context
+            //     .read<ExpenseCategoryListState>()
+            //     .deleteCategory(_expenseCategory.id);
           },
         ),
       ],
@@ -269,32 +247,32 @@ class _EditCategoryButton2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (newContext) => EditCategoryPage2(
-              originalData: _originalData,
-              onSubmit: (name, budget, categoryType) {
-                switch (categoryType) {
-                  case CategoryType.income:
-                    context.read<IncomeCategoryListState>().updateCategory(
-                          _originalData as IncomeCategory,
-                          name,
-                        );
-                    break;
-                  case CategoryType.expense:
-                    context.read<ExpenseCategoryListState>().updateCategory(
-                          _originalData as ExpenseCategory,
-                          name,
-                          budget,
-                        );
-                    break;
-                }
-                Navigator.pop(newContext);
-              },
-            ),
-          ),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (newContext) => EditCategoryPage2(
+        //       originalData: _originalData,
+        //       onSubmit: (name, budget, categoryType) {
+        //         switch (categoryType) {
+        //           case CategoryType.income:
+        //             context.read<IncomeCategoryListState>().updateCategory(
+        //                   _originalData as IncomeCategory,
+        //                   name,
+        //                 );
+        //             break;
+        //           case CategoryType.expense:
+        //             context.read<ExpenseCategoryListState>().updateCategory(
+        //                   _originalData as ExpenseCategory,
+        //                   name,
+        //                   budget,
+        //                 );
+        //             break;
+        //         }
+        //         Navigator.pop(newContext);
+        //       },
+        //     ),
+        //   ),
+        // );
       },
       icon: const Icon(Icons.edit),
     );
