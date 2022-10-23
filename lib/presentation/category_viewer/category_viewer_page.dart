@@ -4,6 +4,7 @@ import 'package:household_accounts/presentation/category_viewer/category_viewer_
 import 'package:household_accounts/presentation/common_widget/delete_icon_button.dart';
 import 'package:provider/provider.dart';
 
+import '../../feature/category_deletion/delete_expense_category_use_case.dart';
 import '../../feature/category_deletion/delete_income_category_use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/single_or_pair.dart';
@@ -11,6 +12,7 @@ import '../category_editor/add_category_page.dart';
 import '../common_widget/failure.dart';
 import '../common_widget/loading.dart';
 import '../util/model/user_info.dart';
+import '../util/repository_selector.dart';
 
 class CategoryListPage2 extends StatelessWidget {
   const CategoryListPage2({Key? key}) : super(key: key);
@@ -153,13 +155,32 @@ class _IncomeCategoryListItem extends StatelessWidget {
         Spacer(),
         _EditCategoryButton2(originalData: _incomeCategory),
         DeleteIconButton(
-          onPressed: () {
-            // context.read<IncomeCategoryListState>().deleteCategory(
-            //       _incomeCategory.id,
-            //     );
-          },
+          onPressed: () => _deleteIncomeCategory(context),
         ),
       ],
+    );
+  }
+
+  Future<void> _deleteIncomeCategory(BuildContext context) async {
+    final input = _generateInput(context);
+    final delete = sl<DeleteIncomeCategoryUseCase>();
+    final result = await delete(input);
+    result.fold(
+      (exception) => _showExceptionDialog(
+        context,
+        'Deleting Income Category Failed',
+        exception,
+      ),
+      (_) => _reloadIncomeCategoryState(context),
+    );
+  }
+
+  DeleteIncomeCategoryInput _generateInput(BuildContext context) {
+    final sop = context.read<SingleOrPair>();
+    return DeleteIncomeCategoryInput(
+      repository: selectIncomeCategoryRepository(sop),
+      uid: context.read<UserInfo>().repoId(sop),
+      categoryId: _incomeCategory.id,
     );
   }
 }
@@ -213,13 +234,32 @@ class _ExpenseCategoryListItem extends StatelessWidget {
         Spacer(),
         _EditCategoryButton2(originalData: _expenseCategory),
         DeleteIconButton(
-          onPressed: () {
-            // context
-            //     .read<ExpenseCategoryListState>()
-            //     .deleteCategory(_expenseCategory.id);
-          },
+          onPressed: () => _deleteExpenseCategory(context),
         ),
       ],
+    );
+  }
+
+  Future<void> _deleteExpenseCategory(BuildContext context) async {
+    final input = _generateInput(context);
+    final delete = sl<DeleteExpenseCategoryUseCase>();
+    final result = await delete(input);
+    result.fold(
+      (exception) => _showExceptionDialog(
+        context,
+        'Deleting Expense Category Failed',
+        exception,
+      ),
+      (_) => _reloadExpenseCategoryState(context),
+    );
+  }
+
+  DeleteExpenseCategoryInput _generateInput(BuildContext context) {
+    final sop = context.read<SingleOrPair>();
+    return DeleteExpenseCategoryInput(
+      repository: selectExpenseCategoryRepository(sop),
+      uid: context.read<UserInfo>().repoId(sop),
+      categoryId: _expenseCategory.id,
     );
   }
 }
@@ -274,3 +314,28 @@ Future<void> _reloadIncomeCategoryState(BuildContext context) =>
           singleOrPair: context.read<SingleOrPair>(),
           userInfo: context.read<UserInfo>(),
         );
+
+Future<void> _reloadExpenseCategoryState(BuildContext context) =>
+    context.read<ExpenseCategoryListState>().fetch(
+          singleOrPair: context.read<SingleOrPair>(),
+          userInfo: context.read<UserInfo>(),
+        );
+
+Future<void> _showExceptionDialog(
+  BuildContext context,
+  String title,
+  Exception exception,
+) =>
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text('$exception'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
