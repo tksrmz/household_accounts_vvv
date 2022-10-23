@@ -42,4 +42,7 @@ class RetrievePropertiesInput {
     required this.uid,
     required this.repository,
   });
+
+  @override
+  String toString() => '$RetrievePropertiesInput($uid, $repository)';
 }

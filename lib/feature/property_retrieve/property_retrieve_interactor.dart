@@ -32,6 +32,7 @@ class RetrieveSharedPropertiesInteractor
 class RetrievePropertiesInteractor implements RetrievePropertiesUseCase {
   @override
   Future<ExceptionOr<List<Property>>> call(RetrievePropertiesInput input) {
+    print('$RetrievePropertiesInteractor($input)');
     final repository = input.repository;
     return repository.retrieveAll(repoId: input.uid);
   }
