@@ -9,6 +9,7 @@ import '../../feature/category_deletion/delete_income_category_use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/single_or_pair.dart';
 import '../category_editor/add_category_page.dart';
+import '../category_editor/edit_category_page.dart';
 import '../common_widget/failure.dart';
 import '../common_widget/loading.dart';
 import '../util/model/user_info.dart';
@@ -277,32 +278,16 @@ class _EditCategoryButton2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (newContext) => EditCategoryPage2(
-        //       originalData: _originalData,
-        //       onSubmit: (name, budget, categoryType) {
-        //         switch (categoryType) {
-        //           case CategoryType.income:
-        //             context.read<IncomeCategoryListState>().updateCategory(
-        //                   _originalData as IncomeCategory,
-        //                   name,
-        //                 );
-        //             break;
-        //           case CategoryType.expense:
-        //             context.read<ExpenseCategoryListState>().updateCategory(
-        //                   _originalData as ExpenseCategory,
-        //                   name,
-        //                   budget,
-        //                 );
-        //             break;
-        //         }
-        //         Navigator.pop(newContext);
-        //       },
-        //     ),
-        //   ),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (newContext) => EditCategoryPage2(
+              originalData: _originalData,
+              singleOrPair: context.read<SingleOrPair>(),
+              userInfo: context.read<UserInfo>(),
+            ),
+          ),
+        );
       },
       icon: const Icon(Icons.edit),
     );
