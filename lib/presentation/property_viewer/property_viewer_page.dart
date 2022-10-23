@@ -1,33 +1,35 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:household_accounts/entity/property_entity.dart';
-import 'package:household_accounts/feature/property_deletion/delete_property_use_case.dart';
-import 'package:household_accounts/feature/property_editing/update_property_use_case.dart';
-import 'package:household_accounts/feature/property_register/property_register_use_case.dart';
-import 'package:household_accounts/feature/property_retrieve/property_retrieve_use_case.dart';
-import 'package:household_accounts/presentation/common_widget/delete_icon_button.dart';
-import 'package:household_accounts/presentation/common_widget/failure.dart';
-import 'package:household_accounts/presentation/common_widget/loading.dart';
-import 'package:household_accounts/presentation/property_viewer/property_viewer_state.dart';
-import 'package:household_accounts/util/service_locator/service_locator.dart';
 import 'package:provider/provider.dart';
 
+import '../../entity/property_entity.dart';
+import '../../feature/property_deletion/delete_property_use_case.dart';
+import '../../util/service_locator/main.dart';
+import '../../util/type/single_or_pair.dart';
+import '../common_widget/delete_icon_button.dart';
+import '../common_widget/failure.dart';
+import '../common_widget/loading.dart';
 import '../property_editor/add_property_page.dart';
 import '../property_editor/edit_property_page.dart';
+import '../util/model/user_info.dart';
+import '../util/repository_selector.dart';
+import 'property_viewer_state.dart';
 
-class PropertyListPage extends StatelessWidget {
-  const PropertyListPage({Key? key}) : super(key: key);
+class PropertyListBody extends StatelessWidget {
+  const PropertyListBody({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (ctx) => PropertyListState(
-        sl<RetrievePersonalPropertiesUseCase>(),
-        sl<AddPersonalPropertyUseCase>(),
-        sl<UpdatePersonalPropertyUseCase>(),
-        sl<DeletePersonalPropertyUseCase>(),
-      )..loadProperties(),
+    return ChangeNotifierProxyProvider<SingleOrPair, PropertyListState2>(
+      create: (context) => PropertyListState2(),
+      update: (context, singleOrPair, state) {
+        return state!
+          ..fetch(
+            singleOrPair: singleOrPair,
+            userInfo: context.read<UserInfo>(),
+          );
+      },
       child: _PageContents(),
     );
   }
@@ -38,7 +40,7 @@ class _PageContents extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<PropertyListState>();
+    final state = context.watch<PropertyListState2>();
 
     if (state.hasFailure) {
       return Center(
@@ -86,8 +88,10 @@ class _PropertyListView extends StatelessWidget {
 class _PropertyListItem extends StatelessWidget {
   final Property _property;
 
-  const _PropertyListItem({required Property property, Key? key})
-      : _property = property,
+  const _PropertyListItem({
+    required Property property,
+    Key? key,
+  })  : _property = property,
         super(key: key);
 
   @override
@@ -95,24 +99,58 @@ class _PropertyListItem extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _property.name,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(_property.amount.toString()),
-          ],
-        ),
+        _propertyInfo(),
         Spacer(),
         _EditPropertyButton(propertyId: _property.id),
         DeleteIconButton(
-          onPressed: () {
-            context.read<PropertyListState>().deleteProperty(_property.id);
-          },
+          onPressed: () => _deleteProperty(context),
         ),
       ],
+    );
+  }
+
+  Widget _propertyInfo() => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _property.name,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(_property.amount.toString()),
+        ],
+      );
+
+  Future<void> _deleteProperty(BuildContext context) async {
+    final input = _generateInput(context);
+    final delete = sl<DeletePropertyUseCase>();
+    final result = await delete(input);
+    result.fold(
+      (exception) => _showDialog(context, exception),
+      (_) => _reloadState(context),
+    );
+  }
+
+  Future<void> _showDialog(BuildContext context, Exception exception) =>
+      showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Deleting Property Failed'),
+          content: Text('$exception'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+
+  DeletePropertyInput _generateInput(BuildContext context) {
+    final sop = context.read<SingleOrPair>();
+    return DeletePropertyInput(
+      propertyId: _property.id,
+      repository: selectPropertyRepository(sop),
+      uid: context.read<UserInfo>().repoId(sop),
     );
   }
 }
@@ -127,16 +165,18 @@ class _EditPropertyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      onPressed: () {
-        Navigator.push(
+      onPressed: () async {
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (newContext) => EditPropertyPage(
-              state: context.read<PropertyListState>(),
               targetPropertyId: _propertyId,
+              singleOrPair: context.read<SingleOrPair>(),
+              userInfo: context.read<UserInfo>(),
             ),
           ),
         );
+        _reloadState(context);
       },
       icon: const Icon(Icons.edit),
     );
@@ -149,15 +189,17 @@ class _AddPropertyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      onPressed: () {
-        Navigator.push(
+      onPressed: () async {
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (newContext) => AddPropertyPage(
-              state: context.read<PropertyListState>(),
+              singleOrPair: context.read<SingleOrPair>(),
+              userInfo: context.read<UserInfo>(),
             ),
           ),
         );
+        _reloadState(context);
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -169,3 +211,9 @@ class _AddPropertyButton extends StatelessWidget {
     );
   }
 }
+
+Future<void> _reloadState(BuildContext context) =>
+    context.read<PropertyListState2>().fetch(
+          singleOrPair: context.read<SingleOrPair>(),
+          userInfo: context.read<UserInfo>(),
+        );

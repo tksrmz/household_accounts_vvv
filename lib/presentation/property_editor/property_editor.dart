@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/property_entity.dart';
 
 typedef PropertyNameAndAmountHandler = void Function(
-    TextEditingController, TextEditingController);
+  TextEditingController,
+  TextEditingController,
+);
 
 class PropertyEditor extends StatefulWidget {
   final PropertyNameAndAmountHandler _onPressed;

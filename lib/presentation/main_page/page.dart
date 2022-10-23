@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../util/type/single_or_pair.dart';
-// import '../property_viewer/property_viewer_page.dart';
+import '../property_viewer/property_viewer_page.dart';
 import '../util/model/user_info.dart';
 import 'app_bar.dart';
 import 'drawer.dart';
@@ -28,7 +28,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final bodies =
         _titles.map<Widget>((title) => _PageBody(text: title)).toList();
-    // bodies[3] = PropertyListPage();
+    bodies[3] = PropertyListBody();
 
     return Scaffold(
       appBar: MainPageAppBar(
