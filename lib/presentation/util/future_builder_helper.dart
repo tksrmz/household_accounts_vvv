@@ -24,11 +24,13 @@ class FutureBuilderHelper<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (snapshot.hasData) {
+    final hasConnected = snapshot.connectionState == ConnectionState.done;
+
+    if (hasConnected && snapshot.hasData) {
       return onSuccess(context, snapshot.requireData);
     }
 
-    if (snapshot.hasError) {
+    if (hasConnected && snapshot.hasError) {
       return onError(context, snapshot.error!);
     }
 

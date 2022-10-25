@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../util/type/single_or_pair.dart';
 import '../category_viewer/category_viewer_page.dart';
+import '../monthly_record_viewer/monthly_record_viewer_page.dart';
 import '../property_viewer/property_viewer_page.dart';
 import '../util/model/user_info.dart';
 import 'app_bar.dart';
@@ -18,7 +19,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final _titles = [
     'index 0',
-    'index 1',
+    'Calendar',
     'Category',
     'Property',
   ];
@@ -29,6 +30,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final bodies =
         _titles.map<Widget>((title) => _PageBody(text: title)).toList();
+    bodies[1] = CalendarRecordViewPage2();
     bodies[2] = CategoryListPage2();
     bodies[3] = PropertyListBody();
 
@@ -52,7 +54,7 @@ class _MainPageState extends State<MainPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.back_hand),
-            label: 'b',
+            label: 'Calendar',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.cable_sharp),

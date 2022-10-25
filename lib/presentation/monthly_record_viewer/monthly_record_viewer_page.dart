@@ -1,138 +1,312 @@
 import 'package:flutter/material.dart';
-import 'package:household_accounts/entity/record_entity.dart';
-import 'package:household_accounts/feature/record_deletion/delete_record_use_case.dart';
-import 'package:household_accounts/presentation/monthly_record_viewer/monthly_record_viewer_state.dart';
-import 'package:household_accounts/presentation/daily_record_viewer/daily_record_viewer_state.dart';
-import 'package:household_accounts/feature/record_retrieve/retrieve_daily_records_use_case.dart';
-import 'package:household_accounts/feature/record_retrieve/retrieve_monthly_records_use_case.dart';
-import 'package:household_accounts/util/service_locator/service_locator.dart';
-import 'package:household_accounts/feature/category_retrieve/retrieve_categories_use_case.dart';
 import 'package:provider/provider.dart';
 
-class CalendarRecordViewPage2 extends StatelessWidget {
-  CalendarRecordViewPage2({Key? key}) : super(key: key);
+import '../../entity/record_entity.dart';
+import '../../util/type/exception_or.dart';
+import '../../util/type/single_or_pair.dart';
+import '../util/date.dart';
+import '../util/future_builder_helper.dart';
+import '../util/model/user_info.dart';
+import '../util/use_case_wrapper/fetch_records.dart';
+
+class CalendarRecordViewPage2 extends StatefulWidget {
+  const CalendarRecordViewPage2({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (ctx) => CalendarRecordModel(sl<RetrieveMonthlyRecordsUseCase>())
-        ..loadRecords(),
-      child: _Page(),
-    );
-  }
+  State<CalendarRecordViewPage2> createState() =>
+      _CalendarRecordViewPage2State();
 }
 
-class _Page extends StatelessWidget {
-  const _Page({Key? key}) : super(key: key);
+class _CalendarRecordViewPage2State extends State<CalendarRecordViewPage2> {
+  late int _year;
+  late int _month;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final now = DateTime.now();
+    _year = now.year;
+    _month = now.month;
+  }
 
   @override
   Widget build(BuildContext context) {
-    bool isLoading =
-        context.select<CalendarRecordModel, bool>((model) => model.isLoading);
+    final increment = () => _updateMonthBy(1);
+    final decrement = () => _updateMonthBy(-1);
 
     return ListView(
       children: [
-        _DateLabelWidget2(),
-        const _WeekdayWidget(),
-        isLoading ? const Text('loading') : _CalenderView()
+        _DateLabelWidget2(
+          year: _year,
+          month: _month,
+          onLeftArrowPressed: decrement,
+          onRightArrowPressed: increment,
+          disableRightArrow: isCurrentMonth(_year, _month),
+        ),
+        _CalendarRecordView(
+          year: _year,
+          month: _month,
+          singleOrPair: context.watch<SingleOrPair>(),
+        ),
       ],
     );
   }
-}
 
-class _CalenderView extends StatelessWidget {
-  const _CalenderView({Key? key}) : super(key: key);
-
-  // Widget _buildDayWidget
-
-  @override
-  Widget build(BuildContext context) {
-    final model = context.watch<CalendarRecordModel>();
-
-    return _Calendar(
-      model.year,
-      model.month,
-      (int year, int month, int day) {
-        final summary = model.recordAt(day);
-
-        return Padding(
-          padding: EdgeInsets.all(4),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (newContext) => _DailyRecordMinute(year, month, day),
-                ),
-              );
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Center(
-                  child: Text('$day'),
-                ),
-                Text(
-                  '${summary.totalIncome}',
-                  style: TextStyle(color: Colors.green),
-                ),
-                Text(
-                  '${summary.totalExpense}',
-                  style: TextStyle(color: Colors.orange),
-                ),
-                Text(
-                  '${summary.totalTransfer}',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  void _updateMonthBy(int delta) {
+    final newDate = addMonths(_year, _month, delta);
+    final update = () {
+      _year = newDate.year;
+      _month = newDate.month;
+    };
+    setState(update);
   }
 }
 
 class _DateLabelWidget2 extends StatelessWidget {
-  const _DateLabelWidget2({Key? key}) : super(key: key);
+  const _DateLabelWidget2({
+    required int year,
+    required int month,
+    required VoidCallback onLeftArrowPressed,
+    required VoidCallback onRightArrowPressed,
+    bool disableLeftArrow = false,
+    bool disableRightArrow = false,
+    Key? key,
+  })  : _year = year,
+        _month = month,
+        _onLeftArrowPressed = onLeftArrowPressed,
+        _onRightArrowPressed = onRightArrowPressed,
+        _disableLeftArrow = disableLeftArrow,
+        _disableRightArrow = disableRightArrow,
+        super(key: key);
+
+  final int _year;
+  final int _month;
+  final VoidCallback _onLeftArrowPressed;
+  final VoidCallback _onRightArrowPressed;
+  final bool _disableLeftArrow;
+  final bool _disableRightArrow;
 
   @override
   Widget build(BuildContext context) {
-    final year =
-        context.select<CalendarRecordModel, int>((model) => model.year);
-    final month =
-        context.select<CalendarRecordModel, int>((model) => model.month);
-    final isCurrentMonth = DateUtils.isSameMonth(
-      DateTime(year, month),
-      DateTime.now(),
-    );
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         IconButton(
           icon: Icon(Icons.arrow_left),
-          onPressed: context.read<CalendarRecordModel>().decrementMonth,
+          onPressed: _disableLeftArrow ? null : _onLeftArrowPressed,
         ),
-        Text('$year/$month'),
+        Text('$_year/$_month'),
         IconButton(
           icon: Icon(Icons.arrow_right),
-          onPressed: isCurrentMonth
-              ? null
-              : context.read<CalendarRecordModel>().incrementMonth,
+          onPressed: _disableRightArrow ? null : _onRightArrowPressed,
         ),
       ],
     );
   }
 }
 
-class _WeekdayWidget extends StatelessWidget {
-  const _WeekdayWidget() : super();
+class _CalendarRecordView extends StatefulWidget {
+  const _CalendarRecordView({
+    required int year,
+    required int month,
+    required SingleOrPair singleOrPair,
+    Key? key,
+  })  : _year = year,
+        _month = month,
+        _singleOrPair = singleOrPair,
+        super(key: key);
+
+  final int _year;
+  final int _month;
+  final SingleOrPair _singleOrPair;
+
+  @override
+  State<_CalendarRecordView> createState() => _CalendarRecordViewState();
+}
+
+typedef _DailyRecordSummary = Map<String, List<int>>;
+
+class _CalendarRecordViewState extends State<_CalendarRecordView> {
+  late Future<_DailyRecordSummary> _summaryFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _setSummaryFutureState();
+  }
+
+  @override
+  void didUpdateWidget(_CalendarRecordView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _setSummaryFutureState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return FutureBuilder<_DailyRecordSummary>(
+      future: _summaryFuture,
+      builder: (_, snapshot) => FutureBuilderHelper<_DailyRecordSummary>(
+        snapshot: snapshot,
+        onSuccess: (_, summary) => buildCalendar(summary),
+      ),
+    );
+  }
+
+  _Calendar buildCalendar(_DailyRecordSummary summary) {
+    return _Calendar(
+      year: widget._year,
+      month: widget._month,
+      dayWidgetBuilder: (_, __, d) => buildCalendarDay(d, summary),
+    );
+  }
+
+  _CalendarDay buildCalendarDay(int day, _DailyRecordSummary summary) {
+    return _CalendarDay(
+      day: day,
+      income: summary["income"]![day - 1],
+      expense: summary["expense"]![day - 1],
+      transfer: summary["transfer"]![day - 1],
+    );
+  }
+
+  void _setSummaryFutureState() {
+    final year = widget._year;
+    final month = widget._month;
+    final sop = widget._singleOrPair;
+    final daysInMonth = DateUtils.getDaysInMonth(year, month);
+    final List<int> Function(ExceptionOr<List<Record>>) action =
+        (result) => result.fold<List<int>>(
+              (_) => List.filled(daysInMonth, 0),
+              (records) => _summarize(daysInMonth, records),
+            );
+    final repoId = context.read<UserInfo>().repoId(sop);
+    _summaryFuture = Future.wait<List<int>>(
+      [
+        fetchIncomeRecords(
+          year: year,
+          month: month,
+          sop: sop,
+          repoId: repoId,
+        ).then(action),
+        fetchExpenseRecords(
+          year: year,
+          month: month,
+          sop: sop,
+          repoId: repoId,
+        ).then(action),
+        fetchTransferRecords(
+          year: year,
+          month: month,
+          sop: sop,
+          repoId: repoId,
+        ).then(action),
+      ],
+    ).then(
+      (lists) => <String, List<int>>{
+        "income": lists[0],
+        "expense": lists[1],
+        "transfer": lists[2],
+      },
+    );
+  }
+
+  List<int> _summarize(int length, List<Record> records) => List.generate(
+        length,
+        (index) => records
+            .where((e) => e.recordDate.day == index + 1)
+            .fold<int>(0, (prev, e) => prev + e.amount),
+      );
+}
+
+class _CalendarDay extends StatelessWidget {
+  const _CalendarDay({
+    required int day,
+    required int income,
+    required int expense,
+    required int transfer,
+    Key? key,
+  })  : _day = day,
+        _income = income,
+        _expense = expense,
+        _transfer = transfer,
+        super(key: key);
+
+  final int _day;
+  final int _income;
+  final int _expense;
+  final int _transfer;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Scaffold(
+                body: Center(
+                  child: Text('hi'),
+                ),
+              ),
+            ),
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Center(child: Text('$_day')),
+            Text(
+              '$_income',
+              style: TextStyle(color: Colors.green),
+            ),
+            Text(
+              '$_expense',
+              style: TextStyle(color: Colors.orange),
+            ),
+            Text(
+              '$_transfer',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Calendar extends StatelessWidget {
+  const _Calendar({
+    required int year,
+    required int month,
+    required Widget Function(int, int, int) dayWidgetBuilder,
+    Key? key,
+  })  : _year = year,
+        _month = month,
+        _dayWidgetBuilder = dayWidgetBuilder,
+        super(key: key);
+
+  final int _year;
+  final int _month;
+  final Widget Function(int, int, int) _dayWidgetBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    final TableRow Function(List<int>) weekWidgetBuilder = (week) => TableRow(
+          children: week
+              .map<Widget>(
+                (day) => day == 0
+                    ? Container()
+                    : _dayWidgetBuilder(_year, _month, day),
+              )
+              .toList(growable: false),
+        );
+    final date = _createCalendar(_year, _month)
+        .map<TableRow>(weekWidgetBuilder)
+        .toList(growable: false);
+    final weekday = TableRow(
       children: const [
         Text("Mon"),
         Text("Tue"),
@@ -143,154 +317,33 @@ class _WeekdayWidget extends StatelessWidget {
         Text("Sun"),
       ],
     );
+
+    return Table(
+      children: [
+        weekday,
+        ...date,
+      ],
+    );
   }
-}
 
-class _Calendar extends StatelessWidget {
-  final int _year;
-  final int _month;
-  final Widget Function(int, int, int) _dayWidgetBuilder;
-
-  const _Calendar(this._year, this._month, this._dayWidgetBuilder, {Key? key})
-      : super(key: key);
-
-  List<List<int>> _createCalendar() {
+  List<List<int>> _createCalendar(int year, int month) {
     final calendar = [List<int>.filled(DateTime.daysPerWeek, 0)];
-
-    for (var day = 1; day <= DateUtils.getDaysInMonth(_year, _month); day++) {
-      var weekday = DateTime(_year, _month, day).weekday;
+    final fillCalendar = (int day) {
+      var weekday = DateTime(year, month, day).weekday;
       // DateTime.weekday is 1-origin, so subtracting one is needed to use it as an index of a list.
       calendar.last[weekday - 1] = day;
       if (weekday == DateTime.sunday) {
         calendar.add(List<int>.filled(DateTime.daysPerWeek, 0));
       }
-    }
+    };
+
+    final days = List.generate(
+      DateUtils.getDaysInMonth(year, month),
+      (i) => i + 1,
+      growable: false,
+    );
+    days.forEach(fillCalendar);
 
     return calendar;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final calendar = _createCalendar();
-
-    final TableRow Function(List<int>) weekWidgetBuilder = (week) => TableRow(
-          children: List<Widget>.of(
-            week.map(
-              (day) => day == 0
-                  ? Container()
-                  : _dayWidgetBuilder(_year, _month, day),
-            ),
-          ),
-        );
-
-    return Table(
-      children: List<TableRow>.of(
-        calendar.map(weekWidgetBuilder),
-      ),
-    );
-  }
-}
-
-class _DailyRecordMinute extends StatelessWidget {
-  final int _year;
-  final int _month;
-  final int _day;
-
-  const _DailyRecordMinute(this._year, this._month, this._day, {Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('$_year/$_month/$_day'),
-        ),
-        body: ChangeNotifierProvider(
-          create: (ctx) => DailyRecordModel(
-            sl<RetrieveDailyRecordsUseCase>(),
-            sl<DeleteRecordUseCaseNew>(),
-            sl<RetrieveIncomeCategoriesUseCase>(),
-            sl<RetrieveExpenseCategoriesUseCase>(),
-          )
-            ..loadRecords(_year, _month, _day)
-            ..loadCategories(),
-          child: _MinuteList(),
-        ));
-  }
-}
-
-class _MinuteList extends StatelessWidget {
-  const _MinuteList({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final model = context.watch<DailyRecordModel>();
-
-    if (model.isLoading) {
-      return const Text('loading');
-    }
-
-    final forEachAction =
-        (List<Widget> children, Record record) => children.add(
-              _MinuteItem(
-                record: record,
-                categoryName: model.categoryNameOf(record),
-              ),
-            );
-
-    final minutes = <Widget>[];
-    if (model.incomes.isNotEmpty) {
-      minutes.add(const Text('INCOMES'));
-      model.incomes.forEach(
-        (element) => forEachAction(minutes, element),
-      );
-    }
-    if (model.expenses.isNotEmpty) {
-      minutes.add(const Text('EXPENSES'));
-      model.expenses.forEach(
-        (element) => forEachAction(minutes, element),
-      );
-    }
-    if (model.transfer.isNotEmpty) {
-      minutes.add(const Text('TRANSFER'));
-      model.transfer.forEach(
-        (element) => forEachAction(minutes, element),
-      );
-    }
-    return minutes.isEmpty
-        ? Center(child: Text('No record'))
-        : Column(children: minutes);
-  }
-}
-
-class _MinuteItem extends StatelessWidget {
-  final Record _record;
-  final String _categoryName;
-
-  const _MinuteItem({
-    Key? key,
-    required Record record,
-    required String categoryName,
-  })  : _record = record,
-        _categoryName = categoryName,
-        super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text('${_record.note}@$_categoryName'),
-        ),
-        Text('${_record.amount} yen'),
-        OutlinedButton(
-          onPressed: () => context.read<DailyRecordModel>().deleteById(
-                _record.id,
-                _record.type,
-              ),
-          child: const Text('Delete'),
-        ),
-      ],
-    );
   }
 }
