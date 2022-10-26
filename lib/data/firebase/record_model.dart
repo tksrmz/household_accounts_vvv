@@ -219,7 +219,7 @@ class TransferRecordModel extends TransferRecord {
         ),
         _createdAt = json['createdAt'] as Timestamp,
         super(
-        json['id'] as String,
+          json['id'] as String,
           (json['date'] as Timestamp).toDate(),
           json['amount'] as int,
           json['note'] as String,

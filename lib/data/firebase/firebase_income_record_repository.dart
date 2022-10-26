@@ -85,7 +85,7 @@ abstract class _FirebaseIncomeRecordRepository
     final batch = FirebaseFirestore.instance.batch();
     batch.update(
       FirebaseFirestore.instance.doc(
-        '${getPersonalPropertyCollectionPath(repoId)}/${value.property.id}',
+        '${getPersonalPropertyCollectionPath(repoId)}/${value.propertyId}',
       ),
       {
         'amount': FieldValue.increment(value.amount),
