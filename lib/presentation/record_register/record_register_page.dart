@@ -9,7 +9,7 @@ import 'package:household_accounts/feature/property_retrieve/property_retrieve_u
 import 'package:household_accounts/feature/record_register/record_register_use_case.dart';
 import 'package:household_accounts/presentation/common_widget/number_text_form_field.dart';
 import 'package:household_accounts/util/extension/string.dart';
-import 'package:household_accounts/util/service_locator/service_locator.dart';
+import 'package:household_accounts/util/service_locator/main.dart';
 
 import '../../util/type/exception_or.dart';
 

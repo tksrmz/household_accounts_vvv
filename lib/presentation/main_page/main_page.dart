@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:household_accounts/util/service_locator/service_locator.dart';
+import 'package:household_accounts/util/service_locator/main.dart';
 import 'package:household_accounts/util/type/single_or_pair.dart';
 
 @immutable

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_use_case.dart';
 import 'package:household_accounts/presentation/common_widget/loading.dart';
 import 'package:household_accounts/util/extension/date-time.dart';
-import 'package:household_accounts/util/service_locator/service_locator.dart';
+import 'package:household_accounts/util/service_locator/main.dart';
 
 import '../../util/type/exception_or.dart';
 
