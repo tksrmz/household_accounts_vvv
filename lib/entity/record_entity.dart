@@ -42,16 +42,12 @@ abstract class Record extends Identifiable {
   }
 }
 
-abstract class _IncomeOrExpenseRecordBase extends Record {
-  final String categoryId;
-  final String propertyId;
-
-  _IncomeOrExpenseRecordBase(
+class IncomeRecord extends Record {
+  IncomeRecord(
     String id,
     DateTime recordDate,
     int amount,
     String note,
-    RecordType type,
     this.categoryId,
     this.propertyId,
   )   : assert(categoryId.isNotEmpty, 'Category ID is empty.'),
@@ -61,8 +57,11 @@ abstract class _IncomeOrExpenseRecordBase extends Record {
           recordDate,
           amount,
           note,
-          type,
+          RecordType.income,
         );
+
+  final String categoryId;
+  final String propertyId;
 
   @override
   List<Object> get props => super.props
@@ -70,42 +69,31 @@ abstract class _IncomeOrExpenseRecordBase extends Record {
     ..add(propertyId);
 }
 
-class IncomeRecord extends _IncomeOrExpenseRecordBase {
-  IncomeRecord(
-    String id,
-    DateTime recordDate,
-    int amount,
-    String note,
-    String categoryId,
-    String propertyId,
-  ) : super(
-          id,
-          recordDate,
-          amount,
-          note,
-          RecordType.income,
-          categoryId,
-          propertyId,
-        );
-}
-
-class ExpenseRecord extends _IncomeOrExpenseRecordBase {
+class ExpenseRecord extends Record {
   ExpenseRecord(
     String id,
     DateTime recordDate,
     int amount,
     String note,
-    String categoryId,
-    String propertyId,
-  ) : super(
+    this.categoryId,
+    this.propertyId,
+  )   : assert(categoryId.isNotEmpty, 'Category ID is empty.'),
+        assert(propertyId.isNotEmpty, 'Property ID is empty.'),
+        super(
           id,
           recordDate,
           amount,
           note,
           RecordType.expense,
-          categoryId,
-          propertyId,
         );
+
+  final String categoryId;
+  final String propertyId;
+
+  @override
+  List<Object> get props => super.props
+    ..add(categoryId)
+    ..add(propertyId);
 }
 
 class TransferRecord extends Record {
