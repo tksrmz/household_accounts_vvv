@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
 import '../../entity/record_entity.dart';
 import '../../feature/repository/record_repository.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/json.dart';
 import 'record_model.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
@@ -163,13 +165,10 @@ class _FirebaseTransferRecordRepository
 }
 
 final _fromFirestore = (
-  DocumentSnapshot<Map<String, dynamic>> snapshot,
+  DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
 ) =>
-    TransferRecordModel.fromIdAndJson(
-      id: snapshot.id,
-      json: snapshot.data()!,
-    );
+    TransferRecordModel.fromJson(snapshot.toJsonWithId());
 
 final _toFirestore = (
   TransferRecordModel value,

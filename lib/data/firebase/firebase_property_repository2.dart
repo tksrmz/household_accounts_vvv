@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
 import '../../entity/property_entity.dart';
 import '../../feature/repository/property_repository.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/json.dart';
 import '../../util/type/repository.dart';
 import 'firebase_repository.dart';
 import 'property_model.dart';
@@ -37,13 +39,10 @@ class FirebaseSharedPropertyRepository extends _FirebasePropertyRepository
 }
 
 final _fromFirestore = (
-  DocumentSnapshot<Map<String, dynamic>> snapshot,
+  DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
 ) =>
-    PropertyModel.fromIdAndJson(
-      snapshot.id,
-      snapshot.data()!,
-    );
+    PropertyModel.fromJson(snapshot.toJsonWithId());
 
 final _toFirestore = (
   PropertyModel value,

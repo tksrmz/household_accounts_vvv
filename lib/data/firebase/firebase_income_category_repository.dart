@@ -4,9 +4,11 @@ import 'package:dartz/dartz.dart';
 import '../../entity/category_entity.dart';
 import '../../feature/repository/category_repository.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/json.dart';
 import '../../util/type/repository.dart';
 import 'category_model.dart';
 import 'firebase_repository.dart';
+import 'util/document_snapshot.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
@@ -39,13 +41,10 @@ class FirebaseSharedIncomeCategoryRepository
 }
 
 final _fromFirestore = (
-  DocumentSnapshot<Map<String, dynamic>> snapshot,
+  DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
 ) =>
-    IncomeCategoryModel.fromIdAndJson(
-      snapshot.id,
-      snapshot.data()!,
-    );
+    IncomeCategoryModel.fromJson(snapshot.toJsonWithId());
 
 final _toFirestore = (
   IncomeCategoryModel value,

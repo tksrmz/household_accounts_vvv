@@ -1,5 +1,7 @@
 import 'package:household_accounts/entity/category_entity.dart';
 
+import '../../util/type/json.dart';
+
 class IncomeCategoryModel extends IncomeCategory {
   IncomeCategoryModel.fromIncomeCategory(IncomeCategory category)
       : super(
@@ -7,13 +9,13 @@ class IncomeCategoryModel extends IncomeCategory {
           name: category.name,
         );
 
-  IncomeCategoryModel.fromIdAndJson(String id, Map<String, Object?> json)
+  IncomeCategoryModel.fromJson(Json json)
       : super(
-          id: id,
+          id: json['id'] as String,
           name: json['name'] as String,
         );
 
-  Map<String, Object?> toJson() => {
+  Json toJson() => {
         'name': name,
         'type': type.toShortString(),
       };
@@ -27,14 +29,14 @@ class ExpenseCategoryModel extends ExpenseCategory {
           totalBudget: category.totalBudget,
         );
 
-  ExpenseCategoryModel.fromIdAndJson(String id, Map<String, Object?> json)
+  ExpenseCategoryModel.fromJson(Json json)
       : super(
-          id: id,
+          id: json['id'] as String,
           name: json['name'] as String,
           totalBudget: json['totalBudget'] as int,
         );
 
-  Map<String, Object?> toJson() => {
+  Json toJson() => {
         'name': name,
         'type': type.toShortString(),
         'totalBudget': totalBudget,

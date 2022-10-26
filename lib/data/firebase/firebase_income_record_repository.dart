@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
 import '../../entity/record_entity.dart';
 import '../../feature/repository/record_repository.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/json.dart';
 import 'record_model.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
@@ -83,7 +85,7 @@ abstract class _FirebaseIncomeRecordRepository
     final batch = FirebaseFirestore.instance.batch();
     batch.update(
       FirebaseFirestore.instance.doc(
-        '${getPersonalPropertyCollectionPath(repoId)}/${value.propertyId}',
+        '${getPersonalPropertyCollectionPath(repoId)}/${value.property.id}',
       ),
       {
         'amount': FieldValue.increment(value.amount),
@@ -153,13 +155,10 @@ abstract class _FirebaseIncomeRecordRepository
 }
 
 final _fromFirestore = (
-  DocumentSnapshot<Map<String, dynamic>> snapshot,
+  DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
 ) =>
-    IncomeRecordModel.fromIdAndJson(
-      id: snapshot.id,
-      json: snapshot.data()!,
-    );
+    IncomeRecordModel.fromJson(snapshot.toJsonWithId());
 
 final _toFirestore = (
   IncomeRecordModel value,
