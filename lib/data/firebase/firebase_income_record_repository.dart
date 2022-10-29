@@ -93,7 +93,7 @@ abstract class _FirebaseIncomeRecordRepository
     );
     batch.set(
       _builder(repoId).doc(value.id),
-      IncomeRecordModel.fromIncomeRecord(
+      IncomeRecordModel.fromEntity(
         record: value,
         categoryCollectionPath: getPersonalIncomeCategoryCollectionPath(repoId),
         propertyCollectionPath: getPersonalPropertyCollectionPath(repoId),
@@ -135,7 +135,8 @@ abstract class _FirebaseIncomeRecordRepository
           .then(
             (QuerySnapshot<IncomeRecordModel> querySnapshot) => List.of(
               querySnapshot.docs.map(
-                (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
+                (queryDocumentSnapshot) =>
+                    queryDocumentSnapshot.data().toEntity(),
               ),
             ),
           );

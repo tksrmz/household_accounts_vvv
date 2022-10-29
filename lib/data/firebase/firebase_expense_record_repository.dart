@@ -92,7 +92,7 @@ class _FirebaseExpenseRecordRepository extends RecordRepository<ExpenseRecord> {
     );
     batch.set(
       _builder(repoId).doc(value.id),
-      ExpenseRecordModel.fromExpenseRecord(
+      ExpenseRecordModel.fromEntity(
         record: value,
         categoryCollectionPath:
             getPersonalExpenseCategoryCollectionPath(repoId),
@@ -135,7 +135,8 @@ class _FirebaseExpenseRecordRepository extends RecordRepository<ExpenseRecord> {
           .then(
             (QuerySnapshot<ExpenseRecordModel> querySnapshot) => List.of(
               querySnapshot.docs.map(
-                (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
+                (queryDocumentSnapshot) =>
+                    queryDocumentSnapshot.data().toEntity(),
               ),
             ),
           );

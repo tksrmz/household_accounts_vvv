@@ -1,44 +1,52 @@
 import 'package:household_accounts/entity/category_entity.dart';
 
 import '../../util/type/json.dart';
+import 'data_model.dart';
 
-class IncomeCategoryModel extends IncomeCategory {
+class IncomeCategoryModel implements DataModel<IncomeCategory> {
   IncomeCategoryModel.fromIncomeCategory(IncomeCategory category)
-      : super(
-          id: category.id,
-          name: category.name,
-        );
+      : id = category.id,
+        name = category.name;
 
   IncomeCategoryModel.fromJson(Json json)
-      : super(
-          id: json['id'] as String,
-          name: json['name'] as String,
-        );
+      : id = json['id'] as String,
+        name = json['name'] as String;
+
+  final String id;
+  final String name;
+
+  IncomeCategory toEntity() => IncomeCategory(
+        id: id,
+        name: name,
+      );
 
   Json toJson() => {
         'name': name,
-        'type': type.toShortString(),
+        'type': 'income',
       };
 }
 
-class ExpenseCategoryModel extends ExpenseCategory {
+class ExpenseCategoryModel implements DataModel<ExpenseCategory> {
   ExpenseCategoryModel.fromExpenseCategory(ExpenseCategory category)
-      : super(
-          id: category.id,
-          name: category.name,
-          totalBudget: category.totalBudget,
-        );
+      : id = category.id,
+        name = category.name,
+        totalBudget = category.totalBudget;
 
   ExpenseCategoryModel.fromJson(Json json)
-      : super(
-          id: json['id'] as String,
-          name: json['name'] as String,
-          totalBudget: json['totalBudget'] as int,
-        );
+      : id = json['id'] as String,
+        name = json['name'] as String,
+        totalBudget = json['totalBudget'] as int;
+
+  final String id;
+  final String name;
+  final int totalBudget;
+
+  ExpenseCategory toEntity() =>
+      ExpenseCategory(id: id, name: name, totalBudget: totalBudget);
 
   Json toJson() => {
         'name': name,
-        'type': type.toShortString(),
+        'type': 'expense',
         'totalBudget': totalBudget,
       };
 }

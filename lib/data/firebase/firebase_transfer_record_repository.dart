@@ -104,7 +104,7 @@ class _FirebaseTransferRecordRepository
     );
     batch.set(
       _builder(repoId).doc(value.id),
-      TransferRecordModel.fromTransferRecord(
+      TransferRecordModel.fromEntity(
         record: value,
         propertyCollectionPath: getPersonalPropertyCollectionPath(repoId),
       ),
@@ -145,7 +145,8 @@ class _FirebaseTransferRecordRepository
           .then(
             (QuerySnapshot<TransferRecordModel> querySnapshot) => List.of(
               querySnapshot.docs.map(
-                (queryDocumentSnapshot) => queryDocumentSnapshot.data(),
+                (queryDocumentSnapshot) =>
+                    queryDocumentSnapshot.data().toEntity(),
               ),
             ),
           );

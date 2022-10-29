@@ -52,8 +52,7 @@ final _toFirestore = (
 
 class _FirebasePropertyRepository implements Repository2<Property> {
   final CollectionReferenceBuilder<PropertyModel> _collectionReferenceBuilder;
-  final _operation =
-      FirebaseRepositoryBasicOperation<Property, PropertyModel>();
+  final _firebase = FirebaseRepositoryBasicOperation<PropertyModel>();
 
   _FirebasePropertyRepository._(this._collectionReferenceBuilder);
 
@@ -62,53 +61,49 @@ class _FirebasePropertyRepository implements Repository2<Property> {
     required String repoId,
     required String id,
   }) =>
-      _operation.deleteById(
-        ref: _collectionReferenceBuilder(repoId),
-        id: id,
-      );
+      _firebase.delete(_collectionReferenceBuilder(repoId).doc(id));
 
   @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required Property value,
   }) =>
-      _operation.register(
-        ref: _collectionReferenceBuilder(repoId),
-        entity: value,
-        entityToModel: PropertyModel.fromProperty,
+      _firebase.register(
+        _collectionReferenceBuilder(repoId).doc(value.id),
+        PropertyModel.fromEntity(value),
       );
 
   @override
   Future<ExceptionOr<List<Property>>> retrieveAll({
     required String repoId,
-  }) =>
-      _operation.retrieveAll(
-        ref: _collectionReferenceBuilder(repoId),
-        sortKey: 'name',
-      );
+  }) async {
+    final exceptionOrModelList = await _firebase.retrieveAll(
+      _collectionReferenceBuilder(repoId),
+      'name',
+    );
+    final toProperties = (List<PropertyModel> list) =>
+        list.map<Property>((item) => item.toEntity()).toList();
+    return exceptionOrModelList.map(toProperties);
+  }
 
   @override
   Future<ExceptionOr<Property>> retrieveById({
     required String repoId,
     required String id,
-  }) =>
-      _operation.retrieveById(
-        ref: _collectionReferenceBuilder(repoId),
-        id: id,
-      );
+  }) async {
+    final docRef = _collectionReferenceBuilder(repoId).doc(id);
+    final exceptionOrModel = await _firebase.retrieve(docRef);
+    final toProperty = (PropertyModel model) => model.toEntity();
+    return exceptionOrModel.map(toProperty);
+  }
 
   @override
   Future<ExceptionOr<Unit>> update({
     required String repoId,
     required Property newValue,
-  }) {
-    final toJson =
-        (Property property) => PropertyModel.fromProperty(property).toJson();
-
-    return _operation.update(
-      ref: _collectionReferenceBuilder(repoId),
-      newValue: newValue,
-      entityToJson: toJson,
-    );
-  }
+  }) =>
+      _firebase.update(
+        _collectionReferenceBuilder(repoId).doc(newValue.id),
+        PropertyModel.fromEntity(newValue),
+      );
 }

@@ -3,8 +3,7 @@ import 'package:dartz/dartz.dart';
 
 import '../../util/type/exception.dart';
 import '../../util/type/exception_or.dart';
-import '../../util/type/identifiable.dart';
-import '../../util/type/json.dart';
+import 'data_model.dart';
 
 /// Basic firebase repository operation.
 ///
@@ -15,16 +14,10 @@ import '../../util/type/json.dart';
 /// - Read all records ([retrieveAll])
 /// - Update a record ([update])
 /// - Delete a record ([deleteById])
-///
-/// [E] is an entity class, and [M] is a model class of [E].
-class FirebaseRepositoryBasicOperation<E extends Identifiable, M extends E> {
-  Future<ExceptionOr<Unit>> register({
-    required CollectionReference<M> ref,
-    required E entity,
-    required M Function(E) entityToModel,
-  }) async {
+class FirebaseRepositoryBasicOperation<M extends DataModel> {
+  Future<ExceptionOr<Unit>> register(DocumentReference<M> ref, M value) async {
     try {
-      await ref.doc(entity.id).set(entityToModel(entity));
+      await ref.set(value);
     } on FirebaseException catch (e) {
       print(e);
       return Left(e);
@@ -33,13 +26,10 @@ class FirebaseRepositoryBasicOperation<E extends Identifiable, M extends E> {
     return Right(unit);
   }
 
-  Future<ExceptionOr<E>> retrieveById({
-    required CollectionReference<M> ref,
-    required String id,
-  }) async {
+  Future<ExceptionOr<M>> retrieve(DocumentReference<M> ref) async {
     final DocumentSnapshot<M> snapshot;
     try {
-      snapshot = await ref.doc(id).get();
+      snapshot = await ref.get();
     } on FirebaseException catch (e) {
       print(e);
       return Left(e);
@@ -48,7 +38,7 @@ class FirebaseRepositoryBasicOperation<E extends Identifiable, M extends E> {
     if (!snapshot.exists) {
       return Left(
         RepositoryException(
-          'Any records in the repository do not have ID $id',
+          'Any records in the repository do not have ID ${ref.id}',
         ),
       );
     }
@@ -56,10 +46,10 @@ class FirebaseRepositoryBasicOperation<E extends Identifiable, M extends E> {
     return Right(snapshot.data()!);
   }
 
-  Future<ExceptionOr<List<E>>> retrieveAll({
-    required CollectionReference<M> ref,
+  Future<ExceptionOr<List<M>>> retrieveAll(
+    CollectionReference<M> ref, [
     String? sortKey,
-  }) async {
+  ]) async {
     final QuerySnapshot<M> snapshot;
     try {
       snapshot = sortKey == null
@@ -70,23 +60,14 @@ class FirebaseRepositoryBasicOperation<E extends Identifiable, M extends E> {
       return Left(e);
     }
 
-    return Right(
-      List.of(
-        snapshot.docs.map(
-          (document) => document.data(),
-        ),
-      ),
-    );
+    final snapshotToData =
+        (QueryDocumentSnapshot<M> snapshot) => snapshot.data();
+    return Right(snapshot.docs.map(snapshotToData).toList());
   }
 
-  Future<ExceptionOr<Unit>> update({
-    required CollectionReference<M> ref,
-    required E newValue,
-    required Json Function(E) entityToJson,
-  }) async {
-    final newValueJson = entityToJson(newValue);
+  Future<ExceptionOr<Unit>> update(DocumentReference<M> ref, M value) async {
     try {
-      await ref.doc(newValue.id).update(newValueJson);
+      await ref.update(value.toJson());
     } on FirebaseException catch (e) {
       print(e);
       return Left(e);
@@ -95,12 +76,9 @@ class FirebaseRepositoryBasicOperation<E extends Identifiable, M extends E> {
     return Right(unit);
   }
 
-  Future<ExceptionOr<Unit>> deleteById({
-    required CollectionReference<M> ref,
-    required String id,
-  }) async {
+  Future<ExceptionOr<Unit>> delete(DocumentReference<M> ref) async {
     try {
-      await ref.doc(id).delete();
+      await ref.delete();
     } on FirebaseException catch (e) {
       print(e);
       return Left(e);

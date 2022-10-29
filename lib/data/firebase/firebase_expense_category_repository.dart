@@ -56,8 +56,7 @@ class _FirebaseExpenseCategoryRepository
     implements Repository2<ExpenseCategory> {
   final CollectionReferenceBuilder<ExpenseCategoryModel>
       _collectionReferenceBuilder;
-  final _operation =
-      FirebaseRepositoryBasicOperation<ExpenseCategory, ExpenseCategoryModel>();
+  final _firebase = FirebaseRepositoryBasicOperation<ExpenseCategoryModel>();
 
   _FirebaseExpenseCategoryRepository._(this._collectionReferenceBuilder);
 
@@ -66,53 +65,49 @@ class _FirebaseExpenseCategoryRepository
     required String repoId,
     required String id,
   }) =>
-      _operation.deleteById(
-        ref: _collectionReferenceBuilder(repoId),
-        id: id,
-      );
+      _firebase.delete(_collectionReferenceBuilder(repoId).doc(id));
 
   @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required ExpenseCategory value,
   }) =>
-      _operation.register(
-        ref: _collectionReferenceBuilder(repoId),
-        entity: value,
-        entityToModel: ExpenseCategoryModel.fromExpenseCategory,
+      _firebase.register(
+        _collectionReferenceBuilder(repoId).doc(value.id),
+        ExpenseCategoryModel.fromExpenseCategory(value),
       );
 
   @override
   Future<ExceptionOr<List<ExpenseCategory>>> retrieveAll({
     required String repoId,
-  }) =>
-      _operation.retrieveAll(
-        ref: _collectionReferenceBuilder(repoId),
-        sortKey: 'name',
-      );
+  }) async {
+    final exceptionOrModelList = await _firebase.retrieveAll(
+      _collectionReferenceBuilder(repoId),
+      'name',
+    );
+    final toCategories = (List<ExpenseCategoryModel> list) =>
+        list.map<ExpenseCategory>((item) => item.toEntity()).toList();
+    return exceptionOrModelList.map(toCategories);
+  }
 
   @override
   Future<ExceptionOr<ExpenseCategory>> retrieveById({
     required String repoId,
     required String id,
-  }) =>
-      _operation.retrieveById(
-        ref: _collectionReferenceBuilder(repoId),
-        id: id,
-      );
+  }) async {
+    final docRef = _collectionReferenceBuilder(repoId).doc(id);
+    final exceptionOrModel = await _firebase.retrieve(docRef);
+    final toEntity = (ExpenseCategoryModel model) => model.toEntity();
+    return exceptionOrModel.map(toEntity);
+  }
 
   @override
   Future<ExceptionOr<Unit>> update({
     required String repoId,
     required ExpenseCategory newValue,
-  }) {
-    final toJson = (ExpenseCategory expenseCategory) =>
-        ExpenseCategoryModel.fromExpenseCategory(expenseCategory).toJson();
-
-    return _operation.update(
-      ref: _collectionReferenceBuilder(repoId),
-      newValue: newValue,
-      entityToJson: toJson,
-    );
-  }
+  }) =>
+      _firebase.update(
+        _collectionReferenceBuilder(repoId).doc(newValue.id),
+        ExpenseCategoryModel.fromExpenseCategory(newValue),
+      );
 }
