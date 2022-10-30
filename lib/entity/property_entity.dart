@@ -6,7 +6,7 @@ class Property extends Identifiable {
   final String name;
   final int amount;
 
-  Property(String id, this.name, this.amount)
+  const Property(String id, this.name, this.amount)
       : assert(name.length > 0, 'Property name is empty string.'),
         assert(name.length <= Property.maxNameLength,
             'Property name is too long.'),
@@ -18,3 +18,9 @@ class Property extends Identifiable {
   @override
   List<Object> get props => [id, name, amount];
 }
+
+const deletedProperty = const Property(
+  'deleted-property',
+  '削除済み',
+  0,
+);

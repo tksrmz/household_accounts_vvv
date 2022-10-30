@@ -174,21 +174,12 @@ abstract class _FirebaseIncomeRecordRepository
     final snapshot = await ref.get();
     return snapshot.exists
         ? snapshot.data()!.toEntity()
-        : IncomeCategory(
-            id: 'deleted-income-category',
-            name: '削除済み',
-          );
+        : deletedIncomeCategory;
   }
 
   Future<Property> _getProperty(DocumentReference<PropertyModel> ref) async {
     final snapshot = await ref.get();
-    return snapshot.exists
-        ? snapshot.data()!.toEntity()
-        : Property(
-            'deleted-property',
-            '削除済み',
-            0,
-          );
+    return snapshot.exists ? snapshot.data()!.toEntity() : deletedProperty;
   }
 }
 

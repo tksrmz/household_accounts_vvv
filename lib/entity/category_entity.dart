@@ -4,18 +4,6 @@ import 'budget_entity.dart';
 
 enum CategoryType { income, expense }
 
-extension RecordTypeParsing on CategoryType {
-  String toShortString() => this.toString().split('.').last;
-
-  static CategoryType fromShortString(String str) {
-    if (str == CategoryType.expense.toShortString())
-      return CategoryType.expense;
-    if (str == CategoryType.income.toShortString()) return CategoryType.income;
-
-    throw 'Invalid short string of RecordType';
-  }
-}
-
 /// Base class for income and expense categories.
 abstract class Category2 extends Identifiable {
   /// Maximum characters in the name of a category.
@@ -67,6 +55,9 @@ class IncomeCategory extends Category2 {
       );
 }
 
+const deletedIncomeCategory =
+    const IncomeCategory(id: 'deleted-income-category', name: '削除済み');
+
 /// Category for expense records.
 ///
 /// A difference between this class and [IncomeCategory] is that
@@ -104,3 +95,9 @@ class ExpenseCategory extends Category2 {
         ..._budget.props,
       ];
 }
+
+final deletedExpenseCategory = ExpenseCategory(
+  id: 'deleted-expense-category',
+  name: '削除済み',
+  totalBudget: 0,
+);
