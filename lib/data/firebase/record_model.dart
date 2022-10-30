@@ -65,7 +65,6 @@ abstract class RecordModel extends DataModel<Record> {
         recordDate = entity.recordDate,
         amount = entity.amount,
         note = entity.note,
-        type = entity.type,
         createdAt = FieldValue.serverTimestamp();
 
   RecordModel.fromJson(Json json)
@@ -73,14 +72,12 @@ abstract class RecordModel extends DataModel<Record> {
         recordDate = (json['date'] as Timestamp).toDate(),
         amount = json['amount'] as int,
         note = json['note'] as String,
-        type = json['type'] as RecordType,
         createdAt = json['createdAt'] as Timestamp;
 
   final String id;
   final DateTime recordDate;
   final int amount;
   final String note;
-  final RecordType type;
   final dynamic createdAt; // type is [FieldValue] or [Timestamp]
 
   /// DO NOT call this method.
@@ -90,7 +87,6 @@ abstract class RecordModel extends DataModel<Record> {
 
   Json toJson() => {
         'date': recordDate,
-        'type': type.toShortString(),
         'amount': amount,
         'note': note,
         'createdAt': createdAt,
@@ -145,6 +141,7 @@ class IncomeRecordModel extends RecordModel {
       'category': {
         'ref': categoryRef,
       },
+      'type': 'income',
     });
 }
 
@@ -196,6 +193,7 @@ class ExpenseRecordModel extends RecordModel {
       'category': {
         'ref': categoryRef,
       },
+      'type': 'expense',
     });
 }
 
@@ -246,5 +244,6 @@ class TransferRecordModel extends RecordModel {
       'toProperty': {
         'ref': toPropertyRef,
       },
+      'type': 'transfer',
     });
 }
