@@ -98,7 +98,7 @@ class DailyRecordModel with ChangeNotifier {
     const categoryNameWhenFailed = 'Not found';
     if (record is IncomeRecord) {
       final index = _incomeCategories.indexWhere(
-        (category) => category.id == record.categoryId,
+        (category) => category.id == record.category.id,
       );
       return index >= 0
           ? _incomeCategories[index].name

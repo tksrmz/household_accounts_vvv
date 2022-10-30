@@ -1,5 +1,8 @@
 import 'package:household_accounts/util/type/identifiable.dart';
 
+import 'category_entity.dart';
+import 'property_entity.dart';
+
 enum RecordType { income, expense, transfer }
 
 extension RecordTypeParsing on RecordType {
@@ -48,11 +51,9 @@ class IncomeRecord extends Record {
     DateTime recordDate,
     int amount,
     String note,
-    this.categoryId,
-    this.propertyId,
-  )   : assert(categoryId.isNotEmpty, 'Category ID is empty.'),
-        assert(propertyId.isNotEmpty, 'Property ID is empty.'),
-        super(
+    this.category,
+    this.property,
+  ) : super(
           id,
           recordDate,
           amount,
@@ -60,13 +61,13 @@ class IncomeRecord extends Record {
           RecordType.income,
         );
 
-  final String categoryId;
-  final String propertyId;
+  final IncomeCategory category;
+  final Property property;
 
   @override
   List<Object> get props => super.props
-    ..add(categoryId)
-    ..add(propertyId);
+    ..add(category)
+    ..add(property);
 }
 
 class ExpenseRecord extends Record {

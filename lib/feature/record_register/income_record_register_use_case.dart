@@ -1,5 +1,7 @@
 import 'package:dartz/dartz.dart';
 
+import '../../entity/category_entity.dart';
+import '../../entity/property_entity.dart';
 import '../../entity/record_entity.dart';
 import '../../util/type/use_case.dart';
 import '../repository/record_repository.dart';
@@ -11,8 +13,8 @@ class AddIncomeRecordInput {
   final DateTime recordDate;
   final int amount;
   final String note;
-  final String categoryId;
-  final String propertyId;
+  final IncomeCategory category;
+  final Property property;
   final RecordRepository<IncomeRecord> repository;
 
   AddIncomeRecordInput({
@@ -20,8 +22,8 @@ class AddIncomeRecordInput {
     required this.recordDate,
     required this.amount,
     required this.note,
-    required this.categoryId,
-    required this.propertyId,
+    required this.category,
+    required this.property,
     required this.repository,
   });
 }

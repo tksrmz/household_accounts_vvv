@@ -2,10 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
+import '../../entity/category_entity.dart';
+import '../../entity/property_entity.dart';
 import '../../entity/record_entity.dart';
 import '../../feature/repository/record_repository.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/json.dart';
+import 'category_model.dart';
+import 'property_model.dart';
 import 'record_model.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
@@ -85,7 +89,7 @@ abstract class _FirebaseIncomeRecordRepository
     final batch = FirebaseFirestore.instance.batch();
     batch.update(
       FirebaseFirestore.instance.doc(
-        '${getPersonalPropertyCollectionPath(repoId)}/${value.propertyId}',
+        '${getPersonalPropertyCollectionPath(repoId)}/${value.property.id}',
       ),
       {
         'amount': FieldValue.increment(value.amount),
@@ -127,24 +131,22 @@ abstract class _FirebaseIncomeRecordRepository
       '$begin is after or at the same moment as $end',
     );
 
+    final QuerySnapshot<IncomeRecordModel> querySnapshot;
     try {
-      final List<IncomeRecord> incomeModels = await _builder(repoId)
+      querySnapshot = await _builder(repoId)
           .where('date', isGreaterThanOrEqualTo: begin)
           .where('date', isLessThan: end)
-          .get()
-          .then(
-            (QuerySnapshot<IncomeRecordModel> querySnapshot) => List.of(
-              querySnapshot.docs.map(
-                (queryDocumentSnapshot) =>
-                    queryDocumentSnapshot.data().toEntity(),
-              ),
-            ),
-          );
-      return Right([...incomeModels]);
+          .get();
     } on FirebaseException catch (e) {
       print(e);
       return Left(e);
     }
+
+    final toModel =
+        (QueryDocumentSnapshot<IncomeRecordModel> snapshot) => snapshot.data();
+    final models = querySnapshot.docs.map(toModel);
+    final entityList = await Future.wait(models.map(_toFutureEntity));
+    return Right(entityList);
   }
 
   @override
@@ -152,6 +154,41 @@ abstract class _FirebaseIncomeRecordRepository
       {required String repoId, required IncomeRecord newValue}) {
     // TODO: implement update
     throw UnimplementedError();
+  }
+
+  Future<IncomeRecord> _toFutureEntity(IncomeRecordModel model) async {
+    final category = await _getCategory(model.categoryRef);
+    final property = await _getProperty(model.propertyRef);
+    return IncomeRecord(
+      model.id,
+      model.recordDate,
+      model.amount,
+      model.note,
+      category,
+      property,
+    );
+  }
+
+  Future<IncomeCategory> _getCategory(
+      DocumentReference<IncomeCategoryModel> ref) async {
+    final snapshot = await ref.get();
+    return snapshot.exists
+        ? snapshot.data()!.toEntity()
+        : IncomeCategory(
+            id: 'deleted-income-category',
+            name: '削除済み',
+          );
+  }
+
+  Future<Property> _getProperty(DocumentReference<PropertyModel> ref) async {
+    final snapshot = await ref.get();
+    return snapshot.exists
+        ? snapshot.data()!.toEntity()
+        : Property(
+            'deleted-property',
+            '削除済み',
+            0,
+          );
   }
 }
 
