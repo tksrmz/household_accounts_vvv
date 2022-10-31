@@ -6,6 +6,7 @@ import '../../entity/category_entity.dart';
 import '../../entity/property_entity.dart';
 import '../../entity/record_entity.dart';
 import '../../feature/repository/record_repository.dart';
+import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/json.dart';
 import 'category_model.dart';
@@ -86,23 +87,26 @@ abstract class _FirebaseIncomeRecordRepository
     required String repoId,
     required IncomeRecord value,
   }) async {
-    final batch = FirebaseFirestore.instance.batch();
-    batch.update(
-      FirebaseFirestore.instance.doc(
-        '${getPersonalPropertyCollectionPath(repoId)}/${value.property.id}',
-      ),
-      {
-        'amount': FieldValue.increment(value.amount),
-      },
-    );
-    batch.set(
-      _builder(repoId).doc(value.id),
-      IncomeRecordModel.fromEntity(
-        record: value,
-        categoryCollectionPath: getPersonalIncomeCategoryCollectionPath(repoId),
-        propertyCollectionPath: getPersonalPropertyCollectionPath(repoId),
-      ),
-    );
+    final ownerDocument = _builder(repoId).parent!;
+    final propertyCollection =
+        ownerDocument.collection(FIREBASE_COLLECTION_PROPERTIES);
+    final categoryCollection =
+        ownerDocument.collection(FIREBASE_COLLECTION_INCOME_CATEGORIES);
+    final batch = FirebaseFirestore.instance.batch()
+      ..update(
+        propertyCollection.doc(value.property.id),
+        {
+          'amount': FieldValue.increment(value.amount),
+        },
+      )
+      ..set(
+        _builder(repoId).doc(value.id),
+        IncomeRecordModel.fromEntity(
+          record: value,
+          categoryCollectionPath: categoryCollection.path,
+          propertyCollectionPath: propertyCollection.path,
+        ),
+      );
 
     try {
       await batch.commit();
