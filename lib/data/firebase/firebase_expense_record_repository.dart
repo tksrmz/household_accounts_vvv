@@ -77,7 +77,7 @@ class _FirebaseExpenseRecordRepository extends RecordRepository<ExpenseRecord> {
   }
 
   @override
-  Future<ExceptionOr<Unit>> register({
+d  Future<ExceptionOr<Unit>> register({
     required String repoId,
     required ExpenseRecord value,
   }) async {

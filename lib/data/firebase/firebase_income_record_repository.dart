@@ -3,15 +3,14 @@ import 'package:dartz/dartz.dart';
 import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
 import '../../entity/category_entity.dart';
-import '../../entity/property_entity.dart';
 import '../../entity/record_entity.dart';
 import '../../feature/repository/record_repository.dart';
 import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/json.dart';
 import 'category_model.dart';
-import 'property_model.dart';
 import 'record_model.dart';
+import 'util/get_entity.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
@@ -162,7 +161,7 @@ abstract class _FirebaseIncomeRecordRepository
 
   Future<IncomeRecord> _toFutureEntity(IncomeRecordModel model) async {
     final category = await _getCategory(model.categoryRef);
-    final property = await _getProperty(model.propertyRef);
+    final property = await getPropertyOrDeletedProperty(model.propertyRef);
     return IncomeRecord(
       model.id,
       model.recordDate,
@@ -179,11 +178,6 @@ abstract class _FirebaseIncomeRecordRepository
     return snapshot.exists
         ? snapshot.data()!.toEntity()
         : deletedIncomeCategory;
-  }
-
-  Future<Property> _getProperty(DocumentReference<PropertyModel> ref) async {
-    final snapshot = await ref.get();
-    return snapshot.exists ? snapshot.data()!.toEntity() : deletedProperty;
   }
 }
 
