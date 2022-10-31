@@ -146,11 +146,11 @@ class ExpenseRecordModel extends RecordModel {
     required String categoryCollectionPath,
     required String propertyCollectionPath,
   })  : categoryRef = _createExpenseCategoryDocumentReference(
-          categoryId: record.categoryId,
+          categoryId: record.category.id,
           categoryCollectionPath: categoryCollectionPath,
         ),
         propertyRef = _createPropertyDocumentReference(
-          propertyId: record.propertyId,
+          propertyId: record.property.id,
           propertyCollectionPath: propertyCollectionPath,
         ),
         super.fromEntity(record);
@@ -171,14 +171,9 @@ class ExpenseRecordModel extends RecordModel {
   final DocumentReference<ExpenseCategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
 
-  ExpenseRecord toEntity() => ExpenseRecord(
-        id,
-        recordDate,
-        amount,
-        note,
-        propertyRef.id,
-        categoryRef.id,
-      );
+  ExpenseRecord toEntity() {
+    throw UnsupportedError('This class contains DocumentReference');
+  }
 
   Json toJson() => super.toJson()
     ..addAll({

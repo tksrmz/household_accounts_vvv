@@ -17,8 +17,8 @@ class AddExpenseRecordInteractor implements AddExpenseRecordUseCase {
       input.recordDate,
       input.amount,
       input.note,
-      input.categoryId,
-      input.propertyId,
+      input.category,
+      input.property,
     );
     return repository.register(
       repoId: input.uid,

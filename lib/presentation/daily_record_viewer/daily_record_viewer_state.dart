@@ -106,7 +106,7 @@ class DailyRecordModel with ChangeNotifier {
     }
     if (record is ExpenseRecord) {
       final index = _expenseCategories.indexWhere(
-        (category) => category.id == record.categoryId,
+        (category) => category.id == record.category.id,
       );
       return index >= 0
           ? _expenseCategories[index].name

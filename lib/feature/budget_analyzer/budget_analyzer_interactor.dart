@@ -2,8 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:household_accounts/entity/category_entity.dart';
 import 'package:household_accounts/entity/record_entity.dart';
 import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_use_case.dart';
-import 'package:household_accounts/feature/repository/category_repository.dart';
-import 'package:household_accounts/feature/repository/record_repository.dart';
 
 import '../../util/type/exception_or.dart';
 
@@ -42,10 +40,10 @@ class RetrieveBudgetStateInteractor extends RetrieveBudgetStateUseCase {
       for (var v in categories) v.id: 0
     };
     records.forEach((record) {
-      final current = categoryIdToSpentAmount[record.categoryId];
-      assert(current != null, '${record.categoryId}');
+      final current = categoryIdToSpentAmount[record.category.id];
+      assert(current != null, '${record.category.id}');
       final updated = current! + record.amount;
-      categoryIdToSpentAmount[record.categoryId] = updated;
+      categoryIdToSpentAmount[record.category.id] = updated;
     });
 
     final List<BudgetState> states = List.of(

@@ -76,11 +76,9 @@ class ExpenseRecord extends Record {
     DateTime recordDate,
     int amount,
     String note,
-    this.categoryId,
-    this.propertyId,
-  )   : assert(categoryId.isNotEmpty, 'Category ID is empty.'),
-        assert(propertyId.isNotEmpty, 'Property ID is empty.'),
-        super(
+    this.category,
+    this.property,
+  ) : super(
           id,
           recordDate,
           amount,
@@ -88,13 +86,13 @@ class ExpenseRecord extends Record {
           RecordType.expense,
         );
 
-  final String categoryId;
-  final String propertyId;
+  final ExpenseCategory category;
+  final Property property;
 
   @override
   List<Object> get props => super.props
-    ..add(categoryId)
-    ..add(propertyId);
+    ..add(category)
+    ..add(property);
 }
 
 class TransferRecord extends Record {

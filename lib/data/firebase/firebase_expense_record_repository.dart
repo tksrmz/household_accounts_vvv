@@ -2,11 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
+import '../../entity/category_entity.dart';
 import '../../entity/record_entity.dart';
 import '../../feature/repository/record_repository.dart';
+import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/json.dart';
+import 'category_model.dart';
 import 'record_model.dart';
+import 'util/get_entity.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
@@ -38,7 +42,8 @@ class FirebaseSharedExpenseRecordRepository
         );
 }
 
-class _FirebaseExpenseRecordRepository extends RecordRepository<ExpenseRecord> {
+abstract class _FirebaseExpenseRecordRepository
+    extends RecordRepository<ExpenseRecord> {
   final CollectionReferenceBuilder<ExpenseRecordModel> _builder;
 
   _FirebaseExpenseRecordRepository(this._builder);
@@ -77,28 +82,30 @@ class _FirebaseExpenseRecordRepository extends RecordRepository<ExpenseRecord> {
   }
 
   @override
-d  Future<ExceptionOr<Unit>> register({
+  Future<ExceptionOr<Unit>> register({
     required String repoId,
     required ExpenseRecord value,
   }) async {
-    final batch = FirebaseFirestore.instance.batch();
-    batch.update(
-      FirebaseFirestore.instance.doc(
-        '${getPersonalPropertyCollectionPath(repoId)}/${value.propertyId}',
-      ),
-      {
-        'amount': FieldValue.increment(-value.amount),
-      },
-    );
-    batch.set(
-      _builder(repoId).doc(value.id),
-      ExpenseRecordModel.fromEntity(
-        record: value,
-        categoryCollectionPath:
-            getPersonalExpenseCategoryCollectionPath(repoId),
-        propertyCollectionPath: getPersonalPropertyCollectionPath(repoId),
-      ),
-    );
+    final ownerDocument = _builder(repoId).parent!;
+    final propertyCollection =
+        ownerDocument.collection(FIREBASE_COLLECTION_PROPERTIES);
+    final categoryCollection =
+        ownerDocument.collection(FIREBASE_COLLECTION_EXPENSE_CATEGORIES);
+    final batch = FirebaseFirestore.instance.batch()
+      ..update(
+        propertyCollection.doc(value.property.id),
+        {
+          'amount': FieldValue.increment(-value.amount),
+        },
+      )
+      ..set(
+        _builder(repoId).doc(value.id),
+        ExpenseRecordModel.fromEntity(
+          record: value,
+          categoryCollectionPath: categoryCollection.path,
+          propertyCollectionPath: propertyCollection.path,
+        ),
+      );
 
     try {
       await batch.commit();
@@ -127,24 +134,20 @@ d  Future<ExceptionOr<Unit>> register({
       '$begin is after or at the same moment as $end',
     );
 
+    final QuerySnapshot<ExpenseRecordModel> querySnapshot;
     try {
-      final List<ExpenseRecord> models = await _builder(repoId)
+      querySnapshot = await _builder(repoId)
           .where('date', isGreaterThanOrEqualTo: begin)
           .where('date', isLessThan: end)
-          .get()
-          .then(
-            (QuerySnapshot<ExpenseRecordModel> querySnapshot) => List.of(
-              querySnapshot.docs.map(
-                (queryDocumentSnapshot) =>
-                    queryDocumentSnapshot.data().toEntity(),
-              ),
-            ),
-          );
-      return Right([...models]);
+          .get();
     } on FirebaseException catch (e) {
       print(e);
       return Left(e);
     }
+
+    final models = querySnapshot.docs.map((snapshot) => snapshot.data());
+    final entityList = await Future.wait(models.map(_toFutureEntity));
+    return Right(entityList);
   }
 
   @override
@@ -152,6 +155,28 @@ d  Future<ExceptionOr<Unit>> register({
       {required String repoId, required ExpenseRecord newValue}) {
     // TODO: implement update
     throw UnimplementedError();
+  }
+
+  Future<ExpenseRecord> _toFutureEntity(ExpenseRecordModel model) async {
+    final category = await _getCategory(model.categoryRef);
+    final property = await getPropertyOrDeletedProperty(model.propertyRef);
+    return ExpenseRecord(
+      model.id,
+      model.recordDate,
+      model.amount,
+      model.note,
+      category,
+      property,
+    );
+  }
+
+  Future<ExpenseCategory> _getCategory(
+    DocumentReference<ExpenseCategoryModel> ref,
+  ) async {
+    final snapshot = await ref.get();
+    return snapshot.exists
+        ? snapshot.data()!.toEntity()
+        : deletedExpenseCategory;
   }
 }
 
