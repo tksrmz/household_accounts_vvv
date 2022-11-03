@@ -192,11 +192,11 @@ class TransferRecordModel extends RecordModel {
     required TransferRecord record,
     required String propertyCollectionPath,
   })  : fromPropertyRef = _createPropertyDocumentReference(
-          propertyId: record.srcPropertyId,
+          propertyId: record.source.id,
           propertyCollectionPath: propertyCollectionPath,
         ),
         toPropertyRef = _createPropertyDocumentReference(
-          propertyId: record.destPropertyId,
+          propertyId: record.destination.id,
           propertyCollectionPath: propertyCollectionPath,
         ),
         super.fromEntity(record);
@@ -217,14 +217,9 @@ class TransferRecordModel extends RecordModel {
   final DocumentReference<PropertyModel> fromPropertyRef;
   final DocumentReference<PropertyModel> toPropertyRef;
 
-  TransferRecord toEntity() => TransferRecord(
-        id,
-        recordDate,
-        amount,
-        note,
-        fromPropertyRef.id,
-        toPropertyRef.id,
-      );
+  ExpenseRecord toEntity() {
+    throw UnsupportedError('This class contains DocumentReference');
+  }
 
   Json toJson() => super.toJson()
     ..addAll({

@@ -96,19 +96,14 @@ class ExpenseRecord extends Record {
 }
 
 class TransferRecord extends Record {
-  final String srcPropertyId;
-  final String destPropertyId;
-
   TransferRecord(
     String id,
     DateTime recordDate,
     int amount,
     String note,
-    this.srcPropertyId,
-    this.destPropertyId,
-  )   : assert(srcPropertyId.isNotEmpty, 'Source property ID is empty.'),
-        assert(destPropertyId.isNotEmpty, 'Destination property ID is empty.'),
-        super(
+    this.source,
+    this.destination,
+  ) : super(
           id,
           recordDate,
           amount,
@@ -116,8 +111,11 @@ class TransferRecord extends Record {
           RecordType.transfer,
         );
 
+  final Property source;
+  final Property destination;
+
   @override
   List<Object> get props => super.props
-    ..add(srcPropertyId)
-    ..add(destPropertyId);
+    ..add(source)
+    ..add(destination);
 }

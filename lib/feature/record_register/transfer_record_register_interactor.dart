@@ -17,8 +17,8 @@ class AddTransferRecordInteractor implements AddTransferRecordUseCase {
       input.recordDate,
       input.amount,
       input.note,
-      input.srcPropertyId,
-      input.destPropertyId,
+      input.source,
+      input.destination,
     );
     return repository.register(
       repoId: input.uid,

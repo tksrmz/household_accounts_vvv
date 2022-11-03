@@ -4,9 +4,11 @@ import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
 import '../../entity/record_entity.dart';
 import '../../feature/repository/record_repository.dart';
+import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/json.dart';
 import 'record_model.dart';
+import 'util/get_entity.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
@@ -87,21 +89,22 @@ class _FirebaseTransferRecordRepository
     required String repoId,
     required TransferRecord value,
   }) async {
-    final batch = FirebaseFirestore.instance.batch();
-    batch.update(
-      FirebaseFirestore.instance.doc(
-          '${getPersonalPropertyCollectionPath(repoId)}/${value.srcPropertyId}'),
-      {
-        'amount': FieldValue.increment(-value.amount),
-      },
-    );
-    batch.update(
-      FirebaseFirestore.instance.doc(
-          '${getPersonalPropertyCollectionPath(repoId)}/${value.destPropertyId}'),
-      {
-        'amount': FieldValue.increment(value.amount),
-      },
-    );
+    final ownerDocument = _builder(repoId).parent!;
+    final propertyCollection =
+        ownerDocument.collection(FIREBASE_COLLECTION_PROPERTIES);
+    final batch = FirebaseFirestore.instance.batch()
+      ..update(
+        propertyCollection.doc(value.source.id),
+        {
+          'amount': FieldValue.increment(-value.amount),
+        },
+      )
+      ..update(
+        propertyCollection.doc(value.destination.id),
+        {
+          'amount': FieldValue.increment(value.amount),
+        },
+      );
     batch.set(
       _builder(repoId).doc(value.id),
       TransferRecordModel.fromEntity(
@@ -137,24 +140,20 @@ class _FirebaseTransferRecordRepository
       '$begin is after or at the same moment as $end',
     );
 
+    final QuerySnapshot<TransferRecordModel> querySnapshot;
     try {
-      final List<TransferRecord> models = await _builder(repoId)
+      querySnapshot = await _builder(repoId)
           .where('date', isGreaterThanOrEqualTo: begin)
           .where('date', isLessThan: end)
-          .get()
-          .then(
-            (QuerySnapshot<TransferRecordModel> querySnapshot) => List.of(
-              querySnapshot.docs.map(
-                (queryDocumentSnapshot) =>
-                    queryDocumentSnapshot.data().toEntity(),
-              ),
-            ),
-          );
-      return Right([...models]);
+          .get();
     } on FirebaseException catch (e) {
       print(e);
       return Left(e);
     }
+
+    final models = querySnapshot.docs.map((snapshot) => snapshot.data());
+    final entityList = await Future.wait(models.map(_toFutureEntity));
+    return Right(entityList);
   }
 
   @override
@@ -162,6 +161,19 @@ class _FirebaseTransferRecordRepository
       {required String repoId, required TransferRecord newValue}) {
     // TODO: implement update
     throw UnimplementedError();
+  }
+
+  Future<TransferRecord> _toFutureEntity(TransferRecordModel model) async {
+    final source = await getPropertyOrDeletedProperty(model.fromPropertyRef);
+    final destination = await getPropertyOrDeletedProperty(model.toPropertyRef);
+    return TransferRecord(
+      model.id,
+      model.recordDate,
+      model.amount,
+      model.note,
+      source,
+      destination,
+    );
   }
 }
 
