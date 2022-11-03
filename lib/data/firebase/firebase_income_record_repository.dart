@@ -2,15 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
-import '../../entity/category_entity.dart';
 import '../../entity/record_entity.dart';
 import '../../feature/repository/record_repository.dart';
 import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/json.dart';
-import 'category_model.dart';
 import 'record_model.dart';
-import 'util/get_entity.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
@@ -148,7 +145,8 @@ abstract class _FirebaseIncomeRecordRepository
     final toModel =
         (QueryDocumentSnapshot<IncomeRecordModel> snapshot) => snapshot.data();
     final models = querySnapshot.docs.map(toModel);
-    final entityList = await Future.wait(models.map(_toFutureEntity));
+    final toEntityAsync = (IncomeRecordModel model) => model.toEntityAsync();
+    final entityList = await Future.wait(models.map(toEntityAsync));
     return Right(entityList);
   }
 
@@ -157,27 +155,6 @@ abstract class _FirebaseIncomeRecordRepository
       {required String repoId, required IncomeRecord newValue}) {
     // TODO: implement update
     throw UnimplementedError();
-  }
-
-  Future<IncomeRecord> _toFutureEntity(IncomeRecordModel model) async {
-    final category = await _getCategory(model.categoryRef);
-    final property = await getPropertyOrDeletedProperty(model.propertyRef);
-    return IncomeRecord(
-      model.id,
-      model.recordDate,
-      model.amount,
-      model.note,
-      category,
-      property,
-    );
-  }
-
-  Future<IncomeCategory> _getCategory(
-      DocumentReference<IncomeCategoryModel> ref) async {
-    final snapshot = await ref.get();
-    return snapshot.exists
-        ? snapshot.data()!.toEntity()
-        : deletedIncomeCategory;
   }
 }
 

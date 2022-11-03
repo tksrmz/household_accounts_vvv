@@ -8,7 +8,6 @@ import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/json.dart';
 import 'record_model.dart';
-import 'util/get_entity.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
@@ -151,8 +150,11 @@ class _FirebaseTransferRecordRepository
       return Left(e);
     }
 
-    final models = querySnapshot.docs.map((snapshot) => snapshot.data());
-    final entityList = await Future.wait(models.map(_toFutureEntity));
+    final toModel = (QueryDocumentSnapshot<TransferRecordModel> snapshot) =>
+        snapshot.data();
+    final models = querySnapshot.docs.map(toModel);
+    final toEntityAsync = (TransferRecordModel model) => model.toEntityAsync();
+    final entityList = await Future.wait(models.map(toEntityAsync));
     return Right(entityList);
   }
 
@@ -161,19 +163,6 @@ class _FirebaseTransferRecordRepository
       {required String repoId, required TransferRecord newValue}) {
     // TODO: implement update
     throw UnimplementedError();
-  }
-
-  Future<TransferRecord> _toFutureEntity(TransferRecordModel model) async {
-    final source = await getPropertyOrDeletedProperty(model.fromPropertyRef);
-    final destination = await getPropertyOrDeletedProperty(model.toPropertyRef);
-    return TransferRecord(
-      model.id,
-      model.recordDate,
-      model.amount,
-      model.note,
-      source,
-      destination,
-    );
   }
 }
 

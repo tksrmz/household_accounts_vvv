@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/entity/record_entity.dart';
 
+import '../../entity/category_entity.dart';
 import '../../util/type/json.dart';
 import 'category_model.dart';
 import 'data_model.dart';
 import 'property_model.dart';
 import 'util/document_snapshot.dart';
+import 'util/get_entity.dart';
 
 final FromFirestore<IncomeCategoryModel> _incomeCategoryModelFromFirestore =
     (snapshot, _) => IncomeCategoryModel.fromJson(snapshot.toJsonWithId());
@@ -125,7 +127,31 @@ class IncomeRecordModel extends RecordModel {
   final DocumentReference<PropertyModel> propertyRef;
 
   IncomeRecord toEntity() {
-    throw UnsupportedError('This class contains DocumentReference');
+    throw UnsupportedError(
+      'This class contains DocumentReference. Use [toEntityAsync] instead.',
+    );
+  }
+
+  Future<IncomeRecord> toEntityAsync() async {
+    final category = await _getCategory(categoryRef);
+    final property = await getPropertyOrDeletedProperty(propertyRef);
+    return IncomeRecord(
+      id,
+      recordDate,
+      amount,
+      note,
+      category,
+      property,
+    );
+  }
+
+  Future<IncomeCategory> _getCategory(
+    DocumentReference<IncomeCategoryModel> ref,
+  ) async {
+    final snapshot = await ref.get();
+    return snapshot.exists
+        ? snapshot.data()!.toEntity()
+        : deletedIncomeCategory;
   }
 
   Json toJson() => super.toJson()
@@ -172,7 +198,31 @@ class ExpenseRecordModel extends RecordModel {
   final DocumentReference<PropertyModel> propertyRef;
 
   ExpenseRecord toEntity() {
-    throw UnsupportedError('This class contains DocumentReference');
+    throw UnsupportedError(
+      'This class contains DocumentReference. Use [toEntityAsync] instead.',
+    );
+  }
+
+  Future<ExpenseRecord> toEntityAsync() async {
+    final category = await _getCategory(categoryRef);
+    final property = await getPropertyOrDeletedProperty(propertyRef);
+    return ExpenseRecord(
+      id,
+      recordDate,
+      amount,
+      note,
+      category,
+      property,
+    );
+  }
+
+  Future<ExpenseCategory> _getCategory(
+    DocumentReference<ExpenseCategoryModel> ref,
+  ) async {
+    final snapshot = await ref.get();
+    return snapshot.exists
+        ? snapshot.data()!.toEntity()
+        : deletedExpenseCategory;
   }
 
   Json toJson() => super.toJson()
@@ -218,7 +268,21 @@ class TransferRecordModel extends RecordModel {
   final DocumentReference<PropertyModel> toPropertyRef;
 
   ExpenseRecord toEntity() {
-    throw UnsupportedError('This class contains DocumentReference');
+    throw UnsupportedError(
+        'This class contains DocumentReference. Use [toEntityAsync] instead.');
+  }
+
+  Future<TransferRecord> toEntityAsync() async {
+    final source = await getPropertyOrDeletedProperty(fromPropertyRef);
+    final destination = await getPropertyOrDeletedProperty(toPropertyRef);
+    return TransferRecord(
+      id,
+      recordDate,
+      amount,
+      note,
+      source,
+      destination,
+    );
   }
 
   Json toJson() => super.toJson()
