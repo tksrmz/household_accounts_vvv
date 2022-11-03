@@ -4,7 +4,6 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/category_entity.dart';
 import 'package:household_accounts/entity/record_entity.dart';
-import 'package:household_accounts/feature/category_retrieve/retrieve_categories_use_case.dart';
 import 'package:household_accounts/feature/record_deletion/delete_record_use_case.dart';
 import 'package:household_accounts/feature/record_retrieve/retrieve_daily_records_use_case.dart';
 
