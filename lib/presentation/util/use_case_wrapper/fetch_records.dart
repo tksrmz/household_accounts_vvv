@@ -49,10 +49,11 @@ Future<ExceptionOr<List<TransferRecord>>> fetchTransferRecords({
   required String repoId,
 }) {
   final fetch = sl<RetrieveRecordsUseCase<TransferRecord>>();
-  final input = RetrieveRecordsInput.month(
+  final input = RetrieveRecordsInput.day(
     uid: repoId,
     year: year,
     month: month,
+    day: day,
     repository: selectTransferRecordRepository(sop),
   );
   return fetch(input);
