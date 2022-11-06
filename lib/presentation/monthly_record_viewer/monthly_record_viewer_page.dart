@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../entity/record_entity.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/single_or_pair.dart';
+import '../daily_record_viewer/daily_record_viewer_page.dart';
 import '../util/date.dart';
 import '../util/future_builder_helper.dart';
 import '../util/model/user_info.dart';
@@ -157,12 +158,19 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
     return _Calendar(
       year: widget._year,
       month: widget._month,
-      dayWidgetBuilder: (_, __, d) => buildCalendarDay(d, summary),
+      dayWidgetBuilder: (y, m, d) => buildCalendarDay(y, m, d, summary),
     );
   }
 
-  _CalendarDay buildCalendarDay(int day, _DailyRecordSummary summary) {
+  _CalendarDay buildCalendarDay(
+    int year,
+    int month,
+    int day,
+    _DailyRecordSummary summary,
+  ) {
     return _CalendarDay(
+      year: year,
+      month: month,
       day: day,
       income: summary["income"]![day - 1],
       expense: summary["expense"]![day - 1],
@@ -221,17 +229,23 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
 
 class _CalendarDay extends StatelessWidget {
   const _CalendarDay({
+    required int year,
+    required int month,
     required int day,
     required int income,
     required int expense,
     required int transfer,
     Key? key,
-  })  : _day = day,
+  })  : _year = year,
+        _month = month,
+        _day = day,
         _income = income,
         _expense = expense,
         _transfer = transfer,
         super(key: key);
 
+  final int _year;
+  final int _month;
   final int _day;
   final int _income;
   final int _expense;
@@ -243,13 +257,17 @@ class _CalendarDay extends StatelessWidget {
       padding: const EdgeInsets.all(4.0),
       child: GestureDetector(
         onTap: () {
+          final sop = context.read<SingleOrPair>();
+          final repoId = context.read<UserInfo>().repoId(sop);
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Scaffold(
-                body: Center(
-                  child: Text('hi'),
-                ),
+              builder: (context) => DailyRecordMinute(
+                year: _year,
+                month: _month,
+                day: _day,
+                sop: sop,
+                repoId: repoId,
               ),
             ),
           );
