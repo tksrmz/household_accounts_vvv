@@ -21,28 +21,15 @@ class RetrieveRecordsInput<T extends Record> {
   /// Repository from which records are retrieved.
   final RecordRepository<T> repository;
 
-  /// Input to retrieve records in [year].
-  RetrieveRecordsInput.year({
-    required this.uid,
-    required this.year,
-    required this.repository,
-  })  : month = null,
-        day = null;
-
-  /// Input to retrieve records of [month] in [year].
-  RetrieveRecordsInput.month({
+  /// Input to retrieve records.
+  ///
+  /// If [day] is null, the use case will retrieve records in [month].
+  /// If not, it will retrieve records on [day].
+  RetrieveRecordsInput({
     required this.uid,
     required this.year,
     required this.month,
-    required this.repository,
-  }) : day = null;
-
-  /// Input to retrieve records on [day] of [month] in [year].
-  RetrieveRecordsInput.day({
-    required this.uid,
-    required this.year,
-    required this.month,
-    required this.day,
+    this.day,
     required this.repository,
   });
 }

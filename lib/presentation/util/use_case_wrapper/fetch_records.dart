@@ -13,7 +13,7 @@ Future<ExceptionOr<List<IncomeRecord>>> fetchIncomeRecords({
   required String repoId,
 }) async {
   final fetch = sl<RetrieveRecordsUseCase<IncomeRecord>>();
-  final input = RetrieveRecordsInput.day(
+  final input = RetrieveRecordsInput(
     uid: repoId,
     year: year,
     month: month,
@@ -31,7 +31,7 @@ Future<ExceptionOr<List<ExpenseRecord>>> fetchExpenseRecords({
   required String repoId,
 }) {
   final fetch = sl<RetrieveRecordsUseCase<ExpenseRecord>>();
-  final input = RetrieveRecordsInput.day(
+  final input = RetrieveRecordsInput(
     uid: repoId,
     year: year,
     month: month,
@@ -49,7 +49,7 @@ Future<ExceptionOr<List<TransferRecord>>> fetchTransferRecords({
   required String repoId,
 }) {
   final fetch = sl<RetrieveRecordsUseCase<TransferRecord>>();
-  final input = RetrieveRecordsInput.day(
+  final input = RetrieveRecordsInput(
     uid: repoId,
     year: year,
     month: month,
