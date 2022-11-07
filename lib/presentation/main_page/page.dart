@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../util/type/single_or_pair.dart';
+import '../budget_viewer/budget_viewer_page.dart';
 import '../category_viewer/category_viewer_page.dart';
 import '../monthly_record_viewer/monthly_record_viewer_page.dart';
 import '../property_viewer/property_viewer_page.dart';
@@ -23,6 +24,7 @@ class _MainPageState extends State<MainPage> {
     'Calendar',
     'Category',
     'Property',
+    'Budget',
   ];
   SingleOrPair _singleOrPair = SingleOrPair.single;
   int _index = 0;
@@ -34,6 +36,7 @@ class _MainPageState extends State<MainPage> {
       CalendarRecordViewPage2(),
       CategoryListPage2(),
       PropertyListBody(),
+      BudgetViewerPage(),
     ];
 
     return Scaffold(
@@ -65,6 +68,10 @@ class _MainPageState extends State<MainPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.access_alarms),
             label: 'Property',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.next_plan_outlined),
+            label: 'Budget',
           ),
         ],
         currentIndex: _index,

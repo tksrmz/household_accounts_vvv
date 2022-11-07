@@ -3,22 +3,34 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_use_case.dart';
 import 'package:household_accounts/presentation/common_widget/loading.dart';
+import 'package:household_accounts/presentation/util/repository_selector.dart';
 import 'package:household_accounts/util/extension/date-time.dart';
 import 'package:household_accounts/util/service_locator/main.dart';
+import 'package:provider/provider.dart';
 
 import '../../util/type/exception_or.dart';
+import '../../util/type/single_or_pair.dart';
+import '../util/model/user_info.dart';
 
 class BudgetViewerPage extends StatelessWidget {
   const BudgetViewerPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return _PageContents();
+    return _PageContents(
+      singleOrPair: context.watch<SingleOrPair>(),
+    );
   }
 }
 
 class _PageContents extends StatefulWidget {
-  const _PageContents({Key? key}) : super(key: key);
+  const _PageContents({
+    required SingleOrPair singleOrPair,
+    Key? key,
+  })  : _singleOrPair = singleOrPair,
+        super(key: key);
+
+  final SingleOrPair _singleOrPair;
 
   @override
   State<_PageContents> createState() => _PageContentsState();
@@ -31,12 +43,27 @@ class _PageContentsState extends State<_PageContents> {
   @override
   void initState() {
     super.initState();
+    _setFuture();
+  }
+
+  @override
+  void didUpdateWidget(_PageContents oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _setFuture();
+  }
+
+  void _setFuture() {
     final begin = DateTime(_date.year, _date.month);
     final end = begin.nextMonth();
+    final sop = widget._singleOrPair;
+    final repoId = context.read<UserInfo>().repoId(sop);
     _budgetFuture = sl<RetrieveBudgetStateUseCase>()(
       RetrieveBudgetStateInput(
+        uid: repoId,
         begin: begin,
         end: end,
+        recordRepository: selectExpenseRecordRepository(sop),
+        categoryRepository: selectExpenseCategoryRepository(sop),
       ),
     );
   }
@@ -46,13 +73,14 @@ class _PageContentsState extends State<_PageContents> {
     return FutureBuilder<ExceptionOr<RetrieveBudgetStateOutput>>(
       future: _budgetFuture,
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
+        final hasConnected = snapshot.connectionState == ConnectionState.done;
+        if (hasConnected && snapshot.hasError) {
           return const Center(
             child: Text('Something went wrong.'),
           );
         }
 
-        if (snapshot.connectionState == ConnectionState.done) {
+        if (hasConnected && snapshot.hasData) {
           return snapshot.data!.fold(
             (failure) => Center(
               child: Text(failure.toString()),

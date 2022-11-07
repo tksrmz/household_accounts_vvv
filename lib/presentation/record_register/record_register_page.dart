@@ -56,7 +56,6 @@ class _PageContentsState extends State<_PageContents> {
   late Future<ExceptionOr<List<IncomeCategory>>> _incomeCategoriesFuture;
   late Future<ExceptionOr<List<ExpenseCategory>>> _expenseCategoriesFuture;
   late Future<ExceptionOr<List<Property>>> _propertiesFuture;
-  late UserInfo _userInfo;
   late String _repoId;
   late SingleOrPair _sop;
 
@@ -84,8 +83,7 @@ class _PageContentsState extends State<_PageContents> {
 
   void _setFutures() {
     _sop = widget._singleOrPair;
-    _userInfo = context.read<UserInfo>();
-    _repoId = _userInfo.repoId(_sop);
+    _repoId = context.read<UserInfo>().repoId(_sop);
     _incomeCategoriesFuture = sl<RetrieveIncomeCategoryUseCase>()(
       RetrieveIncomeCategoryInput(
         uid: _repoId,
