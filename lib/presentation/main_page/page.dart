@@ -5,6 +5,7 @@ import '../../util/type/single_or_pair.dart';
 import '../category_viewer/category_viewer_page.dart';
 import '../monthly_record_viewer/monthly_record_viewer_page.dart';
 import '../property_viewer/property_viewer_page.dart';
+import '../record_register/record_register_page.dart';
 import '../util/model/user_info.dart';
 import 'app_bar.dart';
 import 'drawer.dart';
@@ -18,7 +19,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final _titles = [
-    'index 0',
+    'Input',
     'Calendar',
     'Category',
     'Property',
@@ -28,11 +29,12 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final bodies =
-        _titles.map<Widget>((title) => _PageBody(text: title)).toList();
-    bodies[1] = CalendarRecordViewPage2();
-    bodies[2] = CategoryListPage2();
-    bodies[3] = PropertyListBody();
+    final bodies = <Widget>[
+      RecordInputPage(),
+      CalendarRecordViewPage2(),
+      CategoryListPage2(),
+      PropertyListBody(),
+    ];
 
     return Scaffold(
       appBar: MainPageAppBar(
@@ -50,7 +52,7 @@ class _MainPageState extends State<MainPage> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.access_alarms),
-            label: 'a',
+            label: 'Input',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.back_hand),
@@ -83,21 +85,5 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _singleOrPair = newValue;
     });
-  }
-}
-
-class _PageBody extends StatelessWidget {
-  const _PageBody({required this.text, Key? key}) : super(key: key);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(children: [
-        Text(text),
-        Text(context.watch<SingleOrPair>().name),
-      ]),
-    );
   }
 }

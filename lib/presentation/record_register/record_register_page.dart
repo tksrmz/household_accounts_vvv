@@ -1,29 +1,42 @@
-import 'package:dartz/dartz.dart' as dartz;
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/category_entity.dart';
 import 'package:household_accounts/entity/property_entity.dart';
 import 'package:household_accounts/entity/record_entity.dart';
-import 'package:household_accounts/feature/category_retrieve/retrieve_categories_use_case.dart';
-import 'package:household_accounts/feature/property_retrieve/property_retrieve_use_case.dart';
-import 'package:household_accounts/feature/record_register/record_register_use_case.dart';
 import 'package:household_accounts/presentation/common_widget/number_text_form_field.dart';
 import 'package:household_accounts/util/extension/string.dart';
 import 'package:household_accounts/util/service_locator/main.dart';
+import 'package:provider/provider.dart';
 
+import '../../feature/category_retrieve/retrieve_expense_category_use_case.dart';
+import '../../feature/category_retrieve/retrieve_income_category_use_case.dart';
+import '../../feature/property_retrieve/property_retrieve_use_case.dart';
+import '../../feature/record_register/expense_record_register_use_case.dart';
+import '../../feature/record_register/income_record_register_use_case.dart';
+import '../../feature/record_register/transfer_record_register_use_case.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/single_or_pair.dart';
+import '../util/model/user_info.dart';
+import '../util/repository_selector.dart';
 
 class RecordInputPage extends StatelessWidget {
   const RecordInputPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return _PageContents();
+    return _PageContents(
+      singleOrPair: context.watch<SingleOrPair>(),
+    );
   }
 }
 
 class _PageContents extends StatefulWidget {
-  const _PageContents({Key? key}) : super(key: key);
+  const _PageContents({
+    required SingleOrPair singleOrPair,
+    Key? key,
+  })  : _singleOrPair = singleOrPair,
+        super(key: key);
+
+  final SingleOrPair _singleOrPair;
 
   @override
   _PageContentsState createState() => _PageContentsState();
@@ -40,21 +53,55 @@ class _PageContentsState extends State<_PageContents> {
   Property? _destProperty;
   String _note = '';
 
-  late final Future<ExceptionOr<List<IncomeCategory>>> _incomeCategoriesFuture;
-  late final Future<ExceptionOr<List<ExpenseCategory>>>
-      _expenseCategoriesFuture;
-  late final Future<ExceptionOr<List<Property>>> _propertiesFuture;
+  late Future<ExceptionOr<List<IncomeCategory>>> _incomeCategoriesFuture;
+  late Future<ExceptionOr<List<ExpenseCategory>>> _expenseCategoriesFuture;
+  late Future<ExceptionOr<List<Property>>> _propertiesFuture;
+  late UserInfo _userInfo;
+  late String _repoId;
+  late SingleOrPair _sop;
 
   @override
   void initState() {
     super.initState();
-    _incomeCategoriesFuture = sl<RetrieveIncomeCategoriesUseCase>()(dartz.unit);
-    _expenseCategoriesFuture =
-        sl<RetrieveExpenseCategoriesUseCase>()(dartz.unit);
-    _propertiesFuture = sl<RetrievePersonalPropertiesUseCase>()(
-      RetrievePersonalPropertiesInput(
-        // TODO: Avoid using FirebaseAuth directly here.
-        uid: FirebaseAuth.instance.currentUser!.uid,
+    _setFutures();
+  }
+
+  @override
+  void didUpdateWidget(_PageContents oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _setDropDownValueNull();
+    _setFutures();
+  }
+
+  void _setDropDownValueNull() {
+    // Inorder to avoid an error, _categoryValue must be set to null.
+    // If _categoryValue isn't null and the value is not in _CategoryDropDownMenu.items, Flutter throws an error (an exception?).
+    // This behavior is mentioned in the Flutter document of DropdownButton class.
+    _category = null;
+    _srcProperty = null;
+    _destProperty = null;
+  }
+
+  void _setFutures() {
+    _sop = widget._singleOrPair;
+    _userInfo = context.read<UserInfo>();
+    _repoId = _userInfo.repoId(_sop);
+    _incomeCategoriesFuture = sl<RetrieveIncomeCategoryUseCase>()(
+      RetrieveIncomeCategoryInput(
+        uid: _repoId,
+        repository: selectIncomeCategoryRepository(_sop),
+      ),
+    );
+    _expenseCategoriesFuture = sl<RetrieveExpenseCategoryUseCase>()(
+      RetrieveExpenseCategoryInput(
+        uid: _repoId,
+        repository: selectExpenseCategoryRepository(_sop),
+      ),
+    );
+    _propertiesFuture = sl<RetrievePropertiesUseCase>()(
+      RetrievePropertiesInput(
+        uid: _repoId,
+        repository: selectPropertyRepository(_sop),
       ),
     );
   }
@@ -76,12 +123,7 @@ class _PageContentsState extends State<_PageContents> {
   void _setRecordTypeState(RecordType value) {
     setState(() {
       _recordType = value;
-      // Inorder to avoid an error, _categoryValue must be set to null.
-      // If _categoryValue isn't null and the value is not in _CategoryDropDownMenu.items, Flutter throws an error (an exception?).
-      // This behavior is mentioned in the Flutter document of DropdownButton class.
-      _category = null;
-      // Destination property selector may be disappeared.
-      _destProperty = null;
+      _setDropDownValueNull();
       print('record type: $_recordType');
     });
   }
@@ -118,11 +160,13 @@ class _PageContentsState extends State<_PageContents> {
     if (_category != null && _srcProperty != null) {
       useCase(
         AddIncomeRecordInput(
-          _recordDate,
-          _amount.tryToInt() | 0,
-          _note,
-          _category!.id,
-          _srcProperty!.id,
+          uid: _repoId,
+          recordDate: _recordDate,
+          amount: _amount.tryToInt() | 0,
+          note: _note,
+          category: _category! as IncomeCategory,
+          property: _srcProperty!,
+          repository: selectIncomeRecordRepository(_sop),
         ),
       );
     }
@@ -132,11 +176,13 @@ class _PageContentsState extends State<_PageContents> {
     if (_category != null && _srcProperty != null) {
       useCae(
         AddExpenseRecordInput(
-          _recordDate,
-          _amount.tryToInt() | 0,
-          _note,
-          _category!.id,
-          _srcProperty!.id,
+          uid: _repoId,
+          recordDate: _recordDate,
+          amount: _amount.tryToInt() | 0,
+          note: _note,
+          category: _category! as ExpenseCategory,
+          property: _srcProperty!,
+          repository: selectExpenseRecordRepository(_sop),
         ),
       );
     }
@@ -146,11 +192,13 @@ class _PageContentsState extends State<_PageContents> {
     if (_srcProperty != null && _destProperty != null) {
       useCase(
         AddTransferRecordInput(
-          _recordDate,
-          _amount.tryToInt() | 0,
-          _note,
-          _srcProperty!.id,
-          _destProperty!.id,
+          uid: _repoId,
+          recordDate: _recordDate,
+          amount: _amount.tryToInt() | 0,
+          note: _note,
+          source: _srcProperty!,
+          destination: _destProperty!,
+          repository: selectTransferRecordRepository(_sop),
         ),
       );
     }
@@ -397,7 +445,9 @@ class _CategoryDropDownMenu extends StatelessWidget {
         Category2? value;
         Text? disabledHint;
         List<DropdownMenuItem<Category2>>? items;
-        if (snapshot.hasData) {
+        final hasConnected = snapshot.connectionState == ConnectionState.done;
+
+        if (hasConnected && snapshot.hasData) {
           // succeeded, but there may be a failure
           snapshot.data!.fold(
             (failure) {
@@ -421,7 +471,7 @@ class _CategoryDropDownMenu extends StatelessWidget {
                   .toList();
             },
           );
-        } else if (snapshot.hasError) {
+        } else if (hasConnected && snapshot.hasError) {
           // When an error was occurred, [items] is set to null to disable [DropdownButton].
           // Then, [value] is set to null to display [disabledHint].
           value = null;
@@ -477,7 +527,9 @@ class _PropertyDropDownMenu extends StatelessWidget {
         Property? value;
         Text? disabledHint;
         List<DropdownMenuItem<Property>>? items;
-        if (snapshot.hasData) {
+        final hasConnected = snapshot.connectionState == ConnectionState.done;
+
+        if (hasConnected && snapshot.hasData) {
           // succeeded, but there may be a failure
           snapshot.data!.fold(
             (failure) {
@@ -500,7 +552,7 @@ class _PropertyDropDownMenu extends StatelessWidget {
                   .toList();
             },
           );
-        } else if (snapshot.hasError) {
+        } else if (hasConnected && snapshot.hasError) {
           // When an error was occurred, [items] is set to null to disable [DropdownButton].
           // Then, [value] is set to null to display [disabledHint].
           value = null;

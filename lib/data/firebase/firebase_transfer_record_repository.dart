@@ -108,7 +108,7 @@ class _FirebaseTransferRecordRepository
       _builder(repoId).doc(value.id),
       TransferRecordModel.fromEntity(
         record: value,
-        propertyCollectionPath: getPersonalPropertyCollectionPath(repoId),
+        propertyCollectionPath: propertyCollection.path,
       ),
     );
 
