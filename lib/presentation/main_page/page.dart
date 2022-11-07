@@ -22,8 +22,8 @@ class _MainPageState extends State<MainPage> {
   final _titles = [
     'Input',
     'Calendar',
-    'Category',
     'Property',
+    'Category',
     'Budget',
   ];
   SingleOrPair _singleOrPair = SingleOrPair.single;
@@ -34,8 +34,8 @@ class _MainPageState extends State<MainPage> {
     final bodies = <Widget>[
       RecordInputPage(),
       CalendarRecordViewPage2(),
-      CategoryListPage2(),
       PropertyListBody(),
+      CategoryListPage2(),
       BudgetViewerPage(),
     ];
 
@@ -54,20 +54,20 @@ class _MainPageState extends State<MainPage> {
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.access_alarms),
+            icon: Icon(Icons.cloud),
             label: 'Input',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.back_hand),
+            icon: Icon(Icons.beach_access),
             label: 'Calendar',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.cable_sharp),
-            label: 'Category',
+            icon: Icon(Icons.access_alarm),
+            label: 'Property',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.access_alarms),
-            label: 'Property',
+            icon: Icon(Icons.accessibility),
+            label: 'Category',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.next_plan_outlined),
