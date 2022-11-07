@@ -1,16 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_use_case.dart';
-import 'package:household_accounts/presentation/common_widget/loading.dart';
-import 'package:household_accounts/presentation/util/repository_selector.dart';
 import 'package:household_accounts/util/extension/date-time.dart';
-import 'package:household_accounts/util/service_locator/main.dart';
 import 'package:provider/provider.dart';
 
+import '../../feature/budget_analyzer/budget_analyzer_use_case.dart';
+import '../../util/service_locator/main.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/single_or_pair.dart';
+import '../common_widget/loading.dart';
 import '../util/model/user_info.dart';
+import '../util/repository_selector.dart';
 
 class BudgetViewerPage extends StatelessWidget {
   const BudgetViewerPage({Key? key}) : super(key: key);
