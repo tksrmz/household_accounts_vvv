@@ -276,6 +276,38 @@ class _PageContentsState extends State<_PageContents> {
                 );
                 return;
               }
+              if (_srcProperty == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Select property.'),
+                  ),
+                );
+                return;
+              }
+              switch (_recordType) {
+                case RecordType.income:
+                case RecordType.expense:
+                  if (_category == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Select category.'),
+                      ),
+                    );
+                    return;
+                  }
+                  break;
+
+                case RecordType.transfer:
+                  if (_destProperty == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Select property.'),
+                      ),
+                    );
+                    return;
+                  }
+                  break;
+              }
 
               // Updates states
               _formKey.currentState!.save();
