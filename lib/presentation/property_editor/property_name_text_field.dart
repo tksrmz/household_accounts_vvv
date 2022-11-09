@@ -3,27 +3,30 @@ import 'package:flutter/material.dart';
 import '../../entity/property_entity.dart';
 
 class PropertyNameTextField extends StatelessWidget {
-  final TextEditingController _controller;
-
   const PropertyNameTextField({
-    required TextEditingController controller,
+    this.controller,
+    this.autofocus = false,
+    this.onSubmitted,
     Key? key,
-  })  : _controller = controller,
-        super(key: key);
+  }) : super(key: key);
+
+  final TextEditingController? controller;
+  final bool autofocus;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: _controller,
+      controller: controller,
       decoration: InputDecoration(
         labelText: 'Property name',
-        helperText: '1-20 alphabet characters only',
-        counterText: '0 characters',
+        helperText: '1-${Property.maxNameLength} characters only',
         border: OutlineInputBorder(),
       ),
       keyboardType: TextInputType.text,
-      autofocus: true,
+      autofocus: autofocus,
       maxLength: Property.maxNameLength,
+      onSubmitted: onSubmitted,
     );
   }
 }

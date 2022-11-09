@@ -49,6 +49,7 @@ class _PropertyEditorState extends State<PropertyEditor> {
           padding: const EdgeInsets.all(8.0),
           child: PropertyNameTextField(
             controller: _nameController,
+            autofocus: true,
           ),
         ),
         Padding(
