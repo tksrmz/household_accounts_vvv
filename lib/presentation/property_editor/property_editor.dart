@@ -44,13 +44,17 @@ class _PropertyEditorState extends State<PropertyEditor> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // TODO: Add padding here.
-        _PropertyNameTextField(
-          controller: _nameController,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: _PropertyNameTextField(
+            controller: _nameController,
+          ),
         ),
-        // TODO: Add padding here.
-        _PropertyAmountTextField(
-          controller: _amountController,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: _PropertyAmountTextField(
+            controller: _amountController,
+          ),
         ),
         ElevatedButton(
           onPressed: () {
