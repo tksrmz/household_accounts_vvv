@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'property_amount_text_field.dart';
 import 'property_name_text_field.dart';
 
 typedef PropertyNameAndAmountHandler = void Function(
@@ -67,28 +68,6 @@ class _PropertyEditorState extends State<PropertyEditor> {
           child: this.widget._buttonChild,
         ),
       ],
-    );
-  }
-}
-
-class PropertyAmountTextField extends StatelessWidget {
-  final TextEditingController _controller;
-
-  const PropertyAmountTextField({
-    required TextEditingController controller,
-    Key? key,
-  })  : _controller = controller,
-        super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: _controller,
-      decoration: InputDecoration(
-        labelText: 'Amount',
-        border: OutlineInputBorder(),
-      ),
-      keyboardType: TextInputType.number,
     );
   }
 }
