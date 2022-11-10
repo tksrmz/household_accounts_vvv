@@ -50,6 +50,7 @@ class _PropertyEditorState extends State<PropertyEditor> {
           child: PropertyNameTextField(
             controller: _nameController,
             autofocus: true,
+            textInputAction: TextInputAction.next,
           ),
         ),
         Padding(
