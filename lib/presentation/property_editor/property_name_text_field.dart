@@ -6,13 +6,11 @@ class PropertyNameTextField extends StatelessWidget {
   const PropertyNameTextField({
     this.controller,
     this.autofocus = false,
-    this.onSubmitted,
     Key? key,
   }) : super(key: key);
 
   final TextEditingController? controller;
   final bool autofocus;
-  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +24,6 @@ class PropertyNameTextField extends StatelessWidget {
       keyboardType: TextInputType.text,
       autofocus: autofocus,
       maxLength: Property.maxNameLength,
-      onSubmitted: onSubmitted,
     );
   }
 }
