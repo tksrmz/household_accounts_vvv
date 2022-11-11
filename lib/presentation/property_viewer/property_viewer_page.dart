@@ -1,17 +1,20 @@
 import 'dart:collection';
 
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../entity/property_entity.dart';
 import '../../feature/property_deletion/delete_property_use_case.dart';
+import '../../feature/property_register/property_register_use_case.dart';
 import '../../util/service_locator/main.dart';
+import '../../util/type/exception_or.dart';
 import '../../util/type/single_or_pair.dart';
 import '../common_widget/delete_icon_button.dart';
 import '../common_widget/failure.dart';
 import '../common_widget/loading.dart';
-import '../property_editor/add_property_page.dart';
 import '../property_editor/edit_property_page.dart';
+import '../property_editor/property_editor_page.dart';
 import '../util/model/user_info.dart';
 import '../util/repository_selector.dart';
 import 'property_viewer_state.dart';
@@ -186,17 +189,30 @@ class _EditPropertyButton extends StatelessWidget {
 class _AddPropertyButton extends StatelessWidget {
   const _AddPropertyButton({Key? key}) : super(key: key);
 
+  static const String ADD_PROPERTY_TITLE = 'Add a new property';
+
   @override
   Widget build(BuildContext context) {
+    final buildPropertyEditorPage =
+        (BuildContext anotherContext) => PropertyEditorPage(
+              title: ADD_PROPERTY_TITLE,
+              onSubmit: (name, amount) async {
+                await _addProperty(
+                  name: name,
+                  amount: amount,
+                  sop: context.read<SingleOrPair>(),
+                  uinfo: context.read<UserInfo>(),
+                );
+                Navigator.pop(anotherContext);
+              },
+            );
+
     return OutlinedButton(
       onPressed: () async {
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (newContext) => AddPropertyPage(
-              singleOrPair: context.read<SingleOrPair>(),
-              userInfo: context.read<UserInfo>(),
-            ),
+            builder: buildPropertyEditorPage,
           ),
         );
         _reloadState(context);
@@ -205,8 +221,24 @@ class _AddPropertyButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.add_circle_outline),
-          const Text('Add a new property.'),
+          const Text(ADD_PROPERTY_TITLE),
         ],
+      ),
+    );
+  }
+
+  Future<ExceptionOr<Unit>> _addProperty({
+    required String name,
+    required int amount,
+    required SingleOrPair sop,
+    required UserInfo uinfo,
+  }) {
+    return sl<AddPropertyUseCase>()(
+      AddPropertyInput(
+        uid: uinfo.repoId(sop),
+        name: name,
+        amount: amount,
+        repository: selectPropertyRepository(sop),
       ),
     );
   }
