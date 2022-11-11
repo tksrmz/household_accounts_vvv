@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../entity/property_entity.dart';
 import '../../feature/property_deletion/delete_property_use_case.dart';
+import '../../feature/property_editing/update_property_use_case.dart';
 import '../../feature/property_register/property_register_use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/exception_or.dart';
@@ -13,7 +14,6 @@ import '../../util/type/single_or_pair.dart';
 import '../common_widget/delete_icon_button.dart';
 import '../common_widget/failure.dart';
 import '../common_widget/loading.dart';
-import '../property_editor/edit_property_page.dart';
 import '../property_editor/property_editor_page.dart';
 import '../util/model/user_info.dart';
 import '../util/repository_selector.dart';
@@ -104,7 +104,7 @@ class _PropertyListItem extends StatelessWidget {
       children: [
         _propertyInfo(),
         Spacer(),
-        _EditPropertyButton(propertyId: _property.id),
+        _EditPropertyButton(property: _property),
         DeleteIconButton(
           onPressed: () => _deleteProperty(context),
         ),
@@ -159,29 +159,60 @@ class _PropertyListItem extends StatelessWidget {
 }
 
 class _EditPropertyButton extends StatelessWidget {
-  final String _propertyId;
+  final Property _property;
 
-  const _EditPropertyButton({required String propertyId, Key? key})
-      : _propertyId = propertyId,
+  const _EditPropertyButton({required Property property, Key? key})
+      : _property = property,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final buildPropertyEditorPage =
+        (BuildContext anotherContext) => PropertyEditorPage(
+              title: 'Edit',
+              initialName: _property.name,
+              initialAmount: _property.amount,
+              onSubmit: (name, amount) async {
+                await _updateProperty(
+                  propertyId: _property.id,
+                  name: name,
+                  amount: amount,
+                  sop: context.read<SingleOrPair>(),
+                  uinfo: context.read<UserInfo>(),
+                );
+                Navigator.pop(anotherContext);
+              },
+            );
+
     return IconButton(
       onPressed: () async {
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (newContext) => EditPropertyPage(
-              targetPropertyId: _propertyId,
-              singleOrPair: context.read<SingleOrPair>(),
-              userInfo: context.read<UserInfo>(),
-            ),
+            builder: buildPropertyEditorPage,
           ),
         );
         _reloadState(context);
       },
       icon: const Icon(Icons.edit),
+    );
+  }
+
+  Future<ExceptionOr<Unit>> _updateProperty({
+    required String propertyId,
+    String? name,
+    int? amount,
+    required SingleOrPair sop,
+    required UserInfo uinfo,
+  }) {
+    return sl<UpdatePropertyUseCase>()(
+      UpdatePropertyInput(
+        propertyId: propertyId,
+        uid: uinfo.repoId(sop),
+        name: name,
+        amount: amount,
+        repository: selectPropertyRepository(sop),
+      ),
     );
   }
 }
