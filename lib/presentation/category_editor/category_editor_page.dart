@@ -74,16 +74,29 @@ class _PageBody extends StatefulWidget {
 }
 
 class _PageBodyState extends State<_PageBody> {
-  // This property is nullable only because RadioListTile.onChanged
-  // receives nullable value.
-  late CategoryType? _selected;
   late final TextEditingController _nameController;
   late final TextEditingController _budgetController;
+
+  // state
+  List<bool> _categorySelection = [
+    false,
+    false,
+  ];
+
+  bool get _isExpenseSelected => _categorySelection[1];
 
   @override
   void initState() {
     super.initState();
-    _selected = widget._initialType;
+    switch (widget._initialType) {
+      case CategoryType.income:
+        _categorySelection[0] = true;
+        break;
+
+      case CategoryType.expense:
+        _categorySelection[1] = true;
+        break;
+    }
     _nameController = TextEditingController(
       text: widget._initialName,
     );
@@ -103,22 +116,29 @@ class _PageBodyState extends State<_PageBody> {
   Widget build(BuildContext context) {
     final children = <Widget>[];
 
-    // Add radio buttons to select category.
-    final radioButtonOnChanged = widget._canChangeType ? _setSelected : null;
+    // Use callback that does nothing when this widget is not allowed to change
+    // category type. I will not use null here, because it causes for the
+    // buttons to gray out. Graying out is not appropriate as it becomes
+    // difficult for the users to know which type of category they are
+    // editing: income category type or expense category type.
+    final toggleButtonsOnPressed =
+        widget._canChangeType ? _setSelected : (_) {};
     children.add(
-      RadioListTile<CategoryType>(
-        title: const Text('Income'),
-        value: CategoryType.income,
-        groupValue: _selected,
-        onChanged: radioButtonOnChanged,
-      ),
-    );
-    children.add(
-      RadioListTile<CategoryType>(
-        title: const Text('Expense'),
-        value: CategoryType.expense,
-        groupValue: _selected,
-        onChanged: radioButtonOnChanged,
+      LayoutBuilder(
+        builder: (context, constraints) => Center(
+          child: ToggleButtons(
+            children: const [
+              Text('Income'),
+              Text('Expense'),
+            ],
+            isSelected: _categorySelection,
+            constraints: BoxConstraints(
+              minWidth: constraints.maxWidth / _categorySelection.length - 10,
+              minHeight: 48.0,
+            ),
+            onPressed: toggleButtonsOnPressed,
+          ),
+        ),
       ),
     );
 
@@ -140,7 +160,7 @@ class _PageBodyState extends State<_PageBody> {
       ),
     );
 
-    if (_selected == CategoryType.expense) {
+    if (_isExpenseSelected) {
       children.add(
         Padding(
           padding: const EdgeInsets.all(8.0),
@@ -160,7 +180,7 @@ class _PageBodyState extends State<_PageBody> {
       ElevatedButton(
         onPressed: () {
           final int? budget = int.tryParse(_budgetController.text);
-          if (budget == null && _selected == CategoryType.expense) {
+          if (budget == null && _isExpenseSelected) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Invalid budget input.'),
@@ -170,7 +190,7 @@ class _PageBodyState extends State<_PageBody> {
             widget._onSubmit(
               _nameController.text,
               budget ?? 0,
-              _selected!,
+              _isExpenseSelected ? CategoryType.expense : CategoryType.income,
             );
           }
         },
@@ -183,12 +203,20 @@ class _PageBodyState extends State<_PageBody> {
     );
   }
 
-  void _setSelected(CategoryType? value) {
+  void _setSelected(int index) {
     if (widget._canChangeType) {
       _budgetController.text =
           widget._initialBudget == null ? '' : widget._initialBudget.toString();
       setState(() {
-        _selected = value;
+        for (int buttonIndex = 0;
+            buttonIndex < _categorySelection.length;
+            buttonIndex++) {
+          if (buttonIndex == index) {
+            _categorySelection[buttonIndex] = true;
+          } else {
+            _categorySelection[buttonIndex] = false;
+          }
+        }
       });
     }
   }
