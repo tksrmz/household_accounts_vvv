@@ -3,23 +3,23 @@ import 'package:flutter/material.dart';
 import 'property_amount_text_field.dart';
 import 'property_name_text_field.dart';
 
-typedef PropertyEditorOnPressed = void Function(String name, int amount);
+typedef PropertyEditorOnSubmit = void Function(String name, int amount);
 
 class PropertyEditorPage extends StatelessWidget {
   const PropertyEditorPage({
     required String title,
-    required PropertyEditorOnPressed onSubmit,
+    required PropertyEditorOnSubmit onSubmit,
     String? initialName,
     int? initialAmount,
     Key? key,
   })  : _title = title,
-        _onPressed = onSubmit,
+        _onSubmit = onSubmit,
         _initialName = initialName,
         _initialAmount = initialAmount,
         super(key: key);
 
   final String _title;
-  final PropertyEditorOnPressed _onPressed;
+  final PropertyEditorOnSubmit _onSubmit;
   final String? _initialName;
   final int? _initialAmount;
 
@@ -30,7 +30,7 @@ class PropertyEditorPage extends StatelessWidget {
         title: Text(_title),
       ),
       body: _PageBody(
-        onPressed: _onPressed,
+        onSubmit: _onSubmit,
         initialName: _initialName,
         initialAmount: _initialAmount,
       ),
@@ -40,16 +40,16 @@ class PropertyEditorPage extends StatelessWidget {
 
 class _PageBody extends StatefulWidget {
   const _PageBody({
-    required PropertyEditorOnPressed onPressed,
+    required PropertyEditorOnSubmit onSubmit,
     required String? initialName,
     required int? initialAmount,
     Key? key,
-  })  : _onPressed = onPressed,
+  })  : _onSubmit = onSubmit,
         _initialName = initialName,
         _initialAmount = initialAmount,
         super(key: key);
 
-  final PropertyEditorOnPressed _onPressed;
+  final PropertyEditorOnSubmit _onSubmit;
   final String? _initialName;
   final int? _initialAmount;
 
@@ -99,7 +99,7 @@ class _PageBodyState extends State<_PageBody> {
         ),
         ElevatedButton(
           onPressed: () {
-            this.widget._onPressed(
+            this.widget._onSubmit(
                   _nameController.text,
                   int.parse(_amountController.text),
                 );

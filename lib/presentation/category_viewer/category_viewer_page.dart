@@ -1,15 +1,20 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/entity/category_entity.dart';
 import 'package:household_accounts/presentation/category_viewer/category_viewer_state.dart';
 import 'package:household_accounts/presentation/common_widget/delete_icon_button.dart';
+import 'package:household_accounts/util/type/exception_or.dart';
 import 'package:provider/provider.dart';
 
 import '../../feature/category_deletion/delete_expense_category_use_case.dart';
 import '../../feature/category_deletion/delete_income_category_use_case.dart';
+import '../../feature/category_editing/update_expense_category_use_case.dart';
+import '../../feature/category_editing/update_income_category_use_case.dart';
+import '../../feature/category_register/add_expense_category_use_case.dart';
+import '../../feature/category_register/add_income_category_use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/single_or_pair.dart';
-import '../category_editor/add_category_page.dart';
-import '../category_editor/edit_category_page.dart';
+import '../category_editor/category_editor_page.dart';
 import '../common_widget/failure.dart';
 import '../common_widget/loading.dart';
 import '../util/model/user_info.dart';
@@ -69,16 +74,22 @@ class _PageContent2 extends StatelessWidget {
         ),
         OutlinedButton(
           onPressed: () async {
+            final uinfo = context.read<UserInfo>();
+            final sop = context.read<SingleOrPair>();
             await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (newContext) => AddCategoryPage2(
-                  singleOrPair: context.read<SingleOrPair>(),
-                  userInfo: context.read<UserInfo>(),
+                builder: (context) => CategoryEditorPage(
+                  title: 'Add a new category',
+                  onSubmit: (name, budget, type) async {
+                    await _submit(name, budget, type, uinfo, sop);
+                    Navigator.pop(context);
+                  },
                 ),
               ),
             );
-            await _reloadIncomeCategoryState(context);
+            _reloadIncomeCategoryState(context);
+            _reloadExpenseCategoryState(context);
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -90,6 +101,35 @@ class _PageContent2 extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<ExceptionOr<Unit>> _submit(
+    String name,
+    int budget,
+    CategoryType type,
+    UserInfo userInfo,
+    SingleOrPair sop,
+  ) {
+    switch (type) {
+      case CategoryType.income:
+        return sl<AddIncomeCategoryUseCase>()(
+          AddIncomeCategoryInput(
+            uid: userInfo.repoId(sop),
+            name: name,
+            repository: selectIncomeCategoryRepository(sop),
+          ),
+        );
+
+      case CategoryType.expense:
+        return sl<AddExpenseCategoryUseCase>()(
+          AddExpenseCategoryInput(
+            uid: userInfo.repoId(sop),
+            name: name,
+            repository: selectExpenseCategoryRepository(sop),
+            budget: budget,
+          ),
+        );
+    }
   }
 }
 
@@ -127,14 +167,14 @@ class _IncomeCategoryList extends StatelessWidget {
     return state.categories.isEmpty
         ? const Text('No income categories exist. Add new one.')
         : Column(
-            children: state.categories
-                .map(
-                  (e) => _IncomeCategoryListItem(
-                    incomeCategory: e,
-                  ),
-                )
-                .toList(growable: false),
-          );
+      children: state.categories
+          .map(
+            (e) => _IncomeCategoryListItem(
+          incomeCategory: e,
+        ),
+      )
+          .toList(growable: false),
+    );
   }
 }
 
@@ -167,12 +207,12 @@ class _IncomeCategoryListItem extends StatelessWidget {
     final delete = sl<DeleteIncomeCategoryUseCase>();
     final result = await delete(input);
     result.fold(
-      (exception) => _showExceptionDialog(
+          (exception) => _showExceptionDialog(
         context,
         'Deleting Income Category Failed',
         exception,
       ),
-      (_) => _reloadIncomeCategoryState(context),
+          (_) => _reloadIncomeCategoryState(context),
     );
   }
 
@@ -204,14 +244,14 @@ class _ExpenseCategoryList extends StatelessWidget {
     return state.categories.isEmpty
         ? const Text('No expense categories exist. Add new one.')
         : Column(
-            children: state.categories
-                .map(
-                  (e) => _ExpenseCategoryListItem(
-                    expenseCategory: e,
-                  ),
-                )
-                .toList(growable: false),
-          );
+      children: state.categories
+          .map(
+            (e) => _ExpenseCategoryListItem(
+          expenseCategory: e,
+        ),
+      )
+          .toList(growable: false),
+    );
   }
 }
 
@@ -246,12 +286,12 @@ class _ExpenseCategoryListItem extends StatelessWidget {
     final delete = sl<DeleteExpenseCategoryUseCase>();
     final result = await delete(input);
     result.fold(
-      (exception) => _showExceptionDialog(
+          (exception) => _showExceptionDialog(
         context,
         'Deleting Expense Category Failed',
         exception,
       ),
-      (_) => _reloadExpenseCategoryState(context),
+          (_) => _reloadExpenseCategoryState(context),
     );
   }
 
@@ -276,40 +316,90 @@ class _EditCategoryButton2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final int? budget;
+    switch (_originalData.type) {
+      case CategoryType.income:
+        budget = null;
+        break;
+      case CategoryType.expense:
+        budget = (_originalData as ExpenseCategory).totalBudget;
+        break;
+    }
     return IconButton(
-      onPressed: () {
-        Navigator.push(
+      onPressed: () async {
+        final sop = context.read<SingleOrPair>();
+        final uinfo = context.read<UserInfo>();
+
+        await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (newContext) => EditCategoryPage2(
-              originalData: _originalData,
-              singleOrPair: context.read<SingleOrPair>(),
-              userInfo: context.read<UserInfo>(),
+            builder: (context) => CategoryEditorPage(
+              title: 'Edit',
+              initialName: _originalData.name,
+              initialBudget: budget,
+              initialType: _originalData.type,
+              canChangeType: false,
+              onSubmit: (name, budget, type) async {
+                await _update(name, budget, type, uinfo, sop);
+                Navigator.pop(context);
+              },
             ),
           ),
         );
+        _reloadIncomeCategoryState(context);
+        _reloadExpenseCategoryState(context);
       },
       icon: const Icon(Icons.edit),
     );
+  }
+
+  Future<ExceptionOr<Unit>> _update(
+    String name,
+    int budget,
+    CategoryType type,
+    UserInfo uinfo,
+    SingleOrPair sop,
+  ) {
+    switch (type) {
+      case CategoryType.income:
+        return sl<UpdateIncomeCategoryUseCase>()(
+          UpdateIncomeCategoryInput(
+            uid: uinfo.repoId(sop),
+            categoryId: _originalData.id,
+            repository: selectIncomeCategoryRepository(sop),
+            name: name,
+          ),
+        );
+
+      case CategoryType.expense:
+        return sl<UpdateExpenseCategoryUseCase>()(
+          UpdateExpenseCategoryInput(
+            uid: uinfo.repoId(sop),
+            categoryId: _originalData.id,
+            repository: selectExpenseCategoryRepository(sop),
+            name: name,
+            budget: budget,
+          ),
+        );
+    }
   }
 }
 
 Future<void> _reloadIncomeCategoryState(BuildContext context) =>
     context.read<IncomeCategoryListState>().fetch(
-          singleOrPair: context.read<SingleOrPair>(),
-          userInfo: context.read<UserInfo>(),
-        );
+      singleOrPair: context.read<SingleOrPair>(),
+      userInfo: context.read<UserInfo>(),
+    );
 
 Future<void> _reloadExpenseCategoryState(BuildContext context) =>
     context.read<ExpenseCategoryListState>().fetch(
-          singleOrPair: context.read<SingleOrPair>(),
-          userInfo: context.read<UserInfo>(),
-        );
+      singleOrPair: context.read<SingleOrPair>(),
+      userInfo: context.read<UserInfo>(),
+    );
 
-Future<void> _showExceptionDialog(
-  BuildContext context,
-  String title,
-  Exception exception,
+Future<void> _showExceptionDialog(BuildContext context,
+    String title,
+    Exception exception,
 ) =>
     showDialog<void>(
       context: context,
