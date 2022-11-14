@@ -1,7 +1,6 @@
-import 'package:household_accounts/entity/category_entity.dart';
-import 'package:household_accounts/util/type/repository.dart';
-
+import '../../entity/category_entity.dart';
 import '../../util/type/exception_or.dart';
+import '../../util/type/repository.dart';
 
 @deprecated
 abstract class IncomeCategoryRepository extends Repository<IncomeCategory> {

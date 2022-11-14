@@ -1,5 +1,4 @@
-import 'package:household_accounts/util/type/identifiable.dart';
-
+import '../util/type/identifiable.dart';
 import 'category_entity.dart';
 import 'property_entity.dart';
 

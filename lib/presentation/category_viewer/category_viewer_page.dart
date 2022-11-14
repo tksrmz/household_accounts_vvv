@@ -1,11 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:household_accounts/entity/category_entity.dart';
-import 'package:household_accounts/presentation/category_viewer/category_viewer_state.dart';
-import 'package:household_accounts/presentation/common_widget/delete_icon_button.dart';
-import 'package:household_accounts/util/type/exception_or.dart';
 import 'package:provider/provider.dart';
 
+import '../../entity/category_entity.dart';
 import '../../feature/category_deletion/delete_expense_category_use_case.dart';
 import '../../feature/category_deletion/delete_income_category_use_case.dart';
 import '../../feature/category_editing/update_expense_category_use_case.dart';
@@ -13,12 +10,15 @@ import '../../feature/category_editing/update_income_category_use_case.dart';
 import '../../feature/category_register/add_expense_category_use_case.dart';
 import '../../feature/category_register/add_income_category_use_case.dart';
 import '../../util/service_locator/main.dart';
+import '../../util/type/exception_or.dart';
 import '../../util/type/single_or_pair.dart';
 import '../category_editor/category_editor_page.dart';
+import '../common_widget/delete_icon_button.dart';
 import '../common_widget/failure.dart';
 import '../common_widget/loading.dart';
 import '../util/model/user_info.dart';
 import '../util/repository_selector.dart';
+import 'category_viewer_state.dart';
 
 class CategoryListPage2 extends StatelessWidget {
   const CategoryListPage2({Key? key}) : super(key: key);

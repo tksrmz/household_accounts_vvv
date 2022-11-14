@@ -1,5 +1,4 @@
-import 'package:household_accounts/entity/property_entity.dart';
-
+import '../../entity/property_entity.dart';
 import '../../util/type/json.dart';
 import 'data_model.dart';
 

@@ -1,8 +1,7 @@
-import 'package:household_accounts/util/type/use_case.dart';
-
 import '../../entity/category_entity.dart';
 import '../../entity/record_entity.dart';
 import '../../util/type/repository.dart';
+import '../../util/type/use_case.dart';
 import '../repository/record_repository.dart';
 
 typedef RetrieveBudgetStateUseCase

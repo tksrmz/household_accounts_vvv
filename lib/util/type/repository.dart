@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/util/type/identifiable.dart';
 
 import 'exception_or.dart';
+import 'identifiable.dart';
 
 /// Base class for repositories that store data of type [T].
 @deprecated

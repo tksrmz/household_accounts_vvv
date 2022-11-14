@@ -1,8 +1,8 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:household_accounts/entity/category_entity.dart';
 
+import '../../entity/category_entity.dart';
 import '../../feature/category_retrieve/retrieve_expense_category_use_case.dart';
 import '../../feature/category_retrieve/retrieve_income_category_use_case.dart';
 import '../../util/service_locator/main.dart';

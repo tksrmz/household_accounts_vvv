@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/entity/category_entity.dart';
-import 'package:household_accounts/entity/record_entity.dart';
-import 'package:household_accounts/feature/budget_analyzer/budget_analyzer_use_case.dart';
 
+import '../../entity/category_entity.dart';
+import '../../entity/record_entity.dart';
 import '../../util/type/exception_or.dart';
+import 'budget_analyzer_use_case.dart';
 
 class RetrieveBudgetStateInteractor extends RetrieveBudgetStateUseCase {
   @override

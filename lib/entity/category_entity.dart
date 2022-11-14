@@ -1,5 +1,4 @@
-import 'package:household_accounts/util/type/identifiable.dart';
-
+import '../util/type/identifiable.dart';
 import 'budget_entity.dart';
 
 enum CategoryType { income, expense }
