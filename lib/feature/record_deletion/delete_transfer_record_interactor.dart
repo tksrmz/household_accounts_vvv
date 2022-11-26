@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import '../../util/type/exception_or.dart';
 import 'delete_transfer_record_use_case.dart';
 
+@deprecated
 class DeleteTransferRecordInteractor implements DeleteTransferRecordUseCase {
   @override
   Future<ExceptionOr<Unit>> call(DeleteTransferRecordInput input) {
