@@ -2,9 +2,11 @@ import '../../entity/record_entity.dart';
 import '../../util/type/use_case.dart';
 import '../repository/record_repository.dart';
 
+@deprecated
 typedef RetrieveRecordsUseCase<T extends Record>
     = UseCase2<RetrieveRecordsInput<T>, List<T>>;
 
+@deprecated
 class RetrieveRecordsInput<T extends Record> {
   /// User ID or pair ID.
   final String uid;

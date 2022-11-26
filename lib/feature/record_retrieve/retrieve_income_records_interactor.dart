@@ -3,6 +3,7 @@ import '../../util/extension/date-time.dart';
 import '../../util/type/exception_or.dart';
 import 'retrieve_income_records_use_case.dart';
 
+@deprecated
 class RetrieveRecordsInteractor<T extends Record>
     implements RetrieveRecordsUseCase<T> {
   @override
