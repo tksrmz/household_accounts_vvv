@@ -5,6 +5,7 @@ import '../../util/type/exception_or.dart';
 import '../../util/uuid/uuid.dart';
 import 'transfer_record_register_use_case.dart';
 
+@deprecated
 class AddTransferRecordInteractor implements AddTransferRecordUseCase {
   @override
   Future<ExceptionOr<Unit>> call(

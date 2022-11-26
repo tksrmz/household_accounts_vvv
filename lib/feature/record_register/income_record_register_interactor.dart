@@ -5,11 +5,10 @@ import '../../util/type/exception_or.dart';
 import '../../util/uuid/uuid.dart';
 import 'income_record_register_use_case.dart';
 
+@deprecated
 class AddIncomeRecordInteractor implements AddIncomeRecordUseCase {
   @override
-  Future<ExceptionOr<Unit>> call(
-    AddIncomeRecordInput input,
-  ) {
+  Future<ExceptionOr<Unit>> call(AddIncomeRecordInput input,) {
     final repository = input.repository;
 
     final record = IncomeRecord(
