@@ -89,11 +89,11 @@ abstract class RecordModel extends DataModel<Record> {
   }
 
   Json toJson() => {
-    'date': recordDate,
-    'amount': amount,
-    'note': note,
-    'createdAt': createdAt,
-  };
+        'date': recordDate,
+        'amount': amount,
+        'note': note,
+        'createdAt': createdAt,
+      };
 }
 
 @deprecated
@@ -103,9 +103,9 @@ class IncomeRecordModel extends RecordModel {
     required String categoryCollectionPath,
     required String propertyCollectionPath,
   })  : categoryRef = _createIncomeCategoryDocumentReference(
-    categoryId: record.category.id,
-    categoryCollectionPath: categoryCollectionPath,
-  ),
+          categoryId: record.category.id,
+          categoryCollectionPath: categoryCollectionPath,
+        ),
         propertyRef = _createPropertyDocumentReference(
           propertyId: record.property.id,
           propertyCollectionPath: propertyCollectionPath,
@@ -114,12 +114,12 @@ class IncomeRecordModel extends RecordModel {
 
   IncomeRecordModel.fromJson(Json json)
       : categoryRef =
-  (json['category']!['ref'] as DocumentReference).withConverter(
-    fromFirestore: _incomeCategoryModelFromFirestore,
-    toFirestore: _incomeCategoryModelToFirestore,
-  ),
+            (json['category']!['ref'] as DocumentReference).withConverter(
+          fromFirestore: _incomeCategoryModelFromFirestore,
+          toFirestore: _incomeCategoryModelToFirestore,
+        ),
         propertyRef =
-        (json['property']!['ref'] as DocumentReference).withConverter(
+            (json['property']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
@@ -148,7 +148,8 @@ class IncomeRecordModel extends RecordModel {
   }
 
   Future<IncomeCategory> _getCategory(
-      DocumentReference<IncomeCategoryModel> ref,) async {
+    DocumentReference<IncomeCategoryModel> ref,
+  ) async {
     final snapshot = await ref.get();
     return snapshot.exists
         ? snapshot.data()!.toEntity()
@@ -174,9 +175,9 @@ class ExpenseRecordModel extends RecordModel {
     required String categoryCollectionPath,
     required String propertyCollectionPath,
   })  : categoryRef = _createExpenseCategoryDocumentReference(
-    categoryId: record.category.id,
-    categoryCollectionPath: categoryCollectionPath,
-  ),
+          categoryId: record.category.id,
+          categoryCollectionPath: categoryCollectionPath,
+        ),
         propertyRef = _createPropertyDocumentReference(
           propertyId: record.property.id,
           propertyCollectionPath: propertyCollectionPath,
@@ -185,12 +186,12 @@ class ExpenseRecordModel extends RecordModel {
 
   ExpenseRecordModel.fromJson(Json json)
       : categoryRef =
-  (json['category']!['ref'] as DocumentReference).withConverter(
-    fromFirestore: _expenseCategoryModelFromFirestore,
-    toFirestore: _expenseCategoryModelToFirestore,
-  ),
+            (json['category']!['ref'] as DocumentReference).withConverter(
+          fromFirestore: _expenseCategoryModelFromFirestore,
+          toFirestore: _expenseCategoryModelToFirestore,
+        ),
         propertyRef =
-        (json['property']!['ref'] as DocumentReference).withConverter(
+            (json['property']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
@@ -219,7 +220,8 @@ class ExpenseRecordModel extends RecordModel {
   }
 
   Future<ExpenseCategory> _getCategory(
-      DocumentReference<ExpenseCategoryModel> ref,) async {
+    DocumentReference<ExpenseCategoryModel> ref,
+  ) async {
     final snapshot = await ref.get();
     return snapshot.exists
         ? snapshot.data()!.toEntity()
@@ -244,9 +246,9 @@ class TransferRecordModel extends RecordModel {
     required TransferRecord record,
     required String propertyCollectionPath,
   })  : fromPropertyRef = _createPropertyDocumentReference(
-    propertyId: record.source.id,
-    propertyCollectionPath: propertyCollectionPath,
-  ),
+          propertyId: record.source.id,
+          propertyCollectionPath: propertyCollectionPath,
+        ),
         toPropertyRef = _createPropertyDocumentReference(
           propertyId: record.destination.id,
           propertyCollectionPath: propertyCollectionPath,
@@ -255,12 +257,12 @@ class TransferRecordModel extends RecordModel {
 
   TransferRecordModel.fromJson(Json json)
       : fromPropertyRef =
-  (json['fromProperty']!['ref'] as DocumentReference).withConverter(
-    fromFirestore: _propertyModelFromFirestore,
-    toFirestore: _propertyModelToFirestore,
-  ),
+            (json['fromProperty']!['ref'] as DocumentReference).withConverter(
+          fromFirestore: _propertyModelFromFirestore,
+          toFirestore: _propertyModelToFirestore,
+        ),
         toPropertyRef =
-        (json['toProperty']!['ref'] as DocumentReference).withConverter(
+            (json['toProperty']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
