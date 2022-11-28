@@ -11,36 +11,36 @@ import 'record_model.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
-class FirebasePersonalExpenseRecordRepository
-    extends _FirebaseExpenseRecordRepository
+@deprecated
+class FirebasePersonalExpenseRecordRepository extends _FirebaseExpenseRecordRepository
     implements PersonalExpenseRecordRepository {
   FirebasePersonalExpenseRecordRepository()
       : super(
-          (String uid) => FirebaseFirestore.instance
-              .collection(getPersonalExpenseRecordCollectionPath(uid))
-              .withConverter(
-                fromFirestore: _fromFirestore,
-                toFirestore: _toFirestore,
-              ),
-        );
+        (String uid) => FirebaseFirestore.instance
+        .collection(getPersonalExpenseRecordCollectionPath(uid))
+        .withConverter(
+      fromFirestore: _fromFirestore,
+      toFirestore: _toFirestore,
+    ),
+  );
 }
 
-class FirebaseSharedExpenseRecordRepository
-    extends _FirebaseExpenseRecordRepository
+@deprecated
+class FirebaseSharedExpenseRecordRepository extends _FirebaseExpenseRecordRepository
     implements SharedExpenseRecordRepository {
   FirebaseSharedExpenseRecordRepository()
       : super(
-          (String uid) => FirebaseFirestore.instance
-              .collection(getSharedExpenseRecordCollectionPath(uid))
-              .withConverter(
-                fromFirestore: _fromFirestore,
-                toFirestore: _toFirestore,
-              ),
-        );
+        (String uid) => FirebaseFirestore.instance
+        .collection(getSharedExpenseRecordCollectionPath(uid))
+        .withConverter(
+      fromFirestore: _fromFirestore,
+      toFirestore: _toFirestore,
+    ),
+  );
 }
 
-abstract class _FirebaseExpenseRecordRepository
-    extends RecordRepository<ExpenseRecord> {
+@deprecated
+abstract class _FirebaseExpenseRecordRepository extends RecordRepository<ExpenseRecord> {
   final CollectionReferenceBuilder<ExpenseRecordModel> _builder;
 
   _FirebaseExpenseRecordRepository(this._builder);
@@ -54,7 +54,7 @@ abstract class _FirebaseExpenseRecordRepository
       final recordDocument = _builder(repoId).doc(id);
       // Get the document
       DocumentSnapshot<ExpenseRecordModel> snapshot =
-          await transaction.get(recordDocument);
+      await transaction.get(recordDocument);
 
       if (!snapshot.exists) {
         return;
@@ -85,9 +85,9 @@ abstract class _FirebaseExpenseRecordRepository
   }) async {
     final ownerDocument = _builder(repoId).parent!;
     final propertyCollection =
-        ownerDocument.collection(FIREBASE_COLLECTION_PROPERTIES);
+    ownerDocument.collection(FIREBASE_COLLECTION_PROPERTIES);
     final categoryCollection =
-        ownerDocument.collection(FIREBASE_COLLECTION_EXPENSE_CATEGORIES);
+    ownerDocument.collection(FIREBASE_COLLECTION_EXPENSE_CATEGORIES);
     final batch = FirebaseFirestore.instance.batch()
       ..update(
         propertyCollection.doc(value.property.id),
@@ -114,8 +114,7 @@ abstract class _FirebaseExpenseRecordRepository
   }
 
   @override
-  Future<ExceptionOr<ExpenseRecord>> retrieveById(
-      {required String repoId, required String id}) {
+  Future<ExceptionOr<ExpenseRecord>> retrieveById({required String repoId, required String id}) {
     // TODO: implement retrieveById
     throw UnimplementedError();
   }
@@ -127,8 +126,8 @@ abstract class _FirebaseExpenseRecordRepository
     required DateTime end,
   }) async {
     assert(
-      begin.isBefore(end),
-      '$begin is after or at the same moment as $end',
+    begin.isBefore(end),
+    '$begin is after or at the same moment as $end',
     );
 
     final QuerySnapshot<ExpenseRecordModel> querySnapshot;
@@ -151,21 +150,273 @@ abstract class _FirebaseExpenseRecordRepository
   }
 
   @override
-  Future<ExceptionOr<Unit>> update(
-      {required String repoId, required ExpenseRecord newValue}) {
+  Future<ExceptionOr<Unit>> update({required String repoId, required ExpenseRecord newValue}) {
     // TODO: implement update
     throw UnimplementedError();
   }
 }
 
-final _fromFirestore = (
-  DocumentSnapshot<Json> snapshot,
-  SnapshotOptions? _,
+@deprecated
+final _fromFirestore = (DocumentSnapshot<Json> snapshot,
+    SnapshotOptions? _,
 ) =>
     ExpenseRecordModel.fromJson(snapshot.toJsonWithId());
 
+@deprecated
 final _toFirestore = (
   ExpenseRecordModel value,
+  SetOptions? _,
+) =>
+    value.toJson();
+
+class FirebasePersonalExpenseRecordRepository2
+    implements PersonalExpenseRecordRepository2 {
+  final _ExpenseRecordRepository2 _repository;
+
+  FirebasePersonalExpenseRecordRepository2()
+      : _repository = _ExpenseRecordRepository2(
+          (String uid) => FirebaseFirestore.instance
+              .collection(getPersonalExpenseRecordCollectionPath(uid))
+              .withConverter(
+                fromFirestore: _fromFirestore2,
+                toFirestore: _toFirestore2,
+              ),
+        );
+
+  @override
+  Future<ExceptionOr<Unit>> deleteById({
+    required String repoId,
+    required String id,
+  }) =>
+      _repository.deleteById(
+        repoId: repoId,
+        id: id,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> register({
+    required String repoId,
+    required ExpenseRecord2 value,
+  }) =>
+      _repository.register(repoId: repoId, value: value);
+
+  @override
+  Future<ExceptionOr<List<ExpenseRecord2>>> retrieveAll({
+    required String repoId,
+  }) {
+    throw UnsupportedError("DO NOT TRY TO RETRIEVE ALL THE REOCRDS.");
+  }
+
+  @override
+  Future<ExceptionOr<ExpenseRecord2>> retrieveById({
+    required String repoId,
+    required String id,
+  }) {
+    // TODO: implement retrieveById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ExceptionOr<List<ExpenseRecord2>>> retrieveRecordsOf({
+    required String repoId,
+    required DateTime begin,
+    required DateTime end,
+  }) =>
+      _repository.retrieveRecordsOf(
+        repoId: repoId,
+        begin: begin,
+        end: end,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> update(
+      {required String repoId, required ExpenseRecord2 newValue}) {
+    // TODO: implement update
+    throw UnimplementedError();
+  }
+}
+
+class FirebaseSharedExpenseRecordRepository2
+    implements SharedExpenseRecordRepository2 {
+  final _ExpenseRecordRepository2 _repository;
+
+  FirebaseSharedExpenseRecordRepository2()
+      : _repository = _ExpenseRecordRepository2(
+          (String uid) => FirebaseFirestore.instance
+              .collection(getSharedExpenseRecordCollectionPath(uid))
+              .withConverter(
+                fromFirestore: _fromFirestore2,
+                toFirestore: _toFirestore2,
+              ),
+        );
+
+  @override
+  Future<ExceptionOr<Unit>> deleteById({
+    required String repoId,
+    required String id,
+  }) =>
+      _repository.deleteById(
+        repoId: repoId,
+        id: id,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> register({
+    required String repoId,
+    required ExpenseRecord2 value,
+  }) =>
+      _repository.register(repoId: repoId, value: value);
+
+  @override
+  Future<ExceptionOr<List<ExpenseRecord2>>> retrieveAll({
+    required String repoId,
+  }) {
+    throw UnsupportedError("DO NOT TRY TO RETRIEVE ALL THE REOCRDS.");
+  }
+
+  @override
+  Future<ExceptionOr<ExpenseRecord2>> retrieveById({
+    required String repoId,
+    required String id,
+  }) {
+    // TODO: implement retrieveById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ExceptionOr<List<ExpenseRecord2>>> retrieveRecordsOf({
+    required String repoId,
+    required DateTime begin,
+    required DateTime end,
+  }) =>
+      _repository.retrieveRecordsOf(
+        repoId: repoId,
+        begin: begin,
+        end: end,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> update(
+      {required String repoId, required ExpenseRecord2 newValue}) {
+    // TODO: implement update
+    throw UnimplementedError();
+  }
+}
+
+class _ExpenseRecordRepository2 {
+  final CollectionReferenceBuilder<ExpenseRecordModel2> _builder;
+
+  _ExpenseRecordRepository2(this._builder);
+
+  Future<ExceptionOr<Unit>> deleteById({
+    required String repoId,
+    required String id,
+  }) async {
+    TransactionHandler handler = (Transaction transaction) async {
+      final recordDocument = _builder(repoId).doc(id);
+      // Get the document
+      DocumentSnapshot<ExpenseRecordModel2> snapshot =
+          await transaction.get(recordDocument);
+
+      if (!snapshot.exists) {
+        return;
+      }
+
+      ExpenseRecordModel2 model = snapshot.data()!;
+      if (model.hasCheckedOut) {
+        transaction.update(
+          model.propertyRef,
+          {
+            'amount': FieldValue.increment(model.amount),
+          },
+        );
+      }
+      transaction.delete(recordDocument);
+      return;
+    };
+    try {
+      await FirebaseFirestore.instance.runTransaction(handler);
+      return Right(unit);
+    } on FirebaseException catch (e) {
+      print(e);
+      return Left(e);
+    }
+  }
+
+  Future<ExceptionOr<Unit>> register({
+    required String repoId,
+    required ExpenseRecord2 value,
+  }) async {
+    final ownerDocument = _builder(repoId).parent!;
+    final propertyCollection =
+        ownerDocument.collection(FIREBASE_COLLECTION_PROPERTIES);
+    final categoryCollection =
+        ownerDocument.collection(FIREBASE_COLLECTION_EXPENSE_CATEGORIES);
+    final batch = FirebaseFirestore.instance.batch();
+    if (value.hasCheckedOut) {
+      batch.update(
+        propertyCollection.doc(value.property.id),
+        {
+          'amount': FieldValue.increment(-value.amount),
+        },
+      );
+    }
+    batch.set(
+      _builder(repoId).doc(value.id),
+      ExpenseRecordModel2.fromEntity(
+        record: value,
+        categoryCollectionPath: categoryCollection.path,
+        propertyCollectionPath: propertyCollection.path,
+      ),
+    );
+
+    try {
+      await batch.commit();
+      return Right(unit);
+    } on FirebaseException catch (e) {
+      print(e);
+      return Left(e);
+    }
+  }
+
+  Future<ExceptionOr<List<ExpenseRecord2>>> retrieveRecordsOf({
+    required String repoId,
+    required DateTime begin,
+    required DateTime end,
+  }) async {
+    assert(
+      begin.isBefore(end),
+      '$begin is after or at the same moment as $end',
+    );
+
+    final QuerySnapshot<ExpenseRecordModel2> querySnapshot;
+    try {
+      querySnapshot = await _builder(repoId)
+          .where('date', isGreaterThanOrEqualTo: begin)
+          .where('date', isLessThan: end)
+          .get();
+    } on FirebaseException catch (e) {
+      print(e);
+      return Left(e);
+    }
+
+    final toModel = (QueryDocumentSnapshot<ExpenseRecordModel2> snapshot) =>
+        snapshot.data();
+    final models = querySnapshot.docs.map(toModel);
+    final toEntityAsync = (ExpenseRecordModel2 model) => model.toEntityAsync();
+    final entityList = await Future.wait(models.map(toEntityAsync));
+    return Right(entityList);
+  }
+}
+
+final _fromFirestore2 = (
+  DocumentSnapshot<Json> snapshot,
+  SnapshotOptions? _,
+) =>
+    ExpenseRecordModel2.fromJson(snapshot.toJsonWithId());
+
+final _toFirestore2 = (
+  ExpenseRecordModel2 value,
   SetOptions? _,
 ) =>
     value.toJson();
