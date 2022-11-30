@@ -26,7 +26,7 @@ class RetrieveBudgetStateInput {
   final DateTime end;
 
   /// Record repository
-  final RecordRepository<ExpenseRecord> recordRepository;
+  final RecordRepository2<ExpenseRecord2> recordRepository;
 
   /// Expense category repository
   final Repository2<ExpenseCategory> categoryRepository;
