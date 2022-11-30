@@ -67,63 +67,63 @@ Repository2<ExpenseCategory> selectExpenseCategoryRepository(
   return repository;
 }
 
-RecordRepository<IncomeRecord> selectIncomeRecordRepository(
+RecordRepository2<IncomeRecord2> selectIncomeRecordRepository(
   SingleOrPair value,
 ) {
   print('selectIncomeRecordRepository($value)');
-  final RecordRepository<IncomeRecord> repository;
+  final RecordRepository2<IncomeRecord2> repository;
 
   switch (value) {
     case SingleOrPair.single:
       print('selectIncomeRecordRepository: Select personal income record.');
-      repository = sl<PersonalIncomeRecordRepository>();
+      repository = sl<PersonalIncomeRecordRepository2>();
       break;
 
     case SingleOrPair.pair:
       print('selectIncomeRecordRepository: Select shared  income record.');
-      repository = sl<SharedIncomeRecordRepository>();
+      repository = sl<SharedIncomeRecordRepository2>();
       break;
   }
 
   return repository;
 }
 
-RecordRepository<ExpenseRecord> selectExpenseRecordRepository(
+RecordRepository2<ExpenseRecord2> selectExpenseRecordRepository(
   SingleOrPair value,
 ) {
   print('selectExpenseRecordRepository($value)');
-  final RecordRepository<ExpenseRecord> repository;
+  final RecordRepository2<ExpenseRecord2> repository;
 
   switch (value) {
     case SingleOrPair.single:
       print('selectExpenseRecordRepository: Select personal expense record.');
-      repository = sl<PersonalExpenseRecordRepository>();
+      repository = sl<PersonalExpenseRecordRepository2>();
       break;
 
     case SingleOrPair.pair:
       print('selectExpenseRecordRepository: Select shared  expense record.');
-      repository = sl<SharedExpenseRecordRepository>();
+      repository = sl<SharedExpenseRecordRepository2>();
       break;
   }
 
   return repository;
 }
 
-RecordRepository<TransferRecord> selectTransferRecordRepository(
+RecordRepository2<TransferRecord2> selectTransferRecordRepository(
   SingleOrPair value,
 ) {
   print('selectTransferRecordRepository($value)');
-  final RecordRepository<TransferRecord> repository;
+  final RecordRepository2<TransferRecord2> repository;
 
   switch (value) {
     case SingleOrPair.single:
       print('selectTransferRecordRepository: Select personal transfer record.');
-      repository = sl<PersonalTransferRecordRepository>();
+      repository = sl<PersonalTransferRecordRepository2>();
       break;
 
     case SingleOrPair.pair:
       print('selectTransferRecordRepository: Select shared  transfer record.');
-      repository = sl<SharedTransferRecordRepository>();
+      repository = sl<SharedTransferRecordRepository2>();
       break;
   }
 

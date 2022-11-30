@@ -169,15 +169,15 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
 }
 
 class _ViewModelItem {
-  _ViewModelItem.ofIncome(IncomeRecord entity)
+  _ViewModelItem.ofIncome(IncomeRecord2 entity)
       : leading = '${entity.category.name}@${entity.note}',
         amount = '+${entity.amount}';
 
-  _ViewModelItem.ofExpense(ExpenseRecord entity)
+  _ViewModelItem.ofExpense(ExpenseRecord2 entity)
       : leading = '${entity.category.name}@${entity.note}',
         amount = '-${entity.amount}';
 
-  _ViewModelItem.ofTransfer(TransferRecord entity)
+  _ViewModelItem.ofTransfer(TransferRecord2 entity)
       : leading = '${entity.source.name}→${entity.destination.name}',
         amount = '${entity.amount}';
 

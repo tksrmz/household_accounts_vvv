@@ -183,7 +183,7 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
     final month = widget._month;
     final sop = widget._singleOrPair;
     final daysInMonth = DateUtils.getDaysInMonth(year, month);
-    final List<int> Function(ExceptionOr<List<Record>>) action =
+    final List<int> Function(ExceptionOr<List<Record2>>) action =
         (result) => result.fold<List<int>>(
               (_) => List.filled(daysInMonth, 0),
               (records) => _summarize(daysInMonth, records),
@@ -219,7 +219,7 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
     );
   }
 
-  List<int> _summarize(int length, List<Record> records) => List.generate(
+  List<int> _summarize(int length, List<Record2> records) => List.generate(
         length,
         (index) => records
             .where((e) => e.recordDate.day == index + 1)

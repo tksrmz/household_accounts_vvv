@@ -8,12 +8,11 @@ import '../../entity/record_entity.dart';
 import '../../feature/category_retrieve/retrieve_expense_category_use_case.dart';
 import '../../feature/category_retrieve/retrieve_income_category_use_case.dart';
 import '../../feature/property_retrieve/property_retrieve_use_case.dart';
-import '../../feature/record_register/expense_record_register_use_case.dart';
-import '../../feature/record_register/income_record_register_use_case.dart';
-import '../../feature/record_register/transfer_record_register_use_case.dart';
+import '../../feature/record_register/use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/single_or_pair.dart';
+import '../../util/uuid/uuid.dart';
 import '../common_widget/number_text_form_field.dart';
 import '../util/model/user_info.dart';
 import '../util/repository_selector.dart';
@@ -154,48 +153,60 @@ class _PageContentsState extends State<_PageContents> {
     });
   }
 
-  void _submitIncomeRecord(AddIncomeRecordUseCase useCase) {
+  void _submitIncomeRecord(AddRecordUseCase<IncomeRecord2> useCase) {
     if (_category != null && _srcProperty != null) {
       useCase(
-        AddIncomeRecordInput(
+        AddRecordInput<IncomeRecord2>(
           uid: _repoId,
-          recordDate: _recordDate,
-          amount: _amount.tryToInt() | 0,
-          note: _note,
-          category: _category! as IncomeCategory,
-          property: _srcProperty!,
+          record: IncomeRecord2(
+            id: UUID.generate(),
+            recordDate: _recordDate,
+            amount: _amount.tryToInt() | 0,
+            note: _note,
+            category: _category! as IncomeCategory,
+            property: _srcProperty!,
+            hasCheckedOut: true,
+          ),
           repository: selectIncomeRecordRepository(_sop),
         ),
       );
     }
   }
 
-  void _submitExpenseRecord(AddExpenseRecordUseCase useCae) {
+  void _submitExpenseRecord(AddRecordUseCase<ExpenseRecord2> useCae) {
     if (_category != null && _srcProperty != null) {
       useCae(
-        AddExpenseRecordInput(
+        AddRecordInput<ExpenseRecord2>(
           uid: _repoId,
-          recordDate: _recordDate,
-          amount: _amount.tryToInt() | 0,
-          note: _note,
-          category: _category! as ExpenseCategory,
-          property: _srcProperty!,
+          record: ExpenseRecord2(
+            id: UUID.generate(),
+            recordDate: _recordDate,
+            amount: _amount.tryToInt() | 0,
+            note: _note,
+            category: _category! as ExpenseCategory,
+            property: _srcProperty!,
+            hasCheckedOut: true,
+          ),
           repository: selectExpenseRecordRepository(_sop),
         ),
       );
     }
   }
 
-  void _submitTransferRecord(AddTransferRecordUseCase useCase) {
+  void _submitTransferRecord(AddRecordUseCase<TransferRecord2> useCase) {
     if (_srcProperty != null && _destProperty != null) {
       useCase(
-        AddTransferRecordInput(
+        AddRecordInput<TransferRecord2>(
           uid: _repoId,
-          recordDate: _recordDate,
-          amount: _amount.tryToInt() | 0,
-          note: _note,
-          source: _srcProperty!,
-          destination: _destProperty!,
+          record: TransferRecord2(
+            id: UUID.generate(),
+            recordDate: _recordDate,
+            amount: _amount.tryToInt() | 0,
+            note: _note,
+            source: _srcProperty!,
+            destination: _destProperty!,
+            hasCheckedOut: true,
+          ),
           repository: selectTransferRecordRepository(_sop),
         ),
       );
@@ -314,13 +325,14 @@ class _PageContentsState extends State<_PageContents> {
               // Process data
               switch (_recordType) {
                 case RecordType.income:
-                  _submitIncomeRecord(sl<AddIncomeRecordUseCase>());
+                  _submitIncomeRecord(sl<AddRecordUseCase<IncomeRecord2>>());
                   break;
                 case RecordType.expense:
-                  _submitExpenseRecord(sl<AddExpenseRecordUseCase>());
+                  _submitExpenseRecord(sl<AddRecordUseCase<ExpenseRecord2>>());
                   break;
                 case RecordType.transfer:
-                  _submitTransferRecord(sl<AddTransferRecordUseCase>());
+                  _submitTransferRecord(
+                      sl<AddRecordUseCase<TransferRecord2>>());
                   break;
               }
               // Reset states
