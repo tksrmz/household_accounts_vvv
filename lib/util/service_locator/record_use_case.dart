@@ -1,27 +1,11 @@
 import 'package:get_it/get_it.dart';
 
 import '../../entity/record_entity.dart';
-import '../../feature/record_deletion/delete_expense_record_interactor.dart';
-import '../../feature/record_deletion/delete_expense_record_use_case.dart';
-import '../../feature/record_deletion/delete_income_record_interactor.dart';
-import '../../feature/record_deletion/delete_income_record_use_case.dart';
-import '../../feature/record_deletion/delete_transfer_record_interactor.dart';
-import '../../feature/record_deletion/delete_transfer_record_use_case.dart';
 import '../../feature/record_deletion/interactor.dart';
 import '../../feature/record_deletion/use_case.dart';
-import '../../feature/record_register/expense_record_register_interactor.dart';
-import '../../feature/record_register/expense_record_register_use_case.dart';
-import '../../feature/record_register/income_record_register_interactor.dart';
-import '../../feature/record_register/income_record_register_use_case.dart';
 import '../../feature/record_register/interactor.dart';
-import '../../feature/record_register/transfer_record_register_interactor.dart';
-import '../../feature/record_register/transfer_record_register_use_case.dart';
 import '../../feature/record_register/use_case.dart';
 import '../../feature/record_retrieve/interactor.dart';
-import '../../feature/record_retrieve/retrieve_income_records_interactor.dart'
-    as dep;
-import '../../feature/record_retrieve/retrieve_income_records_use_case.dart'
-    as dep;
 import '../../feature/record_retrieve/use_case.dart';
 
 void initRecordUseCase(GetIt sl) {
@@ -34,23 +18,11 @@ void _initIncomeRecordUseCase(GetIt sl) {
   sl.registerFactory<AddRecordUseCase<IncomeRecord2>>(
     () => AddRecordInteractor<IncomeRecord2>(),
   );
-  // TODO: delete this registration
-  sl.registerFactory<AddIncomeRecordUseCase>(
-    () => AddIncomeRecordInteractor(),
-  );
   sl.registerFactory<RetrieveRecordsUseCase<IncomeRecord2>>(
     () => RetrieveRecordsInteractor<IncomeRecord2>(),
   );
-  // TODO: delete this registration
-  sl.registerFactory<dep.RetrieveRecordsUseCase<IncomeRecord>>(
-    () => dep.RetrieveRecordsInteractor<IncomeRecord>(),
-  );
   sl.registerFactory<DeleteRecordUseCase<IncomeRecord2>>(
     () => DeleteRecordInteractor<IncomeRecord2>(),
-  );
-  // TODO: delete this registration
-  sl.registerFactory<DeleteIncomeRecordUseCase>(
-    () => DeleteIncomeRecordInteractor(),
   );
 }
 
@@ -58,23 +30,11 @@ void _initExpenseRecordUseCase(GetIt sl) {
   sl.registerFactory<AddRecordUseCase<ExpenseRecord2>>(
     () => AddRecordInteractor<ExpenseRecord2>(),
   );
-  // TODO: delete this registration
-  sl.registerFactory<AddExpenseRecordUseCase>(
-    () => AddExpenseRecordInteractor(),
-  );
   sl.registerFactory<RetrieveRecordsUseCase<ExpenseRecord2>>(
     () => RetrieveRecordsInteractor<ExpenseRecord2>(),
   );
-  // TODO: delete this registration
-  sl.registerFactory<dep.RetrieveRecordsUseCase<ExpenseRecord>>(
-    () => dep.RetrieveRecordsInteractor<ExpenseRecord>(),
-  );
   sl.registerFactory<DeleteRecordUseCase<ExpenseRecord2>>(
     () => DeleteRecordInteractor<ExpenseRecord2>(),
-  );
-  // TODO: delete this registration
-  sl.registerFactory<DeleteExpenseRecordUseCase>(
-    () => DeleteExpenseRecordInteractor(),
   );
 }
 
@@ -82,22 +42,10 @@ void _initTransferRecordUseCase(GetIt sl) {
   sl.registerFactory<AddRecordUseCase<TransferRecord2>>(
     () => AddRecordInteractor<TransferRecord2>(),
   );
-  // TODO: delete this registration
-  sl.registerFactory<AddTransferRecordUseCase>(
-    () => AddTransferRecordInteractor(),
-  );
   sl.registerFactory<RetrieveRecordsUseCase<TransferRecord2>>(
     () => RetrieveRecordsInteractor<TransferRecord2>(),
   );
-  // TODO: delete this registration
-  sl.registerFactory<dep.RetrieveRecordsUseCase<TransferRecord>>(
-    () => dep.RetrieveRecordsInteractor<TransferRecord>(),
-  );
   sl.registerFactory<DeleteRecordUseCase<TransferRecord2>>(
     () => DeleteRecordInteractor<TransferRecord2>(),
-  );
-  // TODO: delete this registration
-  sl.registerFactory<DeleteTransferRecordUseCase>(
-    () => DeleteTransferRecordInteractor(),
   );
 }

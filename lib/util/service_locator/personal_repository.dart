@@ -33,13 +33,13 @@ void _initPersonalCategoryRepository(GetIt sl) {
 }
 
 void _initPersonalRecordRepository(GetIt sl) {
-  sl.registerFactory<PersonalIncomeRecordRepository>(
-    () => FirebasePersonalIncomeRecordRepository(),
+  sl.registerFactory<PersonalIncomeRecordRepository2>(
+    () => FirebasePersonalIncomeRecordRepository2(),
   );
-  sl.registerFactory<PersonalExpenseRecordRepository>(
-        () => FirebasePersonalExpenseRecordRepository(),
+  sl.registerFactory<PersonalExpenseRecordRepository2>(
+    () => FirebasePersonalExpenseRecordRepository2(),
   );
-  sl.registerFactory<PersonalTransferRecordRepository>(
-        () => FirebasePersonalTransferRecordRepository(),
+  sl.registerFactory<PersonalTransferRecordRepository2>(
+    () => FirebasePersonalTransferRecordRepository2(),
   );
 }
