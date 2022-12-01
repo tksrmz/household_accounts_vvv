@@ -33,9 +33,9 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final bodies = <Widget>[
       RecordInputPage(),
-      CalendarRecordViewPage2(),
+      CalendarRecordViewPage(),
       PropertyListBody(),
-      CategoryListPage2(),
+      CategoryListPage(),
       BudgetViewerPage(),
     ];
 

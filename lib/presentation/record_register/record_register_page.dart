@@ -47,7 +47,7 @@ class _PageContentsState extends State<_PageContents> {
   DateTime _recordDate = DateTime.now();
   String _amount = '';
   RecordType _recordType = RecordType.income;
-  Category2? _category;
+  CategoryBase? _category;
   Property? _srcProperty;
   Property? _destProperty;
   String _note = '';
@@ -125,7 +125,7 @@ class _PageContentsState extends State<_PageContents> {
     });
   }
 
-  void _setCategoryState(Category2? value) {
+  void _setCategoryState(CategoryBase? value) {
     setState(() {
       _category = value;
       print('category name: $_category');
@@ -153,12 +153,12 @@ class _PageContentsState extends State<_PageContents> {
     });
   }
 
-  void _submitIncomeRecord(AddRecordUseCase<IncomeRecord2> useCase) {
+  void _submitIncomeRecord(AddRecordUseCase<IncomeRecord> useCase) {
     if (_category != null && _srcProperty != null) {
       useCase(
-        AddRecordInput<IncomeRecord2>(
+        AddRecordInput<IncomeRecord>(
           uid: _repoId,
-          record: IncomeRecord2(
+          record: IncomeRecord(
             id: UUID.generate(),
             recordDate: _recordDate,
             amount: _amount.tryToInt() | 0,
@@ -173,12 +173,12 @@ class _PageContentsState extends State<_PageContents> {
     }
   }
 
-  void _submitExpenseRecord(AddRecordUseCase<ExpenseRecord2> useCae) {
+  void _submitExpenseRecord(AddRecordUseCase<ExpenseRecord> useCae) {
     if (_category != null && _srcProperty != null) {
       useCae(
-        AddRecordInput<ExpenseRecord2>(
+        AddRecordInput<ExpenseRecord>(
           uid: _repoId,
-          record: ExpenseRecord2(
+          record: ExpenseRecord(
             id: UUID.generate(),
             recordDate: _recordDate,
             amount: _amount.tryToInt() | 0,
@@ -193,12 +193,12 @@ class _PageContentsState extends State<_PageContents> {
     }
   }
 
-  void _submitTransferRecord(AddRecordUseCase<TransferRecord2> useCase) {
+  void _submitTransferRecord(AddRecordUseCase<TransferRecord> useCase) {
     if (_srcProperty != null && _destProperty != null) {
       useCase(
-        AddRecordInput<TransferRecord2>(
+        AddRecordInput<TransferRecord>(
           uid: _repoId,
-          record: TransferRecord2(
+          record: TransferRecord(
             id: UUID.generate(),
             recordDate: _recordDate,
             amount: _amount.tryToInt() | 0,
@@ -325,14 +325,13 @@ class _PageContentsState extends State<_PageContents> {
               // Process data
               switch (_recordType) {
                 case RecordType.income:
-                  _submitIncomeRecord(sl<AddRecordUseCase<IncomeRecord2>>());
+                  _submitIncomeRecord(sl<AddRecordUseCase<IncomeRecord>>());
                   break;
                 case RecordType.expense:
-                  _submitExpenseRecord(sl<AddRecordUseCase<ExpenseRecord2>>());
+                  _submitExpenseRecord(sl<AddRecordUseCase<ExpenseRecord>>());
                   break;
                 case RecordType.transfer:
-                  _submitTransferRecord(
-                      sl<AddRecordUseCase<TransferRecord2>>());
+                  _submitTransferRecord(sl<AddRecordUseCase<TransferRecord>>());
                   break;
               }
               // Reset states
@@ -462,17 +461,17 @@ class _RecordTypeSelector extends StatelessWidget {
 }
 
 class _CategoryDropDownMenu extends StatelessWidget {
-  final Future<ExceptionOr<List<Category2>>> _categories;
-  final Category2? _value;
+  final Future<ExceptionOr<List<CategoryBase>>> _categories;
+  final CategoryBase? _value;
   final CategoryType _displayedType;
-  final ValueChanged<Category2?>? _onChanged;
+  final ValueChanged<CategoryBase?>? _onChanged;
 
   const _CategoryDropDownMenu({
     Key? key,
-    required Future<ExceptionOr<List<Category2>>> categories,
-    Category2? value,
+    required Future<ExceptionOr<List<CategoryBase>>> categories,
+    CategoryBase? value,
     required CategoryType categoryType,
-    required ValueChanged<Category2?>? onChanged,
+    required ValueChanged<CategoryBase?>? onChanged,
   })  : _categories = categories,
         _value = value,
         _displayedType = categoryType,
@@ -481,12 +480,12 @@ class _CategoryDropDownMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ExceptionOr<List<Category2>>>(
+    return FutureBuilder<ExceptionOr<List<CategoryBase>>>(
       future: _categories,
       builder: (context, snapshot) {
-        Category2? value;
+        CategoryBase? value;
         Text? disabledHint;
-        List<DropdownMenuItem<Category2>>? items;
+        List<DropdownMenuItem<CategoryBase>>? items;
         final hasConnected = snapshot.connectionState == ConnectionState.done;
 
         if (hasConnected && snapshot.hasData) {
@@ -504,7 +503,7 @@ class _CategoryDropDownMenu extends StatelessWidget {
               disabledHint = null;
               items = categories
                   .where((category) => category.type == _displayedType)
-                  .map<DropdownMenuItem<Category2>>(
+                  .map<DropdownMenuItem<CategoryBase>>(
                     (category) => DropdownMenuItem(
                       value: category,
                       child: Text(category.name),
@@ -527,7 +526,7 @@ class _CategoryDropDownMenu extends StatelessWidget {
           items = null;
         }
 
-        return DropdownButton<Category2>(
+        return DropdownButton<CategoryBase>(
           value: value,
           hint: const Text('Select category'),
           disabledHint: disabledHint,

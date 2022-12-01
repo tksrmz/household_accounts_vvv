@@ -8,7 +8,7 @@ extension RecordTypeParsing on RecordType {
   String toShortString() => this.toString().split('.').last;
 }
 
-abstract class Record2 extends Identifiable {
+abstract class RecordBase extends Identifiable {
   /// Date that this transaction is happen.
   final DateTime recordDate;
 
@@ -23,7 +23,7 @@ abstract class Record2 extends Identifiable {
 
   final RecordType type;
 
-  Record2({
+  RecordBase({
     required String id,
     required this.recordDate,
     required int amount,
@@ -55,8 +55,8 @@ abstract class Record2 extends Identifiable {
   }
 }
 
-class IncomeRecord2 extends Record2 {
-  IncomeRecord2({
+class IncomeRecord extends RecordBase {
+  IncomeRecord({
     required String id,
     required DateTime recordDate,
     required int amount,
@@ -84,8 +84,8 @@ class IncomeRecord2 extends Record2 {
     ..add(property);
 }
 
-class ExpenseRecord2 extends Record2 {
-  ExpenseRecord2({
+class ExpenseRecord extends RecordBase {
+  ExpenseRecord({
     required String id,
     required DateTime recordDate,
     required int amount,
@@ -113,8 +113,8 @@ class ExpenseRecord2 extends Record2 {
     ..add(property);
 }
 
-class TransferRecord2 extends Record2 {
-  TransferRecord2({
+class TransferRecord extends RecordBase {
+  TransferRecord({
     required String id,
     required DateTime recordDate,
     required int amount,

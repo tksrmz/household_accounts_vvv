@@ -11,17 +11,17 @@ import 'record_model.dart';
 import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
-class FirebasePersonalIncomeRecordRepository2
-    implements PersonalIncomeRecordRepository2 {
+class FirebasePersonalIncomeRecordRepository
+    implements PersonalIncomeRecordRepository {
   final _IncomeRecordRepository _repository;
 
-  FirebasePersonalIncomeRecordRepository2()
+  FirebasePersonalIncomeRecordRepository()
       : _repository = _IncomeRecordRepository(
           (String uid) => FirebaseFirestore.instance
               .collection(getPersonalIncomeRecordCollectionPath(uid))
               .withConverter(
-                fromFirestore: _fromFirestore2,
-                toFirestore: _toFirestore2,
+                fromFirestore: _fromFirestore,
+                toFirestore: _toFirestore,
               ),
         );
 
@@ -38,7 +38,7 @@ class FirebasePersonalIncomeRecordRepository2
   @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
-    required IncomeRecord2 value,
+    required IncomeRecord value,
   }) =>
       _repository.register(
         repoId: repoId,
@@ -46,14 +46,14 @@ class FirebasePersonalIncomeRecordRepository2
       );
 
   @override
-  Future<ExceptionOr<List<IncomeRecord2>>> retrieveAll({
+  Future<ExceptionOr<List<IncomeRecord>>> retrieveAll({
     required String repoId,
   }) {
     throw UnsupportedError("DO NOT TRY TO RETRIEVE ALL THE REOCRDS.");
   }
 
   @override
-  Future<ExceptionOr<IncomeRecord2>> retrieveById({
+  Future<ExceptionOr<IncomeRecord>> retrieveById({
     required String repoId,
     required String id,
   }) {
@@ -62,7 +62,7 @@ class FirebasePersonalIncomeRecordRepository2
   }
 
   @override
-  Future<ExceptionOr<List<IncomeRecord2>>> retrieveRecordsOf({
+  Future<ExceptionOr<List<IncomeRecord>>> retrieveRecordsOf({
     required String repoId,
     required DateTime begin,
     required DateTime end,
@@ -76,24 +76,24 @@ class FirebasePersonalIncomeRecordRepository2
   @override
   Future<ExceptionOr<Unit>> update({
     required String repoId,
-    required IncomeRecord2 newValue,
+    required IncomeRecord newValue,
   }) {
     // TODO: implement update
     throw UnimplementedError();
   }
 }
 
-class FirebaseSharedIncomeRecordRepository2
-    implements SharedIncomeRecordRepository2 {
+class FirebaseSharedIncomeRecordRepository
+    implements SharedIncomeRecordRepository {
   final _IncomeRecordRepository _repository;
 
-  FirebaseSharedIncomeRecordRepository2()
+  FirebaseSharedIncomeRecordRepository()
       : _repository = _IncomeRecordRepository(
           (String uid) => FirebaseFirestore.instance
               .collection(getSharedIncomeRecordCollectionPath(uid))
               .withConverter(
-                fromFirestore: _fromFirestore2,
-                toFirestore: _toFirestore2,
+                fromFirestore: _fromFirestore,
+                toFirestore: _toFirestore,
               ),
         );
 
@@ -110,7 +110,7 @@ class FirebaseSharedIncomeRecordRepository2
   @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
-    required IncomeRecord2 value,
+    required IncomeRecord value,
   }) =>
       _repository.register(
         repoId: repoId,
@@ -118,14 +118,14 @@ class FirebaseSharedIncomeRecordRepository2
       );
 
   @override
-  Future<ExceptionOr<List<IncomeRecord2>>> retrieveAll({
+  Future<ExceptionOr<List<IncomeRecord>>> retrieveAll({
     required String repoId,
   }) {
     throw UnsupportedError("DO NOT TRY TO RETRIEVE ALL THE REOCRDS.");
   }
 
   @override
-  Future<ExceptionOr<IncomeRecord2>> retrieveById({
+  Future<ExceptionOr<IncomeRecord>> retrieveById({
     required String repoId,
     required String id,
   }) {
@@ -134,7 +134,7 @@ class FirebaseSharedIncomeRecordRepository2
   }
 
   @override
-  Future<ExceptionOr<List<IncomeRecord2>>> retrieveRecordsOf({
+  Future<ExceptionOr<List<IncomeRecord>>> retrieveRecordsOf({
     required String repoId,
     required DateTime begin,
     required DateTime end,
@@ -148,7 +148,7 @@ class FirebaseSharedIncomeRecordRepository2
   @override
   Future<ExceptionOr<Unit>> update({
     required String repoId,
-    required IncomeRecord2 newValue,
+    required IncomeRecord newValue,
   }) {
     // TODO: implement update
     throw UnimplementedError();
@@ -156,7 +156,7 @@ class FirebaseSharedIncomeRecordRepository2
 }
 
 class _IncomeRecordRepository {
-  final CollectionReferenceBuilder<IncomeRecordModel2> _builder;
+  final CollectionReferenceBuilder<IncomeRecordModel> _builder;
 
   _IncomeRecordRepository(this._builder);
 
@@ -167,14 +167,14 @@ class _IncomeRecordRepository {
     TransactionHandler handler = (Transaction transaction) async {
       final recordDocument = _builder(repoId).doc(id);
       // Get the document
-      final DocumentSnapshot<IncomeRecordModel2> snapshot =
+      final DocumentSnapshot<IncomeRecordModel> snapshot =
           await transaction.get(recordDocument);
 
       if (!snapshot.exists) {
         return;
       }
 
-      IncomeRecordModel2 model = snapshot.data()!;
+      IncomeRecordModel model = snapshot.data()!;
       if (model.hasCheckedOut) {
         // Restore property
         transaction.update(
@@ -198,7 +198,7 @@ class _IncomeRecordRepository {
 
   Future<ExceptionOr<Unit>> register({
     required String repoId,
-    required IncomeRecord2 value,
+    required IncomeRecord value,
   }) async {
     final ownerDocument = _builder(repoId).parent!;
     final propertyCollection =
@@ -216,7 +216,7 @@ class _IncomeRecordRepository {
     }
     batch.set(
       _builder(repoId).doc(value.id),
-      IncomeRecordModel2.fromEntity(
+      IncomeRecordModel.fromEntity(
         record: value,
         categoryCollectionPath: categoryCollection.path,
         propertyCollectionPath: propertyCollection.path,
@@ -232,7 +232,7 @@ class _IncomeRecordRepository {
     }
   }
 
-  Future<ExceptionOr<List<IncomeRecord2>>> retrieveRecordsOf({
+  Future<ExceptionOr<List<IncomeRecord>>> retrieveRecordsOf({
     required String repoId,
     required DateTime begin,
     required DateTime end,
@@ -242,7 +242,7 @@ class _IncomeRecordRepository {
       '$begin is after or at the same moment as $end',
     );
 
-    final QuerySnapshot<IncomeRecordModel2> querySnapshot;
+    final QuerySnapshot<IncomeRecordModel> querySnapshot;
     try {
       querySnapshot = await _builder(repoId)
           .where('date', isGreaterThanOrEqualTo: begin)
@@ -254,22 +254,22 @@ class _IncomeRecordRepository {
     }
 
     final toModel =
-        (QueryDocumentSnapshot<IncomeRecordModel2> snapshot) => snapshot.data();
+        (QueryDocumentSnapshot<IncomeRecordModel> snapshot) => snapshot.data();
     final models = querySnapshot.docs.map(toModel);
-    final toEntityAsync = (IncomeRecordModel2 model) => model.toEntityAsync();
+    final toEntityAsync = (IncomeRecordModel model) => model.toEntityAsync();
     final entityList = await Future.wait(models.map(toEntityAsync));
     return Right(entityList);
   }
 }
 
-final _fromFirestore2 = (
+final _fromFirestore = (
   DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
 ) =>
-    IncomeRecordModel2.fromJson(snapshot.toJsonWithId());
+    IncomeRecordModel.fromJson(snapshot.toJsonWithId());
 
-final _toFirestore2 = (
-  IncomeRecordModel2 value,
+final _toFirestore = (
+  IncomeRecordModel value,
   SetOptions? _,
 ) =>
     value.toJson();

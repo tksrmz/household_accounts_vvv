@@ -5,7 +5,7 @@ import '../../util/type/use_case.dart';
 import '../repository/record_repository.dart';
 
 typedef RetrieveBudgetStateUseCase
-    = UseCase2<RetrieveBudgetStateInput, RetrieveBudgetStateOutput>;
+    = UseCase<RetrieveBudgetStateInput, RetrieveBudgetStateOutput>;
 
 class RetrieveBudgetStateInput {
   const RetrieveBudgetStateInput({
@@ -26,10 +26,10 @@ class RetrieveBudgetStateInput {
   final DateTime end;
 
   /// Record repository
-  final RecordRepository2<ExpenseRecord2> recordRepository;
+  final RecordRepository<ExpenseRecord> recordRepository;
 
   /// Expense category repository
-  final Repository2<ExpenseCategory> categoryRepository;
+  final Repository<ExpenseCategory> categoryRepository;
 }
 
 class BudgetState {

@@ -50,7 +50,7 @@ final _toFirestore = (
 ) =>
     value.toJson();
 
-class _FirebasePropertyRepository implements Repository2<Property> {
+class _FirebasePropertyRepository implements Repository<Property> {
   final CollectionReferenceBuilder<PropertyModel> _collectionReferenceBuilder;
   final _firebase = FirebaseRepositoryBasicOperation<PropertyModel>();
 

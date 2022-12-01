@@ -5,14 +5,14 @@ import '../../../util/type/exception_or.dart';
 import '../../../util/type/single_or_pair.dart';
 import '../repository_selector.dart';
 
-Future<ExceptionOr<List<IncomeRecord2>>> fetchIncomeRecords({
+Future<ExceptionOr<List<IncomeRecord>>> fetchIncomeRecords({
   required int year,
   required int month,
   int? day,
   required SingleOrPair sop,
   required String repoId,
 }) async {
-  final fetch = sl<RetrieveRecordsUseCase<IncomeRecord2>>();
+  final fetch = sl<RetrieveRecordsUseCase<IncomeRecord>>();
   final input = RetrieveRecordsInput(
     uid: repoId,
     year: year,
@@ -23,14 +23,14 @@ Future<ExceptionOr<List<IncomeRecord2>>> fetchIncomeRecords({
   return fetch(input);
 }
 
-Future<ExceptionOr<List<ExpenseRecord2>>> fetchExpenseRecords({
+Future<ExceptionOr<List<ExpenseRecord>>> fetchExpenseRecords({
   required int year,
   required int month,
   int? day,
   required SingleOrPair sop,
   required String repoId,
 }) {
-  final fetch = sl<RetrieveRecordsUseCase<ExpenseRecord2>>();
+  final fetch = sl<RetrieveRecordsUseCase<ExpenseRecord>>();
   final input = RetrieveRecordsInput(
     uid: repoId,
     year: year,
@@ -41,14 +41,14 @@ Future<ExceptionOr<List<ExpenseRecord2>>> fetchExpenseRecords({
   return fetch(input);
 }
 
-Future<ExceptionOr<List<TransferRecord2>>> fetchTransferRecords({
+Future<ExceptionOr<List<TransferRecord>>> fetchTransferRecords({
   required int year,
   required int month,
   int? day,
   required SingleOrPair sop,
   required String repoId,
 }) {
-  final fetch = sl<RetrieveRecordsUseCase<TransferRecord2>>();
+  final fetch = sl<RetrieveRecordsUseCase<TransferRecord>>();
   final input = RetrieveRecordsInput(
     uid: repoId,
     year: year,

@@ -2,10 +2,10 @@ import '../../entity/record_entity.dart';
 import '../../util/type/use_case.dart';
 import '../repository/record_repository.dart';
 
-typedef RetrieveRecordsUseCase<T extends Record2>
-    = UseCase2<RetrieveRecordsInput<T>, List<T>>;
+typedef RetrieveRecordsUseCase<T extends RecordBase>
+    = UseCase<RetrieveRecordsInput<T>, List<T>>;
 
-class RetrieveRecordsInput<T extends Record2> {
+class RetrieveRecordsInput<T extends RecordBase> {
   /// User ID or pair ID.
   final String uid;
 
@@ -19,7 +19,7 @@ class RetrieveRecordsInput<T extends Record2> {
   final int? day;
 
   /// Repository from which records are retrieved.
-  final RecordRepository2<T> repository;
+  final RecordRepository<T> repository;
 
   /// Input to retrieve records.
   ///

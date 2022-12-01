@@ -4,7 +4,7 @@ import '../../entity/category_entity.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 
-typedef DeleteIncomeCategoryUseCase = UseCase2<DeleteIncomeCategoryInput, Unit>;
+typedef DeleteIncomeCategoryUseCase = UseCase<DeleteIncomeCategoryInput, Unit>;
 
 class DeleteIncomeCategoryInput {
   /// User ID or pair ID.
@@ -14,7 +14,7 @@ class DeleteIncomeCategoryInput {
   final String categoryId;
 
   /// Repository from which delete the category.
-  final Repository2<IncomeCategory> repository;
+  final Repository<IncomeCategory> repository;
 
   const DeleteIncomeCategoryInput({
     required this.uid,

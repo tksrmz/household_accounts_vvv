@@ -61,8 +61,8 @@ DocumentReference<PropertyModel> _createPropertyDocumentReference({
           toFirestore: _propertyModelToFirestore,
         );
 
-abstract class RecordModel2 implements DataModel<Record2> {
-  RecordModel2.fromEntity(Record2 entity)
+abstract class RecordBaseModel implements DataModel<RecordBase> {
+  RecordBaseModel.fromEntity(RecordBase entity)
       : id = entity.id,
         recordDate = entity.recordDate,
         amount = entity.amount,
@@ -70,7 +70,7 @@ abstract class RecordModel2 implements DataModel<Record2> {
         hasCheckedOut = entity.hasCheckedOut,
         createdAt = FieldValue.serverTimestamp();
 
-  RecordModel2.fromJson(Json json)
+  RecordBaseModel.fromJson(Json json)
       : id = json['id'] as String,
         recordDate = (json['date'] as Timestamp).toDate(),
         amount = json['amount'] as int,
@@ -95,9 +95,9 @@ abstract class RecordModel2 implements DataModel<Record2> {
       };
 }
 
-class IncomeRecordModel2 extends RecordModel2 {
-  IncomeRecordModel2.fromEntity({
-    required IncomeRecord2 record,
+class IncomeRecordModel extends RecordBaseModel {
+  IncomeRecordModel.fromEntity({
+    required IncomeRecord record,
     required String categoryCollectionPath,
     required String propertyCollectionPath,
   })  : categoryRef = _createIncomeCategoryDocumentReference(
@@ -110,7 +110,7 @@ class IncomeRecordModel2 extends RecordModel2 {
         ),
         super.fromEntity(record);
 
-  IncomeRecordModel2.fromJson(Json json)
+  IncomeRecordModel.fromJson(Json json)
       : categoryRef =
             (json['category']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _incomeCategoryModelFromFirestore,
@@ -127,13 +127,13 @@ class IncomeRecordModel2 extends RecordModel2 {
   final DocumentReference<PropertyModel> propertyRef;
 
   @override
-  IncomeRecord2 toEntity() {
+  IncomeRecord toEntity() {
     throw UnsupportedError(
       'This class contains DocumentReference. Use [toEntityAsync] instead.',
     );
   }
 
-  Future<IncomeRecord2> toEntityAsync() async => IncomeRecord2(
+  Future<IncomeRecord> toEntityAsync() async => IncomeRecord(
         id: id,
         recordDate: recordDate,
         amount: amount,
@@ -165,9 +165,9 @@ class IncomeRecordModel2 extends RecordModel2 {
     );
 }
 
-class ExpenseRecordModel2 extends RecordModel2 {
-  ExpenseRecordModel2.fromEntity({
-    required ExpenseRecord2 record,
+class ExpenseRecordModel extends RecordBaseModel {
+  ExpenseRecordModel.fromEntity({
+    required ExpenseRecord record,
     required String categoryCollectionPath,
     required String propertyCollectionPath,
   })  : categoryRef = _createExpenseCategoryDocumentReference(
@@ -180,7 +180,7 @@ class ExpenseRecordModel2 extends RecordModel2 {
         ),
         super.fromEntity(record);
 
-  ExpenseRecordModel2.fromJson(Json json)
+  ExpenseRecordModel.fromJson(Json json)
       : categoryRef =
             (json['category']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _expenseCategoryModelFromFirestore,
@@ -197,13 +197,13 @@ class ExpenseRecordModel2 extends RecordModel2 {
   final DocumentReference<PropertyModel> propertyRef;
 
   @override
-  ExpenseRecord2 toEntity() {
+  ExpenseRecord toEntity() {
     throw UnsupportedError(
       'This class contains DocumentReference. Use [toEntityAsync] instead.',
     );
   }
 
-  Future<ExpenseRecord2> toEntityAsync() async => ExpenseRecord2(
+  Future<ExpenseRecord> toEntityAsync() async => ExpenseRecord(
         id: id,
         recordDate: recordDate,
         amount: amount,
@@ -235,9 +235,9 @@ class ExpenseRecordModel2 extends RecordModel2 {
     );
 }
 
-class TransferRecordModel2 extends RecordModel2 {
-  TransferRecordModel2.fromEntity({
-    required TransferRecord2 record,
+class TransferRecordModel extends RecordBaseModel {
+  TransferRecordModel.fromEntity({
+    required TransferRecord record,
     required String propertyCollectionPath,
   })  : fromPropertyRef = _createPropertyDocumentReference(
           propertyId: record.source.id,
@@ -249,7 +249,7 @@ class TransferRecordModel2 extends RecordModel2 {
         ),
         super.fromEntity(record);
 
-  TransferRecordModel2.fromJson(Json json)
+  TransferRecordModel.fromJson(Json json)
       : fromPropertyRef =
             (json['fromProperty']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _propertyModelFromFirestore,
@@ -266,13 +266,13 @@ class TransferRecordModel2 extends RecordModel2 {
   final DocumentReference<PropertyModel> toPropertyRef;
 
   @override
-  TransferRecord2 toEntity() {
+  TransferRecord toEntity() {
     throw UnsupportedError(
         'This class contains DocumentReference. Use [toEntityAsync] instead.');
   }
 
-  Future<TransferRecord2> toEntityAsync() async {
-    return TransferRecord2(
+  Future<TransferRecord> toEntityAsync() async {
+    return TransferRecord(
       id: id,
       recordDate: recordDate,
       amount: amount,

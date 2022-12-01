@@ -8,9 +8,9 @@ import '../../util/service_locator/main.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/single_or_pair.dart';
 
-Repository2<Property> selectPropertyRepository(SingleOrPair value) {
+Repository<Property> selectPropertyRepository(SingleOrPair value) {
   print('$selectPropertyRepository($value)');
-  final Repository2<Property> repository;
+  final Repository<Property> repository;
 
   switch (value) {
     case SingleOrPair.single:
@@ -27,9 +27,9 @@ Repository2<Property> selectPropertyRepository(SingleOrPair value) {
   return repository;
 }
 
-Repository2<IncomeCategory> selectIncomeCategoryRepository(SingleOrPair value) {
+Repository<IncomeCategory> selectIncomeCategoryRepository(SingleOrPair value) {
   print('$selectPropertyRepository($value)');
-  final Repository2<IncomeCategory> repository;
+  final Repository<IncomeCategory> repository;
 
   switch (value) {
     case SingleOrPair.single:
@@ -46,11 +46,11 @@ Repository2<IncomeCategory> selectIncomeCategoryRepository(SingleOrPair value) {
   return repository;
 }
 
-Repository2<ExpenseCategory> selectExpenseCategoryRepository(
+Repository<ExpenseCategory> selectExpenseCategoryRepository(
   SingleOrPair value,
 ) {
   print('$selectPropertyRepository($value)');
-  final Repository2<ExpenseCategory> repository;
+  final Repository<ExpenseCategory> repository;
 
   switch (value) {
     case SingleOrPair.single:
@@ -67,63 +67,63 @@ Repository2<ExpenseCategory> selectExpenseCategoryRepository(
   return repository;
 }
 
-RecordRepository2<IncomeRecord2> selectIncomeRecordRepository(
+RecordRepository<IncomeRecord> selectIncomeRecordRepository(
   SingleOrPair value,
 ) {
   print('selectIncomeRecordRepository($value)');
-  final RecordRepository2<IncomeRecord2> repository;
+  final RecordRepository<IncomeRecord> repository;
 
   switch (value) {
     case SingleOrPair.single:
       print('selectIncomeRecordRepository: Select personal income record.');
-      repository = sl<PersonalIncomeRecordRepository2>();
+      repository = sl<PersonalIncomeRecordRepository>();
       break;
 
     case SingleOrPair.pair:
       print('selectIncomeRecordRepository: Select shared  income record.');
-      repository = sl<SharedIncomeRecordRepository2>();
+      repository = sl<SharedIncomeRecordRepository>();
       break;
   }
 
   return repository;
 }
 
-RecordRepository2<ExpenseRecord2> selectExpenseRecordRepository(
+RecordRepository<ExpenseRecord> selectExpenseRecordRepository(
   SingleOrPair value,
 ) {
   print('selectExpenseRecordRepository($value)');
-  final RecordRepository2<ExpenseRecord2> repository;
+  final RecordRepository<ExpenseRecord> repository;
 
   switch (value) {
     case SingleOrPair.single:
       print('selectExpenseRecordRepository: Select personal expense record.');
-      repository = sl<PersonalExpenseRecordRepository2>();
+      repository = sl<PersonalExpenseRecordRepository>();
       break;
 
     case SingleOrPair.pair:
       print('selectExpenseRecordRepository: Select shared  expense record.');
-      repository = sl<SharedExpenseRecordRepository2>();
+      repository = sl<SharedExpenseRecordRepository>();
       break;
   }
 
   return repository;
 }
 
-RecordRepository2<TransferRecord2> selectTransferRecordRepository(
+RecordRepository<TransferRecord> selectTransferRecordRepository(
   SingleOrPair value,
 ) {
   print('selectTransferRecordRepository($value)');
-  final RecordRepository2<TransferRecord2> repository;
+  final RecordRepository<TransferRecord> repository;
 
   switch (value) {
     case SingleOrPair.single:
       print('selectTransferRecordRepository: Select personal transfer record.');
-      repository = sl<PersonalTransferRecordRepository2>();
+      repository = sl<PersonalTransferRecordRepository>();
       break;
 
     case SingleOrPair.pair:
       print('selectTransferRecordRepository: Select shared  transfer record.');
-      repository = sl<SharedTransferRecordRepository2>();
+      repository = sl<SharedTransferRecordRepository>();
       break;
   }
 

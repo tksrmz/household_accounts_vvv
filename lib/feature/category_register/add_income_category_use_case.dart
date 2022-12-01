@@ -4,7 +4,7 @@ import '../../entity/category_entity.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 
-typedef AddIncomeCategoryUseCase = UseCase2<AddIncomeCategoryInput, Unit>;
+typedef AddIncomeCategoryUseCase = UseCase<AddIncomeCategoryInput, Unit>;
 
 class AddIncomeCategoryInput {
   /// User ID.
@@ -13,7 +13,7 @@ class AddIncomeCategoryInput {
   /// Name of new category.
   final String name;
 
-  final Repository2<IncomeCategory> repository;
+  final Repository<IncomeCategory> repository;
 
   const AddIncomeCategoryInput({
     required this.uid,

@@ -15,37 +15,37 @@ void initRecordUseCase(GetIt sl) {
 }
 
 void _initIncomeRecordUseCase(GetIt sl) {
-  sl.registerFactory<AddRecordUseCase<IncomeRecord2>>(
-    () => AddRecordInteractor<IncomeRecord2>(),
+  sl.registerFactory<AddRecordUseCase<IncomeRecord>>(
+    () => AddRecordInteractor<IncomeRecord>(),
   );
-  sl.registerFactory<RetrieveRecordsUseCase<IncomeRecord2>>(
-    () => RetrieveRecordsInteractor<IncomeRecord2>(),
+  sl.registerFactory<RetrieveRecordsUseCase<IncomeRecord>>(
+    () => RetrieveRecordsInteractor<IncomeRecord>(),
   );
-  sl.registerFactory<DeleteRecordUseCase<IncomeRecord2>>(
-    () => DeleteRecordInteractor<IncomeRecord2>(),
+  sl.registerFactory<DeleteRecordUseCase<IncomeRecord>>(
+    () => DeleteRecordInteractor<IncomeRecord>(),
   );
 }
 
 void _initExpenseRecordUseCase(GetIt sl) {
-  sl.registerFactory<AddRecordUseCase<ExpenseRecord2>>(
-    () => AddRecordInteractor<ExpenseRecord2>(),
+  sl.registerFactory<AddRecordUseCase<ExpenseRecord>>(
+    () => AddRecordInteractor<ExpenseRecord>(),
   );
-  sl.registerFactory<RetrieveRecordsUseCase<ExpenseRecord2>>(
-    () => RetrieveRecordsInteractor<ExpenseRecord2>(),
+  sl.registerFactory<RetrieveRecordsUseCase<ExpenseRecord>>(
+    () => RetrieveRecordsInteractor<ExpenseRecord>(),
   );
-  sl.registerFactory<DeleteRecordUseCase<ExpenseRecord2>>(
-    () => DeleteRecordInteractor<ExpenseRecord2>(),
+  sl.registerFactory<DeleteRecordUseCase<ExpenseRecord>>(
+    () => DeleteRecordInteractor<ExpenseRecord>(),
   );
 }
 
 void _initTransferRecordUseCase(GetIt sl) {
-  sl.registerFactory<AddRecordUseCase<TransferRecord2>>(
-    () => AddRecordInteractor<TransferRecord2>(),
+  sl.registerFactory<AddRecordUseCase<TransferRecord>>(
+    () => AddRecordInteractor<TransferRecord>(),
   );
-  sl.registerFactory<RetrieveRecordsUseCase<TransferRecord2>>(
-    () => RetrieveRecordsInteractor<TransferRecord2>(),
+  sl.registerFactory<RetrieveRecordsUseCase<TransferRecord>>(
+    () => RetrieveRecordsInteractor<TransferRecord>(),
   );
-  sl.registerFactory<DeleteRecordUseCase<TransferRecord2>>(
-    () => DeleteRecordInteractor<TransferRecord2>(),
+  sl.registerFactory<DeleteRecordUseCase<TransferRecord>>(
+    () => DeleteRecordInteractor<TransferRecord>(),
   );
 }

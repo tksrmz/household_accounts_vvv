@@ -4,7 +4,7 @@ import '../../entity/category_entity.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 
-typedef UpdateIncomeCategoryUseCase = UseCase2<UpdateIncomeCategoryInput, Unit>;
+typedef UpdateIncomeCategoryUseCase = UseCase<UpdateIncomeCategoryInput, Unit>;
 
 class UpdateIncomeCategoryInput {
   /// User ID or Pair ID.
@@ -18,7 +18,7 @@ class UpdateIncomeCategoryInput {
   /// If this value is null, the category name will not change.
   final String? name;
 
-  final Repository2<IncomeCategory> repository;
+  final Repository<IncomeCategory> repository;
 
   UpdateIncomeCategoryInput({
     required this.uid,

@@ -53,7 +53,7 @@ final _toFirestore = (
     value.toJson();
 
 class _FirebaseExpenseCategoryRepository
-    implements Repository2<ExpenseCategory> {
+    implements Repository<ExpenseCategory> {
   final CollectionReferenceBuilder<ExpenseCategoryModel>
       _collectionReferenceBuilder;
   final _firebase = FirebaseRepositoryBasicOperation<ExpenseCategoryModel>();

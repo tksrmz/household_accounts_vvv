@@ -2,7 +2,7 @@ import '../../entity/record_entity.dart';
 import '../../util/type/exception_or.dart';
 import 'use_case.dart';
 
-class RetrieveRecordsInteractor<T extends Record2>
+class RetrieveRecordsInteractor<T extends RecordBase>
     implements RetrieveRecordsUseCase<T> {
   @override
   Future<ExceptionOr<List<T>>> call(

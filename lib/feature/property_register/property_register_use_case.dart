@@ -4,7 +4,7 @@ import '../../entity/property_entity.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 
-typedef AddPropertyUseCase = UseCase2<AddPropertyInput, Unit>;
+typedef AddPropertyUseCase = UseCase<AddPropertyInput, Unit>;
 
 class AddPropertyInput {
   /// User ID or pair ID.
@@ -17,7 +17,7 @@ class AddPropertyInput {
   final int amount;
 
   /// Repository where the new property is registered.
-  final Repository2<Property> repository;
+  final Repository<Property> repository;
 
   AddPropertyInput({
     required this.uid,

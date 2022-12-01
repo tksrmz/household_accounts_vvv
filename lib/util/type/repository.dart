@@ -8,7 +8,7 @@ import 'identifiable.dart';
 /// [repoId] is User ID or Pair ID.
 /// Use this argument to specify to which repository
 /// operations are applied, personal repository or shared repository.
-abstract class Repository2<T extends Identifiable> {
+abstract class Repository<T extends Identifiable> {
   /// Registers [value] to the repository.
   ///
   /// Fails when there is already a record that is identified by [value.id],

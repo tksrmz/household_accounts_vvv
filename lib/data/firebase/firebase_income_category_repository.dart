@@ -52,7 +52,7 @@ final _toFirestore = (
 ) =>
     value.toJson();
 
-class _FirebaseIncomeCategoryRepository implements Repository2<IncomeCategory> {
+class _FirebaseIncomeCategoryRepository implements Repository<IncomeCategory> {
   final CollectionReferenceBuilder<IncomeCategoryModel>
       _collectionReferenceBuilder;
   final _firebase = FirebaseRepositoryBasicOperation<IncomeCategoryModel>();

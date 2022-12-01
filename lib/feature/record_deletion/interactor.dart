@@ -4,7 +4,7 @@ import '../../entity/record_entity.dart';
 import '../../util/type/exception_or.dart';
 import 'use_case.dart';
 
-class DeleteRecordInteractor<T extends Record2>
+class DeleteRecordInteractor<T extends RecordBase>
     implements DeleteRecordUseCase<T> {
   @override
   Future<ExceptionOr<Unit>> call(DeleteRecordInput<T> input) =>

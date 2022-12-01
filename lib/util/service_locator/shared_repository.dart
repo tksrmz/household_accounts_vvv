@@ -4,7 +4,7 @@ import '../../data/firebase/firebase_expense_category_repository.dart';
 import '../../data/firebase/firebase_expense_record_repository.dart';
 import '../../data/firebase/firebase_income_category_repository.dart';
 import '../../data/firebase/firebase_income_record_repository.dart';
-import '../../data/firebase/firebase_property_repository2.dart';
+import '../../data/firebase/firebase_property_repository.dart';
 import '../../data/firebase/firebase_transfer_record_repository.dart';
 import '../../feature/repository/category_repository.dart';
 import '../../feature/repository/property_repository.dart';
@@ -33,13 +33,13 @@ void _initSharedCategoryRepository(GetIt sl) {
 }
 
 void _initSharedRecordRepository(GetIt sl) {
-  sl.registerFactory<SharedIncomeRecordRepository2>(
-    () => FirebaseSharedIncomeRecordRepository2(),
+  sl.registerFactory<SharedIncomeRecordRepository>(
+        () => FirebaseSharedIncomeRecordRepository(),
   );
-  sl.registerFactory<SharedExpenseRecordRepository2>(
-    () => FirebaseSharedExpenseRecordRepository2(),
+  sl.registerFactory<SharedExpenseRecordRepository>(
+        () => FirebaseSharedExpenseRecordRepository(),
   );
-  sl.registerFactory<SharedTransferRecordRepository2>(
-    () => FirebaseSharedTransferRecordRepository2(),
+  sl.registerFactory<SharedTransferRecordRepository>(
+        () => FirebaseSharedTransferRecordRepository(),
   );
 }
