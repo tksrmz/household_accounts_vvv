@@ -4,7 +4,7 @@ import '../../entity/property_entity.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 
-typedef UpdatePropertyUseCase = UseCase2<UpdatePropertyInput, Unit>;
+typedef UpdatePropertyUseCase = UseCase<UpdatePropertyInput, Unit>;
 
 class UpdatePropertyInput {
   /// User ID or pair ID.
@@ -24,7 +24,7 @@ class UpdatePropertyInput {
   final int? amount;
 
   /// Repository where the target property exists.
-  final Repository2<Property> repository;
+  final Repository<Property> repository;
 
   const UpdatePropertyInput({
     required this.uid,

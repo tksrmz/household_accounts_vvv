@@ -5,7 +5,7 @@ import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 
 typedef UpdateExpenseCategoryUseCase
-    = UseCase2<UpdateExpenseCategoryInput, Unit>;
+    = UseCase<UpdateExpenseCategoryInput, Unit>;
 
 class UpdateExpenseCategoryInput {
   /// User ID or Pair ID.
@@ -24,7 +24,7 @@ class UpdateExpenseCategoryInput {
   /// If this value is null, the category budget will not change.
   final int? budget;
 
-  final Repository2<ExpenseCategory> repository;
+  final Repository<ExpenseCategory> repository;
 
   UpdateExpenseCategoryInput({
     required this.uid,

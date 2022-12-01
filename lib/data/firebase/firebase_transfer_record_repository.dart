@@ -12,10 +12,11 @@ import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
 class FirebasePersonalTransferRecordRepository
-    extends _FirebaseTransferRecordRepository
     implements PersonalTransferRecordRepository {
+  final _TransferRecordRepository _repository;
+
   FirebasePersonalTransferRecordRepository()
-      : super(
+      : _repository = _TransferRecordRepository(
           (String uid) => FirebaseFirestore.instance
               .collection(getPersonalTransferRecordCollectionPath(uid))
               .withConverter(
@@ -23,29 +24,142 @@ class FirebasePersonalTransferRecordRepository
                 toFirestore: _toFirestore,
               ),
         );
+
+  @override
+  Future<ExceptionOr<Unit>> deleteById({
+    required String repoId,
+    required String id,
+  }) =>
+      _repository.deleteById(
+        repoId: repoId,
+        id: id,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> register({
+    required String repoId,
+    required TransferRecord value,
+  }) =>
+      _repository.register(
+        repoId: repoId,
+        value: value,
+      );
+
+  @override
+  Future<ExceptionOr<List<TransferRecord>>> retrieveAll({
+    required String repoId,
+  }) {
+    throw UnsupportedError("DO NOT TRY TO RETRIEVE ALL THE REOCRDS.");
+  }
+
+  @override
+  Future<ExceptionOr<TransferRecord>> retrieveById({
+    required String repoId,
+    required String id,
+  }) {
+    // TODO: implement retrieveById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ExceptionOr<List<TransferRecord>>> retrieveRecordsOf({
+    required String repoId,
+    required DateTime begin,
+    required DateTime end,
+  }) =>
+      _repository.retrieveRecordsOf(
+        repoId: repoId,
+        begin: begin,
+        end: end,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> update({
+    required String repoId,
+    required TransferRecord newValue,
+  }) {
+    // TODO: implement update
+    throw UnimplementedError();
+  }
 }
 
 class FirebaseSharedTransferRecordRepository
-    extends _FirebaseTransferRecordRepository
     implements SharedTransferRecordRepository {
+  final _TransferRecordRepository _repository;
+
   FirebaseSharedTransferRecordRepository()
-      : super(
+      : _repository = _TransferRecordRepository(
           (String uid) => FirebaseFirestore.instance
-              .collection(getSharedTransferRecordCollectionPath(uid))
+              .collection(getPersonalTransferRecordCollectionPath(uid))
               .withConverter(
                 fromFirestore: _fromFirestore,
                 toFirestore: _toFirestore,
               ),
         );
-}
-
-class _FirebaseTransferRecordRepository
-    extends RecordRepository<TransferRecord> {
-  final CollectionReferenceBuilder<TransferRecordModel> _builder;
-
-  _FirebaseTransferRecordRepository(this._builder);
 
   @override
+  Future<ExceptionOr<Unit>> deleteById({
+    required String repoId,
+    required String id,
+  }) =>
+      _repository.deleteById(
+        repoId: repoId,
+        id: id,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> register({
+    required String repoId,
+    required TransferRecord value,
+  }) =>
+      _repository.register(
+        repoId: repoId,
+        value: value,
+      );
+
+  @override
+  Future<ExceptionOr<List<TransferRecord>>> retrieveAll({
+    required String repoId,
+  }) {
+    throw UnsupportedError("DO NOT TRY TO RETRIEVE ALL THE REOCRDS.");
+  }
+
+  @override
+  Future<ExceptionOr<TransferRecord>> retrieveById({
+    required String repoId,
+    required String id,
+  }) {
+    // TODO: implement retrieveById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ExceptionOr<List<TransferRecord>>> retrieveRecordsOf({
+    required String repoId,
+    required DateTime begin,
+    required DateTime end,
+  }) =>
+      _repository.retrieveRecordsOf(
+        repoId: repoId,
+        begin: begin,
+        end: end,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> update({
+    required String repoId,
+    required TransferRecord newValue,
+  }) {
+    // TODO: implement update
+    throw UnimplementedError();
+  }
+}
+
+class _TransferRecordRepository {
+  final CollectionReferenceBuilder<TransferRecordModel> _builder;
+
+  _TransferRecordRepository(this._builder);
+
   Future<ExceptionOr<Unit>> deleteById({
     required String repoId,
     required String id,
@@ -61,17 +175,20 @@ class _FirebaseTransferRecordRepository
       }
 
       TransferRecordModel model = snapshot.data()!;
-      transaction.update(
-        model.fromPropertyRef,
-        {
-          'amount': FieldValue.increment(model.amount),
-        },
-      ).update(
-        model.toPropertyRef,
-        {
-          'amount': FieldValue.increment(-model.amount),
-        },
-      ).delete(recordDocument);
+      if (model.hasCheckedOut) {
+        transaction.update(
+          model.fromPropertyRef,
+          {
+            'amount': FieldValue.increment(model.amount),
+          },
+        ).update(
+          model.toPropertyRef,
+          {
+            'amount': FieldValue.increment(-model.amount),
+          },
+        );
+      }
+      transaction.delete(recordDocument);
       return;
     };
     try {
@@ -83,7 +200,6 @@ class _FirebaseTransferRecordRepository
     }
   }
 
-  @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required TransferRecord value,
@@ -91,19 +207,22 @@ class _FirebaseTransferRecordRepository
     final ownerDocument = _builder(repoId).parent!;
     final propertyCollection =
         ownerDocument.collection(FIREBASE_COLLECTION_PROPERTIES);
-    final batch = FirebaseFirestore.instance.batch()
-      ..update(
-        propertyCollection.doc(value.source.id),
-        {
-          'amount': FieldValue.increment(-value.amount),
-        },
-      )
-      ..update(
-        propertyCollection.doc(value.destination.id),
-        {
-          'amount': FieldValue.increment(value.amount),
-        },
-      );
+    final batch = FirebaseFirestore.instance.batch();
+    if (value.hasCheckedOut) {
+      batch
+        ..update(
+          propertyCollection.doc(value.source.id),
+          {
+            'amount': FieldValue.increment(-value.amount),
+          },
+        )
+        ..update(
+          propertyCollection.doc(value.destination.id),
+          {
+            'amount': FieldValue.increment(value.amount),
+          },
+        );
+    }
     batch.set(
       _builder(repoId).doc(value.id),
       TransferRecordModel.fromEntity(
@@ -121,14 +240,6 @@ class _FirebaseTransferRecordRepository
     }
   }
 
-  @override
-  Future<ExceptionOr<TransferRecord>> retrieveById(
-      {required String repoId, required String id}) {
-    // TODO: implement retrieveById
-    throw UnimplementedError();
-  }
-
-  @override
   Future<ExceptionOr<List<TransferRecord>>> retrieveRecordsOf({
     required String repoId,
     required DateTime begin,
@@ -156,13 +267,6 @@ class _FirebaseTransferRecordRepository
     final toEntityAsync = (TransferRecordModel model) => model.toEntityAsync();
     final entityList = await Future.wait(models.map(toEntityAsync));
     return Right(entityList);
-  }
-
-  @override
-  Future<ExceptionOr<Unit>> update(
-      {required String repoId, required TransferRecord newValue}) {
-    // TODO: implement update
-    throw UnimplementedError();
   }
 }
 

@@ -4,21 +4,22 @@ import '../../entity/record_entity.dart';
 import '../../util/type/use_case.dart';
 import '../repository/record_repository.dart';
 
-typedef DeleteExpenseRecordUseCase = UseCase2<DeleteExpenseRecordInput, Unit>;
+typedef DeleteRecordUseCase<T extends RecordBase>
+    = UseCase<DeleteRecordInput<T>, Unit>;
 
-class DeleteExpenseRecordInput {
+class DeleteRecordInput<T extends RecordBase> {
   /// User ID or pair ID.
   final String uid;
 
-  /// ID of record that will be deleted.
-  final String recordId;
+  /// Record that will be deleted.
+  final T record;
 
   /// Repository from which the record will be deleted.
-  final RecordRepository<ExpenseRecord> repository;
+  final RecordRepository<T> repository;
 
-  DeleteExpenseRecordInput({
+  DeleteRecordInput({
     required this.uid,
-    required this.recordId,
+    required this.record,
     required this.repository,
   });
 }

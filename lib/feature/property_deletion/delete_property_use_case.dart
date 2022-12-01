@@ -4,7 +4,7 @@ import '../../entity/property_entity.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 
-typedef DeletePropertyUseCase = UseCase2<DeletePropertyInput, Unit>;
+typedef DeletePropertyUseCase = UseCase<DeletePropertyInput, Unit>;
 
 class DeletePropertyInput {
   /// User ID or pair ID.
@@ -14,7 +14,7 @@ class DeletePropertyInput {
   final String propertyId;
 
   /// Repository from which delete the property.
-  final Repository2<Property> repository;
+  final Repository<Property> repository;
 
   DeletePropertyInput({
     required this.uid,

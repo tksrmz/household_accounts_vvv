@@ -1,20 +1,12 @@
 import 'package:get_it/get_it.dart';
 
 import '../../entity/record_entity.dart';
-import '../../feature/record_deletion/delete_expense_record_interactor.dart';
-import '../../feature/record_deletion/delete_expense_record_use_case.dart';
-import '../../feature/record_deletion/delete_income_record_interactor.dart';
-import '../../feature/record_deletion/delete_income_record_use_case.dart';
-import '../../feature/record_deletion/delete_transfer_record_interactor.dart';
-import '../../feature/record_deletion/delete_transfer_record_use_case.dart';
-import '../../feature/record_register/expense_record_register_interactor.dart';
-import '../../feature/record_register/expense_record_register_use_case.dart';
-import '../../feature/record_register/income_record_register_interactor.dart';
-import '../../feature/record_register/income_record_register_use_case.dart';
-import '../../feature/record_register/transfer_record_register_interactor.dart';
-import '../../feature/record_register/transfer_record_register_use_case.dart';
-import '../../feature/record_retrieve/retrieve_income_records_interactor.dart';
-import '../../feature/record_retrieve/retrieve_income_records_use_case.dart';
+import '../../feature/record_deletion/interactor.dart';
+import '../../feature/record_deletion/use_case.dart';
+import '../../feature/record_register/interactor.dart';
+import '../../feature/record_register/use_case.dart';
+import '../../feature/record_retrieve/interactor.dart';
+import '../../feature/record_retrieve/use_case.dart';
 
 void initRecordUseCase(GetIt sl) {
   _initIncomeRecordUseCase(sl);
@@ -23,37 +15,37 @@ void initRecordUseCase(GetIt sl) {
 }
 
 void _initIncomeRecordUseCase(GetIt sl) {
-  sl.registerFactory<AddIncomeRecordUseCase>(
-    () => AddIncomeRecordInteractor(),
+  sl.registerFactory<AddRecordUseCase<IncomeRecord>>(
+    () => AddRecordInteractor<IncomeRecord>(),
   );
   sl.registerFactory<RetrieveRecordsUseCase<IncomeRecord>>(
     () => RetrieveRecordsInteractor<IncomeRecord>(),
   );
-  sl.registerFactory<DeleteIncomeRecordUseCase>(
-    () => DeleteIncomeRecordInteractor(),
+  sl.registerFactory<DeleteRecordUseCase<IncomeRecord>>(
+    () => DeleteRecordInteractor<IncomeRecord>(),
   );
 }
 
 void _initExpenseRecordUseCase(GetIt sl) {
-  sl.registerFactory<AddExpenseRecordUseCase>(
-    () => AddExpenseRecordInteractor(),
+  sl.registerFactory<AddRecordUseCase<ExpenseRecord>>(
+    () => AddRecordInteractor<ExpenseRecord>(),
   );
   sl.registerFactory<RetrieveRecordsUseCase<ExpenseRecord>>(
     () => RetrieveRecordsInteractor<ExpenseRecord>(),
   );
-  sl.registerFactory<DeleteExpenseRecordUseCase>(
-    () => DeleteExpenseRecordInteractor(),
+  sl.registerFactory<DeleteRecordUseCase<ExpenseRecord>>(
+    () => DeleteRecordInteractor<ExpenseRecord>(),
   );
 }
 
 void _initTransferRecordUseCase(GetIt sl) {
-  sl.registerFactory<AddTransferRecordUseCase>(
-    () => AddTransferRecordInteractor(),
+  sl.registerFactory<AddRecordUseCase<TransferRecord>>(
+    () => AddRecordInteractor<TransferRecord>(),
   );
   sl.registerFactory<RetrieveRecordsUseCase<TransferRecord>>(
     () => RetrieveRecordsInteractor<TransferRecord>(),
   );
-  sl.registerFactory<DeleteTransferRecordUseCase>(
-    () => DeleteTransferRecordInteractor(),
+  sl.registerFactory<DeleteRecordUseCase<TransferRecord>>(
+    () => DeleteRecordInteractor<TransferRecord>(),
   );
 }

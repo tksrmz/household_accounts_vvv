@@ -1,33 +1,14 @@
 import '../../entity/category_entity.dart';
-import '../../util/type/exception_or.dart';
 import '../../util/type/repository.dart';
 
-@deprecated
-abstract class IncomeCategoryRepository extends Repository<IncomeCategory> {
-  /// Retrieves all income categories.
-  ///
-  /// The list order has no meanings.
-  /// Fails if something goes wrong with the repository.
-  Future<ExceptionOr<List<IncomeCategory>>> retrieveAll();
-}
-
-@deprecated
-abstract class ExpenseCategoryRepository extends Repository<ExpenseCategory> {
-  /// Retrieves all expense categories.
-  ///
-  /// The list order has no meanings.
-  /// Fails if something goes wrong with the repository.
-  Future<ExceptionOr<List<ExpenseCategory>>> retrieveAll();
-}
-
 abstract class PersonalIncomeCategoryRepository
-    extends Repository2<IncomeCategory> {}
+    extends Repository<IncomeCategory> {}
 
 abstract class SharedIncomeCategoryRepository
-    extends Repository2<IncomeCategory> {}
+    extends Repository<IncomeCategory> {}
 
 abstract class PersonalExpenseCategoryRepository
-    extends Repository2<ExpenseCategory> {}
+    extends Repository<ExpenseCategory> {}
 
 abstract class SharedExpenseCategoryRepository
-    extends Repository2<ExpenseCategory> {}
+    extends Repository<ExpenseCategory> {}

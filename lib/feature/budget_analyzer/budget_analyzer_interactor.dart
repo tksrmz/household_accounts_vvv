@@ -13,7 +13,7 @@ class RetrieveBudgetStateInteractor extends RetrieveBudgetStateUseCase {
     final recordRepository = input.recordRepository;
     final expenseCategoryRepository = input.categoryRepository;
 
-    final ExceptionOr<List<Record>> failureOrRecords =
+    final ExceptionOr<List<RecordBase>> failureOrRecords =
         await recordRepository.retrieveRecordsOf(
       repoId: input.uid,
       begin: input.begin,
@@ -64,7 +64,8 @@ class RetrieveBudgetStateInteractor extends RetrieveBudgetStateUseCase {
     );
   }
 
-  List<ExpenseRecord> _extractExpenseRecord(List<Record> records) => List.of(
+  List<ExpenseRecord> _extractExpenseRecord(List<RecordBase> records) =>
+      List.of(
         records
             .where((element) => element.type == RecordType.expense)
             .map((e) => e as ExpenseRecord),

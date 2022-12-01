@@ -4,7 +4,7 @@ import 'budget_entity.dart';
 enum CategoryType { income, expense }
 
 /// Base class for income and expense categories.
-abstract class Category2 extends Identifiable {
+abstract class CategoryBase extends Identifiable {
   /// Maximum characters in the name of a category.
   static const int maxNameLength = 20;
 
@@ -15,7 +15,7 @@ abstract class Category2 extends Identifiable {
   // Do I still need this property???
   final CategoryType type;
 
-  const Category2({
+  const CategoryBase({
     required String id,
     required this.name,
     required this.type,
@@ -33,8 +33,8 @@ abstract class Category2 extends Identifiable {
 /// Category for income records.
 ///
 /// No additional properties or methods are needed on this class
-/// as [Category2] has all of them that this class requires.
-class IncomeCategory extends Category2 {
+/// as [CategoryBase] has all of them that this class requires.
+class IncomeCategory extends CategoryBase {
   const IncomeCategory({
     required String id,
     required String name,
@@ -61,7 +61,7 @@ const deletedIncomeCategory =
 ///
 /// A difference between this class and [IncomeCategory] is that
 /// this uses [Budget] class but the other is not.
-class ExpenseCategory extends Category2 {
+class ExpenseCategory extends CategoryBase {
   final Budget _budget;
 
   int get totalBudget => _budget.amount;

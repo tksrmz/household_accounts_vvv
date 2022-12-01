@@ -12,10 +12,11 @@ import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
 class FirebasePersonalIncomeRecordRepository
-    extends _FirebaseIncomeRecordRepository
     implements PersonalIncomeRecordRepository {
+  final _IncomeRecordRepository _repository;
+
   FirebasePersonalIncomeRecordRepository()
-      : super(
+      : _repository = _IncomeRecordRepository(
           (String uid) => FirebaseFirestore.instance
               .collection(getPersonalIncomeRecordCollectionPath(uid))
               .withConverter(
@@ -23,13 +24,71 @@ class FirebasePersonalIncomeRecordRepository
                 toFirestore: _toFirestore,
               ),
         );
+
+  @override
+  Future<ExceptionOr<Unit>> deleteById({
+    required String repoId,
+    required String id,
+  }) =>
+      _repository.deleteById(
+        repoId: repoId,
+        id: id,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> register({
+    required String repoId,
+    required IncomeRecord value,
+  }) =>
+      _repository.register(
+        repoId: repoId,
+        value: value,
+      );
+
+  @override
+  Future<ExceptionOr<List<IncomeRecord>>> retrieveAll({
+    required String repoId,
+  }) {
+    throw UnsupportedError("DO NOT TRY TO RETRIEVE ALL THE REOCRDS.");
+  }
+
+  @override
+  Future<ExceptionOr<IncomeRecord>> retrieveById({
+    required String repoId,
+    required String id,
+  }) {
+    // TODO: implement retrieveById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ExceptionOr<List<IncomeRecord>>> retrieveRecordsOf({
+    required String repoId,
+    required DateTime begin,
+    required DateTime end,
+  }) =>
+      _repository.retrieveRecordsOf(
+        repoId: repoId,
+        begin: begin,
+        end: end,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> update({
+    required String repoId,
+    required IncomeRecord newValue,
+  }) {
+    // TODO: implement update
+    throw UnimplementedError();
+  }
 }
 
 class FirebaseSharedIncomeRecordRepository
-    extends _FirebaseIncomeRecordRepository
     implements SharedIncomeRecordRepository {
+  final _IncomeRecordRepository _repository;
+
   FirebaseSharedIncomeRecordRepository()
-      : super(
+      : _repository = _IncomeRecordRepository(
           (String uid) => FirebaseFirestore.instance
               .collection(getSharedIncomeRecordCollectionPath(uid))
               .withConverter(
@@ -37,15 +96,70 @@ class FirebaseSharedIncomeRecordRepository
                 toFirestore: _toFirestore,
               ),
         );
-}
-
-abstract class _FirebaseIncomeRecordRepository
-    extends RecordRepository<IncomeRecord> {
-  final CollectionReferenceBuilder<IncomeRecordModel> _builder;
-
-  _FirebaseIncomeRecordRepository(this._builder);
 
   @override
+  Future<ExceptionOr<Unit>> deleteById({
+    required String repoId,
+    required String id,
+  }) =>
+      _repository.deleteById(
+        repoId: repoId,
+        id: id,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> register({
+    required String repoId,
+    required IncomeRecord value,
+  }) =>
+      _repository.register(
+        repoId: repoId,
+        value: value,
+      );
+
+  @override
+  Future<ExceptionOr<List<IncomeRecord>>> retrieveAll({
+    required String repoId,
+  }) {
+    throw UnsupportedError("DO NOT TRY TO RETRIEVE ALL THE REOCRDS.");
+  }
+
+  @override
+  Future<ExceptionOr<IncomeRecord>> retrieveById({
+    required String repoId,
+    required String id,
+  }) {
+    // TODO: implement retrieveById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ExceptionOr<List<IncomeRecord>>> retrieveRecordsOf({
+    required String repoId,
+    required DateTime begin,
+    required DateTime end,
+  }) =>
+      _repository.retrieveRecordsOf(
+        repoId: repoId,
+        begin: begin,
+        end: end,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> update({
+    required String repoId,
+    required IncomeRecord newValue,
+  }) {
+    // TODO: implement update
+    throw UnimplementedError();
+  }
+}
+
+class _IncomeRecordRepository {
+  final CollectionReferenceBuilder<IncomeRecordModel> _builder;
+
+  _IncomeRecordRepository(this._builder);
+
   Future<ExceptionOr<Unit>> deleteById({
     required String repoId,
     required String id,
@@ -53,7 +167,7 @@ abstract class _FirebaseIncomeRecordRepository
     TransactionHandler handler = (Transaction transaction) async {
       final recordDocument = _builder(repoId).doc(id);
       // Get the document
-      DocumentSnapshot<IncomeRecordModel> snapshot =
+      final DocumentSnapshot<IncomeRecordModel> snapshot =
           await transaction.get(recordDocument);
 
       if (!snapshot.exists) {
@@ -61,12 +175,16 @@ abstract class _FirebaseIncomeRecordRepository
       }
 
       IncomeRecordModel model = snapshot.data()!;
-      transaction.update(
-        model.propertyRef,
-        {
-          'amount': FieldValue.increment(-model.amount),
-        },
-      ).delete(recordDocument);
+      if (model.hasCheckedOut) {
+        // Restore property
+        transaction.update(
+          model.propertyRef,
+          {
+            'amount': FieldValue.increment(-model.amount),
+          },
+        );
+      }
+      transaction.delete(recordDocument);
       return;
     };
     try {
@@ -78,7 +196,6 @@ abstract class _FirebaseIncomeRecordRepository
     }
   }
 
-  @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required IncomeRecord value,
@@ -88,21 +205,23 @@ abstract class _FirebaseIncomeRecordRepository
         ownerDocument.collection(FIREBASE_COLLECTION_PROPERTIES);
     final categoryCollection =
         ownerDocument.collection(FIREBASE_COLLECTION_INCOME_CATEGORIES);
-    final batch = FirebaseFirestore.instance.batch()
-      ..update(
+    final batch = FirebaseFirestore.instance.batch();
+    if (value.hasCheckedOut) {
+      batch.update(
         propertyCollection.doc(value.property.id),
         {
           'amount': FieldValue.increment(value.amount),
         },
-      )
-      ..set(
-        _builder(repoId).doc(value.id),
-        IncomeRecordModel.fromEntity(
-          record: value,
-          categoryCollectionPath: categoryCollection.path,
-          propertyCollectionPath: propertyCollection.path,
-        ),
       );
+    }
+    batch.set(
+      _builder(repoId).doc(value.id),
+      IncomeRecordModel.fromEntity(
+        record: value,
+        categoryCollectionPath: categoryCollection.path,
+        propertyCollectionPath: propertyCollection.path,
+      ),
+    );
 
     try {
       await batch.commit();
@@ -113,14 +232,6 @@ abstract class _FirebaseIncomeRecordRepository
     }
   }
 
-  @override
-  Future<ExceptionOr<IncomeRecord>> retrieveById(
-      {required String repoId, required String id}) {
-    // TODO: implement retrieveById
-    throw UnimplementedError();
-  }
-
-  @override
   Future<ExceptionOr<List<IncomeRecord>>> retrieveRecordsOf({
     required String repoId,
     required DateTime begin,
@@ -148,13 +259,6 @@ abstract class _FirebaseIncomeRecordRepository
     final toEntityAsync = (IncomeRecordModel model) => model.toEntityAsync();
     final entityList = await Future.wait(models.map(toEntityAsync));
     return Right(entityList);
-  }
-
-  @override
-  Future<ExceptionOr<Unit>> update(
-      {required String repoId, required IncomeRecord newValue}) {
-    // TODO: implement update
-    throw UnimplementedError();
   }
 }
 

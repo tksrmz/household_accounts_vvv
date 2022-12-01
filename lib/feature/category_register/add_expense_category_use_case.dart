@@ -4,7 +4,7 @@ import '../../entity/category_entity.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 
-typedef AddExpenseCategoryUseCase = UseCase2<AddExpenseCategoryInput, Unit>;
+typedef AddExpenseCategoryUseCase = UseCase<AddExpenseCategoryInput, Unit>;
 
 class AddExpenseCategoryInput {
   /// User ID.
@@ -16,7 +16,7 @@ class AddExpenseCategoryInput {
   /// Budget of new cateogry.
   final int budget;
 
-  final Repository2<ExpenseCategory> repository;
+  final Repository<ExpenseCategory> repository;
 
   const AddExpenseCategoryInput({
     required this.uid,

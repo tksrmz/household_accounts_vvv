@@ -20,8 +20,8 @@ import '../util/model/user_info.dart';
 import '../util/repository_selector.dart';
 import 'category_viewer_state.dart';
 
-class CategoryListPage2 extends StatelessWidget {
-  const CategoryListPage2({Key? key}) : super(key: key);
+class CategoryListPage extends StatelessWidget {
+  const CategoryListPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +48,13 @@ class CategoryListPage2 extends StatelessWidget {
           },
         ),
       ],
-      child: _PageContent2(),
+      child: _PageContent(),
     );
   }
 }
 
-class _PageContent2 extends StatelessWidget {
-  const _PageContent2({Key? key}) : super(key: key);
+class _PageContent extends StatelessWidget {
+  const _PageContent({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +194,7 @@ class _IncomeCategoryListItem extends StatelessWidget {
       children: [
         Text(_incomeCategory.name),
         Spacer(),
-        _EditCategoryButton2(originalData: _incomeCategory),
+        _EditCategoryButton(originalData: _incomeCategory),
         DeleteIconButton(
           onPressed: () => _deleteIncomeCategory(context),
         ),
@@ -273,7 +273,7 @@ class _ExpenseCategoryListItem extends StatelessWidget {
           '${_expenseCategory.name} (Budget: ${_expenseCategory.totalBudget})',
         ),
         Spacer(),
-        _EditCategoryButton2(originalData: _expenseCategory),
+        _EditCategoryButton(originalData: _expenseCategory),
         DeleteIconButton(
           onPressed: () => _deleteExpenseCategory(context),
         ),
@@ -305,14 +305,14 @@ class _ExpenseCategoryListItem extends StatelessWidget {
   }
 }
 
-class _EditCategoryButton2 extends StatelessWidget {
-  const _EditCategoryButton2({
+class _EditCategoryButton extends StatelessWidget {
+  const _EditCategoryButton({
     Key? key,
-    required Category2 originalData,
+    required CategoryBase originalData,
   })  : _originalData = originalData,
         super(key: key);
 
-  final Category2 _originalData;
+  final CategoryBase _originalData;
 
   @override
   Widget build(BuildContext context) {

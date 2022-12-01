@@ -1,5 +1,5 @@
 import '../../../entity/record_entity.dart';
-import '../../../feature/record_retrieve/retrieve_income_records_use_case.dart';
+import '../../../feature/record_retrieve/use_case.dart';
 import '../../../util/service_locator/main.dart';
 import '../../../util/type/exception_or.dart';
 import '../../../util/type/single_or_pair.dart';

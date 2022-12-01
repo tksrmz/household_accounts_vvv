@@ -8,12 +8,11 @@ import '../../entity/record_entity.dart';
 import '../../feature/category_retrieve/retrieve_expense_category_use_case.dart';
 import '../../feature/category_retrieve/retrieve_income_category_use_case.dart';
 import '../../feature/property_retrieve/property_retrieve_use_case.dart';
-import '../../feature/record_register/expense_record_register_use_case.dart';
-import '../../feature/record_register/income_record_register_use_case.dart';
-import '../../feature/record_register/transfer_record_register_use_case.dart';
+import '../../feature/record_register/use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/single_or_pair.dart';
+import '../../util/uuid/uuid.dart';
 import '../common_widget/number_text_form_field.dart';
 import '../util/model/user_info.dart';
 import '../util/repository_selector.dart';
@@ -48,7 +47,7 @@ class _PageContentsState extends State<_PageContents> {
   DateTime _recordDate = DateTime.now();
   String _amount = '';
   RecordType _recordType = RecordType.income;
-  Category2? _category;
+  CategoryBase? _category;
   Property? _srcProperty;
   Property? _destProperty;
   String _note = '';
@@ -126,7 +125,7 @@ class _PageContentsState extends State<_PageContents> {
     });
   }
 
-  void _setCategoryState(Category2? value) {
+  void _setCategoryState(CategoryBase? value) {
     setState(() {
       _category = value;
       print('category name: $_category');
@@ -154,48 +153,60 @@ class _PageContentsState extends State<_PageContents> {
     });
   }
 
-  void _submitIncomeRecord(AddIncomeRecordUseCase useCase) {
+  void _submitIncomeRecord(AddRecordUseCase<IncomeRecord> useCase) {
     if (_category != null && _srcProperty != null) {
       useCase(
-        AddIncomeRecordInput(
+        AddRecordInput<IncomeRecord>(
           uid: _repoId,
-          recordDate: _recordDate,
-          amount: _amount.tryToInt() | 0,
-          note: _note,
-          category: _category! as IncomeCategory,
-          property: _srcProperty!,
+          record: IncomeRecord(
+            id: UUID.generate(),
+            recordDate: _recordDate,
+            amount: _amount.tryToInt() | 0,
+            note: _note,
+            category: _category! as IncomeCategory,
+            property: _srcProperty!,
+            hasCheckedOut: true,
+          ),
           repository: selectIncomeRecordRepository(_sop),
         ),
       );
     }
   }
 
-  void _submitExpenseRecord(AddExpenseRecordUseCase useCae) {
+  void _submitExpenseRecord(AddRecordUseCase<ExpenseRecord> useCae) {
     if (_category != null && _srcProperty != null) {
       useCae(
-        AddExpenseRecordInput(
+        AddRecordInput<ExpenseRecord>(
           uid: _repoId,
-          recordDate: _recordDate,
-          amount: _amount.tryToInt() | 0,
-          note: _note,
-          category: _category! as ExpenseCategory,
-          property: _srcProperty!,
+          record: ExpenseRecord(
+            id: UUID.generate(),
+            recordDate: _recordDate,
+            amount: _amount.tryToInt() | 0,
+            note: _note,
+            category: _category! as ExpenseCategory,
+            property: _srcProperty!,
+            hasCheckedOut: true,
+          ),
           repository: selectExpenseRecordRepository(_sop),
         ),
       );
     }
   }
 
-  void _submitTransferRecord(AddTransferRecordUseCase useCase) {
+  void _submitTransferRecord(AddRecordUseCase<TransferRecord> useCase) {
     if (_srcProperty != null && _destProperty != null) {
       useCase(
-        AddTransferRecordInput(
+        AddRecordInput<TransferRecord>(
           uid: _repoId,
-          recordDate: _recordDate,
-          amount: _amount.tryToInt() | 0,
-          note: _note,
-          source: _srcProperty!,
-          destination: _destProperty!,
+          record: TransferRecord(
+            id: UUID.generate(),
+            recordDate: _recordDate,
+            amount: _amount.tryToInt() | 0,
+            note: _note,
+            source: _srcProperty!,
+            destination: _destProperty!,
+            hasCheckedOut: true,
+          ),
           repository: selectTransferRecordRepository(_sop),
         ),
       );
@@ -314,13 +325,13 @@ class _PageContentsState extends State<_PageContents> {
               // Process data
               switch (_recordType) {
                 case RecordType.income:
-                  _submitIncomeRecord(sl<AddIncomeRecordUseCase>());
+                  _submitIncomeRecord(sl<AddRecordUseCase<IncomeRecord>>());
                   break;
                 case RecordType.expense:
-                  _submitExpenseRecord(sl<AddExpenseRecordUseCase>());
+                  _submitExpenseRecord(sl<AddRecordUseCase<ExpenseRecord>>());
                   break;
                 case RecordType.transfer:
-                  _submitTransferRecord(sl<AddTransferRecordUseCase>());
+                  _submitTransferRecord(sl<AddRecordUseCase<TransferRecord>>());
                   break;
               }
               // Reset states
@@ -450,17 +461,17 @@ class _RecordTypeSelector extends StatelessWidget {
 }
 
 class _CategoryDropDownMenu extends StatelessWidget {
-  final Future<ExceptionOr<List<Category2>>> _categories;
-  final Category2? _value;
+  final Future<ExceptionOr<List<CategoryBase>>> _categories;
+  final CategoryBase? _value;
   final CategoryType _displayedType;
-  final ValueChanged<Category2?>? _onChanged;
+  final ValueChanged<CategoryBase?>? _onChanged;
 
   const _CategoryDropDownMenu({
     Key? key,
-    required Future<ExceptionOr<List<Category2>>> categories,
-    Category2? value,
+    required Future<ExceptionOr<List<CategoryBase>>> categories,
+    CategoryBase? value,
     required CategoryType categoryType,
-    required ValueChanged<Category2?>? onChanged,
+    required ValueChanged<CategoryBase?>? onChanged,
   })  : _categories = categories,
         _value = value,
         _displayedType = categoryType,
@@ -469,12 +480,12 @@ class _CategoryDropDownMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ExceptionOr<List<Category2>>>(
+    return FutureBuilder<ExceptionOr<List<CategoryBase>>>(
       future: _categories,
       builder: (context, snapshot) {
-        Category2? value;
+        CategoryBase? value;
         Text? disabledHint;
-        List<DropdownMenuItem<Category2>>? items;
+        List<DropdownMenuItem<CategoryBase>>? items;
         final hasConnected = snapshot.connectionState == ConnectionState.done;
 
         if (hasConnected && snapshot.hasData) {
@@ -492,7 +503,7 @@ class _CategoryDropDownMenu extends StatelessWidget {
               disabledHint = null;
               items = categories
                   .where((category) => category.type == _displayedType)
-                  .map<DropdownMenuItem<Category2>>(
+                  .map<DropdownMenuItem<CategoryBase>>(
                     (category) => DropdownMenuItem(
                       value: category,
                       child: Text(category.name),
@@ -515,7 +526,7 @@ class _CategoryDropDownMenu extends StatelessWidget {
           items = null;
         }
 
-        return DropdownButton<Category2>(
+        return DropdownButton<CategoryBase>(
           value: value,
           hint: const Text('Select category'),
           disabledHint: disabledHint,

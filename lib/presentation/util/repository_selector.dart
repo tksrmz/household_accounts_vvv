@@ -8,9 +8,9 @@ import '../../util/service_locator/main.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/single_or_pair.dart';
 
-Repository2<Property> selectPropertyRepository(SingleOrPair value) {
+Repository<Property> selectPropertyRepository(SingleOrPair value) {
   print('$selectPropertyRepository($value)');
-  final Repository2<Property> repository;
+  final Repository<Property> repository;
 
   switch (value) {
     case SingleOrPair.single:
@@ -27,9 +27,9 @@ Repository2<Property> selectPropertyRepository(SingleOrPair value) {
   return repository;
 }
 
-Repository2<IncomeCategory> selectIncomeCategoryRepository(SingleOrPair value) {
+Repository<IncomeCategory> selectIncomeCategoryRepository(SingleOrPair value) {
   print('$selectPropertyRepository($value)');
-  final Repository2<IncomeCategory> repository;
+  final Repository<IncomeCategory> repository;
 
   switch (value) {
     case SingleOrPair.single:
@@ -46,11 +46,11 @@ Repository2<IncomeCategory> selectIncomeCategoryRepository(SingleOrPair value) {
   return repository;
 }
 
-Repository2<ExpenseCategory> selectExpenseCategoryRepository(
+Repository<ExpenseCategory> selectExpenseCategoryRepository(
   SingleOrPair value,
 ) {
   print('$selectPropertyRepository($value)');
-  final Repository2<ExpenseCategory> repository;
+  final Repository<ExpenseCategory> repository;
 
   switch (value) {
     case SingleOrPair.single:

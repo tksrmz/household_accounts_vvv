@@ -10,15 +10,14 @@ import '../util/future_builder_helper.dart';
 import '../util/model/user_info.dart';
 import '../util/use_case_wrapper/fetch_records.dart';
 
-class CalendarRecordViewPage2 extends StatefulWidget {
-  const CalendarRecordViewPage2({Key? key}) : super(key: key);
+class CalendarRecordViewPage extends StatefulWidget {
+  const CalendarRecordViewPage({Key? key}) : super(key: key);
 
   @override
-  State<CalendarRecordViewPage2> createState() =>
-      _CalendarRecordViewPage2State();
+  State<CalendarRecordViewPage> createState() => _CalendarRecordViewPageState();
 }
 
-class _CalendarRecordViewPage2State extends State<CalendarRecordViewPage2> {
+class _CalendarRecordViewPageState extends State<CalendarRecordViewPage> {
   late int _year;
   late int _month;
 
@@ -38,7 +37,7 @@ class _CalendarRecordViewPage2State extends State<CalendarRecordViewPage2> {
 
     return ListView(
       children: [
-        _DateLabelWidget2(
+        _DateLabelWidget(
           year: _year,
           month: _month,
           onLeftArrowPressed: decrement,
@@ -64,8 +63,8 @@ class _CalendarRecordViewPage2State extends State<CalendarRecordViewPage2> {
   }
 }
 
-class _DateLabelWidget2 extends StatelessWidget {
-  const _DateLabelWidget2({
+class _DateLabelWidget extends StatelessWidget {
+  const _DateLabelWidget({
     required int year,
     required int month,
     required VoidCallback onLeftArrowPressed,
@@ -183,7 +182,7 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
     final month = widget._month;
     final sop = widget._singleOrPair;
     final daysInMonth = DateUtils.getDaysInMonth(year, month);
-    final List<int> Function(ExceptionOr<List<Record>>) action =
+    final List<int> Function(ExceptionOr<List<RecordBase>>) action =
         (result) => result.fold<List<int>>(
               (_) => List.filled(daysInMonth, 0),
               (records) => _summarize(daysInMonth, records),
@@ -219,7 +218,7 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
     );
   }
 
-  List<int> _summarize(int length, List<Record> records) => List.generate(
+  List<int> _summarize(int length, List<RecordBase> records) => List.generate(
         length,
         (index) => records
             .where((e) => e.recordDate.day == index + 1)

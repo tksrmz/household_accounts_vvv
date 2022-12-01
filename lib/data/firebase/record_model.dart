@@ -61,41 +61,41 @@ DocumentReference<PropertyModel> _createPropertyDocumentReference({
           toFirestore: _propertyModelToFirestore,
         );
 
-abstract class RecordModel extends DataModel<Record> {
-  RecordModel.fromEntity(Record entity)
+abstract class RecordBaseModel implements DataModel<RecordBase> {
+  RecordBaseModel.fromEntity(RecordBase entity)
       : id = entity.id,
         recordDate = entity.recordDate,
         amount = entity.amount,
         note = entity.note,
+        hasCheckedOut = entity.hasCheckedOut,
         createdAt = FieldValue.serverTimestamp();
 
-  RecordModel.fromJson(Json json)
+  RecordBaseModel.fromJson(Json json)
       : id = json['id'] as String,
         recordDate = (json['date'] as Timestamp).toDate(),
         amount = json['amount'] as int,
         note = json['note'] as String,
+        hasCheckedOut = (json['hasCheckedOut'] ?? true) as bool,
         createdAt = json['createdAt'] as Timestamp;
 
   final String id;
   final DateTime recordDate;
   final int amount;
   final String note;
+  final bool hasCheckedOut;
   final dynamic createdAt; // type is [FieldValue] or [Timestamp]
 
-  /// DO NOT call this method.
-  Record toEntity() {
-    throw UnsupportedError('Record cannot be instantiated as it is abstract');
-  }
-
+  @override
   Json toJson() => {
         'date': recordDate,
         'amount': amount,
         'note': note,
+        'hasCheckedOut': hasCheckedOut,
         'createdAt': createdAt,
       };
 }
 
-class IncomeRecordModel extends RecordModel {
+class IncomeRecordModel extends RecordBaseModel {
   IncomeRecordModel.fromEntity({
     required IncomeRecord record,
     required String categoryCollectionPath,
@@ -126,47 +126,46 @@ class IncomeRecordModel extends RecordModel {
   final DocumentReference<IncomeCategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
 
+  @override
   IncomeRecord toEntity() {
     throw UnsupportedError(
       'This class contains DocumentReference. Use [toEntityAsync] instead.',
     );
   }
 
-  Future<IncomeRecord> toEntityAsync() async {
-    final category = await _getCategory(categoryRef);
-    final property = await getPropertyOrDeletedProperty(propertyRef);
-    return IncomeRecord(
-      id,
-      recordDate,
-      amount,
-      note,
-      category,
-      property,
-    );
-  }
+  Future<IncomeRecord> toEntityAsync() async => IncomeRecord(
+        id: id,
+        recordDate: recordDate,
+        amount: amount,
+        note: note,
+        category: await _getCategory(),
+        property: await getPropertyOrDeletedProperty(propertyRef),
+        hasCheckedOut: hasCheckedOut,
+      );
 
-  Future<IncomeCategory> _getCategory(
-    DocumentReference<IncomeCategoryModel> ref,
-  ) async {
-    final snapshot = await ref.get();
+  Future<IncomeCategory> _getCategory() async {
+    final snapshot = await categoryRef.get();
     return snapshot.exists
         ? snapshot.data()!.toEntity()
         : deletedIncomeCategory;
   }
 
+  @override
   Json toJson() => super.toJson()
-    ..addAll({
-      'property': {
-        'ref': propertyRef,
+    ..addAll(
+      {
+        'property': {
+          'ref': propertyRef,
+        },
+        'category': {
+          'ref': categoryRef,
+        },
+        'type': 'income',
       },
-      'category': {
-        'ref': categoryRef,
-      },
-      'type': 'income',
-    });
+    );
 }
 
-class ExpenseRecordModel extends RecordModel {
+class ExpenseRecordModel extends RecordBaseModel {
   ExpenseRecordModel.fromEntity({
     required ExpenseRecord record,
     required String categoryCollectionPath,
@@ -197,47 +196,46 @@ class ExpenseRecordModel extends RecordModel {
   final DocumentReference<ExpenseCategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
 
+  @override
   ExpenseRecord toEntity() {
     throw UnsupportedError(
       'This class contains DocumentReference. Use [toEntityAsync] instead.',
     );
   }
 
-  Future<ExpenseRecord> toEntityAsync() async {
-    final category = await _getCategory(categoryRef);
-    final property = await getPropertyOrDeletedProperty(propertyRef);
-    return ExpenseRecord(
-      id,
-      recordDate,
-      amount,
-      note,
-      category,
-      property,
-    );
-  }
+  Future<ExpenseRecord> toEntityAsync() async => ExpenseRecord(
+        id: id,
+        recordDate: recordDate,
+        amount: amount,
+        note: note,
+        category: await _getCategory(),
+        property: await getPropertyOrDeletedProperty(propertyRef),
+        hasCheckedOut: hasCheckedOut,
+      );
 
-  Future<ExpenseCategory> _getCategory(
-    DocumentReference<ExpenseCategoryModel> ref,
-  ) async {
-    final snapshot = await ref.get();
+  Future<ExpenseCategory> _getCategory() async {
+    final snapshot = await categoryRef.get();
     return snapshot.exists
         ? snapshot.data()!.toEntity()
         : deletedExpenseCategory;
   }
 
+  @override
   Json toJson() => super.toJson()
-    ..addAll({
-      'property': {
-        'ref': propertyRef,
+    ..addAll(
+      {
+        'property': {
+          'ref': propertyRef,
+        },
+        'category': {
+          'ref': categoryRef,
+        },
+        'type': 'expense',
       },
-      'category': {
-        'ref': categoryRef,
-      },
-      'type': 'expense',
-    });
+    );
 }
 
-class TransferRecordModel extends RecordModel {
+class TransferRecordModel extends RecordBaseModel {
   TransferRecordModel.fromEntity({
     required TransferRecord record,
     required String propertyCollectionPath,
@@ -267,32 +265,34 @@ class TransferRecordModel extends RecordModel {
   final DocumentReference<PropertyModel> fromPropertyRef;
   final DocumentReference<PropertyModel> toPropertyRef;
 
-  ExpenseRecord toEntity() {
+  @override
+  TransferRecord toEntity() {
     throw UnsupportedError(
         'This class contains DocumentReference. Use [toEntityAsync] instead.');
   }
 
   Future<TransferRecord> toEntityAsync() async {
-    final source = await getPropertyOrDeletedProperty(fromPropertyRef);
-    final destination = await getPropertyOrDeletedProperty(toPropertyRef);
     return TransferRecord(
-      id,
-      recordDate,
-      amount,
-      note,
-      source,
-      destination,
+      id: id,
+      recordDate: recordDate,
+      amount: amount,
+      note: note,
+      source: await getPropertyOrDeletedProperty(fromPropertyRef),
+      destination: await getPropertyOrDeletedProperty(toPropertyRef),
+      hasCheckedOut: hasCheckedOut,
     );
   }
 
   Json toJson() => super.toJson()
-    ..addAll({
-      'fromProperty': {
-        'ref': fromPropertyRef,
+    ..addAll(
+      {
+        'fromProperty': {
+          'ref': fromPropertyRef,
+        },
+        'toProperty': {
+          'ref': toPropertyRef,
+        },
+        'type': 'transfer',
       },
-      'toProperty': {
-        'ref': toPropertyRef,
-      },
-      'type': 'transfer',
-    });
+    );
 }

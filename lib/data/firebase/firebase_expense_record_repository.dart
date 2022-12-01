@@ -12,10 +12,11 @@ import 'util/path_builder.dart';
 import 'util/type/collection_reference_builder.dart';
 
 class FirebasePersonalExpenseRecordRepository
-    extends _FirebaseExpenseRecordRepository
     implements PersonalExpenseRecordRepository {
+  final _ExpenseRecordRepository _repository;
+
   FirebasePersonalExpenseRecordRepository()
-      : super(
+      : _repository = _ExpenseRecordRepository(
           (String uid) => FirebaseFirestore.instance
               .collection(getPersonalExpenseRecordCollectionPath(uid))
               .withConverter(
@@ -23,13 +24,66 @@ class FirebasePersonalExpenseRecordRepository
                 toFirestore: _toFirestore,
               ),
         );
+
+  @override
+  Future<ExceptionOr<Unit>> deleteById({
+    required String repoId,
+    required String id,
+  }) =>
+      _repository.deleteById(
+        repoId: repoId,
+        id: id,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> register({
+    required String repoId,
+    required ExpenseRecord value,
+  }) =>
+      _repository.register(repoId: repoId, value: value);
+
+  @override
+  Future<ExceptionOr<List<ExpenseRecord>>> retrieveAll({
+    required String repoId,
+  }) {
+    throw UnsupportedError("DO NOT TRY TO RETRIEVE ALL THE REOCRDS.");
+  }
+
+  @override
+  Future<ExceptionOr<ExpenseRecord>> retrieveById({
+    required String repoId,
+    required String id,
+  }) {
+    // TODO: implement retrieveById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ExceptionOr<List<ExpenseRecord>>> retrieveRecordsOf({
+    required String repoId,
+    required DateTime begin,
+    required DateTime end,
+  }) =>
+      _repository.retrieveRecordsOf(
+        repoId: repoId,
+        begin: begin,
+        end: end,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> update(
+      {required String repoId, required ExpenseRecord newValue}) {
+    // TODO: implement update
+    throw UnimplementedError();
+  }
 }
 
 class FirebaseSharedExpenseRecordRepository
-    extends _FirebaseExpenseRecordRepository
     implements SharedExpenseRecordRepository {
+  final _ExpenseRecordRepository _repository;
+
   FirebaseSharedExpenseRecordRepository()
-      : super(
+      : _repository = _ExpenseRecordRepository(
           (String uid) => FirebaseFirestore.instance
               .collection(getSharedExpenseRecordCollectionPath(uid))
               .withConverter(
@@ -37,15 +91,65 @@ class FirebaseSharedExpenseRecordRepository
                 toFirestore: _toFirestore,
               ),
         );
-}
-
-abstract class _FirebaseExpenseRecordRepository
-    extends RecordRepository<ExpenseRecord> {
-  final CollectionReferenceBuilder<ExpenseRecordModel> _builder;
-
-  _FirebaseExpenseRecordRepository(this._builder);
 
   @override
+  Future<ExceptionOr<Unit>> deleteById({
+    required String repoId,
+    required String id,
+  }) =>
+      _repository.deleteById(
+        repoId: repoId,
+        id: id,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> register({
+    required String repoId,
+    required ExpenseRecord value,
+  }) =>
+      _repository.register(repoId: repoId, value: value);
+
+  @override
+  Future<ExceptionOr<List<ExpenseRecord>>> retrieveAll({
+    required String repoId,
+  }) {
+    throw UnsupportedError("DO NOT TRY TO RETRIEVE ALL THE REOCRDS.");
+  }
+
+  @override
+  Future<ExceptionOr<ExpenseRecord>> retrieveById({
+    required String repoId,
+    required String id,
+  }) {
+    // TODO: implement retrieveById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ExceptionOr<List<ExpenseRecord>>> retrieveRecordsOf({
+    required String repoId,
+    required DateTime begin,
+    required DateTime end,
+  }) =>
+      _repository.retrieveRecordsOf(
+        repoId: repoId,
+        begin: begin,
+        end: end,
+      );
+
+  @override
+  Future<ExceptionOr<Unit>> update(
+      {required String repoId, required ExpenseRecord newValue}) {
+    // TODO: implement update
+    throw UnimplementedError();
+  }
+}
+
+class _ExpenseRecordRepository {
+  final CollectionReferenceBuilder<ExpenseRecordModel> _builder;
+
+  _ExpenseRecordRepository(this._builder);
+
   Future<ExceptionOr<Unit>> deleteById({
     required String repoId,
     required String id,
@@ -61,12 +165,15 @@ abstract class _FirebaseExpenseRecordRepository
       }
 
       ExpenseRecordModel model = snapshot.data()!;
-      transaction.update(
-        model.propertyRef,
-        {
-          'amount': FieldValue.increment(model.amount),
-        },
-      ).delete(recordDocument);
+      if (model.hasCheckedOut) {
+        transaction.update(
+          model.propertyRef,
+          {
+            'amount': FieldValue.increment(model.amount),
+          },
+        );
+      }
+      transaction.delete(recordDocument);
       return;
     };
     try {
@@ -78,7 +185,6 @@ abstract class _FirebaseExpenseRecordRepository
     }
   }
 
-  @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required ExpenseRecord value,
@@ -88,21 +194,23 @@ abstract class _FirebaseExpenseRecordRepository
         ownerDocument.collection(FIREBASE_COLLECTION_PROPERTIES);
     final categoryCollection =
         ownerDocument.collection(FIREBASE_COLLECTION_EXPENSE_CATEGORIES);
-    final batch = FirebaseFirestore.instance.batch()
-      ..update(
+    final batch = FirebaseFirestore.instance.batch();
+    if (value.hasCheckedOut) {
+      batch.update(
         propertyCollection.doc(value.property.id),
         {
           'amount': FieldValue.increment(-value.amount),
         },
-      )
-      ..set(
-        _builder(repoId).doc(value.id),
-        ExpenseRecordModel.fromEntity(
-          record: value,
-          categoryCollectionPath: categoryCollection.path,
-          propertyCollectionPath: propertyCollection.path,
-        ),
       );
+    }
+    batch.set(
+      _builder(repoId).doc(value.id),
+      ExpenseRecordModel.fromEntity(
+        record: value,
+        categoryCollectionPath: categoryCollection.path,
+        propertyCollectionPath: propertyCollection.path,
+      ),
+    );
 
     try {
       await batch.commit();
@@ -113,14 +221,6 @@ abstract class _FirebaseExpenseRecordRepository
     }
   }
 
-  @override
-  Future<ExceptionOr<ExpenseRecord>> retrieveById(
-      {required String repoId, required String id}) {
-    // TODO: implement retrieveById
-    throw UnimplementedError();
-  }
-
-  @override
   Future<ExceptionOr<List<ExpenseRecord>>> retrieveRecordsOf({
     required String repoId,
     required DateTime begin,
@@ -148,13 +248,6 @@ abstract class _FirebaseExpenseRecordRepository
     final toEntityAsync = (ExpenseRecordModel model) => model.toEntityAsync();
     final entityList = await Future.wait(models.map(toEntityAsync));
     return Right(entityList);
-  }
-
-  @override
-  Future<ExceptionOr<Unit>> update(
-      {required String repoId, required ExpenseRecord newValue}) {
-    // TODO: implement update
-    throw UnimplementedError();
   }
 }
 

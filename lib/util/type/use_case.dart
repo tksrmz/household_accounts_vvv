@@ -15,7 +15,6 @@ import 'exception_or.dart';
 /// If the [Future] fails, it means there is an unexpected error.
 ///
 /// If [call] returns nothing in success, set [R] to [Unit].
-// TODO: Rename this class as `UseCase` when all the deprecated `UseCase` class usage will be removed.
-abstract class UseCase2<T, R> {
+abstract class UseCase<T, R> {
   Future<ExceptionOr<R>> call(T input);
 }
