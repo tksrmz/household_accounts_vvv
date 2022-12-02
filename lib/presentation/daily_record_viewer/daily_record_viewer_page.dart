@@ -1,9 +1,14 @@
+import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
 
 import '../../entity/record_entity.dart';
+import '../../feature/record_deletion/use_case.dart';
+import '../../util/service_locator/main.dart';
+import '../../util/type/exception_or.dart';
 import '../../util/type/single_or_pair.dart';
 import '../common_widget/delete_icon_button.dart';
 import '../util/future_builder_helper.dart';
+import '../util/repository_selector.dart';
 import '../util/use_case_wrapper/fetch_records.dart';
 
 class DailyRecordMinute extends StatelessWidget {
@@ -90,23 +95,31 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
       future: _recordListFuture,
       builder: (_, snapshot) => FutureBuilderHelper<List<_ViewModelItem>>(
         snapshot: snapshot,
-        onSuccess: (_, itemList) => ListView(
+        onSuccess: (context, itemList) => ListView(
           children: itemList
               .map(
                 (item) => Row(
                   children: [
                     Expanded(
-                      child: Text(item.leading),
+                      child: Text(item.leadingText),
                     ),
-                    Text('${item.amount} yen'),
+                    Text('${item.amountText} yen'),
                     DeleteIconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        await item.delete(
+                          uid: widget._repoId,
+                          sop: widget._sop,
+                        );
+                        setState(() {
+                          _setRecordListState();
+                        });
+                      },
                     ),
-                  ],
-                ),
+                      ],
+                    ),
               )
-              .toList(),
-        ),
+                  .toList(),
+            ),
       ),
     );
   }
@@ -126,11 +139,10 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
           sop: sop,
           repoId: repoId,
         ).then(
-          (failureOrIncomes) => failureOrIncomes.fold(
-            (_) => <_ViewModelItem>[],
-            (incomes) => incomes
-                .map((record) => _ViewModelItem.ofIncome(record))
-                .toList(),
+              (failureOrIncomes) => failureOrIncomes.fold(
+                (_) => <_ViewModelItem>[],
+            (incomes) =>
+                incomes.map((record) => _ViewModelItemIncome(record)).toList(),
           ),
         ),
         fetchExpenseRecords(
@@ -140,10 +152,11 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
           sop: sop,
           repoId: repoId,
         ).then(
-          (failureOrExpenses) => failureOrExpenses.fold(
-            (_) => <_ViewModelItem>[],
-            (expenses) => expenses
-                .map((record) => _ViewModelItem.ofExpense(record))
+              (failureOrExpenses) => failureOrExpenses.fold(
+                (_) => <_ViewModelItem>[],
+                (expenses) =>
+                expenses
+                .map((record) => _ViewModelItemExpense(record))
                 .toList(),
           ),
         ),
@@ -154,33 +167,114 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
           sop: sop,
           repoId: repoId,
         ).then(
-          (failureOrTransfers) => failureOrTransfers.fold(
-            (_) => <_ViewModelItem>[],
-            (transfers) => transfers
-                .map((record) => _ViewModelItem.ofTransfer(record))
+              (failureOrTransfers) => failureOrTransfers.fold(
+                (_) => <_ViewModelItem>[],
+                (transfers) =>
+                transfers
+                .map((record) => _ViewModelItemTransfer(record))
                 .toList(),
           ),
         ),
       ],
     ).then(
-      (nestedList) => nestedList.expand((list) => list).toList(),
+          (nestedList) => nestedList.expand((list) => list).toList(),
     );
   }
 }
 
-class _ViewModelItem {
-  _ViewModelItem.ofIncome(IncomeRecord entity)
-      : leading = '${entity.category.name}@${entity.note}',
-        amount = '+${entity.amount}';
+abstract class _ViewModelItem {
+  String get leadingText;
 
-  _ViewModelItem.ofExpense(ExpenseRecord entity)
-      : leading = '${entity.category.name}@${entity.note}',
-        amount = '-${entity.amount}';
+  String get amountText;
 
-  _ViewModelItem.ofTransfer(TransferRecord entity)
-      : leading = '${entity.source.name}→${entity.destination.name}',
-        amount = '${entity.amount}';
+  RecordType get type;
 
-  final String leading;
-  final String amount;
+  Future<ExceptionOr<dartz.Unit>> delete({
+    required String uid,
+    required SingleOrPair sop,
+  });
+}
+
+class _ViewModelItemIncome extends _ViewModelItem {
+  _ViewModelItemIncome(this.entity);
+
+  final IncomeRecord entity;
+
+  @override
+  String get amountText => '+${entity.amount}';
+
+  @override
+  String get leadingText => '${entity.category.name}@${entity.note}';
+
+  @override
+  RecordType get type => entity.type;
+
+  @override
+  Future<ExceptionOr<dartz.Unit>> delete({
+    required String uid,
+    required SingleOrPair sop,
+  }) =>
+      sl<DeleteRecordUseCase<IncomeRecord>>()(
+        DeleteRecordInput(
+          uid: uid,
+          record: entity,
+          repository: selectIncomeRecordRepository(sop),
+        ),
+      );
+}
+
+class _ViewModelItemExpense extends _ViewModelItem {
+  _ViewModelItemExpense(this.entity);
+
+  final ExpenseRecord entity;
+
+  @override
+  String get amountText => '-${entity.amount}';
+
+  @override
+  String get leadingText => '${entity.category.name}@${entity.note}';
+
+  @override
+  RecordType get type => entity.type;
+
+  @override
+  Future<ExceptionOr<dartz.Unit>> delete({
+    required String uid,
+    required SingleOrPair sop,
+  }) =>
+      sl<DeleteRecordUseCase<ExpenseRecord>>()(
+        DeleteRecordInput(
+          uid: uid,
+          record: entity,
+          repository: selectExpenseRecordRepository(sop),
+        ),
+      );
+}
+
+class _ViewModelItemTransfer extends _ViewModelItem {
+  _ViewModelItemTransfer(this.entity);
+
+  final TransferRecord entity;
+
+  @override
+  String get amountText => '${entity.amount}';
+
+  @override
+  String get leadingText => '${entity.source.name}→${entity.destination.name}';
+
+  @override
+  RecordType get type => entity.type;
+
+  @override
+  Future<ExceptionOr<dartz.Unit>> delete({
+    required String uid,
+    required SingleOrPair sop,
+  }) =>
+      sl<DeleteRecordUseCase<TransferRecord>>()(
+        DeleteRecordInput(
+          uid: uid,
+          record: entity,
+          repository: selectTransferRecordRepository(sop),
+        ),
+      );
 }
