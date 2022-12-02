@@ -167,13 +167,31 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
     int day,
     _DailyRecordSummary summary,
   ) {
+    final onTap = () async {
+      final sop = context.read<SingleOrPair>();
+      final repoId = context.read<UserInfo>().repoId(sop);
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DailyRecordMinute(
+            year: year,
+            month: month,
+            day: day,
+            sop: sop,
+            repoId: repoId,
+          ),
+        ),
+      );
+      setState(() {
+        _setSummaryFutureState();
+      });
+    };
     return _CalendarDay(
-      year: year,
-      month: month,
       day: day,
       income: summary["income"]![day - 1],
       expense: summary["expense"]![day - 1],
       transfer: summary["transfer"]![day - 1],
+      onTap: onTap,
     );
   }
 
@@ -228,49 +246,31 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
 
 class _CalendarDay extends StatelessWidget {
   const _CalendarDay({
-    required int year,
-    required int month,
     required int day,
     required int income,
     required int expense,
     required int transfer,
+    required VoidCallback onTap,
     Key? key,
-  })  : _year = year,
-        _month = month,
-        _day = day,
+  })  : _day = day,
         _income = income,
         _expense = expense,
         _transfer = transfer,
+        _onTap = onTap,
         super(key: key);
 
-  final int _year;
-  final int _month;
   final int _day;
   final int _income;
   final int _expense;
   final int _transfer;
+  final VoidCallback _onTap;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: GestureDetector(
-        onTap: () {
-          final sop = context.read<SingleOrPair>();
-          final repoId = context.read<UserInfo>().repoId(sop);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DailyRecordMinute(
-                year: _year,
-                month: _month,
-                day: _day,
-                sop: sop,
-                repoId: repoId,
-              ),
-            ),
-          );
-        },
+        onTap: _onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
