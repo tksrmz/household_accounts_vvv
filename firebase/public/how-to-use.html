@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width'>
+    <title>使い方</title>
+    <style>
+        img {
+            width: 300px;
+            border: 1px solid;
+        }
+        p.caution {
+            color: red;
+            font-size: small;
+        }
+        h2 {
+            border-bottom: 2px double;
+        }
+        h3 {
+            border-bottom: 2px dashed gray;
+        }
+
+
+
+    </style>
+</head>
+
+<body>
+<h1>使い方</h1>
+
+<p>
+    アプリをインストールしてから家計簿を使うまでの流れについて説明しています。
+</p>
+
+<h2>目次</h2>
+<ol>
+    <li><a href="#user-registration">ユーザ登録（サインアップ）</a></li>
+    <ul>
+        <li><a href="#sign-in">（ユーザ登録済みの場合）サインインする</a></li>
+    </ul>
+    <li><a href="#property-registration">資産を登録する</a></li>
+    <ul>
+        <li><a href="#property-edit">登録した資産を編集する</a></li>
+        <li><a href="#deleting-property">登録した資産を削除する</a></li>
+    </ul>
+    <li><a href="#category-registration">カテゴリを登録する</a></li>
+    <ul>
+        <li><a href="#category-edit">登録したカテゴリを編集する</a></li>
+        <li><a href="#deleting-category">登録したカテゴリを削除する</a></li>
+    </ul>
+    <li><a href="#regord-input">収支を記録する</a></li>
+    <ul>
+        <li><a href="#income-record">収入を記録する</a></li>
+        <li><a href="#expense-record">支出を記録する</a></li>
+        <li><a href="#transfer-record">振替を記録する</a></li>
+    </ul>
+    <li><a href="#monthly-view">ある月の記録を閲覧する</a></li>
+    <li><a href="#daily-view">ある日の記録を閲覧する</a></li>
+    <li><a href="#deleting-record">収支や振替の記録を削除する</a></li>
+    <li><a href="#signning-out">サインアウトする</a></li>
+</ol>
+
+<h2 id="user-registration">ユーザ登録（サインアップ）</h2>
+<p>
+    アプリを起動したらまず、ユーザ登録が必要です。ユーザ登録に使用するメールアドレスはダミー（例：abcdef@example.com。abcdefの部分は好きな文字に変えてOK）でも、普段遣いのものでも問題ありません。
+</p>
+<p>
+    初めてアプリを起動したら、次の画面が表示されます。
+    "Sign in"の下に表示されている文の右側にあるRegisterをタップしてください。
+</p>
+<img src="./img/how-to-use/sign-in.png" alt="サインイン画面">
+<p>
+    Registerをタップすると次の画面が表示されます。
+    この画面でユーザ登録を行います。
+    メールアドレス、パスワード、パスワード（確認用）を上から順に入力し、一番下のRegisterボタンをタップしてください。
+</p>
+<img src="./img/how-to-use/sign-up.png" alt="サインアップ画面">
+<p class="caution">
+    注意1：パスワードは6文字以上である必要があります。<br>
+    注意2：@example.comのメールアドレスを使用してユーザ登録した場合、「サイトまたはアプリでのデータ侵害により、パスワード情報が漏洩しました。今すぐカケーボαでパスワードを変更することをおすすめします。」と表示されることがあります。問題はないので、「このパスワードをかけーぼαで次回から表示しない」にチェックを入れて「OK」をタップしてください。（ページの一番下にこの現象について補足をしています）<br>
+    注意3：普段遣いのメールアドレスを使用してユーザ登録し、注意2で言及しているメッセージが表示された場合は注意してください。そのメールアドレスを使用してユーザ登録した他のアプリやサービスでアカウントのパスワードが（時期はわかりませんが）過去に漏洩しています。そのメールアドレスを使用しているアカウントすべてのパスワードを変更することをおすすめします。
+</p>
+<p>
+    次の画面が表示された場合、ユーザ登録は成功です。
+</p>
+<img src="./img/how-to-use/input.png" alt="記録画面">
+
+<h3 id="sign-in">（ユーザ登録済みの場合）サインインする</h3>
+<p>
+    次の画面で、ユーザ登録時に使用したメールアドレスとパスワードを入力し、"Sign in"ボタンをタップしてください。
+</p>
+<img src="./img/how-to-use/sign-in.png" alt="サインイン画面">
+
+<h2 id="property-registration">資産を登録する</h2>
+<p>
+    家計簿の記録をつけ始める前に、まず資産と収入・支出のカテゴリの登録をする必要があります。
+</p>
+<p>
+    画面の下にある4つ並んだアイコンのうち、右から二番目（時計のアイコン）をタップします。
+    すると、次の画面が表示されます。
+    画像は私がテスト中にスクショしたものなので、すでに2種類の資産が登録されています。
+    初めてこの画面を開いたときは、資産が何も登録されていないのでなにも表示されません。
+</p>
+<img src="./img/how-to-use/property-list.png" alt="資産一覧">
+<p>
+    資産を新規登録するためには画面下部にある「Add a new property」ボタンをタップします。
+    すると、次の画面が表示されます。
+</p>
+<img src="./img/how-to-use/property-create.png" alt="資産一覧">
+<p>
+    この画面で、以下の手順を行ってください。
+</p>
+<ol>
+    <li>一番上（Property name）に資産の名称を入力してください（例：現金、銀行）。</li>
+    <li>その下（Amount）に資産の学を入力してください。</li>
+    <li>Addボタンをタップしてください。</li>
+</ol>
+<p>
+    これで資産の登録は終わりです。
+    画面は先程の画面に自動的に遷移します。
+</p>
+
+<h3 id="property-edit">登録した資産を編集する</h3>
+<p>
+    次の画面で、編集したい資産の横にある鉛筆をタップします。
+    TODO: 編集画面の説明を追加する。
+</p>
+<img src="./img/how-to-use/property-list.png" alt="資産一覧">
+
+<h3 id="deleting-property">登録した資産を削除する</h3>
+<p>
+    次の画面で、編集したい資産の横にあるゴミ箱をタップします。
+    削除の確認画面などは出ないので注意してください。
+</p>
+<img src="./img/how-to-use/property-list.png" alt="資産一覧">
+
+<h2 id="category-registration">カテゴリを登録する</h2>
+<p>
+    画面の下にある4つ並んだアイコンのうち、一番右（人のアイコン）をタップします。
+    すると、次の画面が表示されます。
+    画像は私がテスト中にスクショしたものなので、すでに4個のカテゴリが登録されています。
+    初めてこの画面を開いたときは、カテゴリが何も登録されていないのでなにも表示されません。
+</p>
+<img src="./img/how-to-use/category-list.png" alt="カテゴリ一覧">
+<p>
+    カテゴリを新規登録するためには画面下部にある「Add a new category」ボタンをタップします。
+    すると、次の画面が表示されます。
+</p>
+<img src="./img/how-to-use/category-create.png" alt="カテゴリ一覧">
+<p>
+    この画面で、以下の手順を行ってください。
+</p>
+<ol>
+    <li>一番上（category name）にカテゴリの名称を入力してください（例：給与、食費）。</li>
+    <li>カテゴリが「収入に関するもの（Income）」か、「支出に関するもの（Expense）」かを選択してください。</li>
+    <li>Addボタンをタップしてください。</li>
+</ol>
+<p>
+    これでカテゴリの登録は終わりです。
+    画面は先程の画面に自動的に遷移します。
+</p>
+
+<h3 id="category-edit">登録したカテゴリを編集する</h3>
+<p>
+    次の画面で、編集したいカテゴリの横にある鉛筆をタップします。
+    編集で変えられるのは名称のみです。収入カテゴリか支出カテゴリかは編集できません。
+    TODO: 編集画面の説明を追加する。
+</p>
+<img src="./img/how-to-use/category-list.png" alt="カテゴリ一覧">
+
+<h3 id="deleting-category">登録したカテゴリを削除する</h3>
+<p>
+    次の画面で、編集したいカテゴリの横にあるゴミ箱をタップします。
+    削除の確認画面などは出ないので注意してください。
+</p>
+<img src="./img/how-to-use/category-list.png" alt="カテゴリ一覧">
+
+<h2 id="regord-input">収支を記録する</h2>
+<p>
+    画面の下にある4つ並んだアイコンのうち、一番左（雲のアイコン）をタップします。
+    すると、次の画面が表示されます。
+</p>
+<img src="./img/how-to-use/input.png" alt="記録画面">
+
+<h3 id="income-record">収入を記録する</h3>
+<p>
+    この画面で、以下の手順を行ってください。
+</p>
+<ol>
+    <li>「Income」「Expense」「Transfer」と3個のボタンが並んでいるところから、「Income」を選択します。</li>
+    <li>日付の横に表示されている鉛筆のアイコンをタップして、収入があった日を選択します。</li>
+    <li>Amount欄に収入の金額を入力します。</li>
+    <li>「Select property」を選択し、収入を追加する資産を選択します。ここで選択可能な資産は、「資産を登録する」で登録した資産です。</li>
+    <li>「Select category」を選択し、収入のカテゴリを選択します。ここで選択可能な資産は、「カテゴリを登録する」で収入カテゴリ（Income
+        categories）として登録した資産です。
+    </li>
+    <li>Note欄にメモを入力します。</li>
+    <li>Submitボタンを押します。</li>
+</ol>
+<p>
+    以上で収入の記録ができました。
+    （Submitボタンを押したときにAmount欄やNote欄の入力内容が消えないのは修正予定です！）
+</p>
+
+<h3 id="expense-record">支出を記録する</h3>
+<p>
+    この画面で、以下の手順を行ってください。
+</p>
+<ol>
+    <li>「Income」「Expense」「Transfer」と3個のボタンが並んでいるところから、「Expense」を選択します。</li>
+    <li>日付の横に表示されている鉛筆のアイコンをタップして、支出があった日を選択します。</li>
+    <li>Amount欄に支出の金額を入力します。</li>
+    <li>「Select property」を選択し、支出を追加する資産を選択します。ここで選択可能な資産は、「資産を登録する」で登録した資産です。</li>
+    <li>「Select category」を選択し、支出のカテゴリを選択します。ここで選択可能な資産は、「カテゴリを登録する」で支出カテゴリ（Expense
+        categories）として登録した資産です。
+    </li>
+    <li>Note欄にメモを入力します。</li>
+    <li>Submitボタンを押します。</li>
+</ol>
+<p>
+    以上で支出の記録ができました。
+    （Submitボタンを押したときにAmount欄やNote欄の入力内容が消えないのは修正予定です！）
+</p>
+
+<h3 id="transfer-record">振替を記録する</h3>
+<p>
+    この画面で、以下の手順を行ってください。
+    1番目の操作を行ったとき、画面の表示が次のように変わります。
+</p>
+<img src="./img/how-to-use/transfer-input.png" alt="振替記録画面">
+<ol>
+    <li>「Income」「Expense」「Transfer」と3個のボタンが並んでいるところから、「Transfer」を選択します。</li>
+    <li>日付の横に表示されている鉛筆のアイコンをタップして、支出があった日を選択します。</li>
+    <li>Amount欄に振替の金額を入力します。</li>
+    <li>上の「Select property」を選択し、振替元の資産を選択します。ここで選択可能な資産は、「資産を登録する」で登録した資産です。</li>
+    <li>下の「Select property」を選択し、振替先の資産を選択します。ここで選択可能な資産は、「資産を登録する」で登録した資産です。</li>
+    <li>Note欄にメモを入力します。</li>
+    <li>Submitボタンを押します。</li>
+</ol>
+<p>
+    以上で振替の記録ができました。
+    （Submitボタンを押したときにAmount欄やNote欄の入力内容が消えないのは修正予定です！）
+</p>
+
+<h2 id="monthly-view">ある月の記録を閲覧する</h2>
+<p>
+    画面の下にある4つ並んだアイコンのうち、左から2番目（傘のアイコン）をタップします。
+</p>
+<img src="/img/how-to-use//calendar-viewer.png" alt="月の記録閲覧">
+<p>
+    画面上部に年月が表示されています。
+    左右の矢印をタップすることで、前後の月に移動できます。
+</p>
+<p>
+    その下に曜日が表示されています（月曜日始まり）。
+</p>
+<p>
+    その下は日毎の収支がまとめられています。
+    カレンダーと同じ要領でデータは並んでいます。
+    一番上の数字が日付、+の後に続く数字がその日の収入合計、-の後に続く数字がその日の支出合計、=の後に続く数字がその日の振替合計です。
+</p>
+
+<h2 id="daily-view">ある日の記録を閲覧する</h2>
+<p>
+    画面の下にある4つ並んだアイコンのうち、左から2番目（傘のアイコン）をタップします。
+</p>
+<img src="/img/how-to-use//calendar-viewer.png" alt="月の記録閲覧">
+<p>
+    上の画面が表示されたら、記録を閲覧したい日をタップします（青文字のところです）。
+    例えば、上の画像から18日を選択すると、次の画面が開きます。
+</p>
+<img src="/img/how-to-use//20220518.png" alt="2022年5月18日の記録閲覧">
+
+<h2 id="deleting-record">収支や振替の記録を削除する</h2>
+<p>
+    「<a href="#daily-view">ある日の記録を閲覧する</a>」に記載されている方法で、削除したい記録がある日を開きます。
+    削除したい記録の右側にあるDeleteボタンをたっぷします。
+    ボタンを押すと、本当に削除するかの確認はせずに記録を消してしまうので注意してください。
+</p>
+<img src="/img/how-to-use//20220518.png" alt="2022年5月18日の記録閲覧">
+
+<h2 id="signning-out">サインアウトする</h2>
+<p>
+    画面右上に表示されているアイコンをタップします。
+    下の画像では、青地に白で書かれた「Input」の右側に配置されているアイコンです。
+</p>
+<img src="./img/how-to-use/input.png" alt="記録画面">
+<p>
+    サインアウトすると、次の画面に変化します。
+    サインインの方法は<a href="#sign-in">こちら</a>。
+</p>
+<img src="./img/how-to-use/sign-in.png" alt="サインイン画面">
+</body>
+
+</html>
