@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:flutter/widgets.dart';
-import 'package:flutterfire_ui/auth.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 
 import '../app_home_page/page.dart';
 
@@ -15,8 +15,8 @@ class AuthGate extends StatelessWidget {
         // User is not signed in
         if (!snapshot.hasData) {
           return SignInScreen(
-            providerConfigs: [
-              EmailProviderConfiguration(),
+            providers: [
+              EmailAuthProvider(),
             ],
           );
         }
