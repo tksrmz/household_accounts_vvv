@@ -1,7 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:household_accounts/feature/auth_gate/use_case.dart';
 
-import 'feature/auth_gate/presentation/index.dart';
+import 'feature/auth_gate/index.dart';
 import 'firebase_options.dart';
 import 'util/service_locator/main.dart';
 
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: AuthGate(),
+      home: AuthGate(AuthUseCase()),
     );
   }
 }
