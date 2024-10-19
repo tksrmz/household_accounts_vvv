@@ -8,4 +8,11 @@ void main() {
       expect(amount.value, element);
     });
   });
+
+  test('100 - 50 should be 50', () {
+    final amount = Amount(100);
+    final other = Amount(50);
+    final result = amount - other;
+    expect(result.value, 50);
+  });
 }
