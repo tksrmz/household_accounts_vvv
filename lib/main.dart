@@ -1,8 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'feature/auth_gate/presentation/index.dart';
 import 'firebase_options.dart';
-import 'presentation/auth_gate/auth_gate.dart';
 import 'util/service_locator/main.dart';
 
 void main() async {
