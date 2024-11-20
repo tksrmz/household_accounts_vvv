@@ -1,12 +1,12 @@
-import 'expense.dart';
-import 'income.dart';
+import 'expense_total.dart';
+import 'income_total.dart';
 
 /// Balance used in the dashboard.
 ///
-/// Balance is calculated by subtracting [Expense] from [Income].
+/// Balance is calculated by subtracting [ExpenseTotal] from [IncomeTotal].
 class Balance {
-  /// Balance is calculated by subtracting [Expense] from [Income].
-  Balance(Income income, Expense expense)
+  /// Balance is calculated by subtracting [ExpenseTotal] from [IncomeTotal].
+  Balance(IncomeTotal income, ExpenseTotal expense)
       : value = income.value - expense.value;
 
   /// Value of the balance.

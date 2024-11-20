@@ -1,13 +1,13 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'income.freezed.dart';
+part 'income_total.freezed.dart';
 
 /// Income used in the dashboard.
 @freezed
-class Income with _$Income {
+class IncomeTotal with _$IncomeTotal {
   /// Default constructor.
   ///
   /// [value] must be greater than or equal to 0.
   @Assert('value >= 0', 'Income value cannot be negative')
-  const factory Income(int value) = _Income;
+  const factory IncomeTotal(int value) = _IncomeTotal;
 }
