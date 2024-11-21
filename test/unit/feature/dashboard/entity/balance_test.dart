@@ -3,6 +3,7 @@ import 'package:household_accounts/feature/dashboard/entity/budget_total.dart';
 import 'package:household_accounts/feature/dashboard/entity/expense_category.dart';
 import 'package:household_accounts/feature/dashboard/entity/expense_total.dart';
 import 'package:household_accounts/feature/dashboard/entity/income_total.dart';
+import 'package:household_accounts/feature/dashboard/vo/category_name.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -21,10 +22,13 @@ void main() {
       });
     });
 
+    final budgetTotal = BudgetTotal([
+      ExpenseCategory(CategoryName('test'), 100),
+    ]);
     [
-      (BudgetTotal([ExpenseCategory('test', 100)]), ExpenseTotal(99), 1),
-      (BudgetTotal([ExpenseCategory('test', 100)]), ExpenseTotal(100), 0),
-      (BudgetTotal([ExpenseCategory('test', 100)]), ExpenseTotal(101), -1),
+      (budgetTotal, ExpenseTotal(99), 1),
+      (budgetTotal, ExpenseTotal(100), 0),
+      (budgetTotal, ExpenseTotal(101), -1),
     ].forEach((element) {
       final (budget, expense, expected) = element;
       test(
