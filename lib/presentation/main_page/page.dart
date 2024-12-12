@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:household_accounts/presentation/dashboard/page.dart';
 import 'package:provider/provider.dart';
 
 import '../../util/type/single_or_pair.dart';
@@ -20,6 +21,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final _titles = [
+    'Dashboard',
     'Input',
     'Calendar',
     'Property',
@@ -32,6 +34,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     final bodies = <Widget>[
+      DashboardPage(),
       RecordInputPage(),
       CalendarRecordViewPage(),
       PropertyListBody(),
@@ -53,6 +56,10 @@ class _MainPageState extends State<MainPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.sunny),
+            label: 'Dashboard',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.cloud),
             label: 'Input',

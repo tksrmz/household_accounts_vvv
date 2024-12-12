@@ -1,8 +1,7 @@
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/widgets.dart';
-import 'package:household_accounts/feature/dashboard/domain/use_case.dart';
 
-import '../dashboard/presentation/index.dart';
+import '../../presentation/app_home_page/page.dart';
 import 'use_case.dart';
 import 'user.dart';
 
@@ -26,7 +25,7 @@ class AuthGate extends StatelessWidget {
         }
 
         // Render your application if authenticated
-        return Dashboard(DashboardUseCase());
+        return MyAppHome(uid: snapshot.data!.uid);
       },
     );
   }

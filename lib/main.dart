@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/feature/auth_gate/use_case.dart';
 
@@ -11,6 +14,23 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Connect to the local emulator if running in debug mode
+  if (kDebugMode) {
+    // initialize Firebase Auth emulator
+    final firebaseAuthInstance = FirebaseAuth.instance;
+    firebaseAuthInstance.useAuthEmulator('localhost', 9099);
+    // log out to clear any previous user
+    await firebaseAuthInstance.signOut();
+
+    // initialize Firestore emulator
+    final firestoreInstance = FirebaseFirestore.instance;
+    firestoreInstance.useFirestoreEmulator('localhost', 8080);
+    firestoreInstance.settings = const Settings(
+      persistenceEnabled: false,
+    );
+  }
+
   initializeServiceLocator();
   runApp(MyApp());
 }
