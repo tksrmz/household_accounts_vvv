@@ -15,7 +15,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Connect to the local emulator if running in debug mode
+  // デバッグモードのときのみFirebaseエミュレータに接続
   if (kDebugMode) {
     // initialize Firebase Auth emulator
     final firebaseAuthInstance = FirebaseAuth.instance;
