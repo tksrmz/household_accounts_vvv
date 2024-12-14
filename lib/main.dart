@@ -17,8 +17,18 @@ void main() async {
 
   // デバッグモードのときのみFirebaseエミュレータに接続
   if (kDebugMode) {
-    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-    FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+    // initialize Firebase Auth emulator
+    final firebaseAuthInstance = FirebaseAuth.instance;
+    firebaseAuthInstance.useAuthEmulator('localhost', 9099);
+    // log out to clear any previous user
+    await firebaseAuthInstance.signOut();
+
+    // initialize Firestore emulator
+    final firestoreInstance = FirebaseFirestore.instance;
+    firestoreInstance.useFirestoreEmulator('localhost', 8080);
+    firestoreInstance.settings = const Settings(
+      persistenceEnabled: false,
+    );
   }
 
   initializeServiceLocator();
