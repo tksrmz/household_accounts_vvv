@@ -1,4 +1,4 @@
-import '../../entity/property_entity.dart';
+import '../../entity/property.dart';
 import '../../util/type/exception_or.dart';
 import 'property_retrieve_use_case.dart';
 

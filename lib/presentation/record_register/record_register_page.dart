@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:household_accounts/util/extension/string.dart';
 import 'package:provider/provider.dart';
 
-import '../../entity/category_entity.dart';
-import '../../entity/property_entity.dart';
-import '../../entity/record_entity.dart';
+import '../../entity/category.dart';
+import '../../entity/property.dart';
+import '../../entity/record.dart';
 import '../../feature/category_retrieve/retrieve_expense_category_use_case.dart';
 import '../../feature/category_retrieve/retrieve_income_category_use_case.dart';
 import '../../feature/property_retrieve/property_retrieve_use_case.dart';

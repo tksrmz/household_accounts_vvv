@@ -1,4 +1,4 @@
-import '../../entity/category_entity.dart';
+import '../../entity/category.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 

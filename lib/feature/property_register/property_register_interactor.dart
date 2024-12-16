@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 
-import '../../entity/property_entity.dart';
+import '../../entity/property.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/uuid/uuid.dart';
 import 'property_register_use_case.dart';

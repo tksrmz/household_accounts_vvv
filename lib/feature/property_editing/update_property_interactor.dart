@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 
-import '../../entity/property_entity.dart';
+import '../../entity/property.dart';
 import '../../util/method/future_either.dart';
 import '../../util/type/exception_or.dart';
 import 'update_property_use_case.dart';

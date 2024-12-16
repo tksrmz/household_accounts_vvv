@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../entity/category_entity.dart';
+import '../../entity/category.dart';
 
 typedef CategoryEditorOnSubmit = void Function(
   String name,

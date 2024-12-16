@@ -1,4 +1,4 @@
-import '../../entity/category_entity.dart';
+import '../../entity/category.dart';
 import '../../util/type/repository.dart';
 
 abstract class PersonalIncomeCategoryRepository

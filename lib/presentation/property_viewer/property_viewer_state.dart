@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
 
-import '../../entity/property_entity.dart';
+import '../../entity/property.dart';
 import '../../feature/property_retrieve/property_retrieve_use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/single_or_pair.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../entity/record_entity.dart';
+import '../../entity/record.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/single_or_pair.dart';
 import '../daily_record_viewer/daily_record_viewer_page.dart';

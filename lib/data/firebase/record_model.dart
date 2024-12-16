@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../entity/category_entity.dart';
-import '../../entity/record_entity.dart';
+import '../../entity/category.dart';
+import '../../entity/record.dart';
 import '../../util/type/json.dart';
 import 'category_model.dart';
 import 'data_model.dart';

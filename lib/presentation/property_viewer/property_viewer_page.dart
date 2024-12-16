@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../entity/property_entity.dart';
+import '../../entity/property.dart';
 import '../../feature/property_deletion/delete_property_use_case.dart';
 import '../../feature/property_editing/update_property_use_case.dart';
 import '../../feature/property_register/property_register_use_case.dart';

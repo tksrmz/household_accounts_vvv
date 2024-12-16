@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../../entity/property_entity.dart';
+import '../../../entity/property.dart';
 import '../property_model.dart';
 
 /// Get [Property] related to [ref].

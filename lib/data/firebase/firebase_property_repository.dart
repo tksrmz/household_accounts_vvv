@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
-import '../../entity/property_entity.dart';
+import '../../entity/property.dart';
 import '../../feature/repository/property_repository.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/json.dart';

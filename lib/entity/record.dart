@@ -1,6 +1,6 @@
 import '../util/type/identifiable.dart';
-import 'category_entity.dart';
-import 'property_entity.dart';
+import 'category.dart';
+import 'property.dart';
 
 enum RecordType { income, expense, transfer }
 

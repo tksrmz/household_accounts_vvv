@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../entity/category_entity.dart';
+import '../../entity/category.dart';
 import '../../feature/category_deletion/delete_expense_category_use_case.dart';
 import '../../feature/category_deletion/delete_income_category_use_case.dart';
 import '../../feature/category_editing/update_expense_category_use_case.dart';
@@ -167,14 +167,14 @@ class _IncomeCategoryList extends StatelessWidget {
     return state.categories.isEmpty
         ? const Text('No income categories exist. Add new one.')
         : Column(
-      children: state.categories
-          .map(
-            (e) => _IncomeCategoryListItem(
-          incomeCategory: e,
-        ),
-      )
-          .toList(growable: false),
-    );
+            children: state.categories
+                .map(
+                  (e) => _IncomeCategoryListItem(
+                    incomeCategory: e,
+                  ),
+                )
+                .toList(growable: false),
+          );
   }
 }
 
@@ -207,12 +207,12 @@ class _IncomeCategoryListItem extends StatelessWidget {
     final delete = sl<DeleteIncomeCategoryUseCase>();
     final result = await delete(input);
     result.fold(
-          (exception) => _showExceptionDialog(
+      (exception) => _showExceptionDialog(
         context,
         'Deleting Income Category Failed',
         exception,
       ),
-          (_) => _reloadIncomeCategoryState(context),
+      (_) => _reloadIncomeCategoryState(context),
     );
   }
 
@@ -244,14 +244,14 @@ class _ExpenseCategoryList extends StatelessWidget {
     return state.categories.isEmpty
         ? const Text('No expense categories exist. Add new one.')
         : Column(
-      children: state.categories
-          .map(
-            (e) => _ExpenseCategoryListItem(
-          expenseCategory: e,
-        ),
-      )
-          .toList(growable: false),
-    );
+            children: state.categories
+                .map(
+                  (e) => _ExpenseCategoryListItem(
+                    expenseCategory: e,
+                  ),
+                )
+                .toList(growable: false),
+          );
   }
 }
 
@@ -286,12 +286,12 @@ class _ExpenseCategoryListItem extends StatelessWidget {
     final delete = sl<DeleteExpenseCategoryUseCase>();
     final result = await delete(input);
     result.fold(
-          (exception) => _showExceptionDialog(
+      (exception) => _showExceptionDialog(
         context,
         'Deleting Expense Category Failed',
         exception,
       ),
-          (_) => _reloadExpenseCategoryState(context),
+      (_) => _reloadExpenseCategoryState(context),
     );
   }
 
@@ -387,19 +387,20 @@ class _EditCategoryButton extends StatelessWidget {
 
 Future<void> _reloadIncomeCategoryState(BuildContext context) =>
     context.read<IncomeCategoryListState>().fetch(
-      singleOrPair: context.read<SingleOrPair>(),
-      userInfo: context.read<UserInfo>(),
-    );
+          singleOrPair: context.read<SingleOrPair>(),
+          userInfo: context.read<UserInfo>(),
+        );
 
 Future<void> _reloadExpenseCategoryState(BuildContext context) =>
     context.read<ExpenseCategoryListState>().fetch(
-      singleOrPair: context.read<SingleOrPair>(),
-      userInfo: context.read<UserInfo>(),
-    );
+          singleOrPair: context.read<SingleOrPair>(),
+          userInfo: context.read<UserInfo>(),
+        );
 
-Future<void> _showExceptionDialog(BuildContext context,
-    String title,
-    Exception exception,
+Future<void> _showExceptionDialog(
+  BuildContext context,
+  String title,
+  Exception exception,
 ) =>
     showDialog<void>(
       context: context,

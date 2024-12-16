@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
-import '../../entity/record_entity.dart';
+import '../../entity/record.dart';
 import '../../feature/repository/record_repository.dart';
 import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';

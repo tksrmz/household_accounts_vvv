@@ -1,6 +1,6 @@
-import '../../entity/category_entity.dart';
-import '../../entity/property_entity.dart';
-import '../../entity/record_entity.dart';
+import '../../entity/category.dart';
+import '../../entity/property.dart';
+import '../../entity/record.dart';
 import '../../feature/repository/category_repository.dart';
 import '../../feature/repository/property_repository.dart';
 import '../../feature/repository/record_repository.dart';

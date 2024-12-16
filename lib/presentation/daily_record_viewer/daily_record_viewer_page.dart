@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
 
-import '../../entity/record_entity.dart';
+import '../../entity/record.dart';
 import '../../feature/record_deletion/use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/exception_or.dart';
@@ -115,11 +115,11 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
                         });
                       },
                     ),
-                      ],
-                    ),
+                  ],
+                ),
               )
-                  .toList(),
-            ),
+              .toList(),
+        ),
       ),
     );
   }
@@ -139,8 +139,8 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
           sop: sop,
           repoId: repoId,
         ).then(
-              (failureOrIncomes) => failureOrIncomes.fold(
-                (_) => <_ViewModelItem>[],
+          (failureOrIncomes) => failureOrIncomes.fold(
+            (_) => <_ViewModelItem>[],
             (incomes) =>
                 incomes.map((record) => _ViewModelItemIncome(record)).toList(),
           ),
@@ -152,10 +152,9 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
           sop: sop,
           repoId: repoId,
         ).then(
-              (failureOrExpenses) => failureOrExpenses.fold(
-                (_) => <_ViewModelItem>[],
-                (expenses) =>
-                expenses
+          (failureOrExpenses) => failureOrExpenses.fold(
+            (_) => <_ViewModelItem>[],
+            (expenses) => expenses
                 .map((record) => _ViewModelItemExpense(record))
                 .toList(),
           ),
@@ -167,17 +166,16 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
           sop: sop,
           repoId: repoId,
         ).then(
-              (failureOrTransfers) => failureOrTransfers.fold(
-                (_) => <_ViewModelItem>[],
-                (transfers) =>
-                transfers
+          (failureOrTransfers) => failureOrTransfers.fold(
+            (_) => <_ViewModelItem>[],
+            (transfers) => transfers
                 .map((record) => _ViewModelItemTransfer(record))
                 .toList(),
           ),
         ),
       ],
     ).then(
-          (nestedList) => nestedList.expand((list) => list).toList(),
+      (nestedList) => nestedList.expand((list) => list).toList(),
     );
   }
 }

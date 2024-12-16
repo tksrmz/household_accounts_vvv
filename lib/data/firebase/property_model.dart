@@ -1,4 +1,4 @@
-import '../../entity/property_entity.dart';
+import '../../entity/property.dart';
 import '../../util/type/json.dart';
 import 'data_model.dart';
 

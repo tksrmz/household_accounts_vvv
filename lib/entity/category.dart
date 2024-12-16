@@ -1,5 +1,5 @@
 import '../util/type/identifiable.dart';
-import 'budget_entity.dart';
+import 'budget.dart';
 
 enum CategoryType { income, expense }
 

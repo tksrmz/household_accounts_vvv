@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../entity/property_entity.dart';
+import '../../entity/property.dart';
 
 class PropertyNameTextField extends StatelessWidget {
   const PropertyNameTextField({

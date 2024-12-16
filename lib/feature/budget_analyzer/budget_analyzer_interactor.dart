@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../../entity/category_entity.dart';
-import '../../entity/record_entity.dart';
+import '../../entity/category.dart';
+import '../../entity/record.dart';
 import '../../util/type/exception_or.dart';
 import 'budget_analyzer_use_case.dart';
 

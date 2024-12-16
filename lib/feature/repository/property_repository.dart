@@ -1,4 +1,4 @@
-import '../../entity/property_entity.dart';
+import '../../entity/property.dart';
 import '../../util/type/repository.dart';
 
 abstract class PersonalPropertyRepository extends Repository<Property> {}

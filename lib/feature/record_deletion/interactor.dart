@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 
-import '../../entity/record_entity.dart';
+import '../../entity/record.dart';
 import '../../util/type/exception_or.dart';
 import 'use_case.dart';
 

@@ -1,4 +1,4 @@
-import '../../entity/record_entity.dart';
+import '../../entity/record.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/repository.dart';
 

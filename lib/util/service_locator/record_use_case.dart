@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 
-import '../../entity/record_entity.dart';
+import '../../entity/record.dart';
 import '../../feature/record_deletion/interactor.dart';
 import '../../feature/record_deletion/use_case.dart';
 import '../../feature/record_register/interactor.dart';

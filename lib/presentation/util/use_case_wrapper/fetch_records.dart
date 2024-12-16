@@ -1,4 +1,4 @@
-import '../../../entity/record_entity.dart';
+import '../../../entity/record.dart';
 import '../../../feature/record_retrieve/use_case.dart';
 import '../../../util/service_locator/main.dart';
 import '../../../util/type/exception_or.dart';
