@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 
 import '../../../../common/logic/formatter.dart';
+import '../../../entity/balance.dart';
+import '../../../entity/expense.dart';
+import '../../../entity/income.dart';
 import 'm3_container.dart';
 import 'spaced_row.dart';
 
 /// A panel that displays the given [summary].
 class SummaryPanel extends StatelessWidget {
-  const SummaryPanel({
-    required this.income,
-    required this.expense,
+  SummaryPanel(
+    this.income,
+    this.expense, {
     super.key,
-  }) : balance = income - expense;
+  }) : balance = Balance(income, expense);
 
-  // TODO: Replace these with VO
-  final int income;
-  final int expense;
-  final int balance;
+  final Income income;
+  final Expense expense;
+  final Balance balance;
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +41,9 @@ class SummaryPanel extends StatelessWidget {
             children: [
               const _Labels(),
               _Values(
-                income: income,
-                expense: expense,
-                balance: balance,
+                income,
+                expense,
+                balance,
               ),
             ],
           ),
@@ -70,23 +72,22 @@ class _Labels extends StatelessWidget {
 }
 
 class _Values extends StatelessWidget {
-  const _Values({
-    required this.income,
-    required this.expense,
-    required this.balance,
-  });
+  const _Values(
+    this.income,
+    this.expense,
+    this.balance,
+  );
 
-  // TODO: Replace this with VO
-  final int income;
-  final int expense;
-  final int balance;
+  final Income income;
+  final Expense expense;
+  final Balance balance;
 
   @override
   Widget build(BuildContext context) {
     final List<String> strings = [
-      Formatter.simpleCurrency(income),
-      Formatter.simpleCurrency(expense),
-      Formatter.simpleCurrency(balance),
+      Formatter.simpleCurrency(income.value),
+      Formatter.simpleCurrency(expense.value),
+      Formatter.simpleCurrency(balance.value),
     ];
 
     return Column(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../entity/expense.dart';
+import '../../entity/income.dart';
 import 'widget/summary_panel.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -7,6 +9,6 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SummaryPanel(income: 100, expense: 200);
+    return SummaryPanel(Income(100), Expense(60));
   }
 }
