@@ -1,4 +1,3 @@
-// TODO add test
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/entity/expense.dart';
