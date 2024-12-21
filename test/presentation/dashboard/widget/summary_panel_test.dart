@@ -5,7 +5,6 @@ import 'package:household_accounts/entity/income.dart';
 import 'package:household_accounts/presentation/dashboard/widget/summary_panel.dart';
 
 void main() {
-  // TODO Use matchesGoldenFile to test the appearance of the widget.
   testWidgets('SummaryPanel displays income, expense and balance',
       (tester) async {
     await tester.pumpWidget(
@@ -33,4 +32,29 @@ void main() {
     expect(expenseValueFinder, findsOneWidget);
     expect(balanceValueFinder, findsOneWidget);
   });
+
+  testWidgets(
+    'SummaryPanel displays income, expense and balance (golden file)',
+    (tester) async {
+      // TODO Add fonts
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: RepaintBoundary(
+              child: SummaryPanel(
+                Income(100),
+                Expense(70),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await expectLater(
+        find.byType(SummaryPanel),
+        matchesGoldenFile('golden/summary_panel.png'),
+      );
+    },
+    tags: ['golden'],
+  );
 }
