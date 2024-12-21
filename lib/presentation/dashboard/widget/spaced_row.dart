@@ -5,7 +5,6 @@ class SpacedRow extends StatelessWidget {
   final double spaceWidth;
   final MainAxisSize mainAxisSize;
   final MainAxisAlignment mainAxisAlignment;
-  final CrossAxisAlignment crossAxisAlignment;
 
   static const double defaultWidth = 10.0;
 
@@ -15,7 +14,6 @@ class SpacedRow extends StatelessWidget {
     this.spaceWidth = defaultWidth,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
   }) : assert(
           spaceWidth >= 0,
           'spaceWidth must be greater than or equal to 0',
@@ -36,7 +34,6 @@ class SpacedRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: mainAxisAlignment,
       mainAxisSize: mainAxisSize,
-      crossAxisAlignment: crossAxisAlignment,
       children: rowChildren,
     );
   }
