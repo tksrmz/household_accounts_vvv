@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/entity/expense.dart';
 import 'package:household_accounts/entity/income.dart';
@@ -38,9 +39,16 @@ void main() {
   testWidgets(
     'SummaryPanel displays income, expense and balance (golden file)',
     (tester) async {
-      // TODO Add fonts
+      final Future<ByteData> font = rootBundle.load('fonts/NotoSansJP.ttf');
+
+      final FontLoader fontLoader = FontLoader('NotoSansJP')..addFont(font);
+      await fontLoader.load();
+
       await tester.pumpWidget(
         MaterialApp(
+          theme: ThemeData(
+            fontFamily: 'NotoSansJP',
+          ),
           home: Scaffold(
             body: RepaintBoundary(
               child: SummaryPanel(
