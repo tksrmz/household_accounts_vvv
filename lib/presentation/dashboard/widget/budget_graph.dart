@@ -14,15 +14,19 @@ class BudgetGraph extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // FIXME: Remove Expanded widget when the design is fixed
-        Expanded(
-          child: Row(
+        Flexible(
+          child: Column(
             children: [
-              const Text('合計予算'),
+              // 金額のほうでOverflowが発生するためExpandedを使う
               Expanded(
-                child: Text(
-                  Formatter.simpleCurrency(_list._totalBudget),
+                child: _TextAtCenterOfGraph(
+                  name: '合計予算',
+                  value: _list._totalBudget,
                 ),
+              ),
+              _TextAtCenterOfGraph(
+                name: '残高',
+                value: _list._balance,
               ),
             ],
           ),
@@ -57,6 +61,10 @@ class BudgetGraphDataList {
   }) : _data = data;
 
   int get _totalBudget => _data.fold(0, (sum, item) => sum + item._budget);
+
+  int get _totalSpent => _data.fold(0, (sum, item) => sum + item._spent);
+
+  int get _balance => _totalBudget - _totalSpent;
 }
 
 class _Legend extends StatelessWidget {
@@ -72,6 +80,31 @@ class _Legend extends StatelessWidget {
       children: [
         Text(_data._name),
         Text(Formatter.simpleCurrency(_data._spent)),
+      ],
+    );
+  }
+}
+
+class _TextAtCenterOfGraph extends StatelessWidget {
+  const _TextAtCenterOfGraph({
+    required String name,
+    required int value,
+  })  : _name = name,
+        _value = value;
+
+  final String _name;
+  final int _value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(_name),
+        Expanded(
+          child: Text(
+            Formatter.simpleCurrency(_value),
+          ),
+        ),
       ],
     );
   }

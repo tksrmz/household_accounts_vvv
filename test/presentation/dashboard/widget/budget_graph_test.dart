@@ -23,7 +23,6 @@ void main() {
    *     - 残高が0のとき
    *     - 残高が正のとき
    *     - 残高が負のとき
-   * - 予算の残高が表示される
    * - 予算の合計に対する、予算の使用額の割合が表示される
    * - Figmaと同じように表示されるかをチェックするとき、データの個数ごとに残高をテストする必要があるか？
    * - 1番割合の高い予算は赤色、2番めは青色、3番めは黄色、その他は水色で表示される
@@ -34,6 +33,9 @@ void main() {
    * - 予算や使用額の文字数が多すぎるときはどう表示する？
    *   - 6桁の額(数十万円)をテストする
    * - 実装側にコメントを追加する
+   * - デザインが決まったらExpandedやFlexibleを削除できないか検討する
+   * - デザインが決まったらminAxisSizeを削除できないか検討する
+   * - フォントやサイズの設定が正しいかをテストする
    */
 
   group('two budgets', () {
@@ -79,6 +81,13 @@ void main() {
 
       expect(find.text('合計予算'), findsOneWidget);
       expect(find.text('¥42,000'), findsOneWidget);
+    });
+
+    testWidgets('displays balance of total budgets', (tester) async {
+      await tester.pumpWidget(target);
+
+      expect(find.text('残高'), findsOneWidget);
+      expect(find.text('¥11,000'), findsOneWidget);
     });
   });
 }
