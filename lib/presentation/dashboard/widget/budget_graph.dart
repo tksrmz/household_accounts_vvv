@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:household_accounts/common/logic/formatter.dart';
 
@@ -13,11 +14,18 @@ class BudgetGraph extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Row(
-          children: [
-            const Text('合計予算'),
-            Text(Formatter.simpleCurrency(_list._totalBudget)),
-          ],
+        // FIXME: Remove Expanded widget when the design is fixed
+        Expanded(
+          child: Row(
+            children: [
+              const Text('合計予算'),
+              Expanded(
+                child: Text(
+                  Formatter.simpleCurrency(_list._totalBudget),
+                ),
+              ),
+            ],
+          ),
         ),
         Column(
           children: _list._data.map((item) => _Legend(data: item)).toList(),
@@ -63,7 +71,7 @@ class _Legend extends StatelessWidget {
     return Column(
       children: [
         Text(_data._name),
-        Text('${_data._spent}'),
+        Text(Formatter.simpleCurrency(_data._spent)),
       ],
     );
   }

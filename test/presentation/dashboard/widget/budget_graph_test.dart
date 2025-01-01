@@ -32,6 +32,7 @@ void main() {
    * - BudgetGraphDataのプロパティでVOを使う
    * - 予算の名前が0文字のときはどうする？
    * - 予算や使用額の文字数が多すぎるときはどう表示する？
+   *   - 6桁の額(数十万円)をテストする
    * - 実装側にコメントを追加する
    */
 
@@ -69,8 +70,8 @@ void main() {
     testWidgets('displays spent of budgets', (tester) async {
       await tester.pumpWidget(target);
 
-      expect(find.text('10000'), findsOneWidget);
-      expect(find.text('30000'), findsOneWidget);
+      expect(find.text('¥10,000'), findsOneWidget);
+      expect(find.text('¥30,000'), findsOneWidget);
     });
 
     testWidgets('displays total budget', (tester) async {
