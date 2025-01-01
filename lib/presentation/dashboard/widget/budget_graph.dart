@@ -1,38 +1,70 @@
 import 'package:flutter/widgets.dart';
+import 'package:household_accounts/common/logic/formatter.dart';
 
 class BudgetGraph extends StatelessWidget {
-  final List<BudgetGraphData> _data;
+  final BudgetGraphDataList _list;
 
   const BudgetGraph({
-    required List<BudgetGraphData> data,
+    required BudgetGraphDataList list,
     super.key,
-  }) : _data = data;
+  }) : _list = list;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: _data
-          .map(
-            (item) => Column(
-              children: [
-                Text(item.name),
-                Text('${item.spent}'),
-              ],
-            ),
-          )
-          .toList(),
+    return Row(
+      children: [
+        Row(
+          children: [
+            const Text('合計予算'),
+            Text(Formatter.simpleCurrency(_list._totalBudget)),
+          ],
+        ),
+        Column(
+          children: _list._data.map((item) => _Legend(data: item)).toList(),
+        )
+      ],
     );
   }
 }
 
 class BudgetGraphData {
-  final String name;
-  final int spent;
-  final int budget;
+  final String _name;
+  final int _spent;
+  final int _budget;
 
   const BudgetGraphData({
-    required this.name,
-    required this.spent,
-    required this.budget,
-  });
+    required String name,
+    required int spent,
+    required int budget,
+  })  : _name = name,
+        _spent = spent,
+        _budget = budget;
+}
+
+class BudgetGraphDataList {
+  final List<BudgetGraphData> _data;
+
+  const BudgetGraphDataList({
+    required List<BudgetGraphData> data,
+  }) : _data = data;
+
+  int get _totalBudget => _data.fold(0, (sum, item) => sum + item._budget);
+}
+
+class _Legend extends StatelessWidget {
+  final BudgetGraphData _data;
+
+  const _Legend({
+    required BudgetGraphData data,
+  }) : _data = data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(_data._name),
+        Text('${_data._spent}'),
+      ],
+    );
+  }
 }

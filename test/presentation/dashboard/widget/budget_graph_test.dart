@@ -23,7 +23,6 @@ void main() {
    *     - 残高が0のとき
    *     - 残高が正のとき
    *     - 残高が負のとき
-   * - 予算の合計が表示される
    * - 予算の残高が表示される
    * - 予算の合計に対する、予算の使用額の割合が表示される
    * - Figmaと同じように表示されるかをチェックするとき、データの個数ごとに残高をテストする必要があるか？
@@ -33,6 +32,7 @@ void main() {
    * - BudgetGraphDataのプロパティでVOを使う
    * - 予算の名前が0文字のときはどうする？
    * - 予算や使用額の文字数が多すぎるときはどう表示する？
+   * - 実装側にコメントを追加する
    */
 
   group('two budgets', () {
@@ -41,18 +41,20 @@ void main() {
     setUp(() {
       target = MaterialApp(
         home: BudgetGraph(
-          data: [
-            BudgetGraphData(
-              name: '食費',
-              spent: 10000,
-              budget: 20000,
-            ),
-            BudgetGraphData(
-              name: '交通費',
-              spent: 30000,
-              budget: 40000,
-            ),
-          ],
+          list: BudgetGraphDataList(
+            data: [
+              BudgetGraphData(
+                name: '食費',
+                spent: 10000,
+                budget: 20000,
+              ),
+              BudgetGraphData(
+                name: '交通費',
+                spent: 30000,
+                budget: 40000,
+              ),
+            ],
+          ),
         ),
       );
     });
@@ -69,6 +71,13 @@ void main() {
 
       expect(find.text('10000'), findsOneWidget);
       expect(find.text('30000'), findsOneWidget);
+    });
+
+    testWidgets('displays total budget', (tester) async {
+      await tester.pumpWidget(target);
+
+      expect(find.text('合計予算'), findsOneWidget);
+      expect(find.text('¥60,000'), findsOneWidget);
     });
   });
 }
