@@ -11,7 +11,16 @@ class BudgetGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: _data.map((item) => Text(item.name)).toList(),
+      children: _data
+          .map(
+            (item) => Column(
+              children: [
+                Text(item.name),
+                Text('${item.spent}'),
+              ],
+            ),
+          )
+          .toList(),
     );
   }
 }

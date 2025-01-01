@@ -23,7 +23,6 @@ void main() {
    *     - 残高が0のとき
    *     - 残高が正のとき
    *     - 残高が負のとき
-   * - 予算の使用額が表示される
    * - 予算の合計が表示される
    * - 予算の残高が表示される
    * - 予算の合計に対する、予算の使用額の割合が表示される
@@ -32,11 +31,15 @@ void main() {
    *   - 未使用額の部分は黒で塗りつぶされる
    * - BudgetGraphDataを別のファイルに切り出す
    * - BudgetGraphDataのプロパティでVOを使う
+   * - 予算の名前が0文字のときはどうする？
+   * - 予算や使用額の文字数が多すぎるときはどう表示する？
    */
 
-  testWidgets('displays names of budgets', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
+  group('two budgets', () {
+    late Widget target;
+
+    setUp(() {
+      target = MaterialApp(
         home: BudgetGraph(
           data: [
             BudgetGraphData(
@@ -51,10 +54,21 @@ void main() {
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
 
-    expect(find.text('食費'), findsOneWidget);
-    expect(find.text('交通費'), findsOneWidget);
+    testWidgets('displays names of budgets', (tester) async {
+      await tester.pumpWidget(target);
+
+      expect(find.text('食費'), findsOneWidget);
+      expect(find.text('交通費'), findsOneWidget);
+    });
+
+    testWidgets('displays spent of budgets', (tester) async {
+      await tester.pumpWidget(target);
+
+      expect(find.text('10000'), findsOneWidget);
+      expect(find.text('30000'), findsOneWidget);
+    });
   });
 }
