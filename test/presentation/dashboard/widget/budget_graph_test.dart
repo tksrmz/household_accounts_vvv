@@ -46,8 +46,8 @@ void main() {
             data: [
               BudgetGraphData(
                 name: '食費',
-                spent: 10000,
-                budget: 20000,
+                spent: 1000,
+                budget: 2000,
               ),
               BudgetGraphData(
                 name: '交通費',
@@ -70,7 +70,7 @@ void main() {
     testWidgets('displays spent of budgets', (tester) async {
       await tester.pumpWidget(target);
 
-      expect(find.text('¥10,000'), findsOneWidget);
+      expect(find.text('¥1,000'), findsOneWidget);
       expect(find.text('¥30,000'), findsOneWidget);
     });
 
@@ -78,7 +78,7 @@ void main() {
       await tester.pumpWidget(target);
 
       expect(find.text('合計予算'), findsOneWidget);
-      expect(find.text('¥60,000'), findsOneWidget);
+      expect(find.text('¥42,000'), findsOneWidget);
     });
   });
 }
