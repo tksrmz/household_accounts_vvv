@@ -33,7 +33,6 @@ void main() {
    *   - 6桁の額(数十万円)をテストする
    * - 実装側にコメントを追加する
    * - デザインが決まったらExpandedやFlexibleを削除できないか検討する
-   * - デザインが決まったらminAxisSizeを削除できないか検討する
    * - フォントやサイズの設定が正しいかをテストする
    * - BudgetGraphData.spent, .budgetに負の値が渡されたらどうする？
    * - _TextAtCenterOfGraphにExpandedではなくFlexibleを使う？
