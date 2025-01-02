@@ -23,7 +23,6 @@ void main() {
    *     - 残高が0のとき
    *     - 残高が正のとき
    *     - 残高が負のとき
-   * - 予算の合計に対する、予算の使用額の割合が表示される
    * - Figmaと同じように表示されるかをチェックするとき、データの個数ごとに残高をテストする必要があるか？
    * - 1番割合の高い予算は赤色、2番めは青色、3番めは黄色、その他は水色で表示される
    *   - 未使用額の部分は黒で塗りつぶされる
@@ -36,6 +35,8 @@ void main() {
    * - デザインが決まったらExpandedやFlexibleを削除できないか検討する
    * - デザインが決まったらminAxisSizeを削除できないか検討する
    * - フォントやサイズの設定が正しいかをテストする
+   * - BudgetGraphData.spent, .budgetに負の値が渡されたらどうする？
+   * - _TextAtCenterOfGraphにExpandedではなくFlexibleを使う？
    */
 
   group('two budgets', () {
@@ -62,18 +63,21 @@ void main() {
       );
     });
 
-    testWidgets('displays names of budgets', (tester) async {
+    testWidgets('displays info of each budget', (tester) async {
       await tester.pumpWidget(target);
+
+      final int totalBudget = 2000 + 40000;
 
       expect(find.text('食費'), findsOneWidget);
-      expect(find.text('交通費'), findsOneWidget);
-    });
-
-    testWidgets('displays spent of budgets', (tester) async {
-      await tester.pumpWidget(target);
-
       expect(find.text('¥1,000'), findsOneWidget);
+      final int foodRatioToTotalBudget = (1000 * 100 / totalBudget).round();
+      expect(find.text('$foodRatioToTotalBudget%'), findsOneWidget);
+
+      expect(find.text('交通費'), findsOneWidget);
       expect(find.text('¥30,000'), findsOneWidget);
+      final int transportRatioToTotalBudget =
+          (30000 * 100 / totalBudget).round();
+      expect(find.text('$transportRatioToTotalBudget%'), findsOneWidget);
     });
 
     testWidgets('displays total budget', (tester) async {

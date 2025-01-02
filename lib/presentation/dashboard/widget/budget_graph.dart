@@ -31,9 +31,9 @@ class BudgetGraph extends StatelessWidget {
             ],
           ),
         ),
-        Column(
-          children: _list._data.map((item) => _Legend(data: item)).toList(),
-        )
+        _LegendColumn(
+          list: _list._toLegendDataList(),
+        ),
       ],
     );
   }
@@ -51,6 +51,14 @@ class BudgetGraphData {
   })  : _name = name,
         _spent = spent,
         _budget = budget;
+
+  _LegendData _toLegendData(int totalBudget) {
+    return _LegendData(
+      name: _name,
+      spent: _spent,
+      totalBudget: totalBudget,
+    );
+  }
 }
 
 class BudgetGraphDataList {
@@ -65,13 +73,31 @@ class BudgetGraphDataList {
   int get _totalSpent => _data.fold(0, (sum, item) => sum + item._spent);
 
   int get _balance => _totalBudget - _totalSpent;
+
+  List<_LegendData> _toLegendDataList() {
+    return _data.map((item) => item._toLegendData(_totalBudget)).toList();
+  }
+}
+
+class _LegendData {
+  _LegendData({
+    required String name,
+    required int spent,
+    required int totalBudget,
+  })  : _name = name,
+        _spent = spent,
+        _ratio = (spent / totalBudget * 100).round();
+
+  final String _name;
+  final int _spent;
+  final int _ratio;
 }
 
 class _Legend extends StatelessWidget {
-  final BudgetGraphData _data;
+  final _LegendData _data;
 
   const _Legend({
-    required BudgetGraphData data,
+    required _LegendData data,
   }) : _data = data;
 
   @override
@@ -80,7 +106,23 @@ class _Legend extends StatelessWidget {
       children: [
         Text(_data._name),
         Text(Formatter.simpleCurrency(_data._spent)),
+        Text('${_data._ratio}%'),
       ],
+    );
+  }
+}
+
+class _LegendColumn extends StatelessWidget {
+  const _LegendColumn({
+    required List<_LegendData> list,
+  }) : _list = list;
+
+  final List<_LegendData> _list;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: _list.map((item) => _Legend(data: item)).toList(),
     );
   }
 }
