@@ -42,21 +42,23 @@ void main() {
     late Widget target;
 
     setUp(() {
+      const List budgetData = <({String name, int spent, int budget})>[
+        (name: '食費', spent: 1000, budget: 2000),
+        (name: '交通費', spent: 30000, budget: 40000),
+      ];
+
       target = MaterialApp(
         home: BudgetGraph(
           list: BudgetGraphDataList(
-            data: [
-              BudgetGraphData(
-                name: '食費',
-                spent: 1000,
-                budget: 2000,
-              ),
-              BudgetGraphData(
-                name: '交通費',
-                spent: 30000,
-                budget: 40000,
-              ),
-            ],
+            data: budgetData
+                .map(
+                  (e) => BudgetGraphData(
+                    name: e.name,
+                    spent: e.spent,
+                    budget: e.budget,
+                  ),
+                )
+                .toList(),
           ),
         ),
       );
