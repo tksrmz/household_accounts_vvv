@@ -12,27 +12,11 @@ class BudgetGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
+        const Text('予算'),
         Flexible(
-          child: Column(
-            children: [
-              // 金額のほうでOverflowが発生するためExpandedを使う
-              Expanded(
-                child: _TextAtCenterOfGraph(
-                  name: '合計予算',
-                  value: _list._totalBudget,
-                ),
-              ),
-              _TextAtCenterOfGraph(
-                name: '残高',
-                value: _list._balance,
-              ),
-            ],
-          ),
-        ),
-        _LegendColumn(
-          list: _list._toLegendDataList(),
+          child: _GraphAndLegends(list: _list),
         ),
       ],
     );
@@ -146,6 +130,55 @@ class _TextAtCenterOfGraph extends StatelessWidget {
           child: Text(
             Formatter.simpleCurrency(_value),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GraphAndLegends extends StatelessWidget {
+  const _GraphAndLegends({
+    required BudgetGraphDataList list,
+  }) : _list = list;
+
+  final BudgetGraphDataList _list;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Flexible(
+          child: _Graph(list: _list),
+        ),
+        _LegendColumn(
+          list: _list._toLegendDataList(),
+        ),
+      ],
+    );
+  }
+}
+
+class _Graph extends StatelessWidget {
+  const _Graph({
+    required BudgetGraphDataList list,
+  }) : _list = list;
+
+  final BudgetGraphDataList _list;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // 金額のほうでOverflowが発生するためExpandedを使う
+        Expanded(
+          child: _TextAtCenterOfGraph(
+            name: '合計予算',
+            value: _list._totalBudget,
+          ),
+        ),
+        _TextAtCenterOfGraph(
+          name: '残高',
+          value: _list._balance,
         ),
       ],
     );

@@ -93,5 +93,11 @@ void main() {
       expect(find.text('残高'), findsOneWidget);
       expect(find.text('¥11,000'), findsOneWidget);
     });
+
+    testWidgets('displays title of graph', (tester) async {
+      await tester.pumpWidget(target);
+
+      expect(find.text('予算'), findsOneWidget);
+    });
   });
 }
