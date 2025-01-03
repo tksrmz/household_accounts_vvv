@@ -8,7 +8,7 @@ void main() {
   /**
    * TODO
    * - Figmaと同じように表示される
-   *   - 予算が未設定のとき
+   *   - X 予算が未設定のとき
    *   - データが1つのとき
    *     - 残高が0のとき
    *     - 残高が正のとき
@@ -47,28 +47,6 @@ void main() {
 
   group('予算の設定数', () {
     group('予算が未設定のとき', () {
-      testWidgets(
-        '[golden] 予算が未設定のとき',
-        (tester) async {
-          await tester.pumpWidget(
-            GoldenWrapper(
-              child: BudgetGraph(
-                list: BudgetGraphDataList(
-                  data: [],
-                ),
-              ),
-            ),
-          );
-
-          await expectLater(
-            find.byType(BudgetGraph),
-            matchesGoldenFile('golden/budget_graph_zero_budget.png'),
-          );
-        },
-        tags: ['golden'],
-        skip: true,
-      );
-
       late Widget target;
       setUp(() {
         target = MaterialApp(
@@ -173,4 +151,25 @@ void main() {
 
     group('予算の残高が負のとき', () {});
   });
+
+  testWidgets(
+    '[golden] 予算が未設定のとき',
+    (tester) async {
+      await tester.pumpWidget(
+        GoldenWrapper(
+          child: BudgetGraph(
+            list: BudgetGraphDataList(
+              data: [],
+            ),
+          ),
+        ),
+      );
+
+      await expectLater(
+        find.byType(BudgetGraph),
+        matchesGoldenFile('golden/budget_graph_zero_budget.png'),
+      );
+    },
+    tags: ['golden'],
+  );
 }
