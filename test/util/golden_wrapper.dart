@@ -17,9 +17,7 @@ class GoldenWrapper extends StatelessWidget {
         fontFamily: fontFamily,
       ),
       home: Scaffold(
-        body: RepaintBoundary(
-          child: child,
-        ),
+        body: child,
       ),
     );
   }

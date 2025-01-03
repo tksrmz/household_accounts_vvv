@@ -58,6 +58,12 @@ class BudgetGraphDataList {
 
   int get _balance => _totalBudget - _totalSpent;
 
+  /// 予算の設定が存在しない
+  ///
+  /// 予算が1つも設定されていない場合にtrueを返す。
+  /// 「0円の予算があるか」ということではなく、予算の設定それ自体が存在しないかどうかを判定する。
+  bool get _isNotBudgetConfigured => _data.isEmpty;
+
   List<_LegendData> _toLegendDataList() {
     return _data.map((item) => item._toLegendData(_totalBudget)).toList();
   }
@@ -96,8 +102,8 @@ class _Legend extends StatelessWidget {
   }
 }
 
-class _LegendColumn extends StatelessWidget {
-  const _LegendColumn({
+class _LegendArea extends StatelessWidget {
+  const _LegendArea({
     required List<_LegendData> list,
   }) : _list = list;
 
@@ -150,9 +156,9 @@ class _PieChart extends StatelessWidget {
         Flexible(
           child: _Graph(list: _list),
         ),
-        _LegendColumn(
-          list: _list._toLegendDataList(),
-        ),
+        _list._isNotBudgetConfigured
+            ? const Text('予算が未設定です')
+            : _LegendArea(list: _list._toLegendDataList()),
       ],
     );
   }

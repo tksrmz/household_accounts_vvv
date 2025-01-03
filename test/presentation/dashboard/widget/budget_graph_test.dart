@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/presentation/dashboard/widget/budget_graph.dart';
 
+import '../../../util/golden_wrapper.dart';
+
 void main() {
   /**
    * TODO
    * - Figmaと同じように表示される
-   *   - データがないとき
+   *   - 予算が未設定のとき
    *   - データが1つのとき
    *     - 残高が0のとき
    *     - 残高が正のとき
@@ -37,69 +39,131 @@ void main() {
    * - フォントやサイズの設定が正しいかをテストする
    * - BudgetGraphData.spent, .budgetに負の値が渡されたらどうする？
    * - _TextAtCenterOfGraphにExpandedではなくFlexibleを使う？
+   * - 予算が使用額の大きい順に並んでいること
+   * - 予算が1円も使われていないときは
+   *   - "予算を使っていません"と表示する
+   *   - 中央には残高と合計予算が同じ額で表示される
+   * - 予算がひとつも設定されていないときは
+   *   - 中央には残高と合計予算が0円で表示される
    */
 
-  group('two budgets', () {
-    late Widget target;
+  group('予算の設定数', () {
+    group('予算が未設定のとき', () {
+      testWidgets(
+        '[golden] displays no budget',
+        (tester) async {
+          await tester.pumpWidget(
+            GoldenWrapper(
+              child: BudgetGraph(
+                list: BudgetGraphDataList(
+                  data: [],
+                ),
+              ),
+            ),
+          );
 
-    setUp(() {
-      const List budgetData = <({String name, int spent, int budget})>[
-        (name: '食費', spent: 1000, budget: 2000),
-        (name: '交通費', spent: 30000, budget: 40000),
-      ];
-
-      target = MaterialApp(
-        home: BudgetGraph(
-          list: BudgetGraphDataList(
-            data: budgetData
-                .map(
-                  (e) => BudgetGraphData(
-                    name: e.name,
-                    spent: e.spent,
-                    budget: e.budget,
-                  ),
-                )
-                .toList(),
-          ),
-        ),
+          await expectLater(
+            find.byType(BudgetGraph),
+            matchesGoldenFile('golden/budget_graph_zero_budget.png'),
+          );
+        },
+        tags: ['golden'],
+        skip: true,
       );
+
+      testWidgets('displays "予算が未設定です"', (tester) async {
+        final target = MaterialApp(
+          home: BudgetGraph(
+            list: BudgetGraphDataList(
+              data: [],
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(target);
+
+        expect(find.text('予算が未設定です'), findsOneWidget);
+      });
     });
 
-    testWidgets('displays info of each budget', (tester) async {
-      await tester.pumpWidget(target);
+    group('予算設定が1つのとき', () {});
 
-      final int totalBudget = 2000 + 40000;
+    group('予算設定が2つのとき', () {
+      late Widget target;
 
-      expect(find.text('食費'), findsOneWidget);
-      expect(find.text('¥1,000'), findsOneWidget);
-      final int foodRatioToTotalBudget = (1000 * 100 / totalBudget).round();
-      expect(find.text('($foodRatioToTotalBudget%)'), findsOneWidget);
+      setUp(() {
+        const List budgetData = <({String name, int spent, int budget})>[
+          (name: '食費', spent: 1000, budget: 2000),
+          (name: '交通費', spent: 30000, budget: 40000),
+        ];
 
-      expect(find.text('交通費'), findsOneWidget);
-      expect(find.text('¥30,000'), findsOneWidget);
-      final int transportRatioToTotalBudget =
-          (30000 * 100 / totalBudget).round();
-      expect(find.text('($transportRatioToTotalBudget%)'), findsOneWidget);
+        target = MaterialApp(
+          home: BudgetGraph(
+            list: BudgetGraphDataList(
+              data: budgetData
+                  .map(
+                    (e) => BudgetGraphData(
+                      name: e.name,
+                      spent: e.spent,
+                      budget: e.budget,
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        );
+      });
+
+      testWidgets('displays info of each budget', (tester) async {
+        await tester.pumpWidget(target);
+
+        final int totalBudget = 2000 + 40000;
+
+        expect(find.text('食費'), findsOneWidget);
+        expect(find.text('¥1,000'), findsOneWidget);
+        final int foodRatioToTotalBudget = (1000 * 100 / totalBudget).round();
+        expect(find.text('($foodRatioToTotalBudget%)'), findsOneWidget);
+
+        expect(find.text('交通費'), findsOneWidget);
+        expect(find.text('¥30,000'), findsOneWidget);
+        final int transportRatioToTotalBudget =
+            (30000 * 100 / totalBudget).round();
+        expect(find.text('($transportRatioToTotalBudget%)'), findsOneWidget);
+      });
+
+      testWidgets('displays total budget', (tester) async {
+        await tester.pumpWidget(target);
+
+        expect(find.text('合計予算'), findsOneWidget);
+        expect(find.text('¥42,000'), findsOneWidget);
+      });
+
+      testWidgets('displays balance of total budgets', (tester) async {
+        await tester.pumpWidget(target);
+
+        expect(find.text('残高'), findsOneWidget);
+        expect(find.text('¥11,000'), findsOneWidget);
+      });
+
+      testWidgets('displays title of graph', (tester) async {
+        await tester.pumpWidget(target);
+
+        expect(find.text('予算'), findsOneWidget);
+      });
     });
 
-    testWidgets('displays total budget', (tester) async {
-      await tester.pumpWidget(target);
+    group('予算設定が3つのとき', () {});
 
-      expect(find.text('合計予算'), findsOneWidget);
-      expect(find.text('¥42,000'), findsOneWidget);
-    });
+    group('予算設定が4つ以上のとき', () {});
+  });
 
-    testWidgets('displays balance of total budgets', (tester) async {
-      await tester.pumpWidget(target);
+  group('予算の残高', () {
+    group('予算を1円も使っていないとき', () {});
 
-      expect(find.text('残高'), findsOneWidget);
-      expect(find.text('¥11,000'), findsOneWidget);
-    });
+    group('予算の残高が正のとき', () {});
 
-    testWidgets('displays title of graph', (tester) async {
-      await tester.pumpWidget(target);
+    group('予算の残高が0のとき', () {});
 
-      expect(find.text('予算'), findsOneWidget);
-    });
+    group('予算の残高が負のとき', () {});
   });
 }
