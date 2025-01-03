@@ -36,13 +36,15 @@ void main() {
    *   - 6桁の額(数十万円)をテストする
    * - 実装側にコメントを追加する
    * - デザインが決まったらExpandedやFlexibleを削除できないか検討する
-   * - フォントやサイズの設定が正しいかをテストする
+   * - フォントや色の設定をする
+   *   - "予算を使っていません"
    * - BudgetGraphData.spent, .budgetに負の値が渡されたらどうする？
    * - _TextAtCenterOfGraphにExpandedではなくFlexibleを使う？
    * - 予算が使用額の大きい順に並んでいること
    * - 予算が1円も使われていないときは
    *   - "予算を使っていません"と表示する
    *   - 中央には残高と合計予算が同じ額で表示される
+   * - Theme.of(context).textThemeの変わりにTextTheme.of(context)を使う
    */
 
   group('予算の設定数', () {

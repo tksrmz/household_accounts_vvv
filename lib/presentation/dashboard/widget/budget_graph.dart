@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:household_accounts/common/logic/formatter.dart';
 
 class BudgetGraph extends StatelessWidget {
@@ -15,7 +14,10 @@ class BudgetGraph extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('予算'),
+        Text(
+          '予算',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         Flexible(
           child: _PieChart(list: _list),
         ),
@@ -152,15 +154,18 @@ class _PieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Flexible(
-          child: _Graph(list: _list),
-        ),
-        _list._isNotBudgetConfigured
-            ? const Text('予算が未設定です')
-            : _LegendArea(list: _list._toLegendDataList()),
-      ],
+    return DefaultTextStyle.merge(
+      style: Theme.of(context).textTheme.labelMedium,
+      child: Row(
+        children: [
+          Flexible(
+            child: _Graph(list: _list),
+          ),
+          _list._isNotBudgetConfigured
+              ? const Text('予算が未設定です')
+              : _LegendArea(list: _list._toLegendDataList()),
+        ],
+      ),
     );
   }
 }
