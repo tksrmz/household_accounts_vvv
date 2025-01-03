@@ -16,7 +16,7 @@ class BudgetGraph extends StatelessWidget {
       children: [
         const Text('予算'),
         Flexible(
-          child: _GraphAndLegends(list: _list),
+          child: _PieChart(list: _list),
         ),
       ],
     );
@@ -136,8 +136,8 @@ class _TextAtCenterOfGraph extends StatelessWidget {
   }
 }
 
-class _GraphAndLegends extends StatelessWidget {
-  const _GraphAndLegends({
+class _PieChart extends StatelessWidget {
+  const _PieChart({
     required BudgetGraphDataList list,
   }) : _list = list;
 
