@@ -29,6 +29,7 @@ void main() {
    * - BudgetGraphDataを別のファイルに切り出す
    * - BudgetGraphDataのプロパティでVOを使う
    * - 予算の名前が0文字のときはどうする？
+   * - 予算の名前が上限（何文字？）を超えたときはどうする？
    * - 予算や使用額の文字数が多すぎるときはどう表示する？
    *   - 6桁の額(数十万円)をテストする
    * - 実装側にコメントを追加する
@@ -72,13 +73,13 @@ void main() {
       expect(find.text('食費'), findsOneWidget);
       expect(find.text('¥1,000'), findsOneWidget);
       final int foodRatioToTotalBudget = (1000 * 100 / totalBudget).round();
-      expect(find.text('$foodRatioToTotalBudget%'), findsOneWidget);
+      expect(find.text('($foodRatioToTotalBudget%)'), findsOneWidget);
 
       expect(find.text('交通費'), findsOneWidget);
       expect(find.text('¥30,000'), findsOneWidget);
       final int transportRatioToTotalBudget =
           (30000 * 100 / totalBudget).round();
-      expect(find.text('$transportRatioToTotalBudget%'), findsOneWidget);
+      expect(find.text('($transportRatioToTotalBudget%)'), findsOneWidget);
     });
 
     testWidgets('displays total budget', (tester) async {

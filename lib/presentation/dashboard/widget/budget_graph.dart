@@ -90,7 +90,7 @@ class _Legend extends StatelessWidget {
       children: [
         Text(_data._name),
         Text(Formatter.simpleCurrency(_data._spent)),
-        Text('${_data._ratio}%'),
+        Text('(${_data._ratio}%)'),
       ],
     );
   }
