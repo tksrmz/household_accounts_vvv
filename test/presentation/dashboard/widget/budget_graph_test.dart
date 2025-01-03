@@ -43,14 +43,12 @@ void main() {
    * - 予算が1円も使われていないときは
    *   - "予算を使っていません"と表示する
    *   - 中央には残高と合計予算が同じ額で表示される
-   * - 予算がひとつも設定されていないときは
-   *   - 中央には残高と合計予算が0円で表示される
    */
 
   group('予算の設定数', () {
     group('予算が未設定のとき', () {
       testWidgets(
-        '[golden] displays no budget',
+        '[golden] 予算が未設定のとき',
         (tester) async {
           await tester.pumpWidget(
             GoldenWrapper(
@@ -71,18 +69,27 @@ void main() {
         skip: true,
       );
 
-      testWidgets('displays "予算が未設定です"', (tester) async {
-        final target = MaterialApp(
+      late Widget target;
+      setUp(() {
+        target = MaterialApp(
           home: BudgetGraph(
             list: BudgetGraphDataList(
               data: [],
             ),
           ),
         );
+      });
 
+      testWidgets('displays "予算が未設定です"', (tester) async {
         await tester.pumpWidget(target);
 
         expect(find.text('予算が未設定です'), findsOneWidget);
+      });
+
+      testWidgets('displays balance and total budget as 0', (tester) async {
+        await tester.pumpWidget(target);
+
+        expect(find.text('¥0'), findsNWidgets(2));
       });
     });
 
