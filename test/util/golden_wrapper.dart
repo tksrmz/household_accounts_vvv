@@ -1,24 +1,85 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 
-class GoldenWrapper extends StatelessWidget {
-  const GoldenWrapper({
+void testGoldens(
+  String description, {
+  required Widget Function() builder,
+  required String goldenFileName,
+  bool skip = false,
+}) {
+  _GoldenTestWidth.values.forEach((width) {
+    testWidgets(
+      '[golden] ${description} (width: ${width.value})',
+      (tester) async {
+        final widget = builder();
+        await tester.pumpWidget(
+          _GoldenWrapper(
+            child: widget,
+            width: width,
+          ),
+        );
+
+        await expectLater(
+          find.byType(widget.runtimeType),
+          matchesGoldenFile('golden/${goldenFileName}_${width.value}.png'),
+        );
+      },
+      tags: ['golden'],
+      skip: skip,
+    );
+  });
+}
+
+class _GoldenWrapper extends StatelessWidget {
+  const _GoldenWrapper({
     required this.child,
-    this.fontFamily = 'NotoSansJP',
-    super.key,
+    required this.width,
   });
 
-  final String fontFamily;
   final Widget child;
+  final _GoldenTestWidth width;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        fontFamily: fontFamily,
+        fontFamily: 'NotoSansJP',
       ),
       home: Scaffold(
-        body: child,
+        body: RepaintBoundary(
+          child: SizedBox(
+            width: width.value,
+            child: Container(
+              color: const Color(0xFFFFFFFF),
+              child: child,
+            ),
+          ),
+        ),
       ),
     );
+  }
+}
+
+enum _GoldenTestWidth {
+  /// small size display
+  small,
+
+  /// medium size display
+  medium,
+
+  /// large size display
+  large,
+}
+
+extension GoldenTestWidthExtension on _GoldenTestWidth {
+  double get value {
+    switch (this) {
+      case _GoldenTestWidth.small:
+        return 320.0;
+      case _GoldenTestWidth.medium:
+        return 375.0;
+      case _GoldenTestWidth.large:
+        return 414.0;
+    }
   }
 }

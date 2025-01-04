@@ -43,7 +43,6 @@ void main() {
    *   - "予算を使っていません"と表示する
    *   - 中央には残高と合計予算が同じ額で表示される
    * - Theme.of(context).textThemeの変わりにTextTheme.of(context)を使う
-   * - GoldenWrapperの幅が360になるように変更する
    * - "合計予算"を"総予算"に変える
    */
 
@@ -154,24 +153,13 @@ void main() {
     group('予算の残高が負のとき', () {});
   });
 
-  testWidgets(
-    '[golden] 予算が未設定のとき',
-    (tester) async {
-      await tester.pumpWidget(
-        GoldenWrapper(
-          child: BudgetGraph(
-            list: BudgetGraphDataList(
-              data: [],
-            ),
-          ),
-        ),
-      );
-
-      await expectLater(
-        find.byType(BudgetGraph),
-        matchesGoldenFile('golden/budget_graph_zero_budget.png'),
-      );
-    },
-    tags: ['golden'],
+  testGoldens(
+    '予算が未設定のとき',
+    goldenFileName: 'budget_graph_zero_budget',
+    builder: () => BudgetGraph(
+      list: BudgetGraphDataList(
+        data: [],
+      ),
+    ),
   );
 }
