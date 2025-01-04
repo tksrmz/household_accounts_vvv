@@ -37,58 +37,35 @@ void main() {
    */
 
   group('予算が未設定のとき', () {
-    late Widget target;
-    setUp(() {
-      target = MaterialApp(
-        home: BudgetGraph(
-          list: BudgetGraphDataList(
-            data: [],
-          ),
-        ),
-      );
-    });
+    final BudgetGraph Function() build = _getBuilder([]);
 
     testWidgets('displays "予算が未設定です"', (tester) async {
-      await tester.pumpWidget(target);
+      await tester.pumpWidget(MaterialApp(home: build()));
 
       expect(find.text('予算が未設定です'), findsOneWidget);
     });
 
     testWidgets('displays balance and total budget as 0', (tester) async {
-      await tester.pumpWidget(target);
+      await tester.pumpWidget(MaterialApp(home: build()));
 
       expect(find.text('¥0'), findsNWidgets(2));
     });
+
+    testGoldens(
+      '予算が未設定のとき',
+      goldenFileName: 'budget_graph_budget_not_configured',
+      builder: build,
+    );
   });
 
   group('予算設定が2つあり、両方使用しているとき', () {
-    late Widget target;
-
-    setUp(() {
-      const List budgetData = <({String name, int spent, int budget})>[
-        (name: '食費', spent: 1000, budget: 2000),
-        (name: '交通費', spent: 30000, budget: 40000),
-      ];
-
-      target = MaterialApp(
-        home: BudgetGraph(
-          list: BudgetGraphDataList(
-            data: budgetData
-                .map(
-                  (e) => BudgetGraphData(
-                    name: e.name,
-                    spent: e.spent,
-                    budget: e.budget,
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-      );
-    });
+    final BudgetGraph Function() build = _getBuilder([
+      (name: '食費', spent: 1000, budget: 2000),
+      (name: '交通費', spent: 30000, budget: 40000),
+    ]);
 
     testWidgets('displays info of each budget', (tester) async {
-      await tester.pumpWidget(target);
+      await tester.pumpWidget(MaterialApp(home: build()));
 
       final int totalBudget = 2000 + 40000;
 
@@ -105,56 +82,36 @@ void main() {
     });
 
     testWidgets('displays total budget', (tester) async {
-      await tester.pumpWidget(target);
+      await tester.pumpWidget(MaterialApp(home: build()));
 
       expect(find.text('合計予算'), findsOneWidget);
       expect(find.text('¥42,000'), findsOneWidget);
     });
 
     testWidgets('displays balance of total budgets', (tester) async {
-      await tester.pumpWidget(target);
+      await tester.pumpWidget(MaterialApp(home: build()));
 
       expect(find.text('残高'), findsOneWidget);
       expect(find.text('¥11,000'), findsOneWidget);
     });
 
     testWidgets('displays title of graph', (tester) async {
-      await tester.pumpWidget(target);
+      await tester.pumpWidget(MaterialApp(home: build()));
 
       expect(find.text('予算'), findsOneWidget);
     });
   });
 
   group('予算設定が4つあり、ひとつも使用していないとき', () {
-    late Widget target;
-
-    setUp(() {
-      const List budgetData = <({String name, int spent, int budget})>[
-        (name: '食費', spent: 0, budget: 2000),
-        (name: '交通費', spent: 0, budget: 40000),
-        (name: '日用品', spent: 0, budget: 600),
-        (name: '光熱費', spent: 0, budget: 800000),
-      ];
-
-      target = MaterialApp(
-        home: BudgetGraph(
-          list: BudgetGraphDataList(
-            data: budgetData
-                .map(
-                  (e) => BudgetGraphData(
-                    name: e.name,
-                    spent: e.spent,
-                    budget: e.budget,
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-      );
-    });
+    final BudgetGraph Function() build = _getBuilder([
+      (name: '食費', spent: 0, budget: 2000),
+      (name: '交通費', spent: 0, budget: 40000),
+      (name: '日用品', spent: 0, budget: 600),
+      (name: '光熱費', spent: 0, budget: 800000),
+    ]);
 
     testWidgets('displays "予算を使っていません"', (tester) async {
-      await tester.pumpWidget(target);
+      await tester.pumpWidget(MaterialApp(home: build()));
 
       expect(find.text('予算を使っていません'), findsOneWidget);
       expect(find.text('食費'), findsNothing);
@@ -164,23 +121,13 @@ void main() {
     });
 
     testWidgets('total budget and balance is equal', (tester) async {
-      await tester.pumpWidget(target);
+      await tester.pumpWidget(MaterialApp(home: build()));
 
       expect(find.text('合計予算'), findsOneWidget);
       expect(find.text('残高'), findsOneWidget);
       expect(find.text('¥842,600'), findsNWidgets(2));
     });
   });
-
-  testGoldens(
-    '予算が未設定のとき',
-    goldenFileName: 'budget_graph_budget_not_configured',
-    builder: () => BudgetGraph(
-      list: BudgetGraphDataList(
-        data: [],
-      ),
-    ),
-  );
 
   testGoldens(
     'ひとつの予算のみ使用しているとき',
@@ -203,4 +150,22 @@ void main() {
       ),
     ),
   );
+}
+
+BudgetGraph Function() _getBuilder(
+  List<({String name, int spent, int budget})> data,
+) {
+  return () => BudgetGraph(
+        list: BudgetGraphDataList(
+          data: data
+              .map(
+                (e) => BudgetGraphData(
+                  name: e.name,
+                  spent: e.spent,
+                  budget: e.budget,
+                ),
+              )
+              .toList(),
+        ),
+      );
 }
