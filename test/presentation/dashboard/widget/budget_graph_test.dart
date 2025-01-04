@@ -48,7 +48,7 @@ void main() {
 
     testGoldens(
       '予算が未設定のとき',
-      goldenFileName: 'budget_graph_budget_not_configured',
+      goldenFileName: 'budget_graph/budget_not_configured',
       builder: build,
     );
   });
@@ -125,7 +125,7 @@ void main() {
 
     testGoldens(
       '予算をひとつも使用していないとき',
-      goldenFileName: 'budget_graph_no_budget_used',
+      goldenFileName: 'budget_graph/no_budget_used',
       builder: build,
     );
   });
