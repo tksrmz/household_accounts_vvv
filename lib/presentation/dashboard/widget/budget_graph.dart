@@ -149,7 +149,8 @@ class _TextAtCenterOfGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(_name),
         Text(
@@ -192,11 +193,9 @@ class _Graph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double radius = 100; // 円グラフの半径
-    const double diameter = radius * 2;
+    const double diameter = 200; // 円グラフの直径
     const double innerCircleDiameter = diameter * 0.65; // 円グラフの直径の65%
-    const double sameWidthFactor = 1.0; // childと同じ幅の比率
-    const double twiceHeightFactor = 2.0; // childの高さの倍
+    const double centerTextAlignHeightFactor = 2.0 + 0.3; // childの高さの倍+アルファ
 
     return Stack(
       alignment: Alignment.center,
@@ -219,8 +218,7 @@ class _Graph extends StatelessWidget {
         ),
         Align(
           alignment: Alignment.topCenter,
-          widthFactor: sameWidthFactor,
-          heightFactor: twiceHeightFactor,
+          heightFactor: centerTextAlignHeightFactor,
           child: _TextAtCenterOfGraph(
             name: '合計予算',
             value: _list._totalBudget,
@@ -228,8 +226,7 @@ class _Graph extends StatelessWidget {
         ),
         Align(
           alignment: Alignment.bottomCenter,
-          widthFactor: sameWidthFactor,
-          heightFactor: twiceHeightFactor,
+          heightFactor: centerTextAlignHeightFactor,
           child: _TextAtCenterOfGraph(
             name: '残高',
             value: _list._balance,
