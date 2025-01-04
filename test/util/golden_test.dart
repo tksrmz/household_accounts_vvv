@@ -71,7 +71,7 @@ enum _GoldenTestWidth {
   large,
 }
 
-extension GoldenTestWidthExtension on _GoldenTestWidth {
+extension _GoldenTestWidthExtension on _GoldenTestWidth {
   double get value {
     switch (this) {
       case _GoldenTestWidth.small:

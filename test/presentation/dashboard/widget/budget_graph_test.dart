@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/presentation/dashboard/widget/budget_graph.dart';
 
-import '../../../util/golden_wrapper.dart';
+import '../../../util/golden_test.dart';
 
 void main() {
   /**
