@@ -11,17 +11,33 @@ class BudgetGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '予算',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        Flexible(
-          child: _PieChart(list: _list),
-        ),
-      ],
+    return Theme(
+      data: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.light,
+        textTheme: TextTheme.of(context),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _Title(),
+          Flexible(
+            child: _PieChart(list: _list),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Title extends StatelessWidget {
+  const _Title();
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '予算',
+      style: Theme.of(context).textTheme.titleMedium,
     );
   }
 }
@@ -135,10 +151,8 @@ class _TextAtCenterOfGraph extends StatelessWidget {
     return Row(
       children: [
         Text(_name),
-        Expanded(
-          child: Text(
-            Formatter.simpleCurrency(_value),
-          ),
+        Text(
+          Formatter.simpleCurrency(_value),
         ),
       ],
     );
@@ -158,9 +172,7 @@ class _PieChart extends StatelessWidget {
       style: Theme.of(context).textTheme.labelMedium,
       child: Row(
         children: [
-          Flexible(
-            child: _Graph(list: _list),
-          ),
+          _Graph(list: _list),
           _list._isNotBudgetConfigured
               ? const Text('予算が未設定です')
               : _LegendArea(list: _list._toLegendDataList()),
@@ -179,18 +191,39 @@ class _Graph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    const double radius = 100; // 円グラフの半径
+    const double diameter = radius * 2;
+    const double sameWidthFactor = 1.0; // childと同じ幅の比率
+    const double twiceHeightFactor = 2.0; // childの高さの倍
+
+    return Stack(
+      alignment: Alignment.center,
       children: [
-        // 金額のほうでOverflowが発生するためExpandedを使う
-        Expanded(
+        Container(
+          width: diameter,
+          height: diameter,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            shape: BoxShape.circle,
+          ),
+        ),
+        Align(
+          alignment: Alignment.topCenter,
+          widthFactor: sameWidthFactor,
+          heightFactor: twiceHeightFactor,
           child: _TextAtCenterOfGraph(
             name: '合計予算',
             value: _list._totalBudget,
           ),
         ),
-        _TextAtCenterOfGraph(
-          name: '残高',
-          value: _list._balance,
+        Align(
+          alignment: Alignment.bottomCenter,
+          widthFactor: sameWidthFactor,
+          heightFactor: twiceHeightFactor,
+          child: _TextAtCenterOfGraph(
+            name: '残高',
+            value: _list._balance,
+          ),
         ),
       ],
     );

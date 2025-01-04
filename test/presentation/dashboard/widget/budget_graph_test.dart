@@ -39,7 +39,6 @@ void main() {
    * - フォントや色の設定をする
    *   - "予算を使っていません"
    * - BudgetGraphData.spent, .budgetに負の値が渡されたらどうする？
-   * - _TextAtCenterOfGraphにExpandedではなくFlexibleを使う？
    * - 予算が使用額の大きい順に並んでいること
    * - 予算が1円も使われていないときは
    *   - "予算を使っていません"と表示する
