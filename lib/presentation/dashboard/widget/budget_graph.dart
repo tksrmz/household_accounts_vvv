@@ -18,6 +18,7 @@ class BudgetGraph extends StatelessWidget {
         textTheme: TextTheme.of(context),
       ),
       child: Column(
+        spacing: 4,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Title(),
