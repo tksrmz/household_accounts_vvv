@@ -174,10 +174,14 @@ class _PieChart extends StatelessWidget {
       style: Theme.of(context).textTheme.labelMedium,
       child: Row(
         spacing: 12,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Graph(list: _list),
           _list._isNotBudgetConfigured
-              ? const Text('予算が未設定です')
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: const Text('予算が未設定です'),
+                )
               : _LegendArea(list: _list._toLegendDataList()),
         ],
       ),
