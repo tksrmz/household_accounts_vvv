@@ -9,22 +9,12 @@ void main() {
    * TODO
    * - Figmaと同じように表示される
    *   - データが1つのとき
-   *     - 残高が0のとき
-   *     - 残高が正のとき
-   *     - 残高が負のとき
    *   - データが2つのとき
-   *     - 残高が0のとき
-   *     - 残高が正のとき
-   *     - 残高が負のとき
    *   - データが3つのとき
-   *     - 残高が0のとき
-   *     - 残高が正のとき
-   *     - 残高が負のとき
    *   - データが4つ以上のとき
    *     - 残高が0のとき
    *     - 残高が正のとき
    *     - 残高が負のとき
-   * - Figmaと同じように表示されるかをチェックするとき、データの個数ごとに残高をテストする必要があるか？
    * - 1番割合の高い予算は赤色、2番めは青色、3番めは黄色、その他は水色で表示される
    *   - 未使用額の部分は薄い灰色で塗りつぶされる
    * - BudgetGraphDataを別のファイルに切り出す
@@ -44,7 +34,6 @@ void main() {
    *   - 中央には残高と合計予算が同じ額で表示される
    * - Theme.of(context).textThemeの変わりにTextTheme.of(context)を使う
    * - "合計予算"を"総予算"に変える
-   * - 円の中央を透過させる
    */
 
   group('予算の設定数', () {
@@ -156,7 +145,7 @@ void main() {
 
   testGoldens(
     '予算が未設定のとき',
-    goldenFileName: 'budget_graph_zero_budget',
+    goldenFileName: 'budget_graph_budget_not_configured',
     builder: () => BudgetGraph(
       list: BudgetGraphDataList(
         data: [],
