@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/presentation/dashboard/widget/budget_graph.dart';
 
-import '../../../util/golden_test.dart';
+import '../../../util/golden_helper.dart';
 
 void main() {
   /**
@@ -44,6 +44,7 @@ void main() {
    *   - 中央には残高と合計予算が同じ額で表示される
    * - Theme.of(context).textThemeの変わりにTextTheme.of(context)を使う
    * - "合計予算"を"総予算"に変える
+   * - 円の中央を透過させる
    */
 
   group('予算の設定数', () {
