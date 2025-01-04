@@ -173,6 +173,7 @@ class _PieChart extends StatelessWidget {
     return DefaultTextStyle.merge(
       style: Theme.of(context).textTheme.labelMedium,
       child: Row(
+        spacing: 12,
         children: [
           _Graph(list: _list),
           _list._isNotBudgetConfigured
