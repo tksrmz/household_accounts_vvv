@@ -25,15 +25,15 @@ void main() {
    *   - 6桁の額(数十万円)をテストする
    * - 実装側にコメントを追加する
    * - デザインが決まったらExpandedやFlexibleを削除できないか検討する
-   * - フォントや色の設定をする
-   *   - "予算を使っていません"
    * - BudgetGraphData.spent, .budgetに負の値が渡されたらどうする？
    * - 予算が使用額の大きい順に並んでいること
-   * - 予算が1円も使われていないときは
-   *   - "予算を使っていません"と表示する
-   *   - 中央には残高と合計予算が同じ額で表示される
    * - Theme.of(context).textThemeの変わりにTextTheme.of(context)を使う
    * - "合計予算"を"総予算"に変える
+   * - 設定された予算の数が4、使用された予算の数が0のケースをテストする
+   * - 設定された予算の数が4、使用された予算の数が1のケースをテストする
+   * - 設定された予算の数が4、使用された予算の数が3のケースをテストする
+   * - 設定された予算の数が4、使用された予算の数が4のケースをテストする
+   * - 設定された予算の数が5、使用された予算の数が5のケースをテストする
    */
 
   group('予算が未設定のとき', () {
@@ -61,7 +61,7 @@ void main() {
     });
   });
 
-  group('予算設定が2つのとき', () {
+  group('予算設定が2つあり、両方使用しているとき', () {
     late Widget target;
 
     setUp(() {
@@ -125,12 +125,81 @@ void main() {
     });
   });
 
+  group('予算設定が4つあり、ひとつも使用していないとき', () {
+    late Widget target;
+
+    setUp(() {
+      const List budgetData = <({String name, int spent, int budget})>[
+        (name: '食費', spent: 0, budget: 2000),
+        (name: '交通費', spent: 0, budget: 40000),
+        (name: '日用品', spent: 0, budget: 600),
+        (name: '光熱費', spent: 0, budget: 800000),
+      ];
+
+      target = MaterialApp(
+        home: BudgetGraph(
+          list: BudgetGraphDataList(
+            data: budgetData
+                .map(
+                  (e) => BudgetGraphData(
+                    name: e.name,
+                    spent: e.spent,
+                    budget: e.budget,
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      );
+    });
+
+    testWidgets('displays "予算を使っていません"', (tester) async {
+      await tester.pumpWidget(target);
+
+      expect(find.text('予算を使っていません'), findsOneWidget);
+      expect(find.text('食費'), findsNothing);
+      expect(find.text('交通費'), findsNothing);
+      expect(find.text('日用品'), findsNothing);
+      expect(find.text('光熱費'), findsNothing);
+    });
+
+    testWidgets('total budget and balance is equal', (tester) async {
+      await tester.pumpWidget(target);
+
+      expect(find.text('合計予算'), findsOneWidget);
+      expect(find.text('残高'), findsOneWidget);
+      expect(find.text('¥842,600'), findsNWidgets(2));
+    });
+  });
+
   testGoldens(
     '予算が未設定のとき',
     goldenFileName: 'budget_graph_budget_not_configured',
     builder: () => BudgetGraph(
       list: BudgetGraphDataList(
         data: [],
+      ),
+    ),
+  );
+
+  testGoldens(
+    'ひとつの予算のみ使用しているとき',
+    skip: true,
+    goldenFileName: 'budget_graph_one_budget_used',
+    builder: () => BudgetGraph(
+      list: BudgetGraphDataList(
+        data: [
+          BudgetGraphData(
+            name: '食費',
+            spent: 1000,
+            budget: 2000,
+          ),
+          BudgetGraphData(
+            name: '交通費',
+            spent: 0,
+            budget: 30000,
+          ),
+        ],
       ),
     ),
   );

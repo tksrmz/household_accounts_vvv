@@ -84,6 +84,9 @@ class BudgetGraphDataList {
   /// 「0円の予算があるか」ということではなく、予算の設定それ自体が存在しないかどうかを判定する。
   bool get _isNotBudgetConfigured => _data.isEmpty;
 
+  /// 予算を1円も使っていない
+  bool get _isNotSpent => _totalSpent == 0;
+
   List<_LegendData> _toLegendDataList() {
     return _data.map((item) => item._toLegendData(_totalBudget)).toList();
   }
@@ -170,6 +173,15 @@ class _PieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Widget legendContent;
+    if (_list._isNotBudgetConfigured) {
+      legendContent = const Text('予算が未設定です');
+    } else if (_list._isNotSpent) {
+      legendContent = const Text('予算を使っていません');
+    } else {
+      legendContent = _LegendArea(list: _list._toLegendDataList());
+    }
+
     return DefaultTextStyle.merge(
       style: Theme.of(context).textTheme.labelMedium,
       child: Column(
@@ -177,9 +189,7 @@ class _PieChart extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Graph(list: _list),
-          _list._isNotBudgetConfigured
-              ? const Text('予算が未設定です')
-              : _LegendArea(list: _list._toLegendDataList()),
+          legendContent,
         ],
       ),
     );
