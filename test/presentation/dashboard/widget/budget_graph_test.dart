@@ -8,10 +8,10 @@ void main() {
   /**
    * TODO
    * - Figmaと同じように表示される
-   *   - データが1つのとき
-   *   - データが2つのとき
-   *   - データが3つのとき
-   *   - データが4つ以上のとき
+   *  - 設定された予算の数が4、使用された予算の数が1のケースをテストする
+   *  - 設定された予算の数が4、使用された予算の数が3のケースをテストする
+   *  - 設定された予算の数が4、使用された予算の数が4のケースをテストする
+   *  - 設定された予算の数が5、使用された予算の数が5のケースをテストする
    *     - 残高が0のとき
    *     - 残高が正のとき
    *     - 残高が負のとき
@@ -29,11 +29,6 @@ void main() {
    * - 予算が使用額の大きい順に並んでいること
    * - Theme.of(context).textThemeの変わりにTextTheme.of(context)を使う
    * - "合計予算"を"総予算"に変える
-   * - 設定された予算の数が4、使用された予算の数が0のケースをテストする
-   * - 設定された予算の数が4、使用された予算の数が1のケースをテストする
-   * - 設定された予算の数が4、使用された予算の数が3のケースをテストする
-   * - 設定された予算の数が4、使用された予算の数が4のケースをテストする
-   * - 設定された予算の数が5、使用された予算の数が5のケースをテストする
    */
 
   group('予算が未設定のとき', () {
@@ -127,29 +122,13 @@ void main() {
       expect(find.text('残高'), findsOneWidget);
       expect(find.text('¥842,600'), findsNWidgets(2));
     });
-  });
 
-  testGoldens(
-    'ひとつの予算のみ使用しているとき',
-    skip: true,
-    goldenFileName: 'budget_graph_one_budget_used',
-    builder: () => BudgetGraph(
-      list: BudgetGraphDataList(
-        data: [
-          BudgetGraphData(
-            name: '食費',
-            spent: 1000,
-            budget: 2000,
-          ),
-          BudgetGraphData(
-            name: '交通費',
-            spent: 0,
-            budget: 30000,
-          ),
-        ],
-      ),
-    ),
-  );
+    testGoldens(
+      '予算をひとつも使用していないとき',
+      goldenFileName: 'budget_graph_no_budget_used',
+      builder: build,
+    );
+  });
 }
 
 BudgetGraph Function() _getBuilder(
