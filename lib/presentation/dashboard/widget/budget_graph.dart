@@ -194,6 +194,7 @@ class _Graph extends StatelessWidget {
   Widget build(BuildContext context) {
     const double radius = 100; // 円グラフの半径
     const double diameter = radius * 2;
+    const double innerCircleDiameter = diameter * 0.65; // 円グラフの直径の65%
     const double sameWidthFactor = 1.0; // childと同じ幅の比率
     const double twiceHeightFactor = 2.0; // childの高さの倍
 
@@ -205,6 +206,14 @@ class _Graph extends StatelessWidget {
           height: diameter,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            shape: BoxShape.circle,
+          ),
+        ),
+        Container(
+          width: innerCircleDiameter,
+          height: innerCircleDiameter,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
             shape: BoxShape.circle,
           ),
         ),

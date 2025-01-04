@@ -44,6 +44,7 @@ void main() {
    *   - "予算を使っていません"と表示する
    *   - 中央には残高と合計予算が同じ額で表示される
    * - Theme.of(context).textThemeの変わりにTextTheme.of(context)を使う
+   * - GoldenWrapperの幅が360になるように変更する
    */
 
   group('予算の設定数', () {
