@@ -8,7 +8,7 @@ void main() {
   /**
    * TODO
    * - Figmaと同じように表示される
-   *  - 設定された予算の数が4、使用された予算の数が3のケースをテストする
+   *  - X 設定された予算の数が4、使用された予算の数が3のケースをテストする
    *  - 設定された予算の数が4、使用された予算の数が4のケースをテストする
    *  - 設定された予算の数が5、使用された予算の数が5のケースをテストする
    *     - 残高が0のとき
@@ -25,11 +25,11 @@ void main() {
    * - 実装側にコメントを追加する
    * - デザインが決まったらExpandedやFlexibleを削除できないか検討する
    * - BudgetGraphData.spent, .budgetに負の値が渡されたらどうする？
-   * - 予算が使用額の大きい順に並んでいること
    * - Theme.of(context).textThemeの変わりにTextTheme.of(context)を使う
    * - "合計予算"を"総予算"に変える
    * - 予算の使用割合が100%を超えているとき
    * - _toLegendDataListの返り値をUnmodifiableListViewにする
+   * - [リファクタリング] 一つのクラスでWidgetがネストしすぎないようにする
    */
 
   group('予算が未設定のとき', () {
@@ -141,6 +141,17 @@ void main() {
       (name: '光熱費', spent: 500000, budget: 800000),
     ]),
   );
+
+  testGoldens(
+    '予算が4つあり、3つ使用しているとき',
+    goldenFileName: 'budget_graph/4_budgets_3_used',
+    builder: _getBuilder([
+      (name: '食費', spent: 1000, budget: 1000),
+      (name: '交通費', spent: 2000, budget: 2000),
+      (name: '日用品', spent: 3000, budget: 3000),
+      (name: '光熱費', spent: 0, budget: 4000),
+    ]),
+  );
 }
 
 BudgetGraph Function() _getBuilder(
@@ -148,7 +159,7 @@ BudgetGraph Function() _getBuilder(
 ) {
   return () => BudgetGraph(
         list: BudgetGraphDataList(
-          data: data
+          data
               .map(
                 (e) => BudgetGraphData(
                   name: e.name,

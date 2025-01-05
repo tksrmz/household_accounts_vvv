@@ -7,10 +7,10 @@ import 'package:household_accounts/common/logic/formatter.dart';
 class BudgetGraph extends StatelessWidget {
   final BudgetGraphDataList _list;
 
-  const BudgetGraph({
+  BudgetGraph({
     required BudgetGraphDataList list,
     super.key,
-  }) : _list = list;
+  }) : _list = list._sortBySpentRatio();
 
   @override
   Widget build(BuildContext context) {
@@ -76,14 +76,15 @@ class BudgetGraphData {
 class BudgetGraphDataList {
   final List<BudgetGraphData> _data;
 
-  const BudgetGraphDataList({
-    required List<BudgetGraphData> data,
-  }) : _data = data;
+  const BudgetGraphDataList(this._data);
 
+  /// 合計予算
   int get _totalBudget => _data.fold(0, (sum, item) => sum + item._budget);
 
+  /// 合計使用額
   int get _totalSpent => _data.fold(0, (sum, item) => sum + item._spent);
 
+  /// 残高（合計予算から合計使用額を引いたもの）
   int get _balance => _totalBudget - _totalSpent;
 
   /// 予算の設定が存在しない
@@ -132,6 +133,17 @@ class BudgetGraphDataList {
         ),
       );
     return UnmodifiableListView(result);
+  }
+
+  /// 予算の使用割合が高い順に並び替えたリストを取得する
+  BudgetGraphDataList _sortBySpentRatio() {
+    final sortedData = _data.toList()
+      ..sort((a, b) {
+        final aRatio = a._spent / _totalBudget;
+        final bRatio = b._spent / _totalBudget;
+        return bRatio.compareTo(aRatio);
+      });
+    return BudgetGraphDataList(sortedData);
   }
 }
 
