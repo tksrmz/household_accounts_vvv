@@ -30,6 +30,7 @@ void main() {
    * - Theme.of(context).textThemeの変わりにTextTheme.of(context)を使う
    * - "合計予算"を"総予算"に変える
    * - 予算の使用割合が100%を超えているとき
+   * - _toLegendDataListの返り値をUnmodifiableListViewにする
    */
 
   group('予算が未設定のとき', () {

@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/common/logic/formatter.dart';
@@ -91,11 +93,43 @@ class BudgetGraphDataList {
   /// 予算を1円も使っていない
   bool get _isNotSpent => _totalSpent == 0;
 
+  /// 予算を使っているデータのリストに変換する
+  UnmodifiableListView<BudgetGraphData> get _spentDataList =>
+      UnmodifiableListView(_data.where((item) => item._isSpent));
+
   List<_LegendData> _toLegendDataList() {
-    return _data
-        .where((item) => item._isSpent)
+    return _spentDataList
         .map((item) => item._toLegendData(_totalBudget))
         .toList();
+  }
+
+  /// fl_chartのPieChartで表示するためのデータに変換する
+  ///
+  /// 予算を使っていない場合は、円グラフを表示するためにダミーの値を設定する。
+  UnmodifiableListView<PieChartSectionData> _toPieChartSections({
+    required Color emptySpaceColor,
+    required radius,
+  }) {
+    final result = _spentDataList
+        .map(
+          (item) => PieChartSectionData(
+            value: item._spent.toDouble(),
+            color: Colors.red,
+            radius: radius,
+            showTitle: false,
+          ),
+        )
+        .toList()
+      ..add(
+        PieChartSectionData(
+          // グラフを表示するため、予算を使っていない場合はダミーの値を設定する
+          value: _isNotBudgetConfigured ? 1 : _balance.toDouble(),
+          color: emptySpaceColor,
+          radius: radius,
+          showTitle: false,
+        ),
+      );
+    return UnmodifiableListView(result);
   }
 }
 
@@ -232,14 +266,11 @@ class _Graph extends StatelessWidget {
           dimension: radius * 2,
           child: PieChart(
             PieChartData(
-              sections: [
-                PieChartSectionData(
-                  value: 1,
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  radius: radius - innerCircleRadius,
-                  showTitle: false,
-                ),
-              ],
+              sections: _list._toPieChartSections(
+                emptySpaceColor:
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
+                radius: radius - innerCircleRadius,
+              ),
               centerSpaceRadius: innerCircleRadius,
               sectionsSpace: 0,
               startDegreeOffset: 270,
