@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/common/logic/formatter.dart';
 
@@ -200,6 +201,7 @@ class _PieChart extends StatelessWidget {
       style: Theme.of(context).textTheme.labelMedium,
       child: Column(
         spacing: 12,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Graph(list: _list),
@@ -219,27 +221,35 @@ class _Graph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double diameter = 200; // 円グラフの直径
-    const double innerCircleDiameter = diameter * 0.65; // 円グラフの直径の65%
+    const double radius = 100; // 円グラフの半径
+    const double innerCircleRadius = radius * 0.65; // 円グラフの半径の65%
     const double centerTextAlignHeightFactor = 2.0 + 0.3; // childの高さの倍+アルファ
 
     return Stack(
       alignment: Alignment.center,
       children: [
-        Container(
-          width: diameter,
-          height: diameter,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            shape: BoxShape.circle,
-          ),
-        ),
-        Container(
-          width: innerCircleDiameter,
-          height: innerCircleDiameter,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            shape: BoxShape.circle,
+        SizedBox.square(
+          dimension: radius * 2,
+          child: PieChart(
+            PieChartData(
+              sections: [
+                PieChartSectionData(
+                  value: 1,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  radius: radius - innerCircleRadius,
+                  showTitle: false,
+                ),
+              ],
+              centerSpaceRadius: innerCircleRadius,
+              sectionsSpace: 0,
+              startDegreeOffset: 270,
+              pieTouchData: PieTouchData(
+                enabled: false,
+              ),
+              borderData: FlBorderData(
+                show: false,
+              ),
+            ),
           ),
         ),
         Align(
