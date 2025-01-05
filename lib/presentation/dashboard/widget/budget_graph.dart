@@ -50,6 +50,7 @@ class BudgetGraphData {
   final String _name;
   final int _spent;
   final int _budget;
+  final Color _color = Colors.red;
 
   const BudgetGraphData({
     required String name,
@@ -67,6 +68,7 @@ class BudgetGraphData {
       name: _name,
       spent: _spent,
       totalBudget: totalBudget,
+      color: _color,
     );
   }
 }
@@ -114,7 +116,7 @@ class BudgetGraphDataList {
         .map(
           (item) => PieChartSectionData(
             value: item._spent.toDouble(),
-            color: Colors.red,
+            color: item._color,
             radius: radius,
             showTitle: false,
           ),
@@ -138,13 +140,23 @@ class _LegendData {
     required String name,
     required int spent,
     required int totalBudget,
+    required Color color,
   })  : _name = name,
         _spent = spent,
-        _ratio = (spent / totalBudget * 100).round();
+        _ratio = (spent / totalBudget * 100).round(),
+        _color = color;
 
+  /// 予算の名前
   final String _name;
+
+  /// 予算の使用額
   final int _spent;
+
+  /// 合計予算に対する使用額[_spent]の割合
   final int _ratio;
+
+  /// グラフの色
+  final Color _color;
 }
 
 class _Legend extends StatelessWidget {
@@ -164,7 +176,7 @@ class _Legend extends StatelessWidget {
         Container(
           width: containerEdgeSize,
           height: containerEdgeSize,
-          color: Colors.red,
+          color: _data._color,
         ),
         Text(_data._name),
         Text(Formatter.simpleCurrency(_data._spent)),
