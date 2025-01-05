@@ -8,7 +8,7 @@ void main() {
   /**
    * TODO
    * - Figmaと同じように表示される
-   *  - 設定された予算の数が4、使用された予算の数が1のケースをテストする
+   *  - X 設定された予算の数が4、使用された予算の数が1のケースをテストする
    *  - 設定された予算の数が4、使用された予算の数が3のケースをテストする
    *  - 設定された予算の数が4、使用された予算の数が4のケースをテストする
    *  - 設定された予算の数が5、使用された予算の数が5のケースをテストする
@@ -29,6 +29,7 @@ void main() {
    * - 予算が使用額の大きい順に並んでいること
    * - Theme.of(context).textThemeの変わりにTextTheme.of(context)を使う
    * - "合計予算"を"総予算"に変える
+   * - 予算の使用割合が100%を超えているとき
    */
 
   group('予算が未設定のとき', () {
@@ -129,6 +130,17 @@ void main() {
       builder: build,
     );
   });
+
+  testGoldens(
+    '予算が4つあり、1つ使用しているとき',
+    goldenFileName: 'budget_graph/4_budgets_1_used',
+    builder: _getBuilder([
+      (name: '食費', spent: 0, budget: 2000),
+      (name: '交通費', spent: 0, budget: 40000),
+      (name: '日用品', spent: 0, budget: 600),
+      (name: '光熱費', spent: 500000, budget: 800000),
+    ]),
+  );
 }
 
 BudgetGraph Function() _getBuilder(

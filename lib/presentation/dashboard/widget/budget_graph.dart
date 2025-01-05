@@ -56,6 +56,9 @@ class BudgetGraphData {
         _spent = spent,
         _budget = budget;
 
+  /// 予算を使っているか
+  bool get _isSpent => _spent > 0;
+
   _LegendData _toLegendData(int totalBudget) {
     return _LegendData(
       name: _name,
@@ -88,7 +91,10 @@ class BudgetGraphDataList {
   bool get _isNotSpent => _totalSpent == 0;
 
   List<_LegendData> _toLegendDataList() {
-    return _data.map((item) => item._toLegendData(_totalBudget)).toList();
+    return _data
+        .where((item) => item._isSpent)
+        .map((item) => item._toLegendData(_totalBudget))
+        .toList();
   }
 }
 
@@ -115,7 +121,8 @@ class _Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      spacing: 8,
       children: [
         Text(_data._name),
         Text(Formatter.simpleCurrency(_data._spent)),
