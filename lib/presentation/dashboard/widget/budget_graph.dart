@@ -121,9 +121,16 @@ class _Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const double containerEdgeSize = 16;
+
     return Row(
       spacing: 8,
       children: [
+        Container(
+          width: containerEdgeSize,
+          height: containerEdgeSize,
+          color: Colors.red,
+        ),
         Text(_data._name),
         Text(Formatter.simpleCurrency(_data._spent)),
         Text('(${_data._ratio}%)'),
