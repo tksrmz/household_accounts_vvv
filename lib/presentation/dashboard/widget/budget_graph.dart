@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:household_accounts/common/logic/formatter.dart';
 
 class BudgetGraph extends StatelessWidget {
-  final BudgetGraphDataList _list;
+  final List<BudgetGraphData> _list;
 
   BudgetGraph({
-    required BudgetGraphDataList list,
+    required List<BudgetGraphData> dataList,
     super.key,
-  }) : _list = list._sortBySpentRatio();
+  }) : _list = dataList;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,11 @@ class BudgetGraph extends StatelessWidget {
         children: [
           _Title(),
           Flexible(
-            child: _PieChart(list: _list),
+            child: _PieChart(
+              _SummarizedBudgetGraphDataList.from(
+                _list,
+              ),
+            ),
           ),
         ],
       ),
@@ -50,7 +54,6 @@ class BudgetGraphData {
   final String _name;
   final int _spent;
   final int _budget;
-  final Color _color = Colors.red;
 
   const BudgetGraphData({
     required String name,
@@ -62,27 +65,82 @@ class BudgetGraphData {
 
   /// 予算を使っているか
   bool get _isSpent => _spent > 0;
+}
 
-  _LegendData _toLegendData(int totalBudget) {
+/// [_SummarizedBudgetGraphDataList]の要素
+class _SummarizedBudgetGraphData {
+  _SummarizedBudgetGraphData.from(
+    BudgetGraphData data,
+    int totalBudget,
+    Color this._color,
+  )   : _name = data._name,
+        _spent = data._spent,
+        _ratio = (data._spent / totalBudget * 100).round();
+
+  /// 表示名
+  final String _name;
+
+  /// 使用額
+  final int _spent;
+
+  /// 予算の合計に対する使用額の割合
+  final int _ratio;
+
+  /// グラフの色
+  final Color _color;
+
+  /// 凡例用のデータに変換する
+  _LegendData _toLegendData() {
     return _LegendData(
       name: _name,
       spent: _spent,
-      totalBudget: totalBudget,
+      ratio: _ratio,
       color: _color,
     );
   }
 }
 
-class BudgetGraphDataList {
-  final List<BudgetGraphData> _data;
+/// グラフ表示用にまとめられたデータのリスト
+class _SummarizedBudgetGraphDataList {
+  _SummarizedBudgetGraphDataList.from(
+    List<BudgetGraphData> dataList,
+  )   : _totalBudget = dataList.fold(0, (sum, item) => sum + item._budget),
+        _totalSpent = dataList.fold(0, (sum, item) => sum + item._spent),
+        _isNotBudgetConfigured = dataList.isEmpty {
+    const colors = [Color(0xFFFF0000), Color(0xFF005AFF), Color(0xFFFFF100)];
 
-  const BudgetGraphDataList(this._data);
+    final sortedSpentDataList = dataList.where((item) => item._isSpent).toList()
+      ..sort((a, b) {
+        final aRatio = a._spent / _totalBudget;
+        final bRatio = b._spent / _totalBudget;
+        return bRatio.compareTo(aRatio);
+      });
+
+    for (int i = 0; i < sortedSpentDataList.length; i++) {
+      final graphData;
+      try {
+        graphData = sortedSpentDataList.elementAt(i);
+      } catch (RangeError) {
+        // 予算の設定が足りない場合は、ループを抜ける
+        break;
+      }
+      _data.add(
+        _SummarizedBudgetGraphData.from(
+          graphData,
+          _totalBudget,
+          colors[i],
+        ),
+      );
+    }
+  }
+
+  final List<_SummarizedBudgetGraphData> _data = [];
 
   /// 合計予算
-  int get _totalBudget => _data.fold(0, (sum, item) => sum + item._budget);
+  final int _totalBudget;
 
   /// 合計使用額
-  int get _totalSpent => _data.fold(0, (sum, item) => sum + item._spent);
+  final int _totalSpent;
 
   /// 残高（合計予算から合計使用額を引いたもの）
   int get _balance => _totalBudget - _totalSpent;
@@ -91,19 +149,18 @@ class BudgetGraphDataList {
   ///
   /// 予算が1つも設定されていない場合にtrueを返す。
   /// 「0円の予算があるか」ということではなく、予算の設定それ自体が存在しないかどうかを判定する。
-  bool get _isNotBudgetConfigured => _data.isEmpty;
+  final bool _isNotBudgetConfigured;
 
   /// 予算を1円も使っていない
   bool get _isNotSpent => _totalSpent == 0;
 
-  /// 予算を使っているデータのリストに変換する
-  UnmodifiableListView<BudgetGraphData> get _spentDataList =>
-      UnmodifiableListView(_data.where((item) => item._isSpent));
-
-  List<_LegendData> _toLegendDataList() {
-    return _spentDataList
-        .map((item) => item._toLegendData(_totalBudget))
-        .toList();
+  /// 凡例用のリストに変換する
+  UnmodifiableListView<_LegendData> _toLegendDataList() {
+    return UnmodifiableListView(
+      _data.map(
+        (item) => item._toLegendData(),
+      ),
+    );
   }
 
   /// fl_chartのPieChartで表示するためのデータに変換する
@@ -113,7 +170,7 @@ class BudgetGraphDataList {
     required Color emptySpaceColor,
     required radius,
   }) {
-    final result = _spentDataList
+    final result = _data
         .map(
           (item) => PieChartSectionData(
             value: item._spent.toDouble(),
@@ -134,28 +191,17 @@ class BudgetGraphDataList {
       );
     return UnmodifiableListView(result);
   }
-
-  /// 予算の使用割合が高い順に並び替えたリストを取得する
-  BudgetGraphDataList _sortBySpentRatio() {
-    final sortedData = _data.toList()
-      ..sort((a, b) {
-        final aRatio = a._spent / _totalBudget;
-        final bRatio = b._spent / _totalBudget;
-        return bRatio.compareTo(aRatio);
-      });
-    return BudgetGraphDataList(sortedData);
-  }
 }
 
 class _LegendData {
   _LegendData({
     required String name,
     required int spent,
-    required int totalBudget,
+    required int ratio,
     required Color color,
   })  : _name = name,
         _spent = spent,
-        _ratio = (spent / totalBudget * 100).round(),
+        _ratio = ratio,
         _color = color;
 
   /// 予算の名前
@@ -238,21 +284,20 @@ class _TextAtCenterOfGraph extends StatelessWidget {
 }
 
 class _PieChart extends StatelessWidget {
-  const _PieChart({
-    required BudgetGraphDataList list,
-  }) : _list = list;
+  const _PieChart(this._summarizedDataList);
 
-  final BudgetGraphDataList _list;
+  final _SummarizedBudgetGraphDataList _summarizedDataList;
 
   @override
   Widget build(BuildContext context) {
     final Widget legendContent;
-    if (_list._isNotBudgetConfigured) {
+    if (_summarizedDataList._isNotBudgetConfigured) {
       legendContent = const Text('予算が未設定です');
-    } else if (_list._isNotSpent) {
+    } else if (_summarizedDataList._isNotSpent) {
       legendContent = const Text('予算を使っていません');
     } else {
-      legendContent = _LegendArea(list: _list._toLegendDataList());
+      legendContent =
+          _LegendArea(list: _summarizedDataList._toLegendDataList());
     }
 
     return DefaultTextStyle.merge(
@@ -262,7 +307,7 @@ class _PieChart extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Graph(list: _list),
+          _Graph(_summarizedDataList),
           legendContent,
         ],
       ),
@@ -271,11 +316,9 @@ class _PieChart extends StatelessWidget {
 }
 
 class _Graph extends StatelessWidget {
-  const _Graph({
-    required BudgetGraphDataList list,
-  }) : _list = list;
+  const _Graph(this._list);
 
-  final BudgetGraphDataList _list;
+  final _SummarizedBudgetGraphDataList _list;
 
   @override
   Widget build(BuildContext context) {

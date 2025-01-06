@@ -8,7 +8,6 @@ void main() {
   /**
    * TODO
    * - Figmaと同じように表示される
-   *  - X 設定された予算の数が4、使用された予算の数が3のケースをテストする
    *  - 設定された予算の数が4、使用された予算の数が4のケースをテストする
    *  - 設定された予算の数が5、使用された予算の数が5のケースをテストする
    *     - 残高が0のとき
@@ -158,16 +157,14 @@ BudgetGraph Function() _getBuilder(
   List<({String name, int spent, int budget})> data,
 ) {
   return () => BudgetGraph(
-        list: BudgetGraphDataList(
-          data
-              .map(
-                (e) => BudgetGraphData(
-                  name: e.name,
-                  spent: e.spent,
-                  budget: e.budget,
-                ),
-              )
-              .toList(),
-        ),
+        dataList: data
+            .map(
+              (e) => BudgetGraphData(
+                name: e.name,
+                spent: e.spent,
+                budget: e.budget,
+              ),
+            )
+            .toList(),
       );
 }
