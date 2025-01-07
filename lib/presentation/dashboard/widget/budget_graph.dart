@@ -25,11 +25,9 @@ class BudgetGraph extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Title(),
-          Flexible(
-            child: _PieChart(
-              _SummarizedBudgetGraphDataList.from(
-                _list,
-              ),
+          _PieChart(
+            _SummarizedBudgetGraphDataList.from(
+              _list,
             ),
           ),
         ],

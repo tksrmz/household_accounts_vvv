@@ -19,7 +19,6 @@ void main() {
    * - 予算や使用額の文字数が多すぎるときはどう表示する？
    *   - 6桁の額(数十万円)をテストする
    * - 実装側にコメントを追加する
-   * - デザインが決まったらExpandedやFlexibleを削除できないか検討する
    * - BudgetGraphData.spent, .budgetに負の値が渡されたらどうする？
    * - Theme.of(context).textThemeの変わりにTextTheme.of(context)を使う
    * - "合計予算"を"総予算"に変える
