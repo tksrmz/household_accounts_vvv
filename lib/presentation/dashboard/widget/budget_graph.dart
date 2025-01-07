@@ -69,13 +69,24 @@ class BudgetGraphData {
 
 /// [_SummarizedBudgetGraphDataList]の要素
 class _SummarizedBudgetGraphData {
+  /// [BudgetGraphData]からデータをまとめる
   _SummarizedBudgetGraphData.from(
     BudgetGraphData data,
     int totalBudget,
     Color this._color,
   )   : _name = data._name,
         _spent = data._spent,
-        _ratio = (data._spent / totalBudget * 100).round();
+        _ratio = calculateRatio(data._spent, totalBudget);
+
+  /// その他用のコンストラクタ
+  _SummarizedBudgetGraphData.etc({
+    required int spent,
+    required int totalBudget,
+    required Color color,
+  })  : _name = 'その他',
+        _spent = spent,
+        _ratio = calculateRatio(spent, totalBudget),
+        _color = color;
 
   /// 表示名
   final String _name;
@@ -98,6 +109,10 @@ class _SummarizedBudgetGraphData {
       color: _color,
     );
   }
+
+  static int calculateRatio(int spent, int totalBudget) {
+    return (spent / totalBudget * 100).round();
+  }
 }
 
 /// グラフ表示用にまとめられたデータのリスト
@@ -107,8 +122,6 @@ class _SummarizedBudgetGraphDataList {
   )   : _totalBudget = dataList.fold(0, (sum, item) => sum + item._budget),
         _totalSpent = dataList.fold(0, (sum, item) => sum + item._spent),
         _isNotBudgetConfigured = dataList.isEmpty {
-    const colors = [Color(0xFFFF0000), Color(0xFF005AFF), Color(0xFFFFF100)];
-
     final sortedSpentDataList = dataList.where((item) => item._isSpent).toList()
       ..sort((a, b) {
         final aRatio = a._spent / _totalBudget;
@@ -116,7 +129,8 @@ class _SummarizedBudgetGraphDataList {
         return bRatio.compareTo(aRatio);
       });
 
-    for (int i = 0; i < sortedSpentDataList.length; i++) {
+    const notSummarizedDataCount = 3;
+    for (int i = 0; i < notSummarizedDataCount; i++) {
       final graphData;
       try {
         graphData = sortedSpentDataList.elementAt(i);
@@ -124,11 +138,29 @@ class _SummarizedBudgetGraphDataList {
         // 予算の設定が足りない場合は、ループを抜ける
         break;
       }
+      const colors = [
+        Color(0xFFFF0000),
+        Color(0xFF005AFF),
+        Color(0xFFFFF100),
+      ];
+      assert(colors.length == notSummarizedDataCount);
       _data.add(
         _SummarizedBudgetGraphData.from(
           graphData,
           _totalBudget,
           colors[i],
+        ),
+      );
+    }
+    if (sortedSpentDataList.length > notSummarizedDataCount) {
+      final otherSpent = sortedSpentDataList
+          .skip(notSummarizedDataCount)
+          .fold(0, (sum, item) => sum + item._spent);
+      _data.add(
+        _SummarizedBudgetGraphData.etc(
+          spent: otherSpent,
+          totalBudget: _totalBudget,
+          color: Color(0xFF4DC4FF),
         ),
       );
     }
