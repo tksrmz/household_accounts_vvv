@@ -7,11 +7,6 @@ import '../../../util/golden_helper.dart';
 void main() {
   /**
    * TODO
-   * - Figmaと同じように表示される
-   *  - 設定された予算の数が5、使用された予算の数が5のケースをテストする
-   *     - 残高が0のとき
-   *     - 残高が正のとき
-   *     - 残高が負のとき
    * - BudgetGraphDataを別のファイルに切り出す
    * - BudgetGraphDataのプロパティでVOを使う
    * - 予算の名前が0文字のときはどうする？
@@ -25,8 +20,11 @@ void main() {
    * - 予算の使用割合が100%を超えているとき
    * - [リファクタリング] 一つのクラスでWidgetがネストしすぎないようにする
    * - 凡例の間に隙間を入れる
-   * - 合計予算と残高を複数行のテキストにして、ひとまとめに検証できるようにする
-   * - 凡例を間に半角スペースが入ったテキストにして、ひとまとめに検証できるようにする
+   * - 表示される文字はGolden test以外で検証できるようにする（Golden testはAhemで動かす可能性があるため）
+   *   - 合計予算と残高を複数行のテキストにして、ひとまとめに検証できるようにする
+   *   - 凡例を間に半角スペースが入ったテキストにして、ひとまとめに検証できるようにする
+   * - 割合は話がややこしくなりそうだから消す
+   *   - 残高が0以上のときは予算合計に対する割合が表示されて、残高が負のときは使用額合計に対する割合が表示される
    */
 
   group('予算が未設定のとき', () {
@@ -132,10 +130,10 @@ void main() {
     '予算が4つあり、1つ使用しているとき',
     goldenFileName: 'budget_graph/4_budgets_1_used',
     builder: _getBuilder([
-      (name: '食費', spent: 0, budget: 2000),
-      (name: '交通費', spent: 0, budget: 40000),
-      (name: '日用品', spent: 0, budget: 600),
-      (name: '光熱費', spent: 500000, budget: 800000),
+      (name: '食費', spent: 1, budget: 1),
+      (name: '交通費', spent: 0, budget: 2),
+      (name: '日用品', spent: 0, budget: 3),
+      (name: '光熱費', spent: 0, budget: 5),
     ]),
   );
 
@@ -158,6 +156,27 @@ void main() {
       (name: '交通費', spent: 2000, budget: 2000),
       (name: '日用品', spent: 3000, budget: 3000),
       (name: '光熱費', spent: 4000, budget: 4000),
+    ]),
+  );
+
+  testGoldens(
+    '予算が5つあり、5つ使用しているとき',
+    goldenFileName: 'budget_graph/5_budgets_5_used',
+    builder: _getBuilder([
+      (name: '食費', spent: 1000, budget: 1500),
+      (name: '交通費', spent: 2000, budget: 2000),
+      (name: '日用品', spent: 3000, budget: 3000),
+      (name: '光熱費', spent: 4000, budget: 4000),
+      (name: '趣味', spent: 4001, budget: 4001),
+    ]),
+  );
+
+  testGoldens(
+    '残高が負のとき',
+    goldenFileName: 'budget_graph/negative_balance',
+    builder: _getBuilder([
+      (name: '食費', spent: 2, budget: 1),
+      (name: '交通費', spent: 4, budget: 3),
     ]),
   );
 }

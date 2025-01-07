@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -175,6 +176,9 @@ class _SummarizedBudgetGraphDataList {
   /// 残高（合計予算から合計使用額を引いたもの）
   int get _balance => _totalBudget - _totalSpent;
 
+  /// 残高がマイナスか
+  bool get _isNegativeBalance => _balance < 0;
+
   /// 予算の設定が存在しない
   ///
   /// 予算が1つも設定されていない場合にtrueを返す。
@@ -200,6 +204,15 @@ class _SummarizedBudgetGraphDataList {
     required Color emptySpaceColor,
     required radius,
   }) {
+    // グラフを表示するため、未使用のセクションにダミーの値を設定する
+    // 予算が設定されていない場合のダミー
+    const double dummyValue = 1;
+    // 残高がマイナスの場合のダミー
+    const double alternativeValueForNegativeBalance = 0;
+    final double emptySectionValue = _isNotBudgetConfigured
+        ? dummyValue
+        : max(alternativeValueForNegativeBalance, _balance.toDouble());
+
     final result = _data
         .map(
           (item) => PieChartSectionData(
@@ -212,8 +225,7 @@ class _SummarizedBudgetGraphDataList {
         .toList()
       ..add(
         PieChartSectionData(
-          // グラフを表示するため、予算を使っていない場合はダミーの値を設定する
-          value: _isNotBudgetConfigured ? 1 : _balance.toDouble(),
+          value: emptySectionValue,
           color: emptySpaceColor,
           radius: radius,
           showTitle: false,
@@ -391,9 +403,17 @@ class _Graph extends StatelessWidget {
         Align(
           alignment: Alignment.bottomCenter,
           heightFactor: centerTextAlignHeightFactor,
-          child: _TextAtCenterOfGraph(
-            name: '残高',
-            value: _list._balance,
+          child: DefaultTextStyle.merge(
+            // 残高がマイナスの場合は赤色にする
+            style: DefaultTextStyle.of(context).style.apply(
+                  color: _list._isNegativeBalance
+                      ? Theme.of(context).colorScheme.error
+                      : null,
+                ),
+            child: _TextAtCenterOfGraph(
+              name: '残高',
+              value: _list._balance,
+            ),
           ),
         ),
       ],
