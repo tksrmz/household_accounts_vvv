@@ -281,19 +281,28 @@ class _TextAtCenterOfGraph extends StatelessWidget {
   const _TextAtCenterOfGraph({
     required String name,
     required int value,
+    TextStyle? style,
   })  : _name = name,
-        _value = value;
+        _value = value,
+        _style = style;
 
   final String _name;
   final int _value;
+  final TextStyle? _style;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(_name),
-        Text(Formatter.simpleCurrency(_value)),
+        Text(
+          _name,
+          style: _style,
+        ),
+        Text(
+          Formatter.simpleCurrency(_value),
+          style: _style,
+        ),
       ],
     );
   }
@@ -354,16 +363,14 @@ class _GraphArea extends StatelessWidget {
         Align(
           alignment: Alignment.bottomCenter,
           heightFactor: centerTextAlignHeightFactor,
-          child: DefaultTextStyle.merge(
+          child: _TextAtCenterOfGraph(
+            name: '残高',
+            value: _list._balance,
             // 残高がマイナスの場合は赤色にする
             style: TextStyle(
               color: _list._isNegativeBalance
                   ? ColorScheme.of(context).error
                   : null,
-            ),
-            child: _TextAtCenterOfGraph(
-              name: '残高',
-              value: _list._balance,
             ),
           ),
         ),
