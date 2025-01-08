@@ -23,8 +23,6 @@ void main() {
    * - 表示される文字はGolden test以外で検証できるようにする（Golden testはAhemで動かす可能性があるため）
    *   - 合計予算と残高を複数行のテキストにして、ひとまとめに検証できるようにする
    *   - 凡例を間に半角スペースが入ったテキストにして、ひとまとめに検証できるようにする
-   * - 割合は話がややこしくなりそうだから消す
-   *   - 残高が0以上のときは予算合計に対する割合が表示されて、残高が負のときは使用額合計に対する割合が表示される
    */
 
   group('予算が未設定のとき', () {
@@ -58,18 +56,11 @@ void main() {
     testWidgets('displays info of each budget', (tester) async {
       await tester.pumpWidget(MaterialApp(home: build()));
 
-      final int totalBudget = 2000 + 40000;
-
       expect(find.text('食費'), findsOneWidget);
       expect(find.text('¥1,000'), findsOneWidget);
-      final int foodRatioToTotalBudget = (1000 * 100 / totalBudget).round();
-      expect(find.text('($foodRatioToTotalBudget%)'), findsOneWidget);
 
       expect(find.text('交通費'), findsOneWidget);
       expect(find.text('¥30,000'), findsOneWidget);
-      final int transportRatioToTotalBudget =
-          (30000 * 100 / totalBudget).round();
-      expect(find.text('($transportRatioToTotalBudget%)'), findsOneWidget);
     });
 
     testWidgets('displays total budget', (tester) async {

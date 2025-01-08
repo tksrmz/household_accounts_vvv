@@ -71,20 +71,16 @@ class _SummarizedBudgetGraphData {
   /// [BudgetGraphData]からデータをまとめる
   _SummarizedBudgetGraphData.from(
     BudgetGraphData data,
-    int totalBudget,
     Color this._color,
   )   : _name = data._name,
-        _spent = data._spent,
-        _ratio = calculateRatio(data._spent, totalBudget);
+        _spent = data._spent;
 
   /// その他用のコンストラクタ
   _SummarizedBudgetGraphData.etc({
     required int spent,
-    required int totalBudget,
     required Color color,
   })  : _name = 'その他',
         _spent = spent,
-        _ratio = calculateRatio(spent, totalBudget),
         _color = color;
 
   /// 表示名
@@ -92,9 +88,6 @@ class _SummarizedBudgetGraphData {
 
   /// 使用額
   final int _spent;
-
-  /// 予算の合計に対する使用額の割合
-  final int _ratio;
 
   /// グラフの色
   final Color _color;
@@ -104,13 +97,8 @@ class _SummarizedBudgetGraphData {
     return _LegendData(
       name: _name,
       spent: _spent,
-      ratio: _ratio,
       color: _color,
     );
-  }
-
-  static int calculateRatio(int spent, int totalBudget) {
-    return (spent / totalBudget * 100).round();
   }
 }
 
@@ -146,7 +134,6 @@ class _SummarizedBudgetGraphDataList {
       _data.add(
         _SummarizedBudgetGraphData.from(
           graphData,
-          _totalBudget,
           colors[i],
         ),
       );
@@ -158,7 +145,6 @@ class _SummarizedBudgetGraphDataList {
       _data.add(
         _SummarizedBudgetGraphData.etc(
           spent: otherSpent,
-          totalBudget: _totalBudget,
           color: Color(0xFF4DC4FF),
         ),
       );
@@ -239,11 +225,9 @@ class _LegendData {
   _LegendData({
     required String name,
     required int spent,
-    required int ratio,
     required Color color,
   })  : _name = name,
         _spent = spent,
-        _ratio = ratio,
         _color = color;
 
   /// 予算の名前
@@ -251,9 +235,6 @@ class _LegendData {
 
   /// 予算の使用額
   final int _spent;
-
-  /// 合計予算に対する使用額[_spent]の割合
-  final int _ratio;
 
   /// グラフの色
   final Color _color;
@@ -280,7 +261,6 @@ class _Legend extends StatelessWidget {
         ),
         Text(_data._name),
         Text(Formatter.simpleCurrency(_data._spent)),
-        Text('(${_data._ratio}%)'),
       ],
     );
   }
