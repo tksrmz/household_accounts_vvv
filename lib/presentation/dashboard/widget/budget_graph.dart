@@ -19,6 +19,7 @@ class BudgetGraph extends StatelessWidget {
       data: ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
+        // テストで特定のフォントを使うため、textThemeの設定が必要
         textTheme: TextTheme.of(context),
       ),
       child: Column(
@@ -42,7 +43,7 @@ class _Title extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       '予算',
-      style: Theme.of(context).textTheme.titleMedium,
+      style: TextTheme.of(context).titleMedium,
     );
   }
 }
@@ -315,7 +316,7 @@ class _PlotArea extends StatelessWidget {
     }
 
     return DefaultTextStyle.merge(
-      style: Theme.of(context).textTheme.labelMedium,
+      style: TextTheme.of(context).labelMedium,
       child: Column(
         spacing: 12,
         mainAxisSize: MainAxisSize.min,
@@ -355,11 +356,11 @@ class _GraphArea extends StatelessWidget {
           heightFactor: centerTextAlignHeightFactor,
           child: DefaultTextStyle.merge(
             // 残高がマイナスの場合は赤色にする
-            style: DefaultTextStyle.of(context).style.apply(
-                  color: _list._isNegativeBalance
-                      ? Theme.of(context).colorScheme.error
-                      : null,
-                ),
+            style: TextStyle(
+              color: _list._isNegativeBalance
+                  ? ColorScheme.of(context).error
+                  : null,
+            ),
             child: _TextAtCenterOfGraph(
               name: '残高',
               value: _list._balance,
@@ -386,8 +387,7 @@ class _PieChart extends StatelessWidget {
       child: PieChart(
         PieChartData(
           sections: _list._toPieChartSections(
-            emptySpaceColor:
-                Theme.of(context).colorScheme.surfaceContainerHighest,
+            emptySpaceColor: ColorScheme.of(context).surfaceContainerHighest,
             radius: radius - innerCircleRadius,
           ),
           centerSpaceRadius: innerCircleRadius,
