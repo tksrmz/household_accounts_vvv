@@ -26,10 +26,8 @@ class BudgetGraph extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Title(),
-          _PieChart(
-            _SummarizedBudgetGraphDataList.from(
-              _list,
-            ),
+          _PlotArea(
+            _SummarizedBudgetGraphDataList.from(_list),
           ),
         ],
       ),
@@ -76,10 +74,10 @@ class _SummarizedBudgetGraphData {
         _spent = data._spent;
 
   /// その他用のコンストラクタ
-  _SummarizedBudgetGraphData.etc({
-    required int spent,
-    required Color color,
-  })  : _name = 'その他',
+  _SummarizedBudgetGraphData.etc(
+    int spent,
+    Color color,
+  )   : _name = 'その他',
         _spent = spent,
         _color = color;
 
@@ -144,8 +142,8 @@ class _SummarizedBudgetGraphDataList {
           .fold(0, (sum, item) => sum + item._spent);
       _data.add(
         _SummarizedBudgetGraphData.etc(
-          spent: otherSpent,
-          color: Color(0xFF4DC4FF),
+          otherSpent,
+          Color(0xFF4DC4FF),
         ),
       );
     }
@@ -243,9 +241,7 @@ class _LegendData {
 class _Legend extends StatelessWidget {
   final _LegendData _data;
 
-  const _Legend({
-    required _LegendData data,
-  }) : _data = data;
+  const _Legend(this._data);
 
   @override
   Widget build(BuildContext context) {
@@ -267,9 +263,7 @@ class _Legend extends StatelessWidget {
 }
 
 class _LegendArea extends StatelessWidget {
-  const _LegendArea({
-    required List<_LegendData> list,
-  }) : _list = list;
+  const _LegendArea(this._list);
 
   final List<_LegendData> _list;
 
@@ -277,7 +271,7 @@ class _LegendArea extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       spacing: 4,
-      children: _list.map((item) => _Legend(data: item)).toList(),
+      children: _list.map((item) => _Legend(item)).toList(),
     );
   }
 }
@@ -298,29 +292,26 @@ class _TextAtCenterOfGraph extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(_name),
-        Text(
-          Formatter.simpleCurrency(_value),
-        ),
+        Text(Formatter.simpleCurrency(_value)),
       ],
     );
   }
 }
 
-class _PieChart extends StatelessWidget {
-  const _PieChart(this._summarizedDataList);
+class _PlotArea extends StatelessWidget {
+  const _PlotArea(this._summarizedDataList);
 
   final _SummarizedBudgetGraphDataList _summarizedDataList;
 
   @override
   Widget build(BuildContext context) {
-    final Widget legendContent;
+    final Widget legendArea;
     if (_summarizedDataList._isNotBudgetConfigured) {
-      legendContent = const Text('予算が未設定です');
+      legendArea = const Text('予算が未設定です');
     } else if (_summarizedDataList._isNotSpent) {
-      legendContent = const Text('予算を使っていません');
+      legendArea = const Text('予算を使っていません');
     } else {
-      legendContent =
-          _LegendArea(list: _summarizedDataList._toLegendDataList());
+      legendArea = _LegendArea(_summarizedDataList._toLegendDataList());
     }
 
     return DefaultTextStyle.merge(
@@ -330,49 +321,27 @@ class _PieChart extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Graph(_summarizedDataList),
-          legendContent,
+          _GraphArea(_summarizedDataList),
+          legendArea,
         ],
       ),
     );
   }
 }
 
-class _Graph extends StatelessWidget {
-  const _Graph(this._list);
+class _GraphArea extends StatelessWidget {
+  const _GraphArea(this._list);
 
   final _SummarizedBudgetGraphDataList _list;
 
   @override
   Widget build(BuildContext context) {
-    const double radius = 100; // 円グラフの半径
-    const double innerCircleRadius = radius * 0.65; // 円グラフの半径の65%
     const double centerTextAlignHeightFactor = 2.0 + 0.3; // childの高さの倍+アルファ
 
     return Stack(
       alignment: Alignment.center,
       children: [
-        SizedBox.square(
-          dimension: radius * 2,
-          child: PieChart(
-            PieChartData(
-              sections: _list._toPieChartSections(
-                emptySpaceColor:
-                    Theme.of(context).colorScheme.surfaceContainerHighest,
-                radius: radius - innerCircleRadius,
-              ),
-              centerSpaceRadius: innerCircleRadius,
-              sectionsSpace: 0,
-              startDegreeOffset: 270,
-              pieTouchData: PieTouchData(
-                enabled: false,
-              ),
-              borderData: FlBorderData(
-                show: false,
-              ),
-            ),
-          ),
-        ),
+        _PieChart(_list),
         Align(
           alignment: Alignment.topCenter,
           heightFactor: centerTextAlignHeightFactor,
@@ -398,6 +367,40 @@ class _Graph extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PieChart extends StatelessWidget {
+  const _PieChart(this._list);
+
+  final _SummarizedBudgetGraphDataList _list;
+
+  @override
+  Widget build(BuildContext context) {
+    const double radius = 100; // 円グラフの半径
+    const double innerCircleRadius = radius * 0.65; // 円グラフの半径の65%
+
+    return SizedBox.square(
+      dimension: radius * 2,
+      child: PieChart(
+        PieChartData(
+          sections: _list._toPieChartSections(
+            emptySpaceColor:
+                Theme.of(context).colorScheme.surfaceContainerHighest,
+            radius: radius - innerCircleRadius,
+          ),
+          centerSpaceRadius: innerCircleRadius,
+          sectionsSpace: 0,
+          startDegreeOffset: 270,
+          pieTouchData: PieTouchData(
+            enabled: false,
+          ),
+          borderData: FlBorderData(
+            show: false,
+          ),
+        ),
+      ),
     );
   }
 }
