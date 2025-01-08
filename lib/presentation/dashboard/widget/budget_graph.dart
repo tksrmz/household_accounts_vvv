@@ -276,6 +276,7 @@ class _LegendArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      spacing: 4,
       children: _list.map((item) => _Legend(data: item)).toList(),
     );
   }
