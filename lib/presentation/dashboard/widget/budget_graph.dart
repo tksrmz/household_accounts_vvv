@@ -5,6 +5,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/common/logic/formatter.dart';
 
+import '../vo/budget_name.dart';
+
 class BudgetGraph extends StatelessWidget {
   final List<BudgetGraphData> _list;
 
@@ -49,12 +51,12 @@ class _Title extends StatelessWidget {
 }
 
 class BudgetGraphData {
-  final String _name;
+  final BudgetName _name;
   final int _spent;
   final int _budget;
 
   const BudgetGraphData({
-    required String name,
+    required BudgetName name,
     required int spent,
     required int budget,
   })  : _name = name,
@@ -78,12 +80,12 @@ class _SummarizedBudgetGraphData {
   _SummarizedBudgetGraphData.etc(
     int spent,
     Color color,
-  )   : _name = 'その他',
+  )   : _name = BudgetName('その他'),
         _spent = spent,
         _color = color;
 
   /// 表示名
-  final String _name;
+  final BudgetName _name;
 
   /// 使用額
   final int _spent;
@@ -94,7 +96,7 @@ class _SummarizedBudgetGraphData {
   /// 凡例用のデータに変換する
   _LegendData _toLegendData() {
     return _LegendData(
-      name: _name,
+      name: _name.value,
       spent: _spent,
       color: _color,
     );

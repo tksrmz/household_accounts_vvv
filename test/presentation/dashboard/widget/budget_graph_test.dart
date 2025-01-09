@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:household_accounts/presentation/dashboard/vo/budget_name.dart';
 import 'package:household_accounts/presentation/dashboard/widget/budget_graph.dart';
 
 import '../../../util/golden_helper.dart';
@@ -7,11 +8,12 @@ import '../../../util/golden_helper.dart';
 void main() {
   /**
    * TODO
-   * - BudgetGraphDataのプロパティでVOを使う
+   * - X BudgetGraphDataのプロパティでVOを使う
    * - 予算の名前が0文字のときはどうする？
    * - 予算の名前が上限（何文字？）を超えたときはどうする？
    * - 予算や使用額の文字数が多すぎるときはどう表示する？
    * - BudgetGraphData.spent, .budgetに負の値が渡されたらどうする？
+   * - ファイルを適切に分割する
    */
 
   group('予算が未設定のとき', () {
@@ -168,7 +170,7 @@ BudgetGraph Function() _getBuilder(
         dataList: data
             .map(
               (e) => BudgetGraphData(
-                name: e.name,
+                name: BudgetName(e.name),
                 spent: e.spent,
                 budget: e.budget,
               ),
