@@ -7,13 +7,11 @@ import '../../../util/golden_helper.dart';
 void main() {
   /**
    * TODO
-   * - BudgetGraphDataを別のファイルに切り出す
    * - BudgetGraphDataのプロパティでVOを使う
    * - 予算の名前が0文字のときはどうする？
    * - 予算の名前が上限（何文字？）を超えたときはどうする？
    * - 予算や使用額の文字数が多すぎるときはどう表示する？
    * - BudgetGraphData.spent, .budgetに負の値が渡されたらどうする？
-   * - "合計予算"を"総予算"に変える
    */
 
   group('予算が未設定のとき', () {
@@ -57,7 +55,7 @@ void main() {
     testWidgets('displays total budget', (tester) async {
       await tester.pumpWidget(MaterialApp(home: build()));
 
-      expect(find.text('合計予算'), findsOneWidget);
+      expect(find.text('総予算'), findsOneWidget);
       expect(find.text('¥42,000'), findsOneWidget);
     });
 
@@ -96,7 +94,7 @@ void main() {
     testWidgets('total budget and balance is equal', (tester) async {
       await tester.pumpWidget(MaterialApp(home: build()));
 
-      expect(find.text('合計予算'), findsOneWidget);
+      expect(find.text('総予算'), findsOneWidget);
       expect(find.text('残高'), findsOneWidget);
       expect(find.text('¥842,600'), findsNWidgets(2));
     });

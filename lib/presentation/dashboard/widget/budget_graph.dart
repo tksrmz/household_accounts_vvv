@@ -356,7 +356,7 @@ class _GraphArea extends StatelessWidget {
           alignment: Alignment.topCenter,
           heightFactor: centerTextAlignHeightFactor,
           child: _TextAtCenterOfGraph(
-            name: '合計予算',
+            name: '総予算',
             value: _list._totalBudget,
           ),
         ),
