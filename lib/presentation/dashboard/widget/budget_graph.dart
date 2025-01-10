@@ -82,8 +82,6 @@ class BudgetGraphDataList {
   /// 予算の合計値を取得する
   int get _totalBudget => _list.fold(0, (sum, item) => sum + item._budget);
 
-  int get _length => _list.length;
-
   /// 使用している予算だけを抜き出したリストへ変換する
   /// リストは総予算に対する使用額の割合の降順でソートされる
   BudgetGraphDataList _toSortedSpentBudgetList() {
@@ -102,12 +100,33 @@ class BudgetGraphDataList {
     return UnmodifiableListView(_list.map((item) => item._spent).toList());
   }
 
-  BudgetGraphData _elementAt(int i) {
-    return _list.elementAt(i);
+  /// 使用額の多い順にまとめたデータを取得する
+  /// [savedElementCount]で保存する要素数を指定する
+  /// 保存する要素数よりも多い場合は、その他の使用額をまとめたデータを追加する
+  ///
+  /// 返されるリストの要素数は最大で`savedElementCount + 1`となる
+  BudgetGraphDataList _summarize(int savedElementCount) {
+    final sortedSpentDataList = _toSortedSpentBudgetList();
+    final result = sortedSpentDataList._list.take(savedElementCount).toList();
+    final spentValues = BudgetGraphDataList(
+      sortedSpentDataList._list.skip(savedElementCount).toList(),
+    )._toBudgetSpentList();
+    if (spentValues.isNotEmpty) {
+      result.add(
+        BudgetGraphData(
+          name: BudgetName('その他'),
+          spent: BudgetSpent.sum(spentValues),
+          budget: _list.map((item) => item._budget).fold(0, (a, b) => a + b),
+        ),
+      );
+    }
+    return BudgetGraphDataList(result);
   }
 
-  BudgetGraphDataList _skip(int count) {
-    return BudgetGraphDataList(_list.skip(count).toList());
+  void _forEachIndexed(void Function(int index, BudgetGraphData data) f) {
+    for (int i = 0; i < _list.length; i++) {
+      f(i, _list[i]);
+    }
   }
 }
 
@@ -121,12 +140,10 @@ class _SummarizedBudgetGraphData {
         _spent = data._spent;
 
   /// その他用のコンストラクタ
-  _SummarizedBudgetGraphData.etc(
-    BudgetSpent spent,
-    Color color,
-  )   : _name = BudgetName('その他'),
+  _SummarizedBudgetGraphData.etc(BudgetSpent spent)
+      : _name = BudgetName('その他'),
         _spent = spent,
-        _color = color;
+        _color = Color(0xFF4DC4FF);
 
   /// 表示名
   final BudgetName _name;
@@ -153,40 +170,26 @@ class _SummarizedBudgetGraphDataList {
       : _totalBudget = list._totalBudget,
         _totalSpent = BudgetSpent.sum(list._toBudgetSpentList()),
         _isNotBudgetConfigured = list._isNotBudgetConfigured {
-    final sortedSpentDataList = list._toSortedSpentBudgetList();
-
     const colors = [
       Color(0xFFFF0000),
       Color(0xFF005AFF),
       Color(0xFFFFF100),
     ];
-    final notSummarizedDataCount = colors.length;
-    for (int i = 0; i < notSummarizedDataCount; i++) {
-      final graphData;
-      try {
-        graphData = sortedSpentDataList._elementAt(i);
-      } catch (RangeError) {
-        // 予算の設定が足りない場合は、ループを抜ける
-        break;
+    final savedDataCount = colors.length;
+    list._summarize(savedDataCount)._forEachIndexed((index, data) {
+      if (index < savedDataCount) {
+        _data.add(
+          _SummarizedBudgetGraphData.from(
+            data,
+            colors[index],
+          ),
+        );
+      } else {
+        _data.add(
+          _SummarizedBudgetGraphData.etc(data._spent),
+        );
       }
-      _data.add(
-        _SummarizedBudgetGraphData.from(
-          graphData,
-          colors[i],
-        ),
-      );
-    }
-    if (sortedSpentDataList._length > notSummarizedDataCount) {
-      final spentValues = sortedSpentDataList
-          ._skip(notSummarizedDataCount)
-          ._toBudgetSpentList();
-      _data.add(
-        _SummarizedBudgetGraphData.etc(
-          BudgetSpent.sum(spentValues),
-          Color(0xFF4DC4FF),
-        ),
-      );
-    }
+    });
   }
 
   final List<_SummarizedBudgetGraphData> _data = [];
