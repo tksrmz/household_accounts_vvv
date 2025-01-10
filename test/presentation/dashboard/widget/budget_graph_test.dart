@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/presentation/dashboard/vo/budget_name.dart';
+import 'package:household_accounts/presentation/dashboard/vo/budget_spent.dart';
 import 'package:household_accounts/presentation/dashboard/widget/budget_graph.dart';
 
 import '../../../util/golden_helper.dart';
@@ -167,14 +168,16 @@ BudgetGraph Function() _getBuilder(
   List<({String name, int spent, int budget})> data,
 ) {
   return () => BudgetGraph(
-        dataList: data
-            .map(
-              (e) => BudgetGraphData(
-                name: BudgetName(e.name),
-                spent: e.spent,
-                budget: e.budget,
-              ),
-            )
-            .toList(),
+        list: BudgetGraphDataList(
+          data
+              .map(
+                (e) => BudgetGraphData(
+                  name: BudgetName(e.name),
+                  spent: BudgetSpent(e.spent),
+                  budget: e.budget,
+                ),
+              )
+              .toList(),
+        ),
       );
 }

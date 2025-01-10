@@ -6,14 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:household_accounts/common/logic/formatter.dart';
 
 import '../vo/budget_name.dart';
+import '../vo/budget_spent.dart';
 
 class BudgetGraph extends StatelessWidget {
-  final List<BudgetGraphData> _list;
+  final BudgetGraphDataList _list;
 
   BudgetGraph({
-    required List<BudgetGraphData> dataList,
+    required BudgetGraphDataList list,
     super.key,
-  }) : _list = dataList;
+  }) : _list = list;
 
   @override
   Widget build(BuildContext context) {
@@ -52,19 +53,62 @@ class _Title extends StatelessWidget {
 
 class BudgetGraphData {
   final BudgetName _name;
-  final int _spent;
+  final BudgetSpent _spent;
   final int _budget;
 
   const BudgetGraphData({
     required BudgetName name,
-    required int spent,
+    required BudgetSpent spent,
     required int budget,
   })  : _name = name,
         _spent = spent,
         _budget = budget;
 
   /// 予算を使っているか
-  bool get _isSpent => _spent > 0;
+  bool get _isSpent => _spent.isUsed;
+}
+
+class BudgetGraphDataList {
+  final List<BudgetGraphData> _list;
+
+  const BudgetGraphDataList(this._list);
+
+  /// 予算の設定が存在しない
+  ///
+  /// 予算が1つも設定されていない場合にtrueを返す。
+  /// 「0円の予算があるか」ということではなく、予算の設定それ自体が存在しないかどうかを判定する。
+  bool get _isNotBudgetConfigured => _list.isEmpty;
+
+  /// 予算の合計値を取得する
+  int get _totalBudget => _list.fold(0, (sum, item) => sum + item._budget);
+
+  int get _length => _list.length;
+
+  /// 使用している予算だけを抜き出したリストへ変換する
+  /// リストは総予算に対する使用額の割合の降順でソートされる
+  BudgetGraphDataList _toSortedSpentBudgetList() {
+    return BudgetGraphDataList(
+      _list.where((item) => item._isSpent).toList()
+        ..sort((a, b) {
+          final aRatio = a._spent.value / _totalBudget;
+          final bRatio = b._spent.value / _totalBudget;
+          return bRatio.compareTo(aRatio);
+        }),
+    );
+  }
+
+  /// 予算の使用額のリストへ変換する
+  UnmodifiableListView<BudgetSpent> _toBudgetSpentList() {
+    return UnmodifiableListView(_list.map((item) => item._spent).toList());
+  }
+
+  BudgetGraphData _elementAt(int i) {
+    return _list.elementAt(i);
+  }
+
+  BudgetGraphDataList _skip(int count) {
+    return BudgetGraphDataList(_list.skip(count).toList());
+  }
 }
 
 /// [_SummarizedBudgetGraphDataList]の要素
@@ -78,7 +122,7 @@ class _SummarizedBudgetGraphData {
 
   /// その他用のコンストラクタ
   _SummarizedBudgetGraphData.etc(
-    int spent,
+    BudgetSpent spent,
     Color color,
   )   : _name = BudgetName('その他'),
         _spent = spent,
@@ -88,7 +132,7 @@ class _SummarizedBudgetGraphData {
   final BudgetName _name;
 
   /// 使用額
-  final int _spent;
+  final BudgetSpent _spent;
 
   /// グラフの色
   final Color _color;
@@ -97,7 +141,7 @@ class _SummarizedBudgetGraphData {
   _LegendData _toLegendData() {
     return _LegendData(
       name: _name.value,
-      spent: _spent,
+      spent: _spent.value,
       color: _color,
     );
   }
@@ -105,33 +149,26 @@ class _SummarizedBudgetGraphData {
 
 /// グラフ表示用にまとめられたデータのリスト
 class _SummarizedBudgetGraphDataList {
-  _SummarizedBudgetGraphDataList.from(
-    List<BudgetGraphData> dataList,
-  )   : _totalBudget = dataList.fold(0, (sum, item) => sum + item._budget),
-        _totalSpent = dataList.fold(0, (sum, item) => sum + item._spent),
-        _isNotBudgetConfigured = dataList.isEmpty {
-    final sortedSpentDataList = dataList.where((item) => item._isSpent).toList()
-      ..sort((a, b) {
-        final aRatio = a._spent / _totalBudget;
-        final bRatio = b._spent / _totalBudget;
-        return bRatio.compareTo(aRatio);
-      });
+  _SummarizedBudgetGraphDataList.from(BudgetGraphDataList list)
+      : _totalBudget = list._totalBudget,
+        _totalSpent = BudgetSpent.sum(list._toBudgetSpentList()),
+        _isNotBudgetConfigured = list._isNotBudgetConfigured {
+    final sortedSpentDataList = list._toSortedSpentBudgetList();
 
-    const notSummarizedDataCount = 3;
+    const colors = [
+      Color(0xFFFF0000),
+      Color(0xFF005AFF),
+      Color(0xFFFFF100),
+    ];
+    final notSummarizedDataCount = colors.length;
     for (int i = 0; i < notSummarizedDataCount; i++) {
       final graphData;
       try {
-        graphData = sortedSpentDataList.elementAt(i);
+        graphData = sortedSpentDataList._elementAt(i);
       } catch (RangeError) {
         // 予算の設定が足りない場合は、ループを抜ける
         break;
       }
-      const colors = [
-        Color(0xFFFF0000),
-        Color(0xFF005AFF),
-        Color(0xFFFFF100),
-      ];
-      assert(colors.length == notSummarizedDataCount);
       _data.add(
         _SummarizedBudgetGraphData.from(
           graphData,
@@ -139,13 +176,13 @@ class _SummarizedBudgetGraphDataList {
         ),
       );
     }
-    if (sortedSpentDataList.length > notSummarizedDataCount) {
-      final otherSpent = sortedSpentDataList
-          .skip(notSummarizedDataCount)
-          .fold(0, (sum, item) => sum + item._spent);
+    if (sortedSpentDataList._length > notSummarizedDataCount) {
+      final spentValues = sortedSpentDataList
+          ._skip(notSummarizedDataCount)
+          ._toBudgetSpentList();
       _data.add(
         _SummarizedBudgetGraphData.etc(
-          otherSpent,
+          BudgetSpent.sum(spentValues),
           Color(0xFF4DC4FF),
         ),
       );
@@ -158,10 +195,10 @@ class _SummarizedBudgetGraphDataList {
   final int _totalBudget;
 
   /// 合計使用額
-  final int _totalSpent;
+  final BudgetSpent _totalSpent;
 
   /// 残高（合計予算から合計使用額を引いたもの）
-  int get _balance => _totalBudget - _totalSpent;
+  int get _balance => _totalBudget - _totalSpent.value;
 
   /// 残高がマイナスか
   bool get _isNegativeBalance => _balance < 0;
@@ -173,7 +210,7 @@ class _SummarizedBudgetGraphDataList {
   final bool _isNotBudgetConfigured;
 
   /// 予算を1円も使っていない
-  bool get _isNotSpent => _totalSpent == 0;
+  bool get _isNotSpent => _totalSpent.isNotUsed;
 
   /// 凡例用のリストに変換する
   UnmodifiableListView<_LegendData> _toLegendDataList() {
@@ -203,7 +240,7 @@ class _SummarizedBudgetGraphDataList {
     final result = _data
         .map(
           (item) => PieChartSectionData(
-            value: item._spent.toDouble(),
+            value: item._spent.toDouble,
             color: item._color,
             radius: radius,
             showTitle: false,
