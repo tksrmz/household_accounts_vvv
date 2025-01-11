@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/common/logic/formatter.dart';
 
+import '../vo/budget_amount.dart';
 import '../vo/budget_name.dart';
 import '../vo/budget_spent.dart';
 
@@ -54,12 +55,12 @@ class _Title extends StatelessWidget {
 class BudgetGraphData {
   final BudgetName _name;
   final BudgetSpent _spent;
-  final int _budget;
+  final BudgetAmount _budget;
 
   const BudgetGraphData({
     required BudgetName name,
     required BudgetSpent spent,
-    required int budget,
+    required BudgetAmount budget,
   })  : _name = name,
         _spent = spent,
         _budget = budget;
@@ -80,7 +81,9 @@ class BudgetGraphDataList {
   bool get _isNotBudgetConfigured => _list.isEmpty;
 
   /// 予算の合計値を取得する
-  int get _totalBudget => _list.fold(0, (sum, item) => sum + item._budget);
+  BudgetAmount get _totalBudget => BudgetAmount.sum(
+        _list.map((item) => item._budget).toList(),
+      );
 
   /// 使用している予算だけを抜き出したリストへ変換する
   /// リストは総予算に対する使用額の割合の降順でソートされる
@@ -88,8 +91,8 @@ class BudgetGraphDataList {
     return BudgetGraphDataList(
       _list.where((item) => item._isSpent).toList()
         ..sort((a, b) {
-          final aRatio = a._spent.value / _totalBudget;
-          final bRatio = b._spent.value / _totalBudget;
+          final aRatio = a._spent.value / _totalBudget.value;
+          final bRatio = b._spent.value / _totalBudget.value;
           return bRatio.compareTo(aRatio);
         }),
     );
@@ -108,15 +111,15 @@ class BudgetGraphDataList {
   BudgetGraphDataList _summarize(int savedElementCount) {
     final sortedSpentDataList = _toSortedSpentBudgetList();
     final result = sortedSpentDataList._list.take(savedElementCount).toList();
-    final spentValues = BudgetGraphDataList(
+    final skipped = BudgetGraphDataList(
       sortedSpentDataList._list.skip(savedElementCount).toList(),
-    )._toBudgetSpentList();
-    if (spentValues.isNotEmpty) {
+    );
+    if (skipped._list.isNotEmpty) {
       result.add(
         BudgetGraphData(
           name: BudgetName('その他'),
-          spent: BudgetSpent.sum(spentValues),
-          budget: _list.map((item) => item._budget).fold(0, (a, b) => a + b),
+          spent: BudgetSpent.sum(skipped._toBudgetSpentList()),
+          budget: skipped._totalBudget,
         ),
       );
     }
@@ -195,13 +198,13 @@ class _SummarizedBudgetGraphDataList {
   final List<_SummarizedBudgetGraphData> _data = [];
 
   /// 合計予算
-  final int _totalBudget;
+  final BudgetAmount _totalBudget;
 
   /// 合計使用額
   final BudgetSpent _totalSpent;
 
   /// 残高（合計予算から合計使用額を引いたもの）
-  int get _balance => _totalBudget - _totalSpent.value;
+  int get _balance => _totalBudget.value - _totalSpent.value;
 
   /// 残高がマイナスか
   bool get _isNegativeBalance => _balance < 0;
@@ -399,7 +402,7 @@ class _GraphArea extends StatelessWidget {
           heightFactor: centerTextAlignHeightFactor,
           child: _TextAtCenterOfGraph(
             name: '総予算',
-            value: _list._totalBudget,
+            value: _list._totalBudget.value,
           ),
         ),
         Align(
