@@ -301,8 +301,16 @@ class _Legend extends StatelessWidget {
           height: containerEdgeSize,
           color: _data._color,
         ),
-        Text(_data._name),
-        Text(Formatter.simpleCurrency(_data._spent)),
+        // 予算名が長い場合は省略する
+        Flexible(
+          child: Text(
+            _data._name,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Text(
+          Formatter.simpleCurrency(_data._spent),
+        ),
       ],
     );
   }
