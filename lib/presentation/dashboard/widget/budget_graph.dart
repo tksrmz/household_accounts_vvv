@@ -5,7 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/common/logic/formatter.dart';
 
-import '../vo/budget_amount.dart';
+import '../../../vo/budget_amount.dart';
 import '../vo/budget_name.dart';
 import '../vo/budget_spent.dart';
 
