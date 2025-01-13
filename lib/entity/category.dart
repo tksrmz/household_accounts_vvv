@@ -1,5 +1,5 @@
 import '../util/type/identifiable.dart';
-import 'budget.dart';
+import '../vo/budget_amount.dart';
 
 enum CategoryType { income, expense }
 
@@ -60,17 +60,17 @@ const deletedIncomeCategory =
 /// Category for expense records.
 ///
 /// A difference between this class and [IncomeCategory] is that
-/// this uses [Budget] class but the other is not.
+/// this uses [BudgetAmount] class but the other is not.
 class ExpenseCategory extends CategoryBase {
-  final Budget _budget;
+  final BudgetAmount _budget;
 
-  int get totalBudget => _budget.amount;
+  int get totalBudget => _budget.value;
 
   ExpenseCategory({
     required String id,
     required String name,
     required int totalBudget,
-  })  : _budget = Budget(totalBudget),
+  })  : _budget = BudgetAmount(totalBudget),
         super(
           id: id,
           name: name,
@@ -91,7 +91,7 @@ class ExpenseCategory extends CategoryBase {
   @override
   List<Object> get props => [
         ...super.props,
-        ..._budget.props,
+        _budget.value,
       ];
 }
 
