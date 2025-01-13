@@ -10,7 +10,6 @@ import '../../../util/golden_helper.dart';
 void main() {
   /**
    * TODO
-   * - ファイルを適切に分割する
    * - VOのクラスが重複している場合はどちらかに統合する
    */
 
