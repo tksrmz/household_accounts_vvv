@@ -5,9 +5,8 @@ part 'budget_spent.freezed.dart';
 /// 予算の使用額
 @freezed
 class BudgetSpent with _$BudgetSpent {
-  const factory BudgetSpent(
-    @Assert('value >= 0', '使用額は0以上でなければなりません') int value,
-  ) = _BudgetSpent;
+  @Assert('value >= 0', '使用額は0以上でなければなりません')
+  const factory BudgetSpent(int value) = _BudgetSpent;
 
   /// 使用額の合計を値に持つBudgetSpentを作成
   factory BudgetSpent.sum(List<BudgetSpent> values) {
