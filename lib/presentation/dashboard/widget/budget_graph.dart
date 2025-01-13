@@ -31,9 +31,7 @@ class BudgetGraph extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Title(),
-          _PlotArea(
-            _SummarizedBudgetGraphDataList.from(_list),
-          ),
+          _PlotArea(_list),
         ],
       ),
     );
@@ -80,16 +78,23 @@ class BudgetGraphDataList {
   /// 「0円の予算があるか」ということではなく、予算の設定それ自体が存在しないかどうかを判定する。
   bool get _isNotBudgetConfigured => _list.isEmpty;
 
+  /// 予算の設定が存在する
+  bool get _isBudgetConfigured => !_isNotBudgetConfigured;
+
   /// 予算の合計値を取得する
   BudgetAmount get _totalBudget => BudgetAmount.sum(
         _list.map((item) => item._budget).toList(),
       );
 
   /// 使用している予算だけを抜き出したリストへ変換する
-  /// リストは総予算に対する使用額の割合の降順でソートされる
-  BudgetGraphDataList _toSortedSpentBudgetList() {
+  BudgetGraphDataList _toListWhereBudgetIsSpent() {
+    return BudgetGraphDataList(_list.where((item) => item._isSpent).toList());
+  }
+
+  /// 総予算に対する使用額の割合の降順でソートされたリストを取得する
+  BudgetGraphDataList _sortBySpentRatio() {
     return BudgetGraphDataList(
-      _list.where((item) => item._isSpent).toList()
+      _list
         ..sort((a, b) {
           final aRatio = a._spent.value / _totalBudget.value;
           final bRatio = b._spent.value / _totalBudget.value;
@@ -102,48 +107,19 @@ class BudgetGraphDataList {
   UnmodifiableListView<BudgetSpent> _toBudgetSpentList() {
     return UnmodifiableListView(_list.map((item) => item._spent).toList());
   }
-
-  /// 使用額の多い順にまとめたデータを取得する
-  /// [savedElementCount]で保存する要素数を指定する
-  /// 保存する要素数よりも多い場合は、その他の使用額をまとめたデータを追加する
-  ///
-  /// 返されるリストの要素数は最大で`savedElementCount + 1`となる
-  BudgetGraphDataList _summarize(int savedElementCount) {
-    final sortedSpentDataList = _toSortedSpentBudgetList();
-    final result = sortedSpentDataList._list.take(savedElementCount).toList();
-    final skipped = BudgetGraphDataList(
-      sortedSpentDataList._list.skip(savedElementCount).toList(),
-    );
-    if (skipped._list.isNotEmpty) {
-      result.add(
-        BudgetGraphData(
-          name: BudgetName('その他'),
-          spent: BudgetSpent.sum(skipped._toBudgetSpentList()),
-          budget: skipped._totalBudget,
-        ),
-      );
-    }
-    return BudgetGraphDataList(result);
-  }
-
-  void _forEachIndexed(void Function(int index, BudgetGraphData data) f) {
-    for (int i = 0; i < _list.length; i++) {
-      f(i, _list[i]);
-    }
-  }
 }
 
-/// [_SummarizedBudgetGraphDataList]の要素
-class _SummarizedBudgetGraphData {
+/// [_BudgetGraphDataListForPlot]の要素
+class _BudgetGraphDataForPlot {
   /// [BudgetGraphData]からデータをまとめる
-  _SummarizedBudgetGraphData.from(
+  _BudgetGraphDataForPlot.from(
     BudgetGraphData data,
     Color this._color,
   )   : _name = data._name,
         _spent = data._spent;
 
   /// その他用のコンストラクタ
-  _SummarizedBudgetGraphData.etc(BudgetSpent spent)
+  _BudgetGraphDataForPlot.etc(BudgetSpent spent)
       : _name = BudgetName('その他'),
         _spent = spent,
         _color = Color(0xFF4DC4FF);
@@ -168,10 +144,10 @@ class _SummarizedBudgetGraphData {
 }
 
 /// グラフ表示用にまとめられたデータのリスト
-class _SummarizedBudgetGraphDataList {
-  _SummarizedBudgetGraphDataList.from(BudgetGraphDataList list)
-      : _totalBudget = list._totalBudget,
-        _totalSpent = BudgetSpent.sum(list._toBudgetSpentList()),
+class _BudgetGraphDataListForPlot {
+  _BudgetGraphDataListForPlot.from(BudgetGraphDataList list)
+      : _data = [],
+        _totalBudget = list._totalBudget,
         _isNotBudgetConfigured = list._isNotBudgetConfigured {
     const colors = [
       Color(0xFFFF0000),
@@ -179,29 +155,39 @@ class _SummarizedBudgetGraphDataList {
       Color(0xFFFFF100),
     ];
     final savedDataCount = colors.length;
-    list._summarize(savedDataCount)._forEachIndexed((index, data) {
-      if (index < savedDataCount) {
-        _data.add(
-          _SummarizedBudgetGraphData.from(
-            data,
-            colors[index],
-          ),
-        );
-      } else {
-        _data.add(
-          _SummarizedBudgetGraphData.etc(data._spent),
-        );
-      }
+
+    final source = list._sortBySpentRatio()._toListWhereBudgetIsSpent();
+
+    var index = 0;
+    source._list.take(savedDataCount).forEach((item) {
+      _data.add(
+        _BudgetGraphDataForPlot.from(
+          item,
+          colors[index++],
+        ),
+      );
     });
+
+    final toBeSummarized =
+        BudgetGraphDataList(source._list.skip(savedDataCount).toList());
+    if (toBeSummarized._isBudgetConfigured) {
+      _data.add(
+        _BudgetGraphDataForPlot.etc(
+          BudgetSpent.sum(toBeSummarized._toBudgetSpentList()),
+        ),
+      );
+    }
   }
 
-  final List<_SummarizedBudgetGraphData> _data = [];
+  final List<_BudgetGraphDataForPlot> _data;
 
   /// 合計予算
   final BudgetAmount _totalBudget;
 
   /// 合計使用額
-  final BudgetSpent _totalSpent;
+  BudgetSpent get _totalSpent => BudgetSpent.sum(
+        _data.map((item) => item._spent).toList(),
+      );
 
   /// 残高（合計予算から合計使用額を引いたもの）
   int get _balance => _totalBudget.value - _totalSpent.value;
@@ -362,19 +348,20 @@ class _TextAtCenterOfGraph extends StatelessWidget {
 }
 
 class _PlotArea extends StatelessWidget {
-  const _PlotArea(this._summarizedDataList);
+  _PlotArea(BudgetGraphDataList list)
+      : _listForPlot = _BudgetGraphDataListForPlot.from(list);
 
-  final _SummarizedBudgetGraphDataList _summarizedDataList;
+  final _BudgetGraphDataListForPlot _listForPlot;
 
   @override
   Widget build(BuildContext context) {
     final Widget legendArea;
-    if (_summarizedDataList._isNotBudgetConfigured) {
+    if (_listForPlot._isNotBudgetConfigured) {
       legendArea = const Text('予算が未設定です');
-    } else if (_summarizedDataList._isNotSpent) {
+    } else if (_listForPlot._isNotSpent) {
       legendArea = const Text('予算を使っていません');
     } else {
-      legendArea = _LegendArea(_summarizedDataList._toLegendDataList());
+      legendArea = _LegendArea(_listForPlot._toLegendDataList());
     }
 
     return DefaultTextStyle.merge(
@@ -384,7 +371,7 @@ class _PlotArea extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _GraphArea(_summarizedDataList),
+          _GraphArea(_listForPlot),
           legendArea,
         ],
       ),
@@ -395,7 +382,7 @@ class _PlotArea extends StatelessWidget {
 class _GraphArea extends StatelessWidget {
   const _GraphArea(this._list);
 
-  final _SummarizedBudgetGraphDataList _list;
+  final _BudgetGraphDataListForPlot _list;
 
   @override
   Widget build(BuildContext context) {
@@ -435,7 +422,7 @@ class _GraphArea extends StatelessWidget {
 class _PieChart extends StatelessWidget {
   const _PieChart(this._list);
 
-  final _SummarizedBudgetGraphDataList _list;
+  final _BudgetGraphDataListForPlot _list;
 
   @override
   Widget build(BuildContext context) {
