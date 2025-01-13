@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/presentation/dashboard/vo/budget_name.dart';
-import 'package:household_accounts/presentation/dashboard/vo/budget_spent.dart';
 import 'package:household_accounts/presentation/dashboard/widget/budget_graph.dart';
 import 'package:household_accounts/vo/budget_amount.dart';
+import 'package:household_accounts/vo/budget_spent.dart';
 
 import '../../../util/golden_helper.dart';
 
 void main() {
-  /**
-   * TODO
-   * - VOのクラスが重複している場合はどちらかに統合する
-   */
-
   /**
    * Won't
    * - 予算の名前が0文字のときのテスト

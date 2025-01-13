@@ -2,6 +2,7 @@ import '../../entity/category.dart';
 import '../../entity/record.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
+import '../../vo/budget_spent.dart';
 import '../repository/record_repository.dart';
 
 typedef RetrieveBudgetStateUseCase
@@ -33,11 +34,11 @@ class RetrieveBudgetStateInput {
 }
 
 class BudgetState {
-  const BudgetState({
+  BudgetState({
     required this.name,
     required this.totalAmount,
-    required this.spentAmount,
-  });
+    required int spentAmount,
+  }) : _spentAmount = BudgetSpent(spentAmount);
 
   /// Name of the category that this budget is related to.
   final String name;
@@ -46,7 +47,9 @@ class BudgetState {
   final int totalAmount;
 
   /// Spent amount.
-  final int spentAmount;
+  final BudgetSpent _spentAmount;
+
+  int get spentAmount => _spentAmount.value;
 }
 
 class RetrieveBudgetStateOutput {
