@@ -34,7 +34,9 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     final bodies = <Widget>[
-      DashboardPage(),
+      DashboardPage(
+        viewModel: SummaryViewModel(),
+      ),
       RecordInputPage(),
       CalendarRecordViewPage(),
       PropertyListBody(),

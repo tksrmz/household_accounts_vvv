@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
-import '../../entity/expense.dart';
-import '../../entity/income.dart';
-import 'widget/summary_panel.dart';
-
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
+  const DashboardPage({super.key, required this.viewModel});
+
+  final SummaryViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
-    return SummaryPanel(Income(100), Expense(60));
+    return CircularProgressIndicator();
   }
 }
+
+class SummaryViewModel extends ChangeNotifier {}
+
+class SummaryModel {}
+
+class Summary {}
