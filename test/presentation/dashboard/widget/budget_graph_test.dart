@@ -165,6 +165,26 @@ void main() {
       (name: '交通費', spent: 4, budget: 3),
     ]),
   );
+
+  testGoldens(
+    '予算名や予算額の文字数が多いとき',
+    goldenFileName: 'budget_graph/long_name_and_amount',
+    builder: _getBuilder([
+      (
+        name: 'あ' * BudgetName.maxLength,
+        /**
+       * intは64bit
+       *
+       * For native targets, you can assume that int maps to a signed 64-bit
+       * integer representation and double maps to a 64-bit IEEE floating-point
+       * representation that matches the underlying processor.
+       * https://dart.dev/resources/language/number-representation#dart-number-representation
+       */
+        spent: 0x7FFFFFFFFFFFFFFF,
+        budget: 0x7FFFFFFFFFFFFFFF,
+      ),
+    ]),
+  );
 }
 
 BudgetGraph Function() _getBuilder(
