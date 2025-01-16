@@ -7,6 +7,8 @@ import 'package:household_accounts/common/logic/formatter.dart';
 
 import '../../../vo/budget_amount.dart';
 import '../../../vo/budget_spent.dart';
+import '../model/budget_graph_data.dart';
+import '../model/budget_graph_data_list.dart';
 import '../vo/budget_name.dart';
 
 class BudgetGraph extends StatelessWidget {
@@ -50,73 +52,14 @@ class _Title extends StatelessWidget {
   }
 }
 
-class BudgetGraphData {
-  final BudgetName _name;
-  final BudgetSpent _spent;
-  final BudgetAmount _budget;
-
-  const BudgetGraphData({
-    required BudgetName name,
-    required BudgetSpent spent,
-    required BudgetAmount budget,
-  })  : _name = name,
-        _spent = spent,
-        _budget = budget;
-
-  /// 予算を使っているか
-  bool get _isSpent => _spent.isUsed;
-}
-
-class BudgetGraphDataList {
-  final List<BudgetGraphData> _list;
-
-  const BudgetGraphDataList(this._list);
-
-  /// 予算の設定が存在しない
-  ///
-  /// 予算が1つも設定されていない場合にtrueを返す。
-  /// 「0円の予算があるか」ということではなく、予算の設定それ自体が存在しないかどうかを判定する。
-  bool get _isNotBudgetConfigured => _list.isEmpty;
-
-  /// 予算の設定が存在する
-  bool get _isBudgetConfigured => !_isNotBudgetConfigured;
-
-  /// 予算の合計値を取得する
-  BudgetAmount get _totalBudget => BudgetAmount.sum(
-        _list.map((item) => item._budget).toList(),
-      );
-
-  /// 使用している予算だけを抜き出したリストへ変換する
-  BudgetGraphDataList _toListWhereBudgetIsSpent() {
-    return BudgetGraphDataList(_list.where((item) => item._isSpent).toList());
-  }
-
-  /// 総予算に対する使用額の割合の降順でソートされたリストを取得する
-  BudgetGraphDataList _sortBySpentRatio() {
-    return BudgetGraphDataList(
-      _list
-        ..sort((a, b) {
-          final aRatio = a._spent.value / _totalBudget.value;
-          final bRatio = b._spent.value / _totalBudget.value;
-          return bRatio.compareTo(aRatio);
-        }),
-    );
-  }
-
-  /// 予算の使用額のリストへ変換する
-  UnmodifiableListView<BudgetSpent> _toBudgetSpentList() {
-    return UnmodifiableListView(_list.map((item) => item._spent).toList());
-  }
-}
-
 /// [_BudgetGraphDataListForPlot]の要素
 class _BudgetGraphDataForPlot {
   /// [BudgetGraphData]からデータをまとめる
   _BudgetGraphDataForPlot.from(
     BudgetGraphData data,
     Color this._color,
-  )   : _name = data._name,
-        _spent = data._spent;
+  )   : _name = data.name,
+        _spent = data.spent;
 
   /// その他用のコンストラクタ
   _BudgetGraphDataForPlot.etc(BudgetSpent spent)
@@ -147,8 +90,8 @@ class _BudgetGraphDataForPlot {
 class _BudgetGraphDataListForPlot {
   _BudgetGraphDataListForPlot.from(BudgetGraphDataList list)
       : _data = [],
-        _totalBudget = list._totalBudget,
-        _isNotBudgetConfigured = list._isNotBudgetConfigured {
+        _totalBudget = list.totalBudget,
+        _isNotBudgetConfigured = list.isNotBudgetConfigured {
     const colors = [
       Color(0xFFFF0000),
       Color(0xFF005AFF),
@@ -156,10 +99,10 @@ class _BudgetGraphDataListForPlot {
     ];
     final savedDataCount = colors.length;
 
-    final source = list._sortBySpentRatio()._toListWhereBudgetIsSpent();
+    final source = list.sortBySpentRatio().toListWhereBudgetIsSpent();
 
     var index = 0;
-    source._list.take(savedDataCount).forEach((item) {
+    source.list.take(savedDataCount).forEach((item) {
       _data.add(
         _BudgetGraphDataForPlot.from(
           item,
@@ -169,11 +112,11 @@ class _BudgetGraphDataListForPlot {
     });
 
     final toBeSummarized =
-        BudgetGraphDataList(source._list.skip(savedDataCount).toList());
-    if (toBeSummarized._isBudgetConfigured) {
+        BudgetGraphDataList(source.list.skip(savedDataCount).toList());
+    if (toBeSummarized.isBudgetConfigured) {
       _data.add(
         _BudgetGraphDataForPlot.etc(
-          BudgetSpent.sum(toBeSummarized._toBudgetSpentList()),
+          BudgetSpent.sum(toBeSummarized.toBudgetSpentList()),
         ),
       );
     }

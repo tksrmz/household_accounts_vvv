@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/presentation/dashboard/page.dart';
+import 'package:household_accounts/presentation/dashboard/view_model.dart';
 import 'package:household_accounts/presentation/dashboard/widget/budget_graph.dart';
 import 'package:household_accounts/presentation/dashboard/widget/summary_panel.dart';
 import 'package:mockito/annotations.dart';
@@ -14,9 +15,7 @@ void main() {
    * TODO
    *
    * - エラーが起きたときはエラーメッセージが表示される
-   * - ViewModelの実装を別ファイルに分ける
-   *   - テストも分割する
-   * - Modelの実装を別ファイルに分ける
+   * - テストをView、ViewModel、Modelごとに分割する
    * - income.dartをentityディレクトリからvoディレクトリに移動する
    *   - expense.dartも？
    * - MockitoでViewModelをモックする

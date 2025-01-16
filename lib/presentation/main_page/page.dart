@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../util/type/single_or_pair.dart';
 import '../budget_viewer/budget_viewer_page.dart';
 import '../category_viewer/category_viewer_page.dart';
+import '../dashboard/view_model.dart';
 import '../monthly_record_viewer/monthly_record_viewer_page.dart';
 import '../property_viewer/property_viewer_page.dart';
 import '../record_register/record_register_page.dart';

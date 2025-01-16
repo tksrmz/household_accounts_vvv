@@ -1,0 +1,3 @@
+class SummaryModel {}
+
+class Summary {}
