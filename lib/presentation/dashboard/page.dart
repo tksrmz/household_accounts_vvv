@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../entity/expense.dart';
 import '../../entity/income.dart';
+import 'widget/summary_panel.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key, required this.viewModel});
@@ -10,7 +11,13 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CircularProgressIndicator();
+    viewModel.init();
+    return viewModel.isLoading
+        ? CircularProgressIndicator()
+        : SummaryPanel(
+            viewModel.income!,
+            viewModel.expense!,
+          );
   }
 }
 

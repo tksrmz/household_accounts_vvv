@@ -4,13 +4,17 @@ import 'package:household_accounts/entity/expense.dart';
 import 'package:household_accounts/entity/income.dart';
 import 'package:household_accounts/presentation/dashboard/page.dart';
 import 'package:household_accounts/presentation/dashboard/widget/summary_panel.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+
+@GenerateNiceMocks([MockSpec<SummaryViewModel>()])
+import 'page_test.mocks.dart';
 
 void main() {
   /**
    * TODO
    *
    * - エラーが起きたときはエラーメッセージが表示される
-   * - SummaryPanelが表示される
    * - BudgetGraphが表示される
    * - ViewModelの実装を別ファイルに分ける
    *   - テストも分割する
@@ -20,29 +24,47 @@ void main() {
    * - MockitoでViewModelをモックする
    * - main_pageでViewModelをインスタンス化するのはいい？
    * - SummaryViewModel.init()が呼び出されたことを検証する
+   * - SummaryViewModelMock1, 2を消す
+   *   - ViewModelのテストでそれ自身のMockを使っているのはおかしい
    */
-  testWidgets('ローディング中はローディングアイコンが表示される', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: DashboardPage(
-          viewModel: SummaryViewModel(),
-        ),
+  group('SummaryPanel', () {
+    <(String, void Function(MockSummaryViewModel), Type)>[
+      (
+        'ローディング中はローディングアイコンが表示される',
+        (mock) {
+          when(mock.isLoading).thenReturn(true);
+        },
+        CircularProgressIndicator
       ),
-    );
+      (
+        'ローディング後はSummaryPanelが表示される',
+        (mock) {
+          when(mock.isLoading).thenReturn(false);
+          when(mock.income).thenReturn(Income(100));
+          when(mock.expense).thenReturn(Expense(200));
+        },
+        SummaryPanel
+      )
+    ].forEach((fixture) {
+      final (title, setup, expected) = fixture;
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-  });
+      testWidgets(title, (tester) async {
+        final mockViewModel = MockSummaryViewModel();
+        setup(mockViewModel);
 
-  testWidgets('SummaryPanelが表示される', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: DashboardPage(
-          viewModel: SummaryViewModel(),
-        ),
-      ),
-    );
+        await tester.pumpWidget(
+          MaterialApp(
+            home: DashboardPage(
+              viewModel: mockViewModel,
+            ),
+          ),
+        );
 
-    expect(find.byType(SummaryPanel), findsOneWidget);
+        verify(mockViewModel.init()).called(1);
+        verify(mockViewModel.isLoading).called(1);
+        expect(find.byType(expected), findsOneWidget);
+      });
+    });
   });
 
   group('SummaryViewModel', () {
@@ -82,6 +104,10 @@ void main() {
       expect(viewModel.isLoading, isFalse);
       expect(viewModel.hasError, isTrue);
     });
+  });
+
+  group('SummaryModel', () {
+    test('TODO', () {});
   });
 }
 
