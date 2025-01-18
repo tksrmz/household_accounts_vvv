@@ -12,18 +12,22 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     viewModel.init();
-    return viewModel.isNotInitialized
-        ? CircularProgressIndicator()
-        : Column(
-            children: [
-              SummaryPanel(
-                viewModel.income!,
-                viewModel.expense!,
-              ),
-              BudgetGraph(
-                list: viewModel.budgetGraphDataList!,
-              )
-            ],
-          );
+    if (viewModel.isNotInitialized) {
+      return CircularProgressIndicator();
+    }
+    if (viewModel.hasError) {
+      return Text(viewModel.errorMessage);
+    }
+    return Column(
+      children: [
+        SummaryPanel(
+          viewModel.income!,
+          viewModel.expense!,
+        ),
+        BudgetGraph(
+          list: viewModel.budgetGraphDataList!,
+        )
+      ],
+    );
   }
 }

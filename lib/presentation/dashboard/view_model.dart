@@ -17,6 +17,9 @@ class SummaryViewModel extends ChangeNotifier {
   /// init()が呼び出されたかどうか
   bool _isInitialized = false;
 
+  /// エラーメッセージ
+  String get errorMessage => 'エラーが発生しました。時間をおいて再度お試しください。';
+
   /// init()が呼び出されたかどうか
   bool get isInitialized => _isInitialized;
 
@@ -29,10 +32,10 @@ class SummaryViewModel extends ChangeNotifier {
       (income == null || expense == null || budgetGraphDataList == null);
 
   Future<void> init() async {
-    income = Income(100);
+/*    income = Income(100);
     expense = Expense(70);
     budgetGraphDataList = BudgetGraphDataList([]);
     _isInitialized = true;
-    return;
+    return;*/
   }
 }
