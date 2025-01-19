@@ -1,10 +1,19 @@
 import 'dart:collection';
 
+import 'package:equatable/equatable.dart';
+
 import '../../../vo/budget_amount.dart';
 import '../../../vo/budget_spent.dart';
 import 'budget_graph_data.dart';
 
-class BudgetGraphDataList {
+class BudgetGraphModel {
+  /// 予算のグラフデータを取得する
+  Future<BudgetGraphDataList> fetch() async {
+    throw UnimplementedError();
+  }
+}
+
+class BudgetGraphDataList extends Equatable {
   final List<BudgetGraphData> _list;
 
   const BudgetGraphDataList(this._list);
@@ -48,4 +57,10 @@ class BudgetGraphDataList {
   UnmodifiableListView<BudgetSpent> toBudgetSpentList() {
     return UnmodifiableListView(_list.map((item) => item.spent).toList());
   }
+
+  @override
+  List<Object?> get props => [_list];
+
+  @override
+  bool get stringify => true;
 }

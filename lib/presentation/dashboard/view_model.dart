@@ -3,8 +3,17 @@ import 'package:flutter/foundation.dart';
 import '../../entity/expense.dart';
 import '../../entity/income.dart';
 import 'model/budget_graph_data_list.dart';
+import 'model/summary.dart';
 
 class SummaryViewModel extends ChangeNotifier {
+  SummaryViewModel({
+    required this.summaryModel,
+    required this.budgetGraphModel,
+  });
+
+  final SummaryModel summaryModel;
+  final BudgetGraphModel budgetGraphModel;
+
   /// 当該月の総収入
   Income? income;
 
@@ -32,10 +41,12 @@ class SummaryViewModel extends ChangeNotifier {
       (income == null || expense == null || budgetGraphDataList == null);
 
   Future<void> init() async {
-/*    income = Income(100);
-    expense = Expense(70);
-    budgetGraphDataList = BudgetGraphDataList([]);
+    final summary = await summaryModel.fetch();
+    income = summary.income;
+    expense = summary.expense;
+
+    budgetGraphDataList = await budgetGraphModel.fetch();
+
     _isInitialized = true;
-    return;*/
   }
 }
