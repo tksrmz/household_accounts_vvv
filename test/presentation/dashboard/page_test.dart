@@ -20,8 +20,6 @@ void main() {
    * - income.dartをentityディレクトリからvoディレクトリに移動する
    *   - expense.dartも？
    * - main_pageでViewModelをインスタンス化するのはいい？
-   * - X SummaryViewModelMock1, 2を消す
-   *   - ViewModelのテストでそれ自身のMockを使っているのはおかしい
    * - エラーのときはViewModelからModelを取り出せなくする
    * - ListenableBuilderを使う（どんなテストを書けばいいのかわからない…）
    * - 発生したエラーに応じてエラーメッセージの内容を変える？
@@ -30,6 +28,8 @@ void main() {
    * - ModelViewのテストで、ModelをisNotNullで検証するのをやめる
    * - Summaryクラスでfreezedを使う？
    * - ModelViewで2回以上init()が呼び出されても、2回目は何もしない
+   * - ViewModelのincomeとexpenseを一つのプロパティ（summaryとか）にまとめる？
+   * - 例外が発生したときにログを出力する？
    */
   group('SummaryPanel', () {
     testWidgets('ローディング中はローディングアイコンが表示される', (tester) async {

@@ -26,6 +26,9 @@ class SummaryViewModel extends ChangeNotifier {
   /// init()が呼び出されたかどうか
   bool _isInitialized = false;
 
+  /// エラーが発生したかどうか
+  bool _hasError = false;
+
   /// エラーメッセージ
   String get errorMessage => 'エラーが発生しました。時間をおいて再度お試しください。';
 
@@ -36,14 +39,16 @@ class SummaryViewModel extends ChangeNotifier {
   bool get isNotInitialized => !isInitialized;
 
   /// エラーが発生したかどうか
-  bool get hasError =>
-      isInitialized &&
-      (income == null || expense == null || budgetGraphDataList == null);
+  bool get hasError => _hasError;
 
   Future<void> init() async {
-    final summary = await summaryModel.fetch();
-    income = summary.income;
-    expense = summary.expense;
+    try {
+      final summary = await summaryModel.fetch();
+      income = summary.income;
+      expense = summary.expense;
+    } catch (SummaryModelException) {
+      _hasError = true;
+    }
 
     budgetGraphDataList = await budgetGraphModel.fetch();
 
