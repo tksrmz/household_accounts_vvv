@@ -50,7 +50,11 @@ class SummaryViewModel extends ChangeNotifier {
       _hasError = true;
     }
 
-    budgetGraphDataList = await budgetGraphModel.fetch();
+    try {
+      budgetGraphDataList = await budgetGraphModel.fetch();
+    } catch (BudgetGraphModelException) {
+      _hasError = true;
+    }
 
     _isInitialized = true;
   }

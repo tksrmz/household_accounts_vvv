@@ -98,15 +98,25 @@ void main() {
     expect(viewModel.hasError, isTrue);
   });
 
-  test('初期化後、budgetGraphDataListがnullならエラー', () async {
+  test('予算リストの取得に失敗したらエラー状態になる', () async {
+    // TODO SummaryModel.fetchが実装されたらモックを外す
+    final mockSummaryModel = MockSummaryModel();
+    when(mockSummaryModel.fetch()).thenAnswer(
+      (_) async => Summary(Income(100), Expense(70)),
+    );
+
+    final mockBudgetGraphModel = MockBudgetGraphModel();
+    when(mockBudgetGraphModel.fetch()).thenThrow(
+      BudgetGraphModelException("テストエラー"),
+    );
     final viewModel = SummaryViewModel(
-      summaryModel: SummaryModel(),
-      budgetGraphModel: BudgetGraphModel(),
+      summaryModel: mockSummaryModel,
+      budgetGraphModel: mockBudgetGraphModel,
     );
     await viewModel.init();
 
     expect(viewModel.budgetGraphDataList, isNull);
     expect(viewModel.isInitialized, isTrue);
     expect(viewModel.hasError, isTrue);
-  }, skip: true);
+  });
 }

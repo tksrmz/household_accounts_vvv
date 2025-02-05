@@ -1,10 +1,13 @@
 import 'dart:collection';
 
 import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../vo/budget_amount.dart';
 import '../../../vo/budget_spent.dart';
 import 'budget_graph_data.dart';
+
+part 'budget_graph_data_list.freezed.dart';
 
 class BudgetGraphModel {
   /// 予算のグラフデータを取得する
@@ -63,4 +66,14 @@ class BudgetGraphDataList extends Equatable {
 
   @override
   bool get stringify => true;
+}
+
+/// BudgetGraphListの例外
+@freezed
+class BudgetGraphModelException
+    with _$BudgetGraphModelException
+    implements Exception {
+  @Assert('message.length > 0', 'エラーメッセージが空です')
+  const factory BudgetGraphModelException(String message) =
+      _BudgetGraphModelException;
 }
