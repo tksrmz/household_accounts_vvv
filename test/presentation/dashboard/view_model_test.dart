@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/entity/expense.dart';
 import 'package:household_accounts/entity/income.dart';
@@ -118,5 +120,40 @@ void main() {
     expect(viewModel.budgetGraphDataList, isNull);
     expect(viewModel.isInitialized, isTrue);
     expect(viewModel.hasError, isTrue);
+  });
+
+  test('init()がnotifyListeners()を呼び出している', () async {
+    var notifyListenersCalled = false;
+    final VoidCallback listener = () {
+      notifyListenersCalled = true;
+    };
+
+    final mockSummaryModel = MockSummaryModel();
+    when(mockSummaryModel.fetch()).thenAnswer(
+      (_) async => Summary(Income(100), Expense(70)),
+    );
+
+    final mockBudgetGraphModel = MockBudgetGraphModel();
+    when(mockBudgetGraphModel.fetch()).thenAnswer(
+      (_) async => BudgetGraphDataList([
+        BudgetGraphData(
+          name: BudgetName('食費'),
+          budget: BudgetAmount(2000),
+          spent: BudgetSpent(1000),
+        ),
+      ]),
+    );
+
+    final viewModel = SummaryViewModel(
+      summaryModel: mockSummaryModel,
+      budgetGraphModel: mockBudgetGraphModel,
+    );
+    viewModel.addListener(listener);
+
+    expect(notifyListenersCalled, isFalse);
+    await viewModel.init();
+    expect(notifyListenersCalled, isTrue);
+    // notifyListeners()が呼び出されたら初期化が完了している
+    expect(viewModel.isInitialized, isTrue);
   });
 }

@@ -23,7 +23,6 @@ void main() {
    * - エラーのときはViewModelからModelを取り出せなくする
    * - ListenableBuilderを使う（どんなテストを書けばいいのかわからない…）
    * - 発生したエラーに応じてエラーメッセージの内容を変える？
-   * - SummaryViewModel.init()がnotifyListeners()を呼び出している
    * - GoldenTestで見た目の調整
    * - ModelViewのテストで、ModelをisNotNullで検証するのをやめる
    * - Summaryクラスでfreezedを使う？

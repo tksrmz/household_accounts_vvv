@@ -57,5 +57,7 @@ class SummaryViewModel extends ChangeNotifier {
     }
 
     _isInitialized = true;
+
+    notifyListeners();
   }
 }
