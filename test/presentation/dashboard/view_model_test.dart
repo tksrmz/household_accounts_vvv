@@ -79,7 +79,7 @@ void main() {
       expect(sut.hasError, isFalse);
     });
 
-    test('init()がnotifyListeners()を呼び出している', () async {
+    test('初期化時にnotifyListeners()を呼び出している', () async {
       var notifyListenersCalled = false;
       sut.addListener(() {
         notifyListenersCalled = true;
