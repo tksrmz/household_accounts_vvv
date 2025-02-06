@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/entity/expense.dart';
 import 'package:household_accounts/entity/income.dart';
@@ -30,45 +28,69 @@ void main() {
     expect(viewModel.hasError, isFalse);
   });
 
-  test('初期化後はModelを取得できる', () async {
-    final mockSummaryModel = MockSummaryModel();
-    when(mockSummaryModel.fetch()).thenAnswer(
-      (_) async => Summary(Income(100), Expense(70)),
-    );
+  group('Modelを通常通り取得できる場合', () {
+    late SummaryModel summaryModel;
+    late BudgetGraphModel budgetGraphModel;
+    late SummaryViewModel sut;
 
-    final mockBudgetGraphModel = MockBudgetGraphModel();
-    when(mockBudgetGraphModel.fetch()).thenAnswer(
-      (_) async => BudgetGraphDataList([
-        BudgetGraphData(
-          name: BudgetName('食費'),
-          budget: BudgetAmount(2000),
-          spent: BudgetSpent(1000),
-        ),
-      ]),
-    );
+    setUp(() {
+      // mock
+      summaryModel = MockSummaryModel();
+      when(summaryModel.fetch()).thenAnswer(
+        (_) async => Summary(Income(100), Expense(70)),
+      );
 
-    final viewModel = SummaryViewModel(
-      summaryModel: mockSummaryModel,
-      budgetGraphModel: mockBudgetGraphModel,
-    );
-    await viewModel.init();
+      budgetGraphModel = MockBudgetGraphModel();
+      when(budgetGraphModel.fetch()).thenAnswer(
+        (_) async => BudgetGraphDataList([
+          BudgetGraphData(
+            name: BudgetName('食費'),
+            budget: BudgetAmount(2000),
+            spent: BudgetSpent(1000),
+          ),
+        ]),
+      );
 
-    verify(mockSummaryModel.fetch()).called(1);
-    verify(mockBudgetGraphModel.fetch()).called(1);
-    expect(viewModel.income, Income(100));
-    expect(viewModel.expense, Expense(70));
-    expect(
-      viewModel.budgetGraphDataList,
-      BudgetGraphDataList([
-        BudgetGraphData(
-          name: BudgetName('食費'),
-          budget: BudgetAmount(2000),
-          spent: BudgetSpent(1000),
-        ),
-      ]),
-    );
-    expect(viewModel.isInitialized, isTrue);
-    expect(viewModel.hasError, isFalse);
+      // initialize ViewModel
+      sut = SummaryViewModel(
+        summaryModel: summaryModel,
+        budgetGraphModel: budgetGraphModel,
+      );
+    });
+
+    test('初期化後はModelを取得できる', () async {
+      await sut.init();
+
+      verify(summaryModel.fetch()).called(1);
+      verify(budgetGraphModel.fetch()).called(1);
+      expect(sut.income, Income(100));
+      expect(sut.expense, Expense(70));
+      expect(
+        sut.budgetGraphDataList,
+        BudgetGraphDataList([
+          BudgetGraphData(
+            name: BudgetName('食費'),
+            budget: BudgetAmount(2000),
+            spent: BudgetSpent(1000),
+          ),
+        ]),
+      );
+      expect(sut.isInitialized, isTrue);
+      expect(sut.hasError, isFalse);
+    });
+
+    test('init()がnotifyListeners()を呼び出している', () async {
+      var notifyListenersCalled = false;
+      sut.addListener(() {
+        notifyListenersCalled = true;
+      });
+
+      expect(notifyListenersCalled, isFalse);
+      await sut.init();
+      expect(notifyListenersCalled, isTrue);
+      // notifyListeners()が呼び出されたら初期化が完了している
+      expect(sut.isInitialized, isTrue);
+    });
   });
 
   test('サマリーの取得に失敗したらエラー状態になる', () async {
@@ -120,40 +142,5 @@ void main() {
     expect(viewModel.budgetGraphDataList, isNull);
     expect(viewModel.isInitialized, isTrue);
     expect(viewModel.hasError, isTrue);
-  });
-
-  test('init()がnotifyListeners()を呼び出している', () async {
-    var notifyListenersCalled = false;
-    final VoidCallback listener = () {
-      notifyListenersCalled = true;
-    };
-
-    final mockSummaryModel = MockSummaryModel();
-    when(mockSummaryModel.fetch()).thenAnswer(
-      (_) async => Summary(Income(100), Expense(70)),
-    );
-
-    final mockBudgetGraphModel = MockBudgetGraphModel();
-    when(mockBudgetGraphModel.fetch()).thenAnswer(
-      (_) async => BudgetGraphDataList([
-        BudgetGraphData(
-          name: BudgetName('食費'),
-          budget: BudgetAmount(2000),
-          spent: BudgetSpent(1000),
-        ),
-      ]),
-    );
-
-    final viewModel = SummaryViewModel(
-      summaryModel: mockSummaryModel,
-      budgetGraphModel: mockBudgetGraphModel,
-    );
-    viewModel.addListener(listener);
-
-    expect(notifyListenersCalled, isFalse);
-    await viewModel.init();
-    expect(notifyListenersCalled, isTrue);
-    // notifyListeners()が呼び出されたら初期化が完了している
-    expect(viewModel.isInitialized, isTrue);
   });
 }
