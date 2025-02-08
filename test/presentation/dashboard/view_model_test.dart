@@ -59,7 +59,7 @@ void main() {
     });
 
     test('初期化後はModelを取得できる', () async {
-      await sut.init();
+      await sut.init(DateTime(2025, 1));
 
       verify(summaryModel.fetch()).called(1);
       verify(budgetGraphModel.fetch()).called(1);
@@ -86,7 +86,7 @@ void main() {
       });
 
       expect(notifyListenersCalled, isFalse);
-      await sut.init();
+      await sut.init(DateTime(2025, 1));
       expect(notifyListenersCalled, isTrue);
       // notifyListeners()が呼び出されたら初期化が完了している
       expect(sut.isInitialized, isTrue);
@@ -113,7 +113,7 @@ void main() {
       summaryModel: mockSummaryModel,
       budgetGraphModel: mockBudgetGraphModel,
     );
-    await viewModel.init();
+    await viewModel.init(DateTime(2025, 1));
 
     verify(mockSummaryModel.fetch()).called(1);
     expect(viewModel.income, isNull);
@@ -137,7 +137,7 @@ void main() {
       summaryModel: mockSummaryModel,
       budgetGraphModel: mockBudgetGraphModel,
     );
-    await viewModel.init();
+    await viewModel.init(DateTime(2025, 1));
 
     expect(viewModel.budgetGraphDataList, isNull);
     expect(viewModel.isInitialized, isTrue);

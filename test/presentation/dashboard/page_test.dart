@@ -29,6 +29,9 @@ void main() {
    * - ModelViewで2回以上init()が呼び出されても、2回目は何もしない
    * - ViewModelのincomeとexpenseを一つのプロパティ（summaryとか）にまとめる？
    * - 例外が発生したときにログを出力する？
+   * - SummaryModel.fetchでSummaryを取得できる
+   * - BudgetGraphModel.fetchでBudgetGraphDataListを取得できる
+   * - ViewModelは指定された月のSummary、BudgetGraphDataListを取得できる
    */
   group('SummaryPanel', () {
     testWidgets('ローディング中はローディングアイコンが表示される', (tester) async {
@@ -38,12 +41,13 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: DashboardPage(
+            date: DateTime(2025, 1),
             viewModel: mockViewModel,
           ),
         ),
       );
 
-      verify(mockViewModel.init()).called(1);
+      verify(mockViewModel.init(DateTime(2025, 1))).called(1);
       verify(mockViewModel.isNotInitialized).called(1);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
@@ -60,12 +64,13 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: DashboardPage(
+            date: DateTime(2025, 1),
             viewModel: mockViewModel,
           ),
         ),
       );
 
-      verify(mockViewModel.init()).called(1);
+      verify(mockViewModel.init(DateTime(2025, 1))).called(1);
       verify(mockViewModel.isNotInitialized).called(1);
       expect(find.byType(SummaryPanel), findsOneWidget);
       expect(find.byType(BudgetGraph), findsOneWidget);
@@ -82,12 +87,13 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: DashboardPage(
+            date: DateTime(2025, 1),
             viewModel: mockViewModel,
           ),
         ),
       );
 
-      verify(mockViewModel.init()).called(1);
+      verify(mockViewModel.init(DateTime(2025, 1))).called(1);
       verify(mockViewModel.isNotInitialized).called(1);
       verify(mockViewModel.hasError).called(1);
       expect(find.text('エラーが発生しました。時間をおいて再度お試しください。'), findsOneWidget);

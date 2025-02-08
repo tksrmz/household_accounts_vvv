@@ -5,13 +5,14 @@ import 'widget/budget_graph.dart';
 import 'widget/summary_panel.dart';
 
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key, required this.viewModel});
+  const DashboardPage({super.key, required this.date, required this.viewModel});
 
+  final DateTime date;
   final SummaryViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
-    viewModel.init();
+    viewModel.init(date);
     if (viewModel.isNotInitialized) {
       return CircularProgressIndicator();
     }

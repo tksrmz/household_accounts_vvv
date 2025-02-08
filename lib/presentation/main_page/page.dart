@@ -36,6 +36,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final bodies = <Widget>[
       DashboardPage(
+        date: DateTime.now(),
         viewModel: SummaryViewModel(),
       ),
       RecordInputPage(),

@@ -41,7 +41,7 @@ class SummaryViewModel extends ChangeNotifier {
   /// エラーが発生したかどうか
   bool get hasError => _hasError;
 
-  Future<void> init() async {
+  Future<void> init(DateTime date) async {
     try {
       final summary = await summaryModel.fetch();
       income = summary.income;
