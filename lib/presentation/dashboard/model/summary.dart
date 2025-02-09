@@ -7,7 +7,9 @@ part 'summary.freezed.dart';
 
 class SummaryModel {
   /// 当該月の収支データを取得する
-  Future<Summary> fetch() async {
+  ///
+  /// [date] 取得対象の年月
+  Future<Summary> fetch(DateTime date) async {
     throw UnimplementedError();
   }
 }

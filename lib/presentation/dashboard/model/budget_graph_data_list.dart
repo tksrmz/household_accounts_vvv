@@ -11,7 +11,9 @@ part 'budget_graph_data_list.freezed.dart';
 
 class BudgetGraphModel {
   /// 予算のグラフデータを取得する
-  Future<BudgetGraphDataList> fetch() async {
+  ///
+  /// [date] 取得対象の年月
+  Future<BudgetGraphDataList> fetch(DateTime date) async {
     throw UnimplementedError();
   }
 }

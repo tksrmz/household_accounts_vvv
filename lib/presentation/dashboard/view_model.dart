@@ -43,7 +43,7 @@ class SummaryViewModel extends ChangeNotifier {
 
   Future<void> init(DateTime date) async {
     try {
-      final summary = await summaryModel.fetch();
+      final summary = await summaryModel.fetch(date);
       income = summary.income;
       expense = summary.expense;
     } catch (SummaryModelException) {
@@ -51,7 +51,7 @@ class SummaryViewModel extends ChangeNotifier {
     }
 
     try {
-      budgetGraphDataList = await budgetGraphModel.fetch();
+      budgetGraphDataList = await budgetGraphModel.fetch(date);
     } catch (BudgetGraphModelException) {
       _hasError = true;
     }

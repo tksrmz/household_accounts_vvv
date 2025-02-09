@@ -31,7 +31,6 @@ void main() {
    * - 例外が発生したときにログを出力する？
    * - SummaryModel.fetchでSummaryを取得できる
    * - BudgetGraphModel.fetchでBudgetGraphDataListを取得できる
-   * - ViewModelは指定された月のSummary、BudgetGraphDataListを取得できる
    */
   group('SummaryPanel', () {
     testWidgets('ローディング中はローディングアイコンが表示される', (tester) async {

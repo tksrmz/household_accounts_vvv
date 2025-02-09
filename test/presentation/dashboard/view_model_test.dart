@@ -15,6 +15,8 @@ import 'package:mockito/mockito.dart';
 import 'view_model_test.mocks.dart';
 
 void main() {
+  final date = DateTime(2025, 1);
+
   test('インスタンス化されたときModelがnullである', () {
     final viewModel = SummaryViewModel(
       summaryModel: SummaryModel(),
@@ -36,12 +38,12 @@ void main() {
     setUp(() {
       // mock
       summaryModel = MockSummaryModel();
-      when(summaryModel.fetch()).thenAnswer(
+      when(summaryModel.fetch(date)).thenAnswer(
         (_) async => Summary(Income(100), Expense(70)),
       );
 
       budgetGraphModel = MockBudgetGraphModel();
-      when(budgetGraphModel.fetch()).thenAnswer(
+      when(budgetGraphModel.fetch(date)).thenAnswer(
         (_) async => BudgetGraphDataList([
           BudgetGraphData(
             name: BudgetName('食費'),
@@ -59,10 +61,10 @@ void main() {
     });
 
     test('初期化後はModelを取得できる', () async {
-      await sut.init(DateTime(2025, 1));
+      await sut.init(date);
 
-      verify(summaryModel.fetch()).called(1);
-      verify(budgetGraphModel.fetch()).called(1);
+      verify(summaryModel.fetch(date)).called(1);
+      verify(budgetGraphModel.fetch(date)).called(1);
       expect(sut.income, Income(100));
       expect(sut.expense, Expense(70));
       expect(
@@ -86,7 +88,7 @@ void main() {
       });
 
       expect(notifyListenersCalled, isFalse);
-      await sut.init(DateTime(2025, 1));
+      await sut.init(date);
       expect(notifyListenersCalled, isTrue);
       // notifyListeners()が呼び出されたら初期化が完了している
       expect(sut.isInitialized, isTrue);
@@ -95,11 +97,11 @@ void main() {
 
   test('サマリーの取得に失敗したらエラー状態になる', () async {
     final mockSummaryModel = MockSummaryModel();
-    when(mockSummaryModel.fetch()).thenThrow(SummaryModelException("テストエラー"));
+    when(mockSummaryModel.fetch(any))
+        .thenThrow(SummaryModelException("テストエラー"));
 
-    // TODO BudgetGraphModel.fetchが実装されたらモックを外す
     final mockBudgetGraphModel = MockBudgetGraphModel();
-    when(mockBudgetGraphModel.fetch()).thenAnswer(
+    when(mockBudgetGraphModel.fetch(any)).thenAnswer(
       (_) async => BudgetGraphDataList([
         BudgetGraphData(
           name: BudgetName('食費'),
@@ -113,9 +115,9 @@ void main() {
       summaryModel: mockSummaryModel,
       budgetGraphModel: mockBudgetGraphModel,
     );
-    await viewModel.init(DateTime(2025, 1));
+    await viewModel.init(date);
 
-    verify(mockSummaryModel.fetch()).called(1);
+    verify(mockSummaryModel.fetch(date)).called(1);
     expect(viewModel.income, isNull);
     expect(viewModel.expense, isNull);
     expect(viewModel.isInitialized, isTrue);
@@ -123,21 +125,20 @@ void main() {
   });
 
   test('予算リストの取得に失敗したらエラー状態になる', () async {
-    // TODO SummaryModel.fetchが実装されたらモックを外す
     final mockSummaryModel = MockSummaryModel();
-    when(mockSummaryModel.fetch()).thenAnswer(
+    when(mockSummaryModel.fetch(date)).thenAnswer(
       (_) async => Summary(Income(100), Expense(70)),
     );
 
     final mockBudgetGraphModel = MockBudgetGraphModel();
-    when(mockBudgetGraphModel.fetch()).thenThrow(
+    when(mockBudgetGraphModel.fetch(date)).thenThrow(
       BudgetGraphModelException("テストエラー"),
     );
     final viewModel = SummaryViewModel(
       summaryModel: mockSummaryModel,
       budgetGraphModel: mockBudgetGraphModel,
     );
-    await viewModel.init(DateTime(2025, 1));
+    await viewModel.init(date);
 
     expect(viewModel.budgetGraphDataList, isNull);
     expect(viewModel.isInitialized, isTrue);
