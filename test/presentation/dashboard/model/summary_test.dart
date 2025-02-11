@@ -14,51 +14,49 @@ import 'package:test/test.dart';
 import 'summary_test.mocks.dart';
 
 void main() {
-  test('incomeとexpenseがともに0円のとき', () async {
-    final date = DateTime(2025, 1);
-
-    final mockIncomeRepository = MockIncomeRepository();
-    when(mockIncomeRepository.fetchMonthly(date)).thenAnswer((_) async => []);
-    final mockExpenseRepository = MockExpenseRepository();
-    when(mockExpenseRepository.fetchMonthly(date)).thenAnswer((_) async => []);
-
-    final summary = await SummaryModel(
-      incomeRepository: mockIncomeRepository,
-      expenseRepository: mockExpenseRepository,
-    ).fetch(date);
-
-    verify(mockIncomeRepository.fetchMonthly(date)).called(1);
-    verify(mockExpenseRepository.fetchMonthly(date)).called(1);
-    expect(summary.income.value, 0);
-    expect(summary.expense.value, 0);
-  });
-
-  test('incomeとexpenseがともに0円ではないとき', () async {
-    final date = DateTime(2025, 1);
-
-    final mockIncomeRepository = MockIncomeRepository();
-    when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-      (_) async => [
+  [
+    (
+      description: 'incomeとexpenseがともに0円のとき',
+      incomeAnswer: <Income>[],
+      expenseAnswer: <Expense>[],
+      expectedIncome: 0,
+      expectedExpense: 0,
+    ),
+    (
+      description: 'incomeとexpenseがともに0円ではないとき',
+      incomeAnswer: [
         Income(100),
         Income(200),
       ],
-    );
-    final mockExpenseRepository = MockExpenseRepository();
-    when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-      (_) async => [
+      expenseAnswer: [
         Expense(50),
         Expense(100),
       ],
-    );
+      expectedIncome: 300,
+      expectedExpense: 150,
+    ),
+  ].forEach((testData) {
+    test(testData.description, () async {
+      final date = DateTime(2025, 1);
 
-    final summary = await SummaryModel(
-      incomeRepository: mockIncomeRepository,
-      expenseRepository: mockExpenseRepository,
-    ).fetch(date);
+      final mockIncomeRepository = MockIncomeRepository();
+      when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
+        (_) async => testData.incomeAnswer,
+      );
+      final mockExpenseRepository = MockExpenseRepository();
+      when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
+        (_) async => testData.expenseAnswer,
+      );
 
-    verify(mockIncomeRepository.fetchMonthly(date)).called(1);
-    verify(mockExpenseRepository.fetchMonthly(date)).called(1);
-    expect(summary.income.value, 300);
-    expect(summary.expense.value, 150);
+      final summary = await SummaryModel(
+        incomeRepository: mockIncomeRepository,
+        expenseRepository: mockExpenseRepository,
+      ).fetch(date);
+
+      verify(mockIncomeRepository.fetchMonthly(date)).called(1);
+      verify(mockExpenseRepository.fetchMonthly(date)).called(1);
+      expect(summary.income.value, testData.expectedIncome);
+      expect(summary.expense.value, testData.expectedExpense);
+    });
   });
 }
