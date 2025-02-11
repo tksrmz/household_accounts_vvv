@@ -25,7 +25,6 @@ void main() {
    * - 発生したエラーに応じてエラーメッセージの内容を変える？
    * - GoldenTestで見た目の調整
    * - ModelViewのテストで、ModelをisNotNullで検証するのをやめる
-   * - Summaryクラスでfreezedを使う？
    * - ModelViewで2回以上init()が呼び出されても、2回目は何もしない
    * - ViewModelのincomeとexpenseを一つのプロパティ（summaryとか）にまとめる？
    * - 例外が発生したときにログを出力する？

@@ -56,11 +56,9 @@ class SummaryModel {
   }
 }
 
-class Summary {
-  const Summary(this.income, this.expense);
-
-  final Income income;
-  final Expense expense;
+@freezed
+class Summary with _$Summary {
+  const factory Summary(Income income, Expense expense) = _Summary;
 }
 
 /// SummaryModelでエラーが発生したときにスローされる例外
