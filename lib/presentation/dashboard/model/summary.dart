@@ -22,17 +22,37 @@ class SummaryModel {
   ///
   /// [date] 取得対象の年月
   Future<Summary> fetch(DateTime date) async {
-    final incomeList = await incomeRepository.fetchMonthly(date);
-    final expenseList = await expenseRepository.fetchMonthly(date);
+    final incomeList = await _fetchIterableOfIntFromThrowableSupplier(
+      () async =>
+          (await incomeRepository.fetchMonthly(date)).map((e) => e.value),
+      'IncomeRepositoryでエラーが発生しました',
+    );
+
+    final expenseList = await _fetchIterableOfIntFromThrowableSupplier(
+      () async =>
+          (await expenseRepository.fetchMonthly(date)).map((e) => e.value),
+      'ExpenseRepositoryでエラーが発生しました',
+    );
 
     return Summary(
-      Income(
-        incomeList.fold<int>(0, (prev, element) => prev + element.value),
-      ),
-      Expense(
-        expenseList.fold<int>(0, (prev, element) => prev + element.value),
-      ),
+      Income(_sumOf(incomeList)),
+      Expense(_sumOf(expenseList)),
     );
+  }
+
+  int _sumOf(Iterable<int> iterable) {
+    return iterable.fold<int>(0, (prev, element) => prev + element);
+  }
+
+  Future<Iterable<int>> _fetchIterableOfIntFromThrowableSupplier(
+    Future<Iterable<int>> Function() supplier,
+    String errorMessage,
+  ) async {
+    try {
+      return await supplier();
+    } on Exception {
+      throw SummaryModelException(errorMessage);
+    }
   }
 }
 

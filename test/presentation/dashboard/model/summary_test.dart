@@ -59,4 +59,46 @@ void main() {
       expect(summary.expense.value, testData.expectedExpense);
     });
   });
+
+  test('IncomeRepositoryで例外が発生したとき', () async {
+    final date = DateTime(2025, 1);
+
+    final mockIncomeRepository = MockIncomeRepository();
+    when(mockIncomeRepository.fetchMonthly(date)).thenThrow(
+      Exception('テストエラー'),
+    );
+    final mockExpenseRepository = MockExpenseRepository();
+    when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
+      (_) async => <Expense>[],
+    );
+
+    expect(
+      () async => await SummaryModel(
+        incomeRepository: mockIncomeRepository,
+        expenseRepository: mockExpenseRepository,
+      ).fetch(date),
+      throwsA(isA<SummaryModelException>()),
+    );
+  });
+
+  test('ExpenseRepositoryで例外が発生したとき', () async {
+    final date = DateTime(2025, 1);
+
+    final mockIncomeRepository = MockIncomeRepository();
+    when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
+      (_) async => <Income>[],
+    );
+    final mockExpenseRepository = MockExpenseRepository();
+    when(mockExpenseRepository.fetchMonthly(date)).thenThrow(
+      Exception('テストエラー'),
+    );
+
+    expect(
+      () async => await SummaryModel(
+        incomeRepository: mockIncomeRepository,
+        expenseRepository: mockExpenseRepository,
+      ).fetch(date),
+      throwsA(isA<SummaryModelException>()),
+    );
+  });
 }

@@ -29,8 +29,6 @@ void main() {
    * - ModelViewで2回以上init()が呼び出されても、2回目は何もしない
    * - ViewModelのincomeとexpenseを一つのプロパティ（summaryとか）にまとめる？
    * - 例外が発生したときにログを出力する？
-   * - X SummaryModel.fetchでSummaryを取得できる
-   *   - SummaryModelExceptionが発生したとき
    * - BudgetGraphModel.fetchでBudgetGraphDataListを取得できる
    * - personal modeとpair modeに対応する
    */
