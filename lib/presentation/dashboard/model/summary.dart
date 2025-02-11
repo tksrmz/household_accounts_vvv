@@ -2,11 +2,23 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../entity/expense.dart';
 import '../../../entity/income.dart';
+import '../repository/expense_repository.dart';
+import '../repository/income_repository.dart';
 
 part 'summary.freezed.dart';
 
 class SummaryModel {
+  const SummaryModel({
+    required this.incomeRepository,
+    required this.expenseRepository,
+  });
+
+  final IncomeRepository incomeRepository;
+  final ExpenseRepository expenseRepository;
+
   /// 当該月の収支データを取得する
+  ///
+  /// エラーが発生した場合は[SummaryModelException]をスローする
   ///
   /// [date] 取得対象の年月
   Future<Summary> fetch(DateTime date) async {

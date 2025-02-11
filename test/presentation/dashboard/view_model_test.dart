@@ -4,6 +4,8 @@ import 'package:household_accounts/entity/income.dart';
 import 'package:household_accounts/presentation/dashboard/model/budget_graph_data.dart';
 import 'package:household_accounts/presentation/dashboard/model/budget_graph_data_list.dart';
 import 'package:household_accounts/presentation/dashboard/model/summary.dart';
+import 'package:household_accounts/presentation/dashboard/repository/expense_repository.dart';
+import 'package:household_accounts/presentation/dashboard/repository/income_repository.dart';
 import 'package:household_accounts/presentation/dashboard/view_model.dart';
 import 'package:household_accounts/presentation/dashboard/vo/budget_name.dart';
 import 'package:household_accounts/vo/budget_amount.dart';
@@ -11,7 +13,12 @@ import 'package:household_accounts/vo/budget_spent.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-@GenerateNiceMocks([MockSpec<SummaryModel>(), MockSpec<BudgetGraphModel>()])
+@GenerateNiceMocks([
+  MockSpec<SummaryModel>(),
+  MockSpec<BudgetGraphModel>(),
+  MockSpec<IncomeRepository>(),
+  MockSpec<ExpenseRepository>(),
+])
 import 'view_model_test.mocks.dart';
 
 void main() {
@@ -19,7 +26,10 @@ void main() {
 
   test('インスタンス化されたときModelがnullである', () {
     final viewModel = SummaryViewModel(
-      summaryModel: SummaryModel(),
+      summaryModel: SummaryModel(
+        incomeRepository: MockIncomeRepository(),
+        expenseRepository: MockExpenseRepository(),
+      ),
       budgetGraphModel: BudgetGraphModel(),
     );
 
