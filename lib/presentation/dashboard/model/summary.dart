@@ -22,7 +22,17 @@ class SummaryModel {
   ///
   /// [date] 取得対象の年月
   Future<Summary> fetch(DateTime date) async {
-    throw UnimplementedError();
+    final incomeList = await incomeRepository.fetchMonthly(date);
+    final expenseList = await expenseRepository.fetchMonthly(date);
+
+    return Summary(
+      Income(
+        incomeList.fold<int>(0, (prev, element) => prev + element.value),
+      ),
+      Expense(
+        expenseList.fold<int>(0, (prev, element) => prev + element.value),
+      ),
+    );
   }
 }
 

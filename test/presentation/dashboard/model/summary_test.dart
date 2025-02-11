@@ -21,8 +21,8 @@ void main() {
     when(mockExpenseRepository.fetchMonthly(date)).thenAnswer((_) async => []);
 
     final summary = await SummaryModel(
-      incomeRepository: MockIncomeRepository(),
-      expenseRepository: MockExpenseRepository(),
+      incomeRepository: mockIncomeRepository,
+      expenseRepository: mockExpenseRepository,
     ).fetch(date);
 
     verify(mockIncomeRepository.fetchMonthly(date)).called(1);
