@@ -30,12 +30,9 @@ void main() {
    * - ViewModelのincomeとexpenseを一つのプロパティ（summaryとか）にまとめる？
    * - 例外が発生したときにログを出力する？
    * - X SummaryModel.fetchでSummaryを取得できる
-   *   - Incomeが0円のとき
-   *   - Expenseが0円のとき
-   *   - IncomeとExpenseが0円のとき
-   *   - IncomeとExpenseが0円でないとき
    *   - SummaryModelExceptionが発生したとき
    * - BudgetGraphModel.fetchでBudgetGraphDataListを取得できる
+   * - personal modeとpair modeに対応する
    */
   group('SummaryPanel', () {
     testWidgets('ローディング中はローディングアイコンが表示される', (tester) async {
