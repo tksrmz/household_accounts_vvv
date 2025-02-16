@@ -30,6 +30,17 @@ void main() {
    * - 例外が発生したときにログを出力する？
    * - BudgetGraphModel.fetchでBudgetGraphDataListを取得できる
    * - personal modeとpair modeに対応する
+   * - expenseRepositoryを実装する
+   * - incomeRepositoryがLocalhostのFirebaseFirestoreと接続できるようにする（mockを使わずにrepositoryのテストをする）
+   *   - 範囲外のレコードを取得しないかテストする
+   *   - 該当のレコードがないとき、0個取得する
+   *   - 該当のレコードがただ1つあるとき、1個取得する
+   * - expenseRepositoryがLocalhostのFirebaseFirestoreと接続できるようにする（mockを使わずにrepositoryのテストをする）
+   *   - 範囲外のレコードを取得しないかテストする
+   *   - 該当のレコードがないとき、0個取得する
+   *   - 該当のレコードがただ1つあるとき、1個取得する
+   * - Mapに期待するフィールドがなかったときは例外を投げるかエラーにするか
+   * - fetchMonthlyに月初の0時ではない値を渡すと月初の0時に整形してからデータを取得する
    */
   group('SummaryPanel', () {
     testWidgets('ローディング中はローディングアイコンが表示される', (tester) async {
