@@ -10,11 +10,11 @@ class FirebaseIncomeRepository implements IncomeRepository {
 
   @override
   Future<List<Income>> fetchMonthly(DateTime date) async {
-    assert(date == DateTime(date.year, date.month), 'dateの値が月初の0時ではない');
+    final firstDayOfMonth = DateTime(date.year, date.month);
 
     final querySnapshot = await db
         .collection('hoge')
-        .where('date', isGreaterThanOrEqualTo: date)
+        .where('date', isGreaterThanOrEqualTo: firstDayOfMonth)
         .where('date', isLessThan: DateTime(date.year, date.month + 1))
         .get();
     return querySnapshot.docs
