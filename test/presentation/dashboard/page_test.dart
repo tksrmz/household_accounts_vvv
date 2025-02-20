@@ -14,6 +14,7 @@ import 'package:household_accounts/vo/budget_amount.dart';
 import 'package:household_accounts/vo/budget_spent.dart';
 import 'package:mockito/annotations.dart';
 
+import '../../util/golden_helper.dart';
 // Fakeクラス用にModelのモックも作る
 @GenerateNiceMocks([MockSpec<SummaryModel>(), MockSpec<BudgetGraphModel>()])
 import 'page_test.mocks.dart';
@@ -46,6 +47,7 @@ void main() {
    *   - 該当のレコードがただ1つあるとき、1個取得する
    * - Mapに期待するフィールドがなかったときは例外を投げるかエラーにするか
    * - 3. IntegrationTestでIncomeRepositoryをテストする
+   * - エラー表示のときをエラーっぽい画面にする
    */
   testWidgets('init()呼び出し前はローディング中の表示がされる', (tester) async {
     final fakeViewModel = FakeSummaryViewModelLoading();
@@ -64,6 +66,15 @@ void main() {
     expect(find.byType(BudgetGraph), findsNothing);
   });
 
+  testGoldens(
+    'init()呼び出し前はローディング中の表示がされる',
+    builder: () => DashboardPage(
+      date: DateTime(2025, 1),
+      viewModel: FakeSummaryViewModelLoading(),
+    ),
+    goldenFileName: 'dashboard_page_loading',
+  );
+
   testWidgets(
     'init()呼び出し後、初期化が完了していればダッシュボードコンテンツが表示される',
     (tester) async {
@@ -78,13 +89,19 @@ void main() {
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      // 4秒待機
-      await tester.pump(Duration(seconds: 4));
       expect(find.byType(CircularProgressIndicator), findsNothing);
       expect(find.byType(SummaryPanel), findsOneWidget);
       expect(find.byType(BudgetGraph), findsOneWidget);
     },
+  );
+
+  testGoldens(
+    'init()呼び出し後、初期化が完了していればダッシュボードコンテンツが表示される',
+    builder: () => DashboardPage(
+      date: DateTime(2025, 1),
+      viewModel: FakeSummaryViewModelComplete(),
+    ),
+    goldenFileName: 'dashboard_page_complete',
   );
 
   testWidgets(
@@ -101,12 +118,18 @@ void main() {
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      // 4秒待機
-      await tester.pump(Duration(seconds: 4));
       expect(find.byType(CircularProgressIndicator), findsNothing);
       expect(find.text('エラーが発生しました。時間をおいて再度お試しください。'), findsOneWidget);
     },
+  );
+
+  testGoldens(
+    'init()呼び出し後、エラーならエラーメッセージが表示される',
+    builder: () => DashboardPage(
+      date: DateTime(2025, 1),
+      viewModel: FakeSummaryViewModelError(),
+    ),
+    goldenFileName: 'dashboard_page_error',
   );
 }
 
@@ -153,8 +176,6 @@ class FakeSummaryViewModelComplete extends SummaryViewModel {
 
   @override
   Future<void> init(DateTime date) async {
-    // 2秒待機
-    await Future.delayed(Duration(seconds: 2));
     isNotInitializedFake = false;
     notifyListeners();
   }
@@ -177,8 +198,6 @@ class FakeSummaryViewModelError extends SummaryViewModel {
 
   @override
   Future<void> init(DateTime date) async {
-    // 2秒待機
-    await Future.delayed(Duration(seconds: 2));
     isNotInitializedFake = false;
     notifyListeners();
   }
