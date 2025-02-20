@@ -28,7 +28,6 @@ void main() {
    * - main_pageでViewModelをインスタンス化するのはいい？
    * - エラーのときはViewModelからModelを取り出せなくする
    * - 発生したエラーに応じてエラーメッセージの内容を変える？
-   * - 2. GoldenTestで見た目の調整
    * - ModelViewのテストで、ModelをisNotNullで検証するのをやめる
    * - ModelViewで2回以上init()が呼び出されても、2回目は何もしない
    * - ViewModelのincomeとexpenseを一つのプロパティ（summaryとか）にまとめる？
@@ -48,6 +47,7 @@ void main() {
    * - Mapに期待するフィールドがなかったときは例外を投げるかエラーにするか
    * - 3. IntegrationTestでIncomeRepositoryをテストする
    * - エラー表示のときをエラーっぽい画面にする
+   * - ローディング中の表示を確認する
    */
   testWidgets('init()呼び出し前はローディング中の表示がされる', (tester) async {
     final fakeViewModel = FakeSummaryViewModelLoading();

@@ -24,35 +24,20 @@ class DashboardPage extends StatelessWidget {
           return Text(viewModel.errorMessage);
         }
 
-        return Column(
-          spacing: 16,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: SummaryPanel(
-                      viewModel.income!,
-                      viewModel.expense!,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: BudgetGraph(
-                      list: viewModel.budgetGraphDataList!,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: ListView(
+            children: [
+              SummaryPanel(
+                viewModel.income!,
+                viewModel.expense!,
+              ),
+              SizedBox(height: 16.0),
+              BudgetGraph(
+                list: viewModel.budgetGraphDataList!,
+              ),
+            ],
+          ),
         );
       },
     );
