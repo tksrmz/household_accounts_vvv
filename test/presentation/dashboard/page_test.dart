@@ -47,6 +47,23 @@ void main() {
    * - Mapに期待するフィールドがなかったときは例外を投げるかエラーにするか
    * - 3. IntegrationTestでIncomeRepositoryをテストする
    */
+  testWidgets('init()呼び出し前はローディング中の表示がされる', (tester) async {
+    final fakeViewModel = FakeSummaryViewModelLoading();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardPage(
+          date: DateTime(2025, 1),
+          viewModel: fakeViewModel,
+        ),
+      ),
+    );
+
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(SummaryPanel), findsNothing);
+    expect(find.byType(BudgetGraph), findsNothing);
+  });
+
   testWidgets(
     'init()呼び出し後、初期化が完了していればダッシュボードコンテンツが表示される',
     (tester) async {
@@ -91,6 +108,20 @@ void main() {
       expect(find.text('エラーが発生しました。時間をおいて再度お試しください。'), findsOneWidget);
     },
   );
+}
+
+class FakeSummaryViewModelLoading extends SummaryViewModel {
+  FakeSummaryViewModelLoading()
+      : super(
+          summaryModel: MockSummaryModel(),
+          budgetGraphModel: MockBudgetGraphModel(),
+        );
+
+  @override
+  bool get isNotInitialized => true;
+
+  @override
+  Future<void> init(DateTime date) async {}
 }
 
 class FakeSummaryViewModelComplete extends SummaryViewModel {
