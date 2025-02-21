@@ -139,13 +139,6 @@ void main() {
     });
   });
 
-  group('DateTimeが期待通りの動きをすること', () {
-    test('DateTime(2024, 13)とDateTime(2025, 1)が等しいこと', () {
-      // DateTime(other.year, other.month + 1)がotherの1ヶ月後になることの確認
-      expect(DateTime(2024, 13), DateTime(2025, 1));
-    });
-  });
-
   // Firebaseのモックをどう使えばいいかのメモ
   group('Firestore Mock Tests', () {
     MockFirebaseFirestore mockFirestore;
