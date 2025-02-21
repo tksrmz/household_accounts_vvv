@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:household_accounts/util/extension/date-time.dart';
 
 import '../../../entity/expense.dart';
 import '../repository/expense_repository.dart';
@@ -10,12 +11,12 @@ class FirebaseExpenseRepository implements ExpenseRepository {
 
   @override
   Future<List<Expense>> fetchMonthly(DateTime date) async {
-    final firstDayOfMonth = DateTime(date.year, date.month);
+    final firstDayOfMonth = date.toFirstDayOfMonth();
 
     final querySnapshot = await db
         .collection('hoge')
         .where('date', isGreaterThanOrEqualTo: firstDayOfMonth)
-        .where('date', isLessThan: DateTime(date.year, date.month + 1))
+        .where('date', isLessThan: firstDayOfMonth.nextMonth())
         .get();
     return querySnapshot.docs
         .map((doc) => Expense(doc.data()['amount']!))
