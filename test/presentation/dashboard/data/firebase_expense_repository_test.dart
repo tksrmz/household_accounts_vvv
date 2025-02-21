@@ -116,5 +116,26 @@ void main() {
         expect(expenseList[1], Expense(200));
       });
     });
+
+    <({String description, dynamic value})>[
+      (
+        description: 'amountが数値以外のとき、TypeErrorが発生する',
+        value: '100',
+      ),
+      (
+        description: 'amountがnullのとき、TypeErrorが発生する',
+        value: null,
+      ),
+    ].forEach((element) {
+      final (:description, :value) = element;
+      test(description, () async {
+        when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
+        when(mockQueryDocumentSnapshot.data()).thenReturn({'amount': value});
+
+        final sut = FirebaseExpenseRepository(mockDb);
+        expect(() async => await sut.fetchMonthly(DateTime(2025, 1)),
+            throwsA(isA<TypeError>()));
+      });
+    });
   });
 }

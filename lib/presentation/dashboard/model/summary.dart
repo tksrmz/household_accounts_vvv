@@ -18,7 +18,7 @@ class SummaryModel {
 
   /// 当該月の収支データを取得する
   ///
-  /// エラーが発生した場合は[SummaryModelException]をスローする
+  /// 例外が発生した場合は[SummaryModelException]をスローする
   ///
   /// [date] 取得対象の年月
   Future<Summary> fetch(DateTime date) async {
