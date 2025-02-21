@@ -34,7 +34,6 @@ void main() {
    * - 例外が発生したときにログを出力する？
    * - BudgetGraphModel.fetchでBudgetGraphDataListを取得できる
    * - personal modeとpair modeに対応する
-   * - expenseRepositoryを実装する
    * - incomeRepositoryがLocalhostのFirebaseFirestoreと接続できるようにする（mockを使わずにrepositoryのテストをする）
    *   - これはIntegrationTestかE2Eテストの範囲な気がする
    *   - 範囲外のレコードを取得しないかテストする
@@ -46,6 +45,7 @@ void main() {
    *   - 該当のレコードがただ1つあるとき、1個取得する
    * - Mapに期待するフィールドがなかったときは例外を投げるかエラーにするか
    * - 3. IntegrationTestでIncomeRepositoryをテストする
+   *   - ログインする
    * - エラー表示のときをエラーっぽい画面にする
    * - ローディング中の表示を確認する
    */

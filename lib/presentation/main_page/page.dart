@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/presentation/dashboard/page.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +6,8 @@ import 'package:provider/provider.dart';
 import '../../util/type/single_or_pair.dart';
 import '../budget_viewer/budget_viewer_page.dart';
 import '../category_viewer/category_viewer_page.dart';
+import '../dashboard/data/firebase_expense_repository.dart';
+import '../dashboard/data/firebase_income_repository.dart';
 import '../dashboard/model/budget_graph_data_list.dart';
 import '../dashboard/model/summary.dart';
 import '../dashboard/view_model.dart';
@@ -37,10 +40,18 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     final bodies = <Widget>[
+      // TODO Refactor this to use DI container
       DashboardPage(
         date: DateTime.now(),
         viewModel: SummaryViewModel(
-          summaryModel: SummaryModel(),
+          summaryModel: SummaryModel(
+            incomeRepository: FirebaseIncomeRepository(
+              FirebaseFirestore.instance,
+            ),
+            expenseRepository: FirebaseExpenseRepository(
+              FirebaseFirestore.instance,
+            ),
+          ),
           budgetGraphModel: BudgetGraphModel(),
         ),
       ),
