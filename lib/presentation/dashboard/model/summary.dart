@@ -2,19 +2,19 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../entity/expense.dart';
 import '../../../entity/income.dart';
-import '../repository/expense_repository.dart';
-import '../repository/income_repository.dart';
 
 part 'summary.freezed.dart';
 
 class SummaryModel {
-  const SummaryModel({
+  const SummaryModel(
+      /*{
     required this.incomeRepository,
     required this.expenseRepository,
-  });
+  }*/
+      );
 
-  final IncomeRepository incomeRepository;
-  final ExpenseRepository expenseRepository;
+  // final IncomeRepository incomeRepository;
+  // final ExpenseRepository expenseRepository;
 
   /// 当該月の収支データを取得する
   ///
@@ -22,7 +22,8 @@ class SummaryModel {
   ///
   /// [date] 取得対象の年月
   Future<Summary> fetch(DateTime date) async {
-    final incomeList = await _fetchIterableOfIntFromThrowableSupplier(
+    throw UnimplementedError();
+/*    final incomeList = await _fetchIterableOfIntFromThrowableSupplier(
       () async =>
           (await incomeRepository.fetchMonthly(date)).map((e) => e.value),
       'IncomeRepositoryでエラーが発生しました',
@@ -37,7 +38,7 @@ class SummaryModel {
     return Summary(
       Income(_sumOf(incomeList)),
       Expense(_sumOf(expenseList)),
-    );
+    );*/
   }
 
   int _sumOf(Iterable<int> iterable) {

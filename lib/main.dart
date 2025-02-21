@@ -11,6 +11,12 @@ import 'util/service_locator/main.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeFirebaseApp();
+  initializeServiceLocator();
+  runApp(MyApp());
+}
+
+Future<void> initializeFirebaseApp() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -30,9 +36,6 @@ void main() async {
       persistenceEnabled: false,
     );
   }
-
-  initializeServiceLocator();
-  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

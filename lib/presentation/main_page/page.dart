@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../../util/type/single_or_pair.dart';
 import '../budget_viewer/budget_viewer_page.dart';
 import '../category_viewer/category_viewer_page.dart';
+import '../dashboard/model/budget_graph_data_list.dart';
+import '../dashboard/model/summary.dart';
 import '../dashboard/view_model.dart';
 import '../monthly_record_viewer/monthly_record_viewer_page.dart';
 import '../property_viewer/property_viewer_page.dart';
@@ -37,7 +39,10 @@ class _MainPageState extends State<MainPage> {
     final bodies = <Widget>[
       DashboardPage(
         date: DateTime.now(),
-        viewModel: SummaryViewModel(),
+        viewModel: SummaryViewModel(
+          summaryModel: SummaryModel(),
+          budgetGraphModel: BudgetGraphModel(),
+        ),
       ),
       RecordInputPage(),
       CalendarRecordViewPage(),
