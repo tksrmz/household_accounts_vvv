@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/entity/income.dart';
-import 'package:household_accounts/util/extension/date-time.dart';
+import 'package:household_accounts/util/extension/date_time.dart';
 
 import '../repository/income_repository.dart';
 

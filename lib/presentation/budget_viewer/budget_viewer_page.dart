@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:household_accounts/util/extension/date-time.dart';
+import 'package:household_accounts/util/extension/date_time.dart';
 import 'package:provider/provider.dart';
 
 import '../../feature/budget_analyzer/budget_analyzer_use_case.dart';

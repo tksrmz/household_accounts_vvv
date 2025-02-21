@@ -1,4 +1,4 @@
-import 'package:household_accounts/util/extension/date-time.dart';
+import 'package:household_accounts/util/extension/date_time.dart';
 import 'package:test/test.dart';
 
 void main() {
