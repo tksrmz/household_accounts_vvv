@@ -48,6 +48,8 @@ void main() {
    *   - ログインする
    * - エラー表示のときをエラーっぽい画面にする
    * - ローディング中の表示を確認する
+   * - dateをX月1日00:00:00に整形するロジックをモデルに移す
+   * - SummaryViewModelでデータがpublicアクセスかつnon finalになっているので保護する
    */
   testWidgets('init()呼び出し前はローディング中の表示がされる', (tester) async {
     final fakeViewModel = FakeSummaryViewModelLoading();
