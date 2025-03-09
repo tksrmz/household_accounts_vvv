@@ -8,8 +8,8 @@ void main() async {
   initializeFirebaseApp();
   initializeServiceLocator();
 
-  testWidgets('just launching app', (tester) async {
+  testWidgets('launching app', (tester) async {
     await tester.pumpWidget(const MyApp());
-    expect(true, isTrue);
+    expect(find.byType(MyApp), findsOneWidget);
   });
 }
