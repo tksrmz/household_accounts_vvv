@@ -41,6 +41,8 @@ void main() async {
         description: "with sign in button",
       ),
     );
+
+    await tester.pumpAndSettle();
     // replace `byType` with String that a user can see. don't use `byType` because it's not user-friendly.
     expect(find.byType(MyAppHome), findsOneWidget);
   });
