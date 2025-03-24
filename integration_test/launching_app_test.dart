@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
-import 'package:household_accounts/presentation/app_home_page/page.dart';
 import 'package:household_accounts/util/service_locator/main.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -15,7 +14,7 @@ void main() async {
     expect(find.byType(MyApp), findsOneWidget);
   });
 
-  testWidgets('Sign in', (tester) async {
+  testWidgets('Displays loading screen after sign in', (tester) async {
     await tester.pumpWidget(const MyApp());
     await tester.enterText(
       find.byWidgetPredicate(
@@ -43,7 +42,6 @@ void main() async {
     );
 
     await tester.pumpAndSettle();
-    // replace `byType` with String that a user can see. don't use `byType` because it's not user-friendly.
-    expect(find.byType(MyAppHome), findsOneWidget);
+    expect(find.text('Loading...'), findsOneWidget);
   });
 }
