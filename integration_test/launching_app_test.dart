@@ -6,7 +6,6 @@ import 'package:household_accounts/main.dart';
 import 'package:household_accounts/presentation/dashboard/page.dart';
 import 'package:household_accounts/presentation/dashboard/widget/budget_graph.dart';
 import 'package:household_accounts/presentation/dashboard/widget/summary_panel.dart';
-import 'package:household_accounts/presentation/main_page/page.dart';
 import 'package:household_accounts/util/service_locator/main.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -58,14 +57,11 @@ void main() async {
     );
 
     // Display loading screen
-    await tester.pumpAndSettle();
-    expect(find.text('Loading...'), findsOneWidget);
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-    // Build main page
-    await tester.pumpAndSettle();
-    expect(find.byType(MainPage), findsOneWidget);
-
-    // Display dashboard
+    // Wait for loading to finish.
+    // The number of pumps will not be checked as it does not matter that how long it takes
     await tester.pumpAndSettle();
     expect(find.byType(DashboardPage), findsOneWidget);
     // FIXME Expect strings to be displayed

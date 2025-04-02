@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../util/constant/firebase_constant.dart';
-import '../common_widget/loading.dart';
 import '../main_page/page.dart';
 import '../util/future_builder_helper.dart';
 import '../util/model/user_info.dart';
@@ -82,7 +81,7 @@ class _MyAppHomeState extends State<MyAppHome> {
   Widget _onLoading(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: LoadingWidget(),
+        child: CircularProgressIndicator(),
       ),
     );
   }
