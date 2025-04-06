@@ -19,6 +19,7 @@ import '../../util/golden_helper.dart';
 @GenerateNiceMocks([MockSpec<SummaryModel>(), MockSpec<BudgetGraphModel>()])
 import 'page_test.mocks.dart';
 
+// テストケースは状態遷移テストで設計
 void main() {
   /**
    * TODO
@@ -131,6 +132,19 @@ void main() {
     ),
     goldenFileName: 'dashboard_page_error',
   );
+
+  testWidgets('ロードが正常に完了すると、ダッシュボードコンテンツが表示される', (tester) async {
+    // それぞれの段階での画面キャプチャ→ゴールデンテスト
+    // mockと期待通りのインタラクションをしていることの確認
+
+    // fail!!!
+    expect(1, 2);
+  });
+
+  testWidgets('ロードで異常が発生すると、エラー画面が表示される', (tester) async {
+    // fail!!!
+    expect(1, 2);
+  });
 }
 
 class FakeSummaryViewModelLoading extends SummaryViewModel {
