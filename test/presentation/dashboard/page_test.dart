@@ -55,32 +55,6 @@ void main() {
    * - dateをX月1日00:00:00に整形するロジックをモデルに移す
    * - SummaryViewModelでデータがpublicアクセスかつnon finalになっているので保護する
    */
-  testWidgets('初期化完了前はローディング画面が表示される', (tester) async {
-    final fakeViewModel = FakeSummaryViewModelLoading();
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: DashboardPage(
-          date: DateTime(2025, 1),
-          viewModel: fakeViewModel,
-        ),
-      ),
-    );
-
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    expect(find.byType(SummaryPanel), findsNothing);
-    expect(find.byType(BudgetGraph), findsNothing);
-  });
-
-  testGoldens(
-    'init()呼び出し前はローディング中の表示がされる',
-    builder: () => DashboardPage(
-      date: DateTime(2025, 1),
-      viewModel: FakeSummaryViewModelLoading(),
-    ),
-    goldenFileName: 'dashboard_page_loading',
-  );
-
   group('初期化完了前', () {
     late SummaryViewModel mockViewModel = MockSummaryViewModel();
 
@@ -97,7 +71,7 @@ void main() {
       reset(mockViewModel);
     });
 
-    testWidgets('初期化完了前はローディング画面が表示される(Mock)', (tester) async {
+    testWidgets('初期化完了前はローディング画面が表示される', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: DashboardPage(
@@ -115,12 +89,12 @@ void main() {
     });
 
     testGoldens(
-      '初期化完了前はローディング画面が表示される(Mock)',
+      '初期化完了前はローディング画面が表示される',
       builder: () => DashboardPage(
         date: DateTime(2025, 1),
         viewModel: mockViewModel,
       ),
-      goldenFileName: 'dashboard_page_loading_mock',
+      goldenFileName: 'dashboard_page_loading',
     );
   });
 
@@ -180,20 +154,6 @@ void main() {
     ),
     goldenFileName: 'dashboard_page_error',
   );
-}
-
-class FakeSummaryViewModelLoading extends SummaryViewModel {
-  FakeSummaryViewModelLoading()
-      : super(
-          summaryModel: MockSummaryModel(),
-          budgetGraphModel: MockBudgetGraphModel(),
-        );
-
-  @override
-  bool get isBeforeInitialization => true;
-
-  @override
-  Future<void> init(DateTime date) async {}
 }
 
 class FakeSummaryViewModelComplete extends SummaryViewModel {
