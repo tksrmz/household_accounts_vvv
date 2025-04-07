@@ -13,10 +13,15 @@ import 'package:household_accounts/presentation/dashboard/widget/summary_panel.d
 import 'package:household_accounts/vo/budget_amount.dart';
 import 'package:household_accounts/vo/budget_spent.dart';
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
 import '../../util/golden_helper.dart';
 // Fakeクラス用にModelのモックも作る
-@GenerateNiceMocks([MockSpec<SummaryModel>(), MockSpec<BudgetGraphModel>()])
+@GenerateNiceMocks([
+  MockSpec<SummaryModel>(),
+  MockSpec<BudgetGraphModel>(),
+  MockSpec<SummaryViewModel>()
+])
 import 'page_test.mocks.dart';
 
 // テストケースは状態遷移テストで設計
@@ -50,7 +55,7 @@ void main() {
    * - dateをX月1日00:00:00に整形するロジックをモデルに移す
    * - SummaryViewModelでデータがpublicアクセスかつnon finalになっているので保護する
    */
-  testWidgets('init()呼び出し前はローディング中の表示がされる', (tester) async {
+  testWidgets('初期化完了前はローディング画面が表示される', (tester) async {
     final fakeViewModel = FakeSummaryViewModelLoading();
 
     await tester.pumpWidget(
@@ -75,6 +80,49 @@ void main() {
     ),
     goldenFileName: 'dashboard_page_loading',
   );
+
+  group('初期化完了前', () {
+    late SummaryViewModel mockViewModel = MockSummaryViewModel();
+
+    setUp(() {
+      // モックの初期化
+      when(mockViewModel.init(DateTime(2025, 1))).thenAnswer(
+        (_) => Future.value(),
+      );
+      when(mockViewModel.isBeforeInitialization).thenReturn(true);
+    });
+
+    tearDown(() {
+      // モックのクリーンアップ
+      reset(mockViewModel);
+    });
+
+    testWidgets('初期化完了前はローディング画面が表示される(Mock)', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DashboardPage(
+            date: DateTime(2025, 1),
+            viewModel: mockViewModel,
+          ),
+        ),
+      );
+
+      verify(mockViewModel.init(DateTime(2025, 1))).called(1);
+      verify(mockViewModel.isBeforeInitialization).called(1);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(SummaryPanel), findsNothing);
+      expect(find.byType(BudgetGraph), findsNothing);
+    });
+
+    testGoldens(
+      '初期化完了前はローディング画面が表示される(Mock)',
+      builder: () => DashboardPage(
+        date: DateTime(2025, 1),
+        viewModel: mockViewModel,
+      ),
+      goldenFileName: 'dashboard_page_loading_mock',
+    );
+  });
 
   testWidgets(
     'init()呼び出し後、初期化が完了していればダッシュボードコンテンツが表示される',
@@ -132,19 +180,6 @@ void main() {
     ),
     goldenFileName: 'dashboard_page_error',
   );
-
-  testWidgets('ロードが正常に完了すると、ダッシュボードコンテンツが表示される', (tester) async {
-    // それぞれの段階での画面キャプチャ→ゴールデンテスト
-    // mockと期待通りのインタラクションをしていることの確認
-
-    // fail!!!
-    expect(1, 2);
-  });
-
-  testWidgets('ロードで異常が発生すると、エラー画面が表示される', (tester) async {
-    // fail!!!
-    expect(1, 2);
-  });
 }
 
 class FakeSummaryViewModelLoading extends SummaryViewModel {
