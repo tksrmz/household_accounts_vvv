@@ -71,15 +71,13 @@ void main() {
       reset(mockViewModel);
     });
 
+    final targetBuilder = () => DashboardPage(
+          date: DateTime(2025, 1),
+          viewModel: mockViewModel,
+        );
+
     testWidgets('初期化完了前はローディング画面が表示される', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: DashboardPage(
-            date: DateTime(2025, 1),
-            viewModel: mockViewModel,
-          ),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: targetBuilder()));
 
       verify(mockViewModel.init(DateTime(2025, 1))).called(1);
       verify(mockViewModel.isBeforeInitialization).called(1);
@@ -90,10 +88,7 @@ void main() {
 
     testGoldens(
       '初期化完了前はローディング画面が表示される',
-      builder: () => DashboardPage(
-        date: DateTime(2025, 1),
-        viewModel: mockViewModel,
-      ),
+      builder: targetBuilder,
       goldenFileName: 'dashboard_page_loading',
     );
   });
