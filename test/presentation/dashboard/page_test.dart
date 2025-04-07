@@ -76,7 +76,7 @@ void main() {
           viewModel: mockViewModel,
         );
 
-    testWidgets('初期化完了前はローディング画面が表示される', (tester) async {
+    testWidgets('script test', (tester) async {
       await tester.pumpWidget(MaterialApp(home: targetBuilder()));
 
       verify(mockViewModel.init(DateTime(2025, 1))).called(1);
@@ -87,7 +87,7 @@ void main() {
     });
 
     testGoldens(
-      '初期化完了前はローディング画面が表示される',
+      'golden test',
       builder: targetBuilder,
       goldenFileName: 'dashboard_page_loading',
     );
@@ -112,7 +112,7 @@ void main() {
     });
 
     testWidgets(
-      '初期化完了後にダッシュボードコンテンツが表示される',
+      'script test',
       (tester) async {
         await tester.pumpWidget(
           MaterialApp(
@@ -138,7 +138,7 @@ void main() {
     );
 
     testGoldens(
-      '初期化完了後にダッシュボードコンテンツが表示される',
+      'golden test',
       builder: () => DashboardPage(
         date: DateTime(2025, 1),
         viewModel: mockViewModel,
