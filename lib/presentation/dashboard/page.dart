@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'view_model.dart';
-import 'widget/budget_graph.dart';
 import 'widget/summary_panel.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -32,10 +31,11 @@ class DashboardPage extends StatelessWidget {
                 viewModel.income!,
                 viewModel.expense!,
               ),
-              SizedBox(height: 16.0),
-              BudgetGraph(
-                list: viewModel.budgetGraphDataList!,
-              ),
+              // out of scope for this sprint
+              // SizedBox(height: 16.0),
+              // BudgetGraph(
+              //   list: viewModel.budgetGraphDataList!,
+              // ),
             ],
           ),
         );
