@@ -55,20 +55,20 @@ void main() {
    * - dateをX月1日00:00:00に整形するロジックをモデルに移す
    * - SummaryViewModelでデータがpublicアクセスかつnon finalになっているので保護する
    */
-  group('初期化完了前', () {
-    late SummaryViewModel mockViewModel = MockSummaryViewModel();
+  late SummaryViewModel mockViewModel = MockSummaryViewModel();
 
+  tearDown(() {
+    // モックのクリーンアップ
+    reset(mockViewModel);
+  });
+
+  group('初期化完了前はローディング画面が表示される', () {
     setUp(() {
       // モックの初期化
       when(mockViewModel.init(DateTime(2025, 1))).thenAnswer(
         (_) => Future.value(),
       );
       when(mockViewModel.isBeforeInitialization).thenReturn(true);
-    });
-
-    tearDown(() {
-      // モックのクリーンアップ
-      reset(mockViewModel);
     });
 
     final targetBuilder = () => DashboardPage(
@@ -93,34 +93,67 @@ void main() {
     );
   });
 
-  testWidgets(
-    'init()呼び出し後、初期化が完了していればダッシュボードコンテンツが表示される',
-    (tester) async {
-      final fakeViewModel = FakeSummaryViewModelComplete();
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: DashboardPage(
-            date: DateTime(2025, 1),
-            viewModel: fakeViewModel,
+  group('初期化が正常に完了するとダッシュボードコンテンツが表示される', () {
+    setUp(() {
+      // モックの初期化
+      when(mockViewModel.isBeforeInitialization).thenReturn(false);
+      when(mockViewModel.hasError).thenReturn(false);
+      when(mockViewModel.income).thenReturn(Income(100));
+      when(mockViewModel.expense).thenReturn(Expense(200));
+      when(mockViewModel.budgetGraphDataList).thenReturn(
+        BudgetGraphDataList([
+          BudgetGraphData(
+            name: BudgetName('食費'),
+            budget: BudgetAmount(2000),
+            spent: BudgetSpent(1000),
           ),
-        ),
+        ]),
       );
+    });
 
-      expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.byType(SummaryPanel), findsOneWidget);
-      expect(find.byType(BudgetGraph), findsOneWidget);
-    },
-  );
+    testWidgets(
+      '初期化完了後にダッシュボードコンテンツが表示される',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: DashboardPage(
+              date: DateTime(2025, 1),
+              viewModel: mockViewModel,
+            ),
+          ),
+        );
 
-  testGoldens(
-    'init()呼び出し後、初期化が完了していればダッシュボードコンテンツが表示される',
-    builder: () => DashboardPage(
-      date: DateTime(2025, 1),
-      viewModel: FakeSummaryViewModelComplete(),
-    ),
-    goldenFileName: 'dashboard_page_complete',
-  );
+        verify(mockViewModel.init(DateTime(2025, 1))).called(1);
+        verify(mockViewModel.isBeforeInitialization)
+            .called(greaterThanOrEqualTo(1));
+        verify(mockViewModel.hasError).called(greaterThanOrEqualTo(1));
+        verify(mockViewModel.income).called(greaterThanOrEqualTo(1));
+        verify(mockViewModel.expense).called(greaterThanOrEqualTo(1));
+        verify(mockViewModel.budgetGraphDataList)
+            .called(greaterThanOrEqualTo(1));
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+        expect(find.byType(SummaryPanel), findsOneWidget);
+        expect(find.byType(BudgetGraph), findsOneWidget);
+      },
+    );
+
+    testGoldens(
+      '初期化完了後にダッシュボードコンテンツが表示される',
+      builder: () => DashboardPage(
+        date: DateTime(2025, 1),
+        viewModel: mockViewModel,
+      ),
+      goldenFileName: 'dashboard_page_complete',
+    );
+  });
+
+  group('初期化に失敗するとエラーメッセージが表示される', () {
+    setUp(() {
+      // モックの初期化
+    });
+    // skip for now
+    // will be done in next sprint
+  });
 
   testWidgets(
     'init()呼び出し後、エラーならエラーメッセージが表示される',
@@ -149,40 +182,6 @@ void main() {
     ),
     goldenFileName: 'dashboard_page_error',
   );
-}
-
-class FakeSummaryViewModelComplete extends SummaryViewModel {
-  FakeSummaryViewModelComplete()
-      : super(
-          summaryModel: MockSummaryModel(),
-          budgetGraphModel: MockBudgetGraphModel(),
-        );
-
-  @override
-  Income get income => Income(100);
-
-  @override
-  Expense get expense => Expense(200);
-
-  @override
-  BudgetGraphDataList get budgetGraphDataList => BudgetGraphDataList([
-        BudgetGraphData(
-          name: BudgetName('食費'),
-          budget: BudgetAmount(2000),
-          spent: BudgetSpent(1000),
-        ),
-      ]);
-
-  bool isNotInitializedFake = true;
-
-  @override
-  bool get isBeforeInitialization => isNotInitializedFake;
-
-  @override
-  Future<void> init(DateTime date) async {
-    isNotInitializedFake = false;
-    notifyListeners();
-  }
 }
 
 class FakeSummaryViewModelError extends SummaryViewModel {
