@@ -36,7 +36,7 @@ void main() {
     expect(viewModel.income, isNull);
     expect(viewModel.expense, isNull);
     expect(viewModel.budgetGraphDataList, isNull);
-    expect(viewModel.isInitialized, isFalse);
+    expect(viewModel.isAfterInitialization, isFalse);
     expect(viewModel.hasError, isFalse);
   });
 
@@ -87,7 +87,7 @@ void main() {
           ),
         ]),
       );
-      expect(sut.isInitialized, isTrue);
+      expect(sut.isAfterInitialization, isTrue);
       expect(sut.hasError, isFalse);
     });
 
@@ -101,7 +101,7 @@ void main() {
       await sut.init(date);
       expect(notifyListenersCalled, isTrue);
       // notifyListeners()が呼び出されたら初期化が完了している
-      expect(sut.isInitialized, isTrue);
+      expect(sut.isAfterInitialization, isTrue);
     });
   });
 
@@ -130,7 +130,7 @@ void main() {
     verify(mockSummaryModel.fetch(date)).called(1);
     expect(viewModel.income, isNull);
     expect(viewModel.expense, isNull);
-    expect(viewModel.isInitialized, isTrue);
+    expect(viewModel.isAfterInitialization, isTrue);
     expect(viewModel.hasError, isTrue);
   });
 
@@ -151,7 +151,7 @@ void main() {
     await viewModel.init(date);
 
     expect(viewModel.budgetGraphDataList, isNull);
-    expect(viewModel.isInitialized, isTrue);
+    expect(viewModel.isAfterInitialization, isTrue);
     expect(viewModel.hasError, isTrue);
   });
 }

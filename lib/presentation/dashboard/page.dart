@@ -17,7 +17,7 @@ class DashboardPage extends StatelessWidget {
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, child) {
-        if (viewModel.isNotInitialized) {
+        if (viewModel.isBeforeInitialization) {
           return CircularProgressIndicator();
         }
         if (viewModel.hasError) {

@@ -155,7 +155,7 @@ class FakeSummaryViewModelLoading extends SummaryViewModel {
         );
 
   @override
-  bool get isNotInitialized => true;
+  bool get isBeforeInitialization => true;
 
   @override
   Future<void> init(DateTime date) async {}
@@ -186,7 +186,7 @@ class FakeSummaryViewModelComplete extends SummaryViewModel {
   bool isNotInitializedFake = true;
 
   @override
-  bool get isNotInitialized => isNotInitializedFake;
+  bool get isBeforeInitialization => isNotInitializedFake;
 
   @override
   Future<void> init(DateTime date) async {
@@ -205,7 +205,7 @@ class FakeSummaryViewModelError extends SummaryViewModel {
   bool isNotInitializedFake = true;
 
   @override
-  bool get isNotInitialized => isNotInitializedFake;
+  bool get isBeforeInitialization => isNotInitializedFake;
 
   @override
   bool get hasError => true;

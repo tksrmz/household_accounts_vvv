@@ -24,7 +24,7 @@ class SummaryViewModel extends ChangeNotifier {
   BudgetGraphDataList? budgetGraphDataList;
 
   /// init()が呼び出されたかどうか
-  bool _isInitialized = false;
+  bool _hasInitMethodCalled = false;
 
   /// エラーが発生したかどうか
   bool _hasError = false;
@@ -32,11 +32,11 @@ class SummaryViewModel extends ChangeNotifier {
   /// エラーメッセージ
   String get errorMessage => 'エラーが発生しました。時間をおいて再度お試しください。';
 
-  /// init()が呼び出されたかどうか
-  bool get isInitialized => _isInitialized;
+  /// 初期化完了後かどうか
+  bool get isAfterInitialization => _hasInitMethodCalled;
 
-  /// init()が呼び出される前かどうか
-  bool get isNotInitialized => !isInitialized;
+  /// 初期化完了前かどうか
+  bool get isBeforeInitialization => !isAfterInitialization;
 
   /// エラーが発生したかどうか
   bool get hasError => _hasError;
@@ -56,7 +56,7 @@ class SummaryViewModel extends ChangeNotifier {
       _hasError = true;
     }
 
-    _isInitialized = true;
+    _hasInitMethodCalled = true;
 
     notifyListeners();
   }
