@@ -14,11 +14,17 @@ class SummaryViewModel extends foundation.ChangeNotifier {
   final SummaryModel summaryModel;
   // final BudgetGraphModel budgetGraphModel;
 
+  /// 当該月の総収入（内部用）
+  Income? _income;
+
   /// 当該月の総収入
-  Income? income;
+  Income? get income => hasError ? null : _income;
+
+  /// 当該月の総支出（内部用）
+  Expense? _expense;
 
   /// 当該月の総支出
-  Expense? expense;
+  Expense? get expense => hasError ? null : _expense;
 
   // /// 当該月の予算データ
   // BudgetGraphDataList? budgetGraphDataList;
@@ -48,8 +54,8 @@ class SummaryViewModel extends foundation.ChangeNotifier {
         notifyListeners();
       },
       (summary) {
-        income = summary.income;
-        expense = summary.expense;
+        _income = summary.income;
+        _expense = summary.expense;
         _initStateLifecycle._success();
         notifyListeners();
       },
