@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/entity/expense.dart';
 import 'package:household_accounts/entity/income.dart';
-import 'package:household_accounts/presentation/dashboard/model/budget_graph_data.dart';
 import 'package:household_accounts/presentation/dashboard/model/budget_graph_data_list.dart';
 import 'package:household_accounts/presentation/dashboard/model/summary.dart';
 import 'package:household_accounts/presentation/dashboard/page.dart';
 import 'package:household_accounts/presentation/dashboard/view_model.dart';
-import 'package:household_accounts/presentation/dashboard/vo/budget_name.dart';
 import 'package:household_accounts/presentation/dashboard/widget/summary_panel.dart';
-import 'package:household_accounts/vo/budget_amount.dart';
-import 'package:household_accounts/vo/budget_spent.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -100,15 +96,15 @@ void main() {
       when(mockViewModel.hasError).thenReturn(false);
       when(mockViewModel.income).thenReturn(Income(100));
       when(mockViewModel.expense).thenReturn(Expense(200));
-      when(mockViewModel.budgetGraphDataList).thenReturn(
-        BudgetGraphDataList([
-          BudgetGraphData(
-            name: BudgetName('食費'),
-            budget: BudgetAmount(2000),
-            spent: BudgetSpent(1000),
-          ),
-        ]),
-      );
+      // when(mockViewModel.budgetGraphDataList).thenReturn(
+      //   BudgetGraphDataList([
+      //     BudgetGraphData(
+      //       name: BudgetName('食費'),
+      //       budget: BudgetAmount(2000),
+      //       spent: BudgetSpent(1000),
+      //     ),
+      //   ]),
+      // );
     });
 
     testWidgets(
@@ -190,7 +186,7 @@ class FakeSummaryViewModelError extends SummaryViewModel {
   FakeSummaryViewModelError()
       : super(
           summaryModel: MockSummaryModel(),
-          budgetGraphModel: MockBudgetGraphModel(),
+          // budgetGraphModel: MockBudgetGraphModel(),
         );
 
   bool isNotInitializedFake = true;

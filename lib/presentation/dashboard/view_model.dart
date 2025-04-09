@@ -2,17 +2,16 @@ import 'package:flutter/foundation.dart';
 
 import '../../entity/expense.dart';
 import '../../entity/income.dart';
-import 'model/budget_graph_data_list.dart';
 import 'model/summary.dart';
 
 class SummaryViewModel extends ChangeNotifier {
   SummaryViewModel({
     required this.summaryModel,
-    required this.budgetGraphModel,
+    // required this.budgetGraphModel,
   });
 
   final SummaryModel summaryModel;
-  final BudgetGraphModel budgetGraphModel;
+  // final BudgetGraphModel budgetGraphModel;
 
   /// 当該月の総収入
   Income? income;
@@ -20,8 +19,8 @@ class SummaryViewModel extends ChangeNotifier {
   /// 当該月の総支出
   Expense? expense;
 
-  /// 当該月の予算データ
-  BudgetGraphDataList? budgetGraphDataList;
+  // /// 当該月の予算データ
+  // BudgetGraphDataList? budgetGraphDataList;
 
   /// 初期化状態
   final _InitStateLifecycle _initStateLifecycle = _InitStateLifecycle();
@@ -50,11 +49,11 @@ class SummaryViewModel extends ChangeNotifier {
       _hasError = true;
     }
 
-    try {
-      budgetGraphDataList = await budgetGraphModel.fetch(date);
-    } catch (BudgetGraphModelException) {
-      _hasError = true;
-    }
+    // try {
+    //   budgetGraphDataList = await budgetGraphModel.fetch(date);
+    // } catch (BudgetGraphModelException) {
+    //   _hasError = true;
+    // }
 
     _initStateLifecycle._initialize();
 

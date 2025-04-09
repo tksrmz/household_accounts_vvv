@@ -8,7 +8,6 @@ import '../budget_viewer/budget_viewer_page.dart';
 import '../category_viewer/category_viewer_page.dart';
 import '../dashboard/data/firebase_expense_repository.dart';
 import '../dashboard/data/firebase_income_repository.dart';
-import '../dashboard/model/budget_graph_data_list.dart';
 import '../dashboard/model/summary.dart';
 import '../dashboard/view_model.dart';
 import '../monthly_record_viewer/monthly_record_viewer_page.dart';
@@ -52,7 +51,7 @@ class _MainPageState extends State<MainPage> {
               FirebaseFirestore.instance,
             ),
           ),
-          budgetGraphModel: BudgetGraphModel(),
+          // budgetGraphModel: BudgetGraphModel(),
         ),
       ),
       RecordInputPage(),
