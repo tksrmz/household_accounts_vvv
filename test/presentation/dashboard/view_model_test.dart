@@ -71,10 +71,13 @@ void main() {
   });
 
   group('初期化に失敗したとき', () {
-    test('エラー状態になり、Modelを取得できない', () async {
-      when(mockSummaryModel.fetch(any))
-          .thenThrow(SummaryModelException("テストエラー"));
+    setUp(() {
+      when(mockSummaryModel.fetch(any)).thenAnswer(
+        (_) async => throw SummaryModelException('テスト：エラーが発生しました'),
+      );
+    });
 
+    test('エラー状態になり、Modelを取得できない', () async {
       final sut = SummaryViewModel(
         summaryModel: mockSummaryModel,
       );

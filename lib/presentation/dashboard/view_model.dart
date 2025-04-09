@@ -1,10 +1,11 @@
-import 'package:flutter/foundation.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart' as foundation;
 
 import '../../entity/expense.dart';
 import '../../entity/income.dart';
 import 'model/summary.dart';
 
-class SummaryViewModel extends ChangeNotifier {
+class SummaryViewModel extends foundation.ChangeNotifier {
   SummaryViewModel({
     required this.summaryModel,
     // required this.budgetGraphModel,
@@ -25,36 +26,34 @@ class SummaryViewModel extends ChangeNotifier {
   /// 初期化状態
   final _InitStateLifecycle _initStateLifecycle = _InitStateLifecycle();
 
-  /// エラーが発生したかどうか
-  bool _hasError = false;
-
   /// エラーメッセージ
   String get errorMessage => 'エラーが発生しました。時間をおいて再度お試しください。';
 
   /// 初期化完了前かどうか
-  bool get isBeforeInitialization => !_initStateLifecycle.isInitialized;
+  bool get isBeforeInitialization => _initStateLifecycle.isUninitialized;
 
   /// エラーが発生したかどうか
-  bool get hasError => _hasError;
+  bool get hasError => _initStateLifecycle.isFailed;
 
   Future<void> init(DateTime date) async {
-    try {
-      final summary = await summaryModel.fetch(date);
-      income = summary.income;
-      expense = summary.expense;
-    } catch (SummaryModelException) {
-      _hasError = true;
-    }
+    final Either<SummaryModelException, Summary> result =
+        await Task(() => summaryModel.fetch(date))
+            .attempt()
+            .map((either) => either.leftMap(cast<SummaryModelException>))
+            .run();
 
-    // try {
-    //   budgetGraphDataList = await budgetGraphModel.fetch(date);
-    // } catch (BudgetGraphModelException) {
-    //   _hasError = true;
-    // }
-
-    _initStateLifecycle._initialize();
-
-    notifyListeners();
+    result.fold(
+      (error) {
+        _initStateLifecycle._fail();
+        notifyListeners();
+      },
+      (summary) {
+        income = summary.income;
+        expense = summary.expense;
+        _initStateLifecycle._success();
+        notifyListeners();
+      },
+    );
   }
 }
 
@@ -63,8 +62,11 @@ enum _InitState {
   /// 初期化されていない状態
   uninitialized,
 
-  /// 初期化された状態
-  initialized,
+  /// 初期化に成功した状態
+  succeeded,
+
+  /// 初期化に失敗した状態
+  failed,
 }
 
 /// 初期化状態を管理するクラス
@@ -80,12 +82,31 @@ class _InitStateLifecycle {
 
   _InitState _initState;
 
-  /// 初期化された状態かどうか
-  bool get isInitialized => _initState == _InitState.initialized;
+  /// 初期化前かどうか
+  bool get isUninitialized => _initState == _InitState.uninitialized;
+
+  /// 初期化に失敗したかどうか
+  bool get isFailed => _initState == _InitState.failed;
 
   /// 初期化されていない状態[_InitState.uninitialized]から、
-  /// 初期化された状態[_InitState.initialized]へ遷移する。
-  void _initialize() {
-    _initState = _InitState.initialized;
+  /// 初期化に成功した状態[_InitState.succeeded]へ遷移する。
+  void _success() {
+    assert(
+      _initState == _InitState.uninitialized,
+      '初期化されていない状態[_InitState.uninitialized]から、'
+      '初期化に成功した状態[_InitState.succeeded]へ遷移することはできません。',
+    );
+    _initState = _InitState.succeeded;
+  }
+
+  /// 初期化されていない状態[_InitState.uninitialized]から、
+  /// 初期化に失敗した状態[_InitState.failed]へ遷移する。
+  void _fail() {
+    assert(
+      _initState == _InitState.uninitialized,
+      '初期化されていない状態[_InitState.uninitialized]から、'
+      '初期化に失敗した状態[_InitState.failed]へ遷移することはできません。',
+    );
+    _initState = _InitState.failed;
   }
 }
