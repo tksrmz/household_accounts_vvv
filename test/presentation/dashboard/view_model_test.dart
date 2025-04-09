@@ -2,64 +2,59 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/entity/expense.dart';
 import 'package:household_accounts/entity/income.dart';
 import 'package:household_accounts/presentation/dashboard/model/summary.dart';
-import 'package:household_accounts/presentation/dashboard/repository/expense_repository.dart';
-import 'package:household_accounts/presentation/dashboard/repository/income_repository.dart';
 import 'package:household_accounts/presentation/dashboard/view_model.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-@GenerateNiceMocks([
-  MockSpec<SummaryModel>(),
-  MockSpec<IncomeRepository>(),
-  MockSpec<ExpenseRepository>(),
-])
+@GenerateNiceMocks([MockSpec<SummaryModel>()])
 import 'view_model_test.mocks.dart';
 
 void main() {
+  final mockSummaryModel = MockSummaryModel();
   final date = DateTime(2025, 1);
 
-  test('インスタンス化されたときModelがnullである', () {
-    final viewModel = SummaryViewModel(
-      summaryModel: SummaryModel(
-        incomeRepository: MockIncomeRepository(),
-        expenseRepository: MockExpenseRepository(),
-      ),
-    );
-
-    expect(viewModel.income, isNull);
-    expect(viewModel.expense, isNull);
-    expect(viewModel.isAfterInitialization, isFalse);
-    expect(viewModel.hasError, isFalse);
+  tearDown(() {
+    // モックのクリーンアップ
+    reset(mockSummaryModel);
   });
 
-  group('Modelを通常通り取得できる場合', () {
-    late SummaryModel summaryModel;
-    late SummaryViewModel sut;
+  test('初期化前はModelがnullであり、エラー状態ではない', () {
+    final sut = SummaryViewModel(
+      summaryModel: mockSummaryModel,
+    );
 
+    verifyNoMoreInteractions(mockSummaryModel);
+    expect(sut.isBeforeInitialization, isTrue);
+    expect(sut.income, isNull);
+    expect(sut.expense, isNull);
+    expect(sut.hasError, isFalse);
+  });
+
+  group('初期化に成功したとき', () {
     setUp(() {
       // mock
-      summaryModel = MockSummaryModel();
-      when(summaryModel.fetch(date)).thenAnswer(
+      when(mockSummaryModel.fetch(date)).thenAnswer(
         (_) async => Summary(Income(100), Expense(70)),
-      );
-
-      // initialize ViewModel
-      sut = SummaryViewModel(
-        summaryModel: summaryModel,
       );
     });
 
-    test('初期化後はModelを取得できる', () async {
+    test('Modelを取得でき、エラー状態ではない', () async {
+      final sut = SummaryViewModel(
+        summaryModel: mockSummaryModel,
+      );
       await sut.init(date);
 
-      verify(summaryModel.fetch(date)).called(1);
+      verify(mockSummaryModel.fetch(date)).called(1);
+      expect(sut.isBeforeInitialization, isFalse);
       expect(sut.income, Income(100));
       expect(sut.expense, Expense(70));
-      expect(sut.isAfterInitialization, isTrue);
       expect(sut.hasError, isFalse);
     });
 
-    test('初期化時にnotifyListeners()を呼び出している', () async {
+    test('notifyListeners()を呼び出しており、エラー状態ではない', () async {
+      final sut = SummaryViewModel(
+        summaryModel: mockSummaryModel,
+      );
       var notifyListenersCalled = false;
       sut.addListener(() {
         notifyListenersCalled = true;
@@ -68,25 +63,46 @@ void main() {
       expect(notifyListenersCalled, isFalse);
       await sut.init(date);
       expect(notifyListenersCalled, isTrue);
+
       // notifyListeners()が呼び出されたら初期化が完了している
-      expect(sut.isAfterInitialization, isTrue);
+      expect(sut.isBeforeInitialization, isFalse);
+      expect(sut.hasError, isFalse);
     });
   });
 
-  test('サマリーの取得に失敗したらエラー状態になる', () async {
-    final mockSummaryModel = MockSummaryModel();
-    when(mockSummaryModel.fetch(any))
-        .thenThrow(SummaryModelException("テストエラー"));
+  group('初期化に失敗したとき', () {
+    test('エラー状態になり、Modelを取得できない', () async {
+      when(mockSummaryModel.fetch(any))
+          .thenThrow(SummaryModelException("テストエラー"));
 
-    final viewModel = SummaryViewModel(
-      summaryModel: mockSummaryModel,
-    );
-    await viewModel.init(date);
+      final sut = SummaryViewModel(
+        summaryModel: mockSummaryModel,
+      );
+      await sut.init(date);
 
-    verify(mockSummaryModel.fetch(date)).called(1);
-    expect(viewModel.income, isNull);
-    expect(viewModel.expense, isNull);
-    expect(viewModel.isAfterInitialization, isTrue);
-    expect(viewModel.hasError, isTrue);
+      verify(mockSummaryModel.fetch(date)).called(1);
+      expect(sut.isBeforeInitialization, isFalse);
+      expect(sut.income, isNull);
+      expect(sut.expense, isNull);
+      expect(sut.hasError, isTrue);
+    });
+
+    test('notifyListeners()を呼び出している', () async {
+      final sut = SummaryViewModel(
+        summaryModel: mockSummaryModel,
+      );
+      var notifyListenersCalled = false;
+      sut.addListener(() {
+        notifyListenersCalled = true;
+      });
+
+      expect(notifyListenersCalled, isFalse);
+      await sut.init(date);
+      expect(notifyListenersCalled, isTrue);
+
+      // notifyListeners()が呼び出されたら初期化が完了している
+      expect(sut.isBeforeInitialization, isFalse);
+      expect(sut.hasError, isTrue);
+    });
   });
 }

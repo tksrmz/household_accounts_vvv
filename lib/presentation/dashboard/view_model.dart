@@ -31,11 +31,8 @@ class SummaryViewModel extends ChangeNotifier {
   /// エラーメッセージ
   String get errorMessage => 'エラーが発生しました。時間をおいて再度お試しください。';
 
-  /// 初期化完了後かどうか
-  bool get isAfterInitialization => _initStateLifecycle.isInitialized;
-
   /// 初期化完了前かどうか
-  bool get isBeforeInitialization => !isAfterInitialization;
+  bool get isBeforeInitialization => !_initStateLifecycle.isInitialized;
 
   /// エラーが発生したかどうか
   bool get hasError => _hasError;
