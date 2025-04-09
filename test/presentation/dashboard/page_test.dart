@@ -50,7 +50,7 @@ void main() {
    * - dateをX月1日00:00:00に整形するロジックをモデルに移す
    * - SummaryViewModelでデータがpublicアクセスかつnon finalになっているので保護する
    */
-  late SummaryViewModel mockViewModel = MockSummaryViewModel();
+  final mockViewModel = MockSummaryViewModel();
 
   tearDown(() {
     // モックのクリーンアップ
