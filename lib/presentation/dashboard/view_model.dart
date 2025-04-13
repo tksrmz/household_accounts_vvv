@@ -42,6 +42,10 @@ class SummaryViewModel extends foundation.ChangeNotifier {
   bool get hasError => _initStateLifecycle.isFailed;
 
   Future<void> init(DateTime date) async {
+    if (!_initStateLifecycle.isUninitialized) {
+      return;
+    }
+
     final Either<SummaryModelException, Summary> result =
         await Task(() => summaryModel.fetch(date))
             .attempt()

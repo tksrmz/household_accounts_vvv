@@ -27,17 +27,12 @@ void main() {
    * - income.dartをentityディレクトリからvoディレクトリに移動する
    *   - expense.dartも？
    * - main_pageでViewModelをインスタンス化するのはいい？
-   * - エラーのときはViewModelからModelを取り出せなくする
    * - 発生したエラーに応じてエラーメッセージの内容を変える？
-   * - ModelViewのテストで、ModelをisNotNullで検証するのをやめる
-   * - ModelViewで2回以上init()が呼び出されても、2回目は何もしない
    * - ViewModelのincomeとexpenseを一つのプロパティ（summaryとか）にまとめる？
-   * - 例外が発生したときにログを出力する？
    * - BudgetGraphModel.fetchでBudgetGraphDataListを取得できる
    * - personal modeとpair modeに対応する
    * - エラー表示のときをエラーっぽい画面にする
    * - dateをX月1日00:00:00に整形するロジックをモデルに移す
-   * - SummaryViewModelでデータがpublicアクセスかつnon finalになっているので保護する
    */
   final mockViewModel = MockSummaryViewModel();
 

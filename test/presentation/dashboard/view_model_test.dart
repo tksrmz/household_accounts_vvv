@@ -69,6 +69,22 @@ void main() {
       expect(sut.isBeforeInitialization, isFalse);
       expect(sut.hasError, isFalse);
     });
+
+    test('init()が2回以上呼び出されても何もしない', () async {
+      final sut = SummaryViewModel(
+        summaryModel: mockSummaryModel,
+      );
+      var counter = 0;
+      sut.addListener(() {
+        counter = counter + 1;
+      });
+
+      expect(counter, 0);
+      await sut.init(date);
+      expect(counter, 1);
+      await sut.init(date);
+      expect(counter, 1);
+    });
   });
 
   group('初期化に失敗したとき', () {
@@ -108,6 +124,22 @@ void main() {
       // notifyListeners()が呼び出されたら初期化が完了している
       expect(sut.isBeforeInitialization, isFalse);
       expect(sut.hasError, isTrue);
+    });
+
+    test('init()が2回以上呼び出されても何もしない', () async {
+      final sut = SummaryViewModel(
+        summaryModel: mockSummaryModel,
+      );
+      var counter = 0;
+      sut.addListener(() {
+        counter = counter + 1;
+      });
+
+      expect(counter, 0);
+      await sut.init(date);
+      expect(counter, 1);
+      await sut.init(date);
+      expect(counter, 1);
     });
   });
 }
