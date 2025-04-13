@@ -49,7 +49,8 @@ class SummaryViewModel extends foundation.ChangeNotifier {
             .run();
 
     result.fold(
-      (error) {
+      (exception) {
+        print(exception);
         _initStateLifecycle._fail();
         notifyListeners();
       },
