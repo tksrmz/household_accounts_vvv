@@ -32,7 +32,8 @@ void main() {
       mockQuerySnapshot = MockQuerySnapshot();
       mockQueryDocumentSnapshot = MockQueryDocumentSnapshot();
 
-      when(mockDb.collection('hoge')).thenReturn(mockCollectionReference);
+      when(mockDb.collection('/personalNotes/samplePersonalNoteId/expenses'))
+          .thenReturn(mockCollectionReference);
       when(mockCollectionReference.where(
         'date',
         isGreaterThanOrEqualTo: DateTime(2025, 1),
@@ -60,10 +61,14 @@ void main() {
           when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
           when(mockQueryDocumentSnapshot.data()).thenReturn({'amount': 100});
 
-          final sut = FirebaseExpenseRepository(mockDb);
+          final sut = FirebaseExpenseRepository(mockDb, 'samplePersonalNoteId');
           final expenseList = await sut.fetchMonthly(date);
 
-          verify(mockDb.collection('hoge')).called(1);
+          verify(
+            mockDb.collection(
+              '/personalNotes/samplePersonalNoteId/expenses',
+            ),
+          ).called(1);
           // 日付の下限
           verify(mockCollectionReference.where(
             'date',
@@ -88,7 +93,7 @@ void main() {
       test('指定された月の支出一覧を取得できる', () async {
         when(mockQuerySnapshot.docs).thenReturn([]);
 
-        final sut = FirebaseExpenseRepository(mockDb);
+        final sut = FirebaseExpenseRepository(mockDb, 'samplePersonalNoteId');
         final expenseList = await sut.fetchMonthly(DateTime(2025, 1));
 
         // クエリの正しさは別のテストで確認しているので、取得した結果だけ確認
@@ -107,7 +112,7 @@ void main() {
           {'amount': 200},
         ]);
 
-        final sut = FirebaseExpenseRepository(mockDb);
+        final sut = FirebaseExpenseRepository(mockDb, 'samplePersonalNoteId');
         final expenseList = await sut.fetchMonthly(DateTime(2025, 1));
 
         // クエリの正しさは別のテストで確認しているので、取得した結果だけ確認
@@ -132,7 +137,7 @@ void main() {
         when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
         when(mockQueryDocumentSnapshot.data()).thenReturn({'amount': value});
 
-        final sut = FirebaseExpenseRepository(mockDb);
+        final sut = FirebaseExpenseRepository(mockDb, 'samplePersonalNoteId');
         expect(() async => await sut.fetchMonthly(DateTime(2025, 1)),
             throwsA(isA<TypeError>()));
       });
