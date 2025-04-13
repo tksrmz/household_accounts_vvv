@@ -37,9 +37,6 @@ void main() {
       when(mockCollectionReference.where(
         'date',
         isGreaterThanOrEqualTo: DateTime(2025, 1),
-      )).thenReturn(mockQuery);
-      when(mockQuery.where(
-        'date',
         isLessThan: DateTime(2025, 2),
       )).thenReturn(mockQuery);
       when(mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
@@ -69,15 +66,10 @@ void main() {
               '/personalNotes/samplePersonalNoteId/expenses',
             ),
           ).called(1);
-          // 日付の下限
           verify(mockCollectionReference.where(
             'date',
-            isGreaterThanOrEqualTo: DateTime(2025, 1),
-          )).called(1);
-          // 日付の上限
-          verify(mockQuery.where(
-            'date',
-            isLessThan: DateTime(2025, 2),
+            isGreaterThanOrEqualTo: DateTime(2025, 1), // 日付の下限
+            isLessThan: DateTime(2025, 2), // 日付の上限
           )).called(1);
           verify(mockQuery.get()).called(1);
           verify(mockQuerySnapshot.docs).called(1);
