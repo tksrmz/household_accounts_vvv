@@ -46,9 +46,11 @@ class _MainPageState extends State<MainPage> {
           summaryModel: SummaryModel(
             incomeRepository: FirebaseIncomeRepository(
               FirebaseFirestore.instance,
+              context.read<UserInfo>().uid,
             ),
             expenseRepository: FirebaseExpenseRepository(
               FirebaseFirestore.instance,
+              context.read<UserInfo>().uid,
             ),
           ),
           // budgetGraphModel: BudgetGraphModel(),

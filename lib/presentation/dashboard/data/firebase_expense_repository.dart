@@ -6,20 +6,23 @@ import '../../../entity/expense.dart';
 import '../repository/expense_repository.dart';
 
 class FirebaseExpenseRepository implements ExpenseRepository {
-  const FirebaseExpenseRepository(this.db);
+  const FirebaseExpenseRepository(
+    this.db,
+    this._personalNoteId,
+  );
 
   final FirebaseFirestore db;
+  final String _personalNoteId;
+
+  String get _expenseRecordCollectionPath =>
+      getPersonalExpenseRecordCollectionPath(_personalNoteId);
 
   @override
   Future<List<Expense>> fetchMonthly(DateTime date) async {
     final firstDayOfMonth = date.toFirstDayOfMonth();
 
     final querySnapshot = await db
-        .collection(
-          getPersonalExpenseRecordCollectionPath(
-            'fmVfCNkA2wGfJx69LRFhl3ird9EB',
-          ),
-        )
+        .collection(_expenseRecordCollectionPath)
         .where('date', isGreaterThanOrEqualTo: firstDayOfMonth)
         .where('date', isLessThan: firstDayOfMonth.nextMonth())
         .get();

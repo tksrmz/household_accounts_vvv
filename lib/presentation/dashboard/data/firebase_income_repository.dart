@@ -6,20 +6,23 @@ import '../../../data/firebase/util/path_builder.dart';
 import '../repository/income_repository.dart';
 
 class FirebaseIncomeRepository implements IncomeRepository {
-  const FirebaseIncomeRepository(this.db);
+  const FirebaseIncomeRepository(
+    this.db,
+    this._personalNoteId,
+  );
 
   final FirebaseFirestore db;
+  final String _personalNoteId;
+
+  String get _incomeRecordCollectionPath =>
+      getPersonalIncomeRecordCollectionPath(_personalNoteId);
 
   @override
   Future<List<Income>> fetchMonthly(DateTime date) async {
     final firstDayOfMonth = date.toFirstDayOfMonth();
 
     final querySnapshot = await db
-        .collection(
-          getPersonalIncomeRecordCollectionPath(
-            'fmVfCNkA2wGfJx69LRFhl3ird9EB',
-          ),
-        )
+        .collection(_incomeRecordCollectionPath)
         .where('date', isGreaterThanOrEqualTo: firstDayOfMonth)
         .where('date', isLessThan: firstDayOfMonth.nextMonth())
         .get();
