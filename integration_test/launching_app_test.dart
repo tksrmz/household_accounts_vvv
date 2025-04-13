@@ -21,11 +21,6 @@ void main() async {
     GetIt.instance.reset();
   });
 
-  testWidgets('launching app', (tester) async {
-    await tester.pumpWidget(const MyApp());
-    expect(find.byType(MyApp), findsOneWidget);
-  });
-
   testWidgets('Displays summary info', (tester) async {
     await tester.pumpWidget(const MyApp());
     await tester.enterText(
