@@ -35,16 +35,12 @@ void main() {
    * - 例外が発生したときにログを出力する？
    * - BudgetGraphModel.fetchでBudgetGraphDataListを取得できる
    * - personal modeとpair modeに対応する
-   * - incomeRepositoryがLocalhostのFirebaseFirestoreと接続できるようにする（mockを使わずにrepositoryのテストをする）
-   *   - これはIntegrationTestかE2Eテストの範囲な気がする
+   * - X incomeRepositoryがLocalhostのFirebaseFirestoreと接続できるようにする（mockを使わずにrepositoryのテストをする）
    *   - 範囲外のレコードを取得しないかテストする
    *   - 該当のレコードがないとき、0個取得する
-   *   - 該当のレコードがただ1つあるとき、1個取得する
-   * - expenseRepositoryがLocalhostのFirebaseFirestoreと接続できるようにする（mockを使わずにrepositoryのテストをする）
+   * - X expenseRepositoryがLocalhostのFirebaseFirestoreと接続できるようにする（mockを使わずにrepositoryのテストをする）
    *   - 範囲外のレコードを取得しないかテストする
    *   - 該当のレコードがないとき、0個取得する
-   *   - 該当のレコードがただ1つあるとき、1個取得する
-   * - 3. IntegrationTestでIncomeRepositoryをテストする
    * - エラー表示のときをエラーっぽい画面にする
    * - ローディング中の表示を確認する
    * - dateをX月1日00:00:00に整形するロジックをモデルに移す

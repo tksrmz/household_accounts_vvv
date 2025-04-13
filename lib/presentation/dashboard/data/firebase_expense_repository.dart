@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/util/extension/date_time.dart';
 
+import '../../../data/firebase/util/path_builder.dart';
 import '../../../entity/expense.dart';
 import '../repository/expense_repository.dart';
 
@@ -14,7 +15,11 @@ class FirebaseExpenseRepository implements ExpenseRepository {
     final firstDayOfMonth = date.toFirstDayOfMonth();
 
     final querySnapshot = await db
-        .collection('hoge')
+        .collection(
+          getPersonalExpenseRecordCollectionPath(
+            'fmVfCNkA2wGfJx69LRFhl3ird9EB',
+          ),
+        )
         .where('date', isGreaterThanOrEqualTo: firstDayOfMonth)
         .where('date', isLessThan: firstDayOfMonth.nextMonth())
         .get();

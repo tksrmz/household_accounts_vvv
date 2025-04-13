@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:household_accounts/main.dart';
-import 'package:household_accounts/presentation/dashboard/page.dart';
-import 'package:household_accounts/presentation/dashboard/widget/summary_panel.dart';
 import 'package:household_accounts/util/service_locator/main.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -28,7 +26,7 @@ void main() async {
     expect(find.byType(MyApp), findsOneWidget);
   });
 
-  testWidgets('Displays dashboard after sign in', (tester) async {
+  testWidgets('Displays summary info', (tester) async {
     await tester.pumpWidget(const MyApp());
     await tester.enterText(
       find.byWidgetPredicate(
@@ -36,7 +34,7 @@ void main() async {
             widget is TextField && widget.decoration!.labelText == "Email",
         description: "with email text field",
       ),
-      "hogehoge@example.com",
+      "dashboard_showing_records@example.com",
     );
     await tester.enterText(
       find.byWidgetPredicate(
@@ -62,11 +60,12 @@ void main() async {
     // Wait for loading to finish.
     // The number of pumps will not be checked as it does not matter that how long it takes
     await tester.pumpAndSettle();
-    expect(find.byType(DashboardPage), findsOneWidget);
-    // FIXME Expect strings to be displayed
-    // TODO Create test data
-    // TODO Implement BudgetGraph
-    expect(find.byType(SummaryPanel), findsOneWidget);
+    expect(find.text("収入"), findsOneWidget);
+    expect(find.text("¥1"), findsOneWidget);
+    expect(find.text("支出"), findsOneWidget);
+    expect(find.text("¥2"), findsOneWidget);
+    expect(find.text("残高"), findsOneWidget);
+    expect(find.text("-¥1"), findsOneWidget);
     // out of scope for this sprint
     // expect(find.byType(BudgetGraph), findsOneWidget);
   });
