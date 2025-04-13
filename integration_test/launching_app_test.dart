@@ -23,30 +23,7 @@ void main() async {
 
   testWidgets('Displays summary info', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await tester.enterText(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is TextField && widget.decoration!.labelText == "Email",
-        description: "with email text field",
-      ),
-      "dashboard_showing_records@example.com",
-    );
-    await tester.enterText(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is TextField && widget.decoration!.labelText == "Password",
-        description: "with password text field",
-      ),
-      "abc1234",
-    );
-    await tester.tap(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is OutlinedButton &&
-            (widget.child as dynamic)!.label == "Sign in",
-        description: "with sign in button",
-      ),
-    );
+    await singInApp(tester, "dashboard_showing_records@example.com", "abc1234");
 
     // Display loading screen
     await tester.pump();
@@ -68,30 +45,8 @@ void main() async {
   testWidgets('Displays no summary as the user has no records in this month',
       (tester) async {
     await tester.pumpWidget(const MyApp());
-    await tester.enterText(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is TextField && widget.decoration!.labelText == "Email",
-        description: "with email text field",
-      ),
-      "dashboard_out_of_range_records@example.com",
-    );
-    await tester.enterText(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is TextField && widget.decoration!.labelText == "Password",
-        description: "with password text field",
-      ),
-      "abc1234",
-    );
-    await tester.tap(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is OutlinedButton &&
-            (widget.child as dynamic)!.label == "Sign in",
-        description: "with sign in button",
-      ),
-    );
+    await singInApp(
+        tester, "dashboard_out_of_range_records@example.com", "abc1234");
 
     // Display loading screen
     await tester.pump();
@@ -110,30 +65,7 @@ void main() async {
 
   testWidgets('Displays no summary for new user', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await tester.enterText(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is TextField && widget.decoration!.labelText == "Email",
-        description: "with email text field",
-      ),
-      "new_user@example.com",
-    );
-    await tester.enterText(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is TextField && widget.decoration!.labelText == "Password",
-        description: "with password text field",
-      ),
-      "abc1234",
-    );
-    await tester.tap(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is OutlinedButton &&
-            (widget.child as dynamic)!.label == "Sign in",
-        description: "with sign in button",
-      ),
-    );
+    await singInApp(tester, "new_user@example.com", "abc1234");
 
     // Display loading screen
     await tester.pump();
@@ -149,4 +81,35 @@ void main() async {
     // out of scope for this sprint
     // expect(find.byType(BudgetGraph), findsOneWidget);
   });
+}
+
+Future<void> singInApp(
+  WidgetTester tester,
+  String email,
+  String password,
+) async {
+  await tester.enterText(
+    find.byWidgetPredicate(
+      (widget) =>
+          widget is TextField && widget.decoration!.labelText == "Email",
+      description: "with email text field",
+    ),
+    email,
+  );
+  await tester.enterText(
+    find.byWidgetPredicate(
+      (widget) =>
+          widget is TextField && widget.decoration!.labelText == "Password",
+      description: "with password text field",
+    ),
+    password,
+  );
+  await tester.tap(
+    find.byWidgetPredicate(
+      (widget) =>
+          widget is OutlinedButton &&
+          (widget.child as dynamic)!.label == "Sign in",
+      description: "with sign in button",
+    ),
+  );
 }
