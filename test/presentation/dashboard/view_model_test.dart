@@ -49,7 +49,6 @@ void main() {
       expect(sut.income, Income(100));
       expect(sut.expense, Expense(70));
       expect(sut.hasError, isFalse);
-      expect(sut.errorMessage, '');
     });
 
     test('notifyListeners()を呼び出しており、エラー状態ではない', () async {
@@ -105,7 +104,6 @@ void main() {
       expect(sut.income, isNull);
       expect(sut.expense, isNull);
       expect(sut.hasError, isTrue);
-      expect(sut.errorMessage, 'エラーが発生しました。時間をおいて再度お試しください。');
     });
 
     test('notifyListeners()を呼び出している', () async {

@@ -152,7 +152,8 @@ void main() {
       );
 
       expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.text('エラーが発生しました。時間をおいて再度お試しください。'), findsOneWidget);
+      expect(find.text('エラーが発生しました。'), findsOneWidget);
+      expect(find.text('アプリを再起動してください。'), findsOneWidget);
     },
   );
 

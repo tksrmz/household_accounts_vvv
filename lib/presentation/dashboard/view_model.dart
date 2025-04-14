@@ -32,9 +32,6 @@ class SummaryViewModel extends foundation.ChangeNotifier {
   /// 初期化状態
   final _InitStateLifecycle _initStateLifecycle = _InitStateLifecycle();
 
-  /// エラーメッセージ
-  String get errorMessage => !hasError ? '' : 'エラーが発生しました。時間をおいて再度お試しください。';
-
   /// 初期化完了前かどうか
   bool get isBeforeInitialization => _initStateLifecycle.isUninitialized;
 
