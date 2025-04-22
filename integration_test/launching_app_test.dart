@@ -81,6 +81,33 @@ void main() async {
     // out of scope for this sprint
     // expect(find.byType(BudgetGraph), findsOneWidget);
   });
+
+  testWidgets('Displays summary info in pair mode', (tester) async {
+    await tester.pumpWidget(const MyApp());
+    await singInApp(tester, "dashboard_pair_mode@example.com", "abc1234");
+
+    // Display loading screen
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    // Wait for loading to finish and the dashboard to be displayed
+    await tester.pumpAndSettle();
+
+    // Open the navigation menu
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    expect(find.text("Personal mode"), findsOneWidget);
+
+    // Change to pair mode
+    await tester.tap(find.text("Change to pair mode."));
+    await tester.pumpAndSettle();
+    expect(find.text("収入"), findsOneWidget);
+    expect(find.text("¥20"), findsOneWidget);
+    expect(find.text("支出"), findsOneWidget);
+    expect(find.text("¥10"), findsOneWidget);
+    expect(find.text("残高"), findsOneWidget);
+    expect(find.text("¥10"), findsOneWidget);
+  });
 }
 
 Future<void> singInApp(
