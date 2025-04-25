@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:household_accounts/presentation/dashboard/page.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/firebase/util/path_builder.dart';
 import '../../util/type/single_or_pair.dart';
 import '../budget_viewer/budget_viewer_page.dart';
 import '../category_viewer/category_viewer_page.dart';
@@ -40,21 +41,37 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final bodies = <Widget>[
       // TODO Refactor this to use DI container
-      DashboardPage(
-        date: DateTime.now(),
-        viewModel: SummaryViewModel(
-          summaryModel: SummaryModel(
-            incomeRepository: FirebaseIncomeRepository(
-              FirebaseFirestore.instance,
-              context.read<UserInfo>().uid,
+      Builder(
+        builder: (context) {
+          return DashboardPage(
+            date: DateTime.now(),
+            viewModel: SummaryViewModel(
+              summaryModel: SummaryModel(
+                incomeRepository: FirebaseIncomeRepository(
+                  FirebaseFirestore.instance,
+                  _singleOrPair == SingleOrPair.single
+                      ? getPersonalIncomeRecordCollectionPath(
+                          context.read<UserInfo>().uid,
+                        )
+                      : getSharedIncomeRecordCollectionPath(
+                          context.read<UserInfo>().pairId!,
+                        ),
+                ),
+                expenseRepository: FirebaseExpenseRepository(
+                  FirebaseFirestore.instance,
+                  _singleOrPair == SingleOrPair.single
+                      ? getPersonalExpenseRecordCollectionPath(
+                          context.read<UserInfo>().uid,
+                        )
+                      : getSharedExpenseRecordCollectionPath(
+                          context.read<UserInfo>().pairId!,
+                        ),
+                ),
+              ),
+              // budgetGraphModel: BudgetGraphModel(),
             ),
-            expenseRepository: FirebaseExpenseRepository(
-              FirebaseFirestore.instance,
-              context.read<UserInfo>().uid,
-            ),
-          ),
-          // budgetGraphModel: BudgetGraphModel(),
-        ),
+          );
+        },
       ),
       RecordInputPage(),
       CalendarRecordViewPage(),
