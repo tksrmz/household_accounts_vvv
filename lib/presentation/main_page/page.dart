@@ -40,35 +40,28 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     final bodies = <Widget>[
-      // TODO Refactor this to use DI container
       Builder(
         builder: (context) {
+          final userInfo = context.read<UserInfo>();
+          final isSingle = _singleOrPair == SingleOrPair.single;
+
           return DashboardPage(
             date: DateTime.now(),
             viewModel: SummaryViewModel(
               summaryModel: SummaryModel(
                 incomeRepository: FirebaseIncomeRepository(
                   FirebaseFirestore.instance,
-                  _singleOrPair == SingleOrPair.single
-                      ? getPersonalIncomeRecordCollectionPath(
-                          context.read<UserInfo>().uid,
-                        )
-                      : getSharedIncomeRecordCollectionPath(
-                          context.read<UserInfo>().pairId!,
-                        ),
+                  isSingle
+                      ? getPersonalIncomeRecordCollectionPath(userInfo.uid)
+                      : getSharedIncomeRecordCollectionPath(userInfo.pairId!),
                 ),
                 expenseRepository: FirebaseExpenseRepository(
                   FirebaseFirestore.instance,
-                  _singleOrPair == SingleOrPair.single
-                      ? getPersonalExpenseRecordCollectionPath(
-                          context.read<UserInfo>().uid,
-                        )
-                      : getSharedExpenseRecordCollectionPath(
-                          context.read<UserInfo>().pairId!,
-                        ),
+                  isSingle
+                      ? getPersonalExpenseRecordCollectionPath(userInfo.uid)
+                      : getSharedExpenseRecordCollectionPath(userInfo.pairId!),
                 ),
               ),
-              // budgetGraphModel: BudgetGraphModel(),
             ),
           );
         },
