@@ -15,7 +15,6 @@ class FirebaseIncomeRepository implements IncomeRepository {
 
   @override
   Future<List<Income>> fetchMonthly(DateTime date) async {
-    print(_collectionPath);
     final querySnapshot = await db
         .collection(_collectionPath)
         .whereInThisMonth('date', date)

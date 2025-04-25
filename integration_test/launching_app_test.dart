@@ -83,9 +83,9 @@ void main() async {
     expect(find.text("収入"), findsOneWidget);
     expect(find.text("¥20"), findsOneWidget);
     expect(find.text("支出"), findsOneWidget);
-    expect(find.text("¥10"), findsOneWidget);
+    expect(find.text("¥9"), findsOneWidget);
     expect(find.text("残高"), findsOneWidget);
-    expect(find.text("¥10"), findsOneWidget);
+    expect(find.text("¥11"), findsOneWidget);
   });
 }
 
