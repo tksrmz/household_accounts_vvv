@@ -75,10 +75,10 @@ void main() async {
     // Open the navigation menu
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
-    expect(find.text("Personal mode"), findsOneWidget);
+    expect(find.text("自分の家計簿"), findsOneWidget);
 
     // Change to pair mode
-    await tester.tap(find.text("Change to pair mode."));
+    await tester.tap(find.text("ふたりの家計簿を見る"));
     await tester.pumpAndSettle();
     expect(find.text("収入"), findsOneWidget);
     expect(find.text("¥20"), findsOneWidget);
