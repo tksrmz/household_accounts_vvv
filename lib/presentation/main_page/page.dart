@@ -27,12 +27,12 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final _titles = [
-    'Dashboard',
-    'Input',
-    'Calendar',
-    'Property',
-    'Category',
-    'Budget',
+    'ダッシュボード',
+    '入力',
+    'カレンダー',
+    '資産',
+    'カテゴリ',
+    '予算',
   ];
   SingleOrPair _singleOrPair = SingleOrPair.single;
   int _index = 0;
@@ -89,27 +89,27 @@ class _MainPageState extends State<MainPage> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.sunny),
-            label: 'Dashboard',
+            label: 'ダッシュボード',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.cloud),
-            label: 'Input',
+            label: '入力',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.beach_access),
-            label: 'Calendar',
+            label: 'カレンダー',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.access_alarm),
-            label: 'Property',
+            label: '資産',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.accessibility),
-            label: 'Category',
+            label: 'カテゴリ',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.next_plan_outlined),
-            label: 'Budget',
+            label: '予算',
           ),
         ],
         currentIndex: _index,

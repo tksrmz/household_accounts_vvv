@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../common/logic/formatter.dart';
 import '../../entity/record.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/single_or_pair.dart';
@@ -276,15 +277,15 @@ class _CalendarDay extends StatelessWidget {
           children: [
             Center(child: Text('$_day')),
             Text(
-              '$_income',
+              Formatter.simpleCurrency(_income),
               style: TextStyle(color: Colors.green),
             ),
             Text(
-              '$_expense',
+              Formatter.simpleCurrency(_expense),
               style: TextStyle(color: Colors.orange),
             ),
             Text(
-              '$_transfer',
+              Formatter.simpleCurrency(_transfer),
               style: TextStyle(color: Colors.grey),
             ),
           ],
@@ -325,13 +326,13 @@ class _Calendar extends StatelessWidget {
         .toList(growable: false);
     final weekday = TableRow(
       children: const [
-        Text("Mon"),
-        Text("Tue"),
-        Text("Wed"),
-        Text("Thu"),
-        Text("Fri"),
-        Text("Sat"),
-        Text("Sun"),
+        Text("月"),
+        Text("火"),
+        Text("水"),
+        Text("木"),
+        Text("金"),
+        Text("土"),
+        Text("日"),
       ],
     );
 

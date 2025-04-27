@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
 
+import '../../common/logic/formatter.dart';
 import '../../entity/record.dart';
 import '../../feature/record_deletion/use_case.dart';
 import '../../util/service_locator/main.dart';
@@ -103,7 +104,7 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
                     Expanded(
                       child: Text(item.leadingText),
                     ),
-                    Text('${item.amountText} yen'),
+                    Text('${item.amountText}'),
                     DeleteIconButton(
                       onPressed: () async {
                         await item.delete(
@@ -199,7 +200,7 @@ class _ViewModelItemIncome extends _ViewModelItem {
   final IncomeRecord entity;
 
   @override
-  String get amountText => '+${entity.amount}';
+  String get amountText => '+${Formatter.simpleCurrency(entity.amount)}';
 
   @override
   String get leadingText => '${entity.category.name}@${entity.note}';
@@ -227,7 +228,7 @@ class _ViewModelItemExpense extends _ViewModelItem {
   final ExpenseRecord entity;
 
   @override
-  String get amountText => '-${entity.amount}';
+  String get amountText => '${Formatter.simpleCurrency(entity.amount)}';
 
   @override
   String get leadingText => '${entity.category.name}@${entity.note}';
@@ -255,7 +256,7 @@ class _ViewModelItemTransfer extends _ViewModelItem {
   final TransferRecord entity;
 
   @override
-  String get amountText => '${entity.amount}';
+  String get amountText => '${Formatter.simpleCurrency(entity.amount)}';
 
   @override
   String get leadingText => '${entity.source.name}→${entity.destination.name}';

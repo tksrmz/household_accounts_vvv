@@ -282,7 +282,7 @@ class _PageContentsState extends State<_PageContents> {
                 // Tell the user that the input data is invalid.
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text('Invalid input.'),
+                    content: const Text('入力が正しくありません'),
                   ),
                 );
                 return;
@@ -290,7 +290,7 @@ class _PageContentsState extends State<_PageContents> {
               if (_srcProperty == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text('Select property.'),
+                    content: const Text('資産を選択してください'),
                   ),
                 );
                 return;
@@ -301,7 +301,7 @@ class _PageContentsState extends State<_PageContents> {
                   if (_category == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: const Text('Select category.'),
+                        content: const Text('カテゴリを選択してください'),
                       ),
                     );
                     return;
@@ -312,7 +312,7 @@ class _PageContentsState extends State<_PageContents> {
                   if (_destProperty == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: const Text('Select property.'),
+                        content: const Text('転送先資産を選択してください'),
                       ),
                     );
                     return;
@@ -340,7 +340,7 @@ class _PageContentsState extends State<_PageContents> {
               // Tell the user that the record has been created
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Text('Record created!'),
+                  content: const Text('レコードを登録しました'),
                 ),
               );
             },
@@ -409,7 +409,7 @@ class _AmountTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return NumberTextFormField(
       decoration: InputDecoration(
-        labelText: 'Amount',
+        labelText: '金額',
         border: OutlineInputBorder(),
       ),
       initialValue: '',
@@ -440,19 +440,19 @@ class _RecordTypeSelector extends StatelessWidget {
         Expanded(
           child: OutlinedButton(
             onPressed: _incomeButtonOnPressed,
-            child: const Text('Income'),
+            child: const Text('収入'),
           ),
         ),
         Expanded(
           child: OutlinedButton(
             onPressed: _expenseButtonOnPressed,
-            child: const Text('Expense'),
+            child: const Text('支出'),
           ),
         ),
         Expanded(
           child: OutlinedButton(
             onPressed: _transferButtonOnPressed,
-            child: const Text('Transfer'),
+            child: const Text('振替'),
           ),
         ),
       ],
@@ -495,7 +495,7 @@ class _CategoryDropDownMenu extends StatelessWidget {
               // When there is a failure, [items] is set to null to disable [DropdownButton].
               // Then, [value] is set to null to display [disabledHint].
               value = null;
-              disabledHint = Text('Error: ${snapshot.error}');
+              disabledHint = Text('エラー: ${snapshot.error}');
               items = null;
             },
             (categories) {
@@ -516,19 +516,19 @@ class _CategoryDropDownMenu extends StatelessWidget {
           // When an error was occurred, [items] is set to null to disable [DropdownButton].
           // Then, [value] is set to null to display [disabledHint].
           value = null;
-          disabledHint = Text('Error: ${snapshot.error}');
+          disabledHint = Text('エラー: ${snapshot.error}');
           items = null;
         } else {
           // While loading, [items] is set to null to disable [DropdownButton].
           // Then, [value] is set to null to display [disabledHint].
           value = null;
-          disabledHint = Text('Loading...');
+          disabledHint = Text('ロード中…');
           items = null;
         }
 
         return DropdownButton<CategoryBase>(
           value: value,
-          hint: const Text('Select category'),
+          hint: const Text('カテゴリを選択'),
           disabledHint: disabledHint,
           icon: const Icon(Icons.arrow_downward),
           elevation: 16,
@@ -577,7 +577,7 @@ class _PropertyDropDownMenu extends StatelessWidget {
               // When there is a failure, [items] is set to null to disable [DropdownButton].
               // Then, [value] is set to null to display [disabledHint].
               value = null;
-              disabledHint = Text('Error: ${snapshot.error}');
+              disabledHint = Text('エラー: ${snapshot.error}');
               items = null;
             },
             (properties) {
@@ -597,19 +597,19 @@ class _PropertyDropDownMenu extends StatelessWidget {
           // When an error was occurred, [items] is set to null to disable [DropdownButton].
           // Then, [value] is set to null to display [disabledHint].
           value = null;
-          disabledHint = Text('Error: ${snapshot.error}');
+          disabledHint = Text('エラー: ${snapshot.error}');
           items = null;
         } else {
           // While loading, [items] is set to null to disable [DropdownButton].
           // Then, [value] is set to null to display [disabledHint].
           value = null;
-          disabledHint = Text('Loading...');
+          disabledHint = Text('ロード中…');
           items = null;
         }
 
         return DropdownButton<Property>(
           value: value,
-          hint: const Text('Select property'),
+          hint: const Text('資産を選択'),
           disabledHint: disabledHint,
           icon: const Icon(Icons.arrow_downward),
           elevation: 16,
@@ -639,7 +639,7 @@ class _NoteTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
         decoration: InputDecoration(
-          labelText: 'Note',
+          labelText: 'ノート',
           border: OutlineInputBorder(),
         ),
         initialValue: '',
@@ -647,7 +647,7 @@ class _NoteTextField extends StatelessWidget {
         onSaved: _onSaved,
         validator: (String? value) {
           if (value == null) {
-            return 'Please input some value.';
+            return 'ノートを入力してください';
           }
 
           return null;
@@ -668,7 +668,7 @@ class _SubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: _onPressed,
-      child: const Text('Submit'),
+      child: const Text('登録'),
     );
   }
 }

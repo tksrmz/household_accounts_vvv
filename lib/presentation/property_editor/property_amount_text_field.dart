@@ -14,7 +14,7 @@ class PropertyAmountTextField extends StatelessWidget {
     return TextField(
       controller: _controller,
       decoration: InputDecoration(
-        labelText: 'Amount',
+        labelText: '資産額',
         border: OutlineInputBorder(),
       ),
       keyboardType: TextInputType.number,

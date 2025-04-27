@@ -5,6 +5,6 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text('Loading...');
+    return Text('ロード中…');
   }
 }

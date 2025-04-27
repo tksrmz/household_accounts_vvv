@@ -104,7 +104,7 @@ class _PageBodyState extends State<_PageBody> {
                   int.parse(_amountController.text),
                 );
           },
-          child: const Text('Submit'),
+          child: const Text('保存'),
         ),
       ],
     );

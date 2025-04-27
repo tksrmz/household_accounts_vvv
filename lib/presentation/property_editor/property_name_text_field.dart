@@ -19,8 +19,8 @@ class PropertyNameTextField extends StatelessWidget {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
-        labelText: 'Property name',
-        helperText: '1-${Property.maxNameLength} characters only',
+        labelText: '資産名',
+        helperText: '1文字以上${Property.maxNameLength}文字以内',
         border: OutlineInputBorder(),
       ),
       keyboardType: TextInputType.text,

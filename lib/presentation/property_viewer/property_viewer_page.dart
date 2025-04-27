@@ -137,7 +137,7 @@ class _PropertyListItem extends StatelessWidget {
       showDialog<void>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Deleting Property Failed'),
+          title: const Text('資産の削除に失敗しました'),
           content: Text('$exception'),
           actions: [
             TextButton(
@@ -169,7 +169,7 @@ class _EditPropertyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final buildPropertyEditorPage =
         (BuildContext anotherContext) => PropertyEditorPage(
-              title: 'Edit',
+              title: '編集',
               initialName: _property.name,
               initialAmount: _property.amount,
               onSubmit: (name, amount) async {
@@ -220,7 +220,7 @@ class _EditPropertyButton extends StatelessWidget {
 class _AddPropertyButton extends StatelessWidget {
   const _AddPropertyButton({Key? key}) : super(key: key);
 
-  static const String ADD_PROPERTY_TITLE = 'Add a new property';
+  static const String ADD_PROPERTY_TITLE = '資産の追加';
 
   @override
   Widget build(BuildContext context) {

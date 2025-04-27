@@ -49,11 +49,11 @@ class MainPageDrawer extends StatelessWidget {
 
     switch (mode) {
       case SingleOrPair.single:
-        modeText = 'Personal mode';
+        modeText = '自分の家計簿';
         break;
 
       case SingleOrPair.pair:
-        modeText = 'Pair mode';
+        modeText = 'ふたりの家計簿';
         break;
     }
 
@@ -69,7 +69,7 @@ class MainPageDrawer extends StatelessWidget {
 
     switch (mode) {
       case SingleOrPair.single:
-        title = Text('Change to pair mode.');
+        title = Text('ふたりの家計簿を見る');
         onTap = () {
           setter(SingleOrPair.pair);
           Navigator.pop(context); // close the drawer
@@ -77,7 +77,7 @@ class MainPageDrawer extends StatelessWidget {
         break;
 
       case SingleOrPair.pair:
-        title = Text('Change to personal mode.');
+        title = Text('自分の家計簿を見る');
         onTap = () {
           setter(SingleOrPair.single);
           Navigator.pop(context); // close the drawer

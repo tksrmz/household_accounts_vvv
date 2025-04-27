@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../common/logic/formatter.dart';
 import '../../entity/category.dart';
 import '../../feature/category_deletion/delete_expense_category_use_case.dart';
 import '../../feature/category_deletion/delete_income_category_use_case.dart';
@@ -64,10 +65,10 @@ class _PageContent extends StatelessWidget {
         Expanded(
           child: ListView(
             children: [
-              _SectionTitle(text: 'INCOME CATEGORIES'),
+              _SectionTitle(text: '収入カテゴリ'),
               _IncomeCategoryList(),
               SizedBox(height: 40),
-              _SectionTitle(text: 'EXPENSE CATEGORIES'),
+              _SectionTitle(text: '支出カテゴリ'),
               _ExpenseCategoryList(),
             ],
           ),
@@ -80,7 +81,7 @@ class _PageContent extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => CategoryEditorPage(
-                  title: 'Add a new category',
+                  title: 'カテゴリの追加',
                   onSubmit: (name, budget, type) async {
                     await _submit(name, budget, type, uinfo, sop);
                     Navigator.pop(context);
@@ -95,7 +96,7 @@ class _PageContent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.add_circle_outline),
-              const Text('Add a new category.'),
+              const Text('カテゴリの追加'),
             ],
           ),
         ),
@@ -165,7 +166,7 @@ class _IncomeCategoryList extends StatelessWidget {
     }
 
     return state.categories.isEmpty
-        ? const Text('No income categories exist. Add new one.')
+        ? const Text('収入カテゴリがありません。新規追加してください')
         : Column(
             children: state.categories
                 .map(
@@ -209,7 +210,7 @@ class _IncomeCategoryListItem extends StatelessWidget {
     result.fold(
       (exception) => _showExceptionDialog(
         context,
-        'Deleting Income Category Failed',
+        '収入カテゴリの削除に失敗しました',
         exception,
       ),
       (_) => _reloadIncomeCategoryState(context),
@@ -242,7 +243,7 @@ class _ExpenseCategoryList extends StatelessWidget {
     }
 
     return state.categories.isEmpty
-        ? const Text('No expense categories exist. Add new one.')
+        ? const Text('支出カテゴリがありません。新規追加してください')
         : Column(
             children: state.categories
                 .map(
@@ -270,7 +271,7 @@ class _ExpenseCategoryListItem extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Text(
-          '${_expenseCategory.name} (Budget: ${_expenseCategory.totalBudget})',
+          '${_expenseCategory.name} (予算: ${Formatter.simpleCurrency(_expenseCategory.totalBudget)})',
         ),
         Spacer(),
         _EditCategoryButton(originalData: _expenseCategory),
@@ -288,7 +289,7 @@ class _ExpenseCategoryListItem extends StatelessWidget {
     result.fold(
       (exception) => _showExceptionDialog(
         context,
-        'Deleting Expense Category Failed',
+        '支出カテゴリの削除に失敗しました',
         exception,
       ),
       (_) => _reloadExpenseCategoryState(context),
@@ -334,7 +335,7 @@ class _EditCategoryButton extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => CategoryEditorPage(
-              title: 'Edit',
+              title: '編集',
               initialName: _originalData.name,
               initialBudget: budget,
               initialType: _originalData.type,

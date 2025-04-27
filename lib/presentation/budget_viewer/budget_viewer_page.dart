@@ -76,7 +76,7 @@ class _PageContentsState extends State<_PageContents> {
         final hasConnected = snapshot.connectionState == ConnectionState.done;
         if (hasConnected && snapshot.hasError) {
           return const Center(
-            child: Text('Something went wrong.'),
+            child: Text('エラーが発生しました'),
           );
         }
 
@@ -127,7 +127,7 @@ class _BudgetListItem extends StatelessWidget {
           children: [
             Text(_budgetState.name),
             Spacer(),
-            Text('${_budgetState.spentAmount} / ${_budgetState.totalAmount}'),
+            Text('${_budgetState.spentAmount} / ${_budgetState.totalAmount}円'),
           ],
         ),
         SizedBox(

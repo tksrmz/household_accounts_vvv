@@ -129,8 +129,8 @@ class _PageBodyState extends State<_PageBody> {
         builder: (context, constraints) => Center(
           child: ToggleButtons(
             children: const [
-              Text('Income'),
-              Text('Expense'),
+              Text('収入'),
+              Text('支出'),
             ],
             isSelected: _categorySelection,
             constraints: BoxConstraints(
@@ -149,8 +149,8 @@ class _PageBodyState extends State<_PageBody> {
         child: TextField(
           controller: _nameController,
           decoration: InputDecoration(
-            labelText: 'Category name',
-            helperText: '1-${CategoryBase.maxNameLength} characters only',
+            labelText: 'カテゴリ名',
+            helperText: '1文字以上${CategoryBase.maxNameLength}文字以下',
             border: OutlineInputBorder(),
           ),
           keyboardType: TextInputType.text,
@@ -168,7 +168,7 @@ class _PageBodyState extends State<_PageBody> {
           child: TextField(
             controller: _budgetController,
             decoration: InputDecoration(
-              labelText: 'Budget',
+              labelText: '予算',
               border: OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
@@ -184,7 +184,7 @@ class _PageBodyState extends State<_PageBody> {
           if (budget == null && _isExpenseSelected) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Invalid budget input.'),
+                content: const Text('予算の入力が正しくありません'),
               ),
             );
           } else {
@@ -195,7 +195,7 @@ class _PageBodyState extends State<_PageBody> {
             );
           }
         },
-        child: const Text('Submit'),
+        child: const Text('登録'),
       ),
     );
 
