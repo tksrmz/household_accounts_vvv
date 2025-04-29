@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "household-accounts-1129d"
-  }
+    "default": "household-accounts-1129d",
+    "staging": "household-accounts-dev-15106"
+  },
+  "targets": {},
+  "etags": {}
 }
