@@ -20,57 +20,64 @@ describe("Cloud Functions", () => {
 
     afterEach(() => {
       // Delete all documents in the test Firestore
-      const collections = ["publicProfiles", "personalNotes", "privateProfiles"];
+      const collections = [
+        "publicProfiles",
+        "personalNotes",
+        "privateProfiles",
+      ];
       collections.forEach(async (collection) => {
-        await admin.getFirestore().doc(`${collection}/${testUid}`).delete();
+        await admin.getFirestore()
+          .doc(`${collection}/${testUid}`)
+          .delete();
       });
     });
 
-    it("should create publicProfiles, personalNotes, and privateProfiles documents", async () => {
-      // [Arrange]
-      // Wrap the function
-      const wrapped = test.wrap(myFunctions.onCreateUser);
-      // Create data passed to the function
-      const user = test.auth.makeUserRecord({
-        uid: testUid,
-      });
+    it("should create publicProfiles, personalNotes, and privateProfiles documents",
+      async () => {
+        // [Arrange]
+        // Wrap the function
+        const wrapped = test.wrap(myFunctions.onCreateUser);
+        // Create data passed to the function
+        const user = test.auth.makeUserRecord({
+          uid: testUid,
+        });
 
-      // [Act]
-      // `await wrapped(user)` does not work so using `then` instead.
-      return wrapped(user).then(() => {
-        // [Assert]
-        // Check if the documents were created
-        return Promise.all(
-          [
-            // /publicProfiles/testUserId exists with the correct data
-            {
-              documentPath: `publicProfiles/${testUid}`,
-              expectedData: {
-                name: user.uid,
-                createdAt: expect.any(admin.Timestamp),
-                updatedAt: expect.any(admin.Timestamp),
+        // [Act]
+        // `await wrapped(user)` does not work so using `then` instead.
+        return wrapped(user).then(() => {
+          // [Assert]
+          // Check if the documents were created
+          return Promise.all(
+            [
+              // /publicProfiles/testUserId exists with the correct data
+              {
+                documentPath: `publicProfiles/${testUid}`,
+                expectedData: {
+                  name: user.uid,
+                  createdAt: expect.any(admin.Timestamp),
+                  updatedAt: expect.any(admin.Timestamp),
+                },
               },
-            },
-            // /personalNotes/testUserId exists with the correct data
-            {
-              documentPath: `personalNotes/${testUid}`,
-              expectedData: {
-                createdAt: expect.any(admin.Timestamp),
+              // /personalNotes/testUserId exists with the correct data
+              {
+                documentPath: `personalNotes/${testUid}`,
+                expectedData: {
+                  createdAt: expect.any(admin.Timestamp),
+                },
               },
-            },
-            // /privateProfiles/testUserId exists with the correct data
-            {
-              documentPath: `privateProfiles/${testUid}`,
-              expectedData: {
-                sharedNote: null,
+              // /privateProfiles/testUserId exists with the correct data
+              {
+                documentPath: `privateProfiles/${testUid}`,
+                expectedData: {
+                  sharedNote: null,
+                },
               },
-            },
-          ].map(async ({ documentPath, expectedData }) => {
-            const doc = await admin.getFirestore().doc(documentPath).get();
-            expect(doc.data()).toEqual(expectedData);
-          })
-        );
+            ].map(async ({ documentPath, expectedData }) => {
+              const doc = await admin.getFirestore().doc(documentPath).get();
+              expect(doc.data()).toEqual(expectedData);
+            })
+          );
+        });
       });
-    });
   });
 });
