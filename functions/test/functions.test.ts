@@ -1,15 +1,14 @@
 // Initialize Firebase Functions Test SDK
-import * as tests from 'firebase-functions-test';
-// const test = require('firebase-functions-test')({
+import * as tests from "firebase-functions-test";
 const test = tests({
-  databaseURL: 'https://household-accounts-dev-15106.firebaseio.com',
-  storageBucket: 'household-accounts-dev-15106.firebasestorage.app',
-  projectId: 'household-accounts-dev-15106',
-}, 'household-accounts-dev-service-account-key.json');
+  databaseURL: "https://household-accounts-dev-15106.firebaseio.com",
+  storageBucket: "household-accounts-dev-15106.firebasestorage.app",
+  projectId: "household-accounts-dev-15106",
+}, "household-accounts-dev-service-account-key.json");
 
 import * as admin from "firebase-admin/firestore";
 import * as myFunctions from "../src/index";
-import { describe, expect, afterAll, it, afterEach } from '@jest/globals';
+import { describe, expect, afterAll, it, afterEach } from "@jest/globals";
 
 describe("Cloud Functions", () => {
   afterAll(() => {
