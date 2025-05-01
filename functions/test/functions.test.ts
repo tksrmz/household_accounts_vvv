@@ -4,7 +4,7 @@ const test = tests({
   databaseURL: "https://household-accounts-dev-15106.firebaseio.com",
   storageBucket: "household-accounts-dev-15106.firebasestorage.app",
   projectId: "household-accounts-dev-15106",
-}, "household-accounts-dev-service-account-key.json");
+}, process.env.HOUSEHOLD_ACCOUNTS_DEV_SERVICE_ACCOUNT_KEY);
 
 import * as admin from "firebase-admin/firestore";
 import * as myFunctions from "../src/index";
