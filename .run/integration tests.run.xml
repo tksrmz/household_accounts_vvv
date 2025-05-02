@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="integration tests" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="firebase --version ; firebase emulators:exec --only auth,firestore,functions --import=./saved-data ../household_accounts/integration_test/run.sh" />
+    <option name="SCRIPT_TEXT" value="firebase --version ; firebase emulators:exec --only auth,firestore,functions --import=../household_accounts/integration_test/saved-data ../household_accounts/integration_test/run.sh" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="$PROJECT_DIR$/integration_test/run.sh" />
     <option name="SCRIPT_OPTIONS" value="" />
