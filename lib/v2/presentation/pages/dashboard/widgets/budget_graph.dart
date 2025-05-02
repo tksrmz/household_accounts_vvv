@@ -7,7 +7,7 @@ import 'package:household_accounts/common/logic/formatter.dart';
 
 import '../../../../../vo/budget_amount.dart';
 import '../../../../../vo/budget_spent.dart';
-import '../../../../domain/entities/vo/budget_name.dart';
+import '../../../../domain/models/vo/budget_name.dart';
 import '../../../../domain/usecases/budget_graph_data.dart';
 import '../../../../domain/usecases/budget_graph_data_list.dart';
 

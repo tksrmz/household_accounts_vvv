@@ -1,18 +1,22 @@
 以下のフォルダ構成で作り直す
 
+フォルダ名などは[Guide to app architecture](https://docs.flutter.dev/app-architecture/guide)を参考にする。
+
 ```
 lib/
 ├── main.dart                // アプリのエントリーポイント
 ├── presentation/            // UIや画面関連のコード
 │   ├── pages/               // 各画面のウィジェット
+│   │   ├── view.dart        // 画面のUI
+│   │   └── view-model.dart  // 画面の状態管理
 │   ├── widgets/             // 再利用可能な小さなウィジェット
 │   └── styles/              // テーマやスタイル関連
 ├── data/                    // データ層（APIやデータベース関連）
 │   ├── models/              // データモデル
 │   ├── repositories/        // データ取得ロジック
-│   └── sources/             // データソース（APIやローカルDB）
+│   └── services/            // データソース（APIやローカルDB）
 ├── domain/                  // ビジネスロジック層
-│   ├── entities/            // ドメインエンティティ
+│   ├── models/              // ドメインモデル
 │   ├── usecases/            // ユースケース（アプリのロジック）
 │   └── repositories/        // ドメイン層のリポジトリインターフェース
 ├── util/                    // ユーティリティやヘルパー関数

@@ -7,8 +7,8 @@ import '../repositories/income_repository.dart';
 
 part 'summary.freezed.dart';
 
-class SummaryModel {
-  const SummaryModel({
+class SummaryUseCase {
+  const SummaryUseCase({
     required this.incomeRepository,
     required this.expenseRepository,
   });

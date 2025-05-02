@@ -48,7 +48,7 @@ class _MainPageState extends State<MainPage> {
           return DashboardPage(
             date: DateTime.now(),
             viewModel: SummaryViewModel(
-              summaryModel: SummaryModel(
+              summaryUseCase: SummaryUseCase(
                 incomeRepository: FirebaseIncomeRepository(
                   FirebaseFirestore.instance,
                   isSingle

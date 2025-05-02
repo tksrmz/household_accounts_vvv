@@ -6,24 +6,24 @@ import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.da
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-@GenerateNiceMocks([MockSpec<SummaryModel>()])
+@GenerateNiceMocks([MockSpec<SummaryUseCase>()])
 import 'view_model_test.mocks.dart';
 
 void main() {
-  final mockSummaryModel = MockSummaryModel();
+  final mockSummaryUseCase = MockSummaryUseCase();
   final date = DateTime(2025, 1);
 
   tearDown(() {
     // モックのクリーンアップ
-    reset(mockSummaryModel);
+    reset(mockSummaryUseCase);
   });
 
   test('初期化前はModelがnullであり、エラー状態ではない', () {
     final sut = SummaryViewModel(
-      summaryModel: mockSummaryModel,
+      summaryUseCase: mockSummaryUseCase,
     );
 
-    verifyNoMoreInteractions(mockSummaryModel);
+    verifyNoMoreInteractions(mockSummaryUseCase);
     expect(sut.isBeforeInitialization, isTrue);
     expect(sut.income, isNull);
     expect(sut.expense, isNull);
@@ -33,18 +33,18 @@ void main() {
   group('初期化に成功したとき', () {
     setUp(() {
       // mock
-      when(mockSummaryModel.fetch(date)).thenAnswer(
+      when(mockSummaryUseCase.fetch(date)).thenAnswer(
         (_) async => Summary(Income(100), Expense(70)),
       );
     });
 
     test('Modelを取得でき、エラー状態ではない', () async {
       final sut = SummaryViewModel(
-        summaryModel: mockSummaryModel,
+        summaryUseCase: mockSummaryUseCase,
       );
       await sut.init(date);
 
-      verify(mockSummaryModel.fetch(date)).called(1);
+      verify(mockSummaryUseCase.fetch(date)).called(1);
       expect(sut.isBeforeInitialization, isFalse);
       expect(sut.income, Income(100));
       expect(sut.expense, Expense(70));
@@ -53,7 +53,7 @@ void main() {
 
     test('notifyListeners()を呼び出しており、エラー状態ではない', () async {
       final sut = SummaryViewModel(
-        summaryModel: mockSummaryModel,
+        summaryUseCase: mockSummaryUseCase,
       );
       var notifyListenersCalled = false;
       sut.addListener(() {
@@ -71,7 +71,7 @@ void main() {
 
     test('init()が2回以上呼び出されても何もしない', () async {
       final sut = SummaryViewModel(
-        summaryModel: mockSummaryModel,
+        summaryUseCase: mockSummaryUseCase,
       );
       var counter = 0;
       sut.addListener(() {
@@ -88,18 +88,18 @@ void main() {
 
   group('初期化に失敗したとき', () {
     setUp(() {
-      when(mockSummaryModel.fetch(any)).thenAnswer(
+      when(mockSummaryUseCase.fetch(any)).thenAnswer(
         (_) async => throw SummaryModelException('テスト：エラーが発生しました'),
       );
     });
 
     test('エラー状態になり、Modelを取得できない', () async {
       final sut = SummaryViewModel(
-        summaryModel: mockSummaryModel,
+        summaryUseCase: mockSummaryUseCase,
       );
       await sut.init(date);
 
-      verify(mockSummaryModel.fetch(date)).called(1);
+      verify(mockSummaryUseCase.fetch(date)).called(1);
       expect(sut.isBeforeInitialization, isFalse);
       expect(sut.income, isNull);
       expect(sut.expense, isNull);
@@ -108,7 +108,7 @@ void main() {
 
     test('notifyListeners()を呼び出している', () async {
       final sut = SummaryViewModel(
-        summaryModel: mockSummaryModel,
+        summaryUseCase: mockSummaryUseCase,
       );
       var notifyListenersCalled = false;
       sut.addListener(() {
@@ -126,7 +126,7 @@ void main() {
 
     test('init()が2回以上呼び出されても何もしない', () async {
       final sut = SummaryViewModel(
-        summaryModel: mockSummaryModel,
+        summaryUseCase: mockSummaryUseCase,
       );
       var counter = 0;
       sut.addListener(() {

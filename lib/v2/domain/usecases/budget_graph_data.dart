@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../vo/budget_amount.dart';
 import '../../../vo/budget_spent.dart';
-import '../entities/vo/budget_name.dart';
+import '../models/vo/budget_name.dart';
 
 part 'budget_graph_data.freezed.dart';
 

@@ -13,7 +13,7 @@ import 'package:mockito/mockito.dart';
 import '../../../../util/golden_helper.dart';
 // Fakeクラス用にModelのモックも作る
 @GenerateNiceMocks([
-  MockSpec<SummaryModel>(),
+  MockSpec<SummaryUseCase>(),
   MockSpec<BudgetGraphModel>(),
   MockSpec<SummaryViewModel>()
 ])
@@ -170,7 +170,7 @@ void main() {
 class FakeSummaryViewModelError extends SummaryViewModel {
   FakeSummaryViewModelError()
       : super(
-          summaryModel: MockSummaryModel(),
+          summaryUseCase: MockSummaryUseCase(),
           // budgetGraphModel: MockBudgetGraphModel(),
         );
 

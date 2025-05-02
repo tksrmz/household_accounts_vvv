@@ -7,11 +7,11 @@ import '../../../domain/usecases/summary.dart';
 
 class SummaryViewModel extends foundation.ChangeNotifier {
   SummaryViewModel({
-    required this.summaryModel,
+    required this.summaryUseCase,
     // required this.budgetGraphModel,
   });
 
-  final SummaryModel summaryModel;
+  final SummaryUseCase summaryUseCase;
   // final BudgetGraphModel budgetGraphModel;
 
   /// 当該月の総収入（内部用）
@@ -44,7 +44,7 @@ class SummaryViewModel extends foundation.ChangeNotifier {
     }
 
     final Either<SummaryModelException, Summary> result =
-        await Task(() => summaryModel.fetch(date))
+        await Task(() => summaryUseCase.fetch(date))
             .attempt()
             .map((either) => either.leftMap(cast<SummaryModelException>))
             .run();

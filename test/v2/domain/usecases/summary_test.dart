@@ -48,7 +48,7 @@ void main() {
         (_) async => testData.expenseAnswer,
       );
 
-      final summary = await SummaryModel(
+      final summary = await SummaryUseCase(
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
       ).fetch(date);
@@ -73,7 +73,7 @@ void main() {
     );
 
     expect(
-      () async => await SummaryModel(
+      () async => await SummaryUseCase(
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
       ).fetch(date),
@@ -94,7 +94,7 @@ void main() {
     );
 
     expect(
-      () async => await SummaryModel(
+      () async => await SummaryUseCase(
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
       ).fetch(date),
