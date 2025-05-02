@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:household_accounts/entity/income.dart';
 import 'package:household_accounts/util/extension/collection_reference.dart';
 
-import '../../../entity/expense.dart';
-import '../../../v2/domain/repositories/expense_repository.dart';
+import '../../domain/repositories/income_repository.dart';
 
-class FirebaseExpenseRepository implements ExpenseRepository {
-  const FirebaseExpenseRepository(
+class FirebaseIncomeRepository implements IncomeRepository {
+  const FirebaseIncomeRepository(
     this.db,
     this._collectionPath,
   );
@@ -14,13 +14,13 @@ class FirebaseExpenseRepository implements ExpenseRepository {
   final String _collectionPath;
 
   @override
-  Future<List<Expense>> fetchMonthly(DateTime date) async {
+  Future<List<Income>> fetchMonthly(DateTime date) async {
     final querySnapshot = await db
         .collection(_collectionPath)
         .whereInThisMonth('date', date)
         .get();
     return querySnapshot.docs
-        .map((doc) => Expense(doc.data()['amount']!))
+        .map((doc) => Income(doc.data()['amount']!))
         .toList(growable: false);
   }
 }
