@@ -32,6 +32,11 @@ void main() async {
     // Wait for loading to finish.
     // The number of pumps will not be checked as it does not matter that how long it takes
     await tester.pumpAndSettle();
+
+    // Check user name
+    expect(find.text("Hogeの家計簿"), findsOneWidget);
+
+    // Check summary
     expect(find.text("収入"), findsOneWidget);
     expect(find.text("¥2"), findsOneWidget);
     expect(find.text("支出"), findsOneWidget);
@@ -53,6 +58,8 @@ void main() async {
     // Wait for loading to finish.
     // The number of pumps will not be checked as it does not matter that how long it takes
     await tester.pumpAndSettle();
+
+    // Check summary
     expect(find.text("収入"), findsOneWidget);
     expect(find.text("支出"), findsOneWidget);
     expect(find.text("残高"), findsOneWidget);
@@ -63,7 +70,7 @@ void main() async {
 
   testWidgets('ペアリング済みユーザーはふたりの家計簿の情報をダッシュボード画面で確認できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singInApp(tester, "pair_user@example.com", "abc1234");
+    await singInApp(tester, "pair_user_a@example.com", "abc1234");
 
     // Display loading screen
     await tester.pump();
@@ -71,6 +78,8 @@ void main() async {
 
     // Wait for loading to finish and the dashboard to be displayed
     await tester.pumpAndSettle();
+    // Check user name
+    expect(find.text("Piyoの家計簿"), findsOneWidget);
 
     // Open the navigation menu
     await tester.tap(find.byIcon(Icons.menu));
@@ -80,6 +89,11 @@ void main() async {
     // Change to pair mode
     await tester.tap(find.text("ふたりの家計簿を見る"));
     await tester.pumpAndSettle();
+
+    // Check user name
+    expect(find.text("PiyoとFugaの家計簿"), findsOneWidget);
+
+    // Check summary
     expect(find.text("収入"), findsOneWidget);
     expect(find.text("¥20"), findsOneWidget);
     expect(find.text("支出"), findsOneWidget);
