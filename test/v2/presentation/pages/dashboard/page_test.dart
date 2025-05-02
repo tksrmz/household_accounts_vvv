@@ -4,9 +4,9 @@ import 'package:household_accounts/entity/expense.dart';
 import 'package:household_accounts/entity/income.dart';
 import 'package:household_accounts/presentation/dashboard/model/budget_graph_data_list.dart';
 import 'package:household_accounts/presentation/dashboard/model/summary.dart';
-import 'package:household_accounts/presentation/dashboard/widget/summary_panel.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.dart';
+import 'package:household_accounts/v2/presentation/pages/dashboard/widgets/summary_panel.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 

@@ -1,13 +1,13 @@
 import 'package:household_accounts/entity/expense.dart';
 import 'package:household_accounts/entity/income.dart';
-import 'package:household_accounts/presentation/dashboard/widget/summary_panel.dart';
+import 'package:household_accounts/v2/presentation/pages/dashboard/widgets/summary_panel.dart';
 
-import '../../../util/golden_helper.dart';
+import '../../../../../util/golden_helper.dart';
 
 void main() {
   testGoldens(
     'SummaryPanel displays income, expense and positive balance',
-    goldenFileName: 'summary_panel_positive_balance',
+    goldenFileName: 'summary_panel/positive_balance',
     builder: () => SummaryPanel(
       Income(100),
       Expense(70),
@@ -16,7 +16,7 @@ void main() {
 
   testGoldens(
     'SummaryPanel displays income, expense and negative balance',
-    goldenFileName: 'summary_panel_negative_balance',
+    goldenFileName: 'summary_panel/negative_balance',
     builder: () => SummaryPanel(
       Income(20),
       Expense(30),
@@ -25,7 +25,7 @@ void main() {
 
   testGoldens(
     'SummaryPanel displays income, expense and zero balance',
-    goldenFileName: 'summary_panel_zero_balance',
+    goldenFileName: 'summary_panel/zero_balance',
     builder: () => SummaryPanel(
       Income(1),
       Expense(1),
