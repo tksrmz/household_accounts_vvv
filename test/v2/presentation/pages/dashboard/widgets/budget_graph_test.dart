@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:household_accounts/v2/domain/models/budget_graph_data.dart';
 import 'package:household_accounts/v2/domain/models/vo/budget_name.dart';
-import 'package:household_accounts/v2/domain/usecases/budget_graph_data.dart';
 import 'package:household_accounts/v2/domain/usecases/budget_graph_data_list.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/widgets/budget_graph.dart';
 import 'package:household_accounts/vo/budget_amount.dart';

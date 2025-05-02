@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/entity/expense.dart';
 import 'package:household_accounts/entity/income.dart';
+import 'package:household_accounts/v2/domain/models/summary.dart';
 import 'package:household_accounts/v2/domain/usecases/summary.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.dart';
 import 'package:mockito/annotations.dart';
@@ -34,7 +35,7 @@ void main() {
     setUp(() {
       // mock
       when(mockSummaryUseCase.fetch(date)).thenAnswer(
-        (_) async => Summary(Income(100), Expense(70)),
+        (_) async => SummaryModel(Income(100), Expense(70)),
       );
     });
 

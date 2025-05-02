@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' as foundation;
 
 import '../../../../entity/expense.dart';
 import '../../../../entity/income.dart';
+import '../../../domain/models/summary.dart';
 import '../../../domain/usecases/summary.dart';
 
 class SummaryViewModel extends foundation.ChangeNotifier {
@@ -43,7 +44,7 @@ class SummaryViewModel extends foundation.ChangeNotifier {
       return;
     }
 
-    final Either<SummaryModelException, Summary> result =
+    final Either<SummaryModelException, SummaryModel> result =
         await Task(() => summaryUseCase.fetch(date))
             .attempt()
             .map((either) => either.leftMap(cast<SummaryModelException>))

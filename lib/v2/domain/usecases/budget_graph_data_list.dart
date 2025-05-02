@@ -5,7 +5,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../vo/budget_amount.dart';
 import '../../../vo/budget_spent.dart';
-import 'budget_graph_data.dart';
+import '../models/budget_graph_data.dart';
 
 part 'budget_graph_data_list.freezed.dart';
 

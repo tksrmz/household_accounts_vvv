@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../entity/expense.dart';
 import '../../../entity/income.dart';
+import '../models/summary.dart';
 import '../repositories/expense_repository.dart';
 import '../repositories/income_repository.dart';
 
@@ -21,7 +22,7 @@ class SummaryUseCase {
   /// 例外が発生した場合は[SummaryModelException]をスローする
   ///
   /// [date] 取得対象の年月
-  Future<Summary> fetch(DateTime date) async {
+  Future<SummaryModel> fetch(DateTime date) async {
     final incomeList = await _fetchIterableOfIntFromThrowableSupplier(
       () async =>
           (await incomeRepository.fetchMonthly(date)).map((e) => e.value),
@@ -34,7 +35,7 @@ class SummaryUseCase {
       'ExpenseRepositoryでエラーが発生しました',
     );
 
-    return Summary(
+    return SummaryModel(
       Income(_sumOf(incomeList)),
       Expense(_sumOf(expenseList)),
     );
@@ -54,11 +55,6 @@ class SummaryUseCase {
       throw SummaryModelException(errorMessage);
     }
   }
-}
-
-@freezed
-class Summary with _$Summary {
-  const factory Summary(Income income, Expense expense) = _Summary;
 }
 
 /// SummaryModelでエラーが発生したときにスローされる例外
