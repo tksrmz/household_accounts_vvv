@@ -77,7 +77,7 @@ void main() {
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
       ).fetch(date),
-      throwsA(isA<SummaryModelException>()),
+      throwsA(isA<SummaryUseCaseException>()),
     );
   });
 
@@ -98,7 +98,7 @@ void main() {
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
       ).fetch(date),
-      throwsA(isA<SummaryModelException>()),
+      throwsA(isA<SummaryUseCaseException>()),
     );
   });
 }

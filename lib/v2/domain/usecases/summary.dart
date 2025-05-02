@@ -19,7 +19,7 @@ class SummaryUseCase {
 
   /// 当該月の収支データを取得する
   ///
-  /// 例外が発生した場合は[SummaryModelException]をスローする
+  /// 例外が発生した場合は[SummaryUseCaseException]をスローする
   ///
   /// [date] 取得対象の年月
   Future<SummaryModel> fetch(DateTime date) async {
@@ -52,14 +52,17 @@ class SummaryUseCase {
     try {
       return await supplier();
     } on Exception {
-      throw SummaryModelException(errorMessage);
+      throw SummaryUseCaseException(errorMessage);
     }
   }
 }
 
-/// SummaryModelでエラーが発生したときにスローされる例外
+/// [SummaryUseCase]でエラーが発生したときにスローされる例外
 @freezed
-class SummaryModelException with _$SummaryModelException implements Exception {
+class SummaryUseCaseException
+    with _$SummaryUseCaseException
+    implements Exception {
   @Assert('message.length > 0', 'エラーメッセージが空です')
-  const factory SummaryModelException(String message) = _SummaryModelException;
+  const factory SummaryUseCaseException(String message) =
+      _SummaryUseCaseModelException;
 }

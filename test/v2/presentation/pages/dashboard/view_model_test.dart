@@ -90,7 +90,7 @@ void main() {
   group('初期化に失敗したとき', () {
     setUp(() {
       when(mockSummaryUseCase.fetch(any)).thenAnswer(
-        (_) async => throw SummaryModelException('テスト：エラーが発生しました'),
+        (_) async => throw SummaryUseCaseException('テスト：エラーが発生しました'),
       );
     });
 

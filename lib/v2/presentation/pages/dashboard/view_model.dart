@@ -44,10 +44,10 @@ class SummaryViewModel extends foundation.ChangeNotifier {
       return;
     }
 
-    final Either<SummaryModelException, SummaryModel> result =
+    final Either<SummaryUseCaseException, SummaryModel> result =
         await Task(() => summaryUseCase.fetch(date))
             .attempt()
-            .map((either) => either.leftMap(cast<SummaryModelException>))
+            .map((either) => either.leftMap(cast<SummaryUseCaseException>))
             .run();
 
     result.fold(
