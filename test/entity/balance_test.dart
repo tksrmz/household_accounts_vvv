@@ -1,6 +1,6 @@
 import 'package:household_accounts/entity/balance.dart';
-import 'package:household_accounts/entity/expense.dart';
-import 'package:household_accounts/entity/income.dart';
+import 'package:household_accounts/v2/domain/models/vo/expense.dart';
+import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:test/test.dart';
 
 void main() {

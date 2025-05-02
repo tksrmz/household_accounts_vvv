@@ -1,4 +1,4 @@
-import '../../../entity/income.dart';
+import '../models/vo/income.dart';
 
 abstract interface class IncomeRepository {
   /// 指定された年月の収入データを取得する

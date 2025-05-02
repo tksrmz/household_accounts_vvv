@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart' as foundation;
 
-import '../../../../entity/expense.dart';
-import '../../../../entity/income.dart';
 import '../../../domain/models/summary.dart';
+import '../../../domain/models/vo/expense.dart';
+import '../../../domain/models/vo/income.dart';
 import '../../../domain/usecases/summary.dart';
 
 class SummaryViewModel extends foundation.ChangeNotifier {

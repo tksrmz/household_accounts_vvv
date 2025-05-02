@@ -1,15 +1,15 @@
-import 'package:household_accounts/entity/income.dart';
+import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:test/test.dart';
 
 void main() {
   [0, 100].forEach((value) {
     test('Constructor returns instance with value of ${value}.', () {
-      final actual = Income(value);
+      final actual = Expense(value);
       expect(actual.value, equals(value));
     });
   });
 
   test('Constructor raise error', () {
-    expect(() => Income(-1), throwsA(isA<AssertionError>()));
+    expect(() => Expense(-1), throwsA(isA<AssertionError>()));
   });
 }

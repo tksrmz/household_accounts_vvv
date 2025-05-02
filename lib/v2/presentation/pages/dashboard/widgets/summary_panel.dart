@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../../../common/logic/formatter.dart';
 import '../../../../../entity/balance.dart';
-import '../../../../../entity/expense.dart';
-import '../../../../../entity/income.dart';
+import '../../../../domain/models/vo/expense.dart';
+import '../../../../domain/models/vo/income.dart';
 import 'm3_container.dart';
 import 'spaced_row.dart';
 

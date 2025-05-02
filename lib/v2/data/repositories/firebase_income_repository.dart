@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:household_accounts/entity/income.dart';
 import 'package:household_accounts/util/extension/collection_reference.dart';
+import 'package:household_accounts/v2/domain/models/vo/income.dart';
 
 import '../../domain/repositories/income_repository.dart';
 

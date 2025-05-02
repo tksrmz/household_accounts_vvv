@@ -1,5 +1,5 @@
-import 'package:household_accounts/entity/expense.dart';
-import 'package:household_accounts/entity/income.dart';
+import 'package:household_accounts/v2/domain/models/vo/expense.dart';
+import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:household_accounts/v2/domain/repositories/expense_repository.dart';
 import 'package:household_accounts/v2/domain/repositories/income_repository.dart';
 import 'package:household_accounts/v2/domain/usecases/summary.dart';

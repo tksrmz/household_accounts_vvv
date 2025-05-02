@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:household_accounts/entity/income.dart';
 import 'package:household_accounts/v2/data/repositories/firebase_income_repository.dart';
+import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';

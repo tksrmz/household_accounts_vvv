@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'expense.dart';
-import 'income.dart';
+import '../v2/domain/models/vo/expense.dart';
+import '../v2/domain/models/vo/income.dart';
 
 part 'balance.freezed.dart';
 
