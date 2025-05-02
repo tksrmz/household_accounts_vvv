@@ -29,8 +29,8 @@ class DashboardPage extends StatelessWidget {
           child: ListView(
             children: [
               SummaryPanel(
-                viewModel.income!,
-                viewModel.expense!,
+                viewModel.income,
+                viewModel.expense,
               ),
               // out of scope for this sprint
               // SizedBox(height: 16.0),

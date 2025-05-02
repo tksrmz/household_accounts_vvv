@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' as foundation;
+import 'package:flutter/foundation.dart';
 
 import '../../../domain/models/summary.dart';
 import '../../../domain/models/vo/expense.dart';
@@ -7,7 +7,7 @@ import '../../../domain/usecases/summary.dart';
 import 'state.dart';
 
 /// ダッシュボードのサマリを表示するためのViewModel
-class SummaryViewModel extends foundation.ChangeNotifier {
+class SummaryViewModel extends ChangeNotifier {
   SummaryViewModel({
     required this.summaryUseCase,
     // required this.budgetGraphModel,
@@ -20,10 +20,10 @@ class SummaryViewModel extends foundation.ChangeNotifier {
   SummaryState _summaryState;
 
   /// 当該月の総収入
-  Income? get income => _summaryState.income;
+  Income get income => _summaryState.income;
 
   /// 当該月の総支出
-  Expense? get expense => _summaryState.expense;
+  Expense get expense => _summaryState.expense;
 
   // /// 当該月の予算データ
   // BudgetGraphDataList? budgetGraphDataList;
