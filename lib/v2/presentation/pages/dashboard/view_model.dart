@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart' as foundation;
 
 import '../../../../entity/expense.dart';
 import '../../../../entity/income.dart';
-import '../../../../presentation/dashboard/model/summary.dart';
+import '../../../domain/usecases/summary.dart';
 
 class SummaryViewModel extends foundation.ChangeNotifier {
   SummaryViewModel({

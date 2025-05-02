@@ -5,11 +5,11 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/common/logic/formatter.dart';
 
-import '../../../../../presentation/dashboard/model/budget_graph_data.dart';
-import '../../../../../presentation/dashboard/model/budget_graph_data_list.dart';
-import '../../../../../presentation/dashboard/vo/budget_name.dart';
 import '../../../../../vo/budget_amount.dart';
 import '../../../../../vo/budget_spent.dart';
+import '../../../../domain/entities/vo/budget_name.dart';
+import '../../../../domain/usecases/budget_graph_data.dart';
+import '../../../../domain/usecases/budget_graph_data_list.dart';
 
 class BudgetGraph extends StatelessWidget {
   final BudgetGraphDataList _list;
