@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'income.freezed.dart';
 
 @freezed
-class Income with _$Income {
+abstract class Income with _$Income {
   /// Income entity.
   ///
   /// [value] must be positive.

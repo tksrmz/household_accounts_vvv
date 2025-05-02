@@ -72,10 +72,9 @@ class BudgetGraphDataList extends Equatable {
 
 /// BudgetGraphListの例外
 @freezed
-class BudgetGraphModelException
+abstract class BudgetGraphModelException
     with _$BudgetGraphModelException
     implements Exception {
-  @Assert('message.length > 0', 'エラーメッセージが空です')
   const factory BudgetGraphModelException(String message) =
       _BudgetGraphModelException;
 }

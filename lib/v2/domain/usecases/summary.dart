@@ -59,10 +59,9 @@ class SummaryUseCase {
 
 /// [SummaryUseCase]でエラーが発生したときにスローされる例外
 @freezed
-class SummaryUseCaseException
+abstract class SummaryUseCaseException
     with _$SummaryUseCaseException
     implements Exception {
-  @Assert('message.length > 0', 'エラーメッセージが空です')
   const factory SummaryUseCaseException(String message) =
       _SummaryUseCaseModelException;
 }

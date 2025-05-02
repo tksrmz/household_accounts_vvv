@@ -6,6 +6,6 @@ import 'vo/income.dart';
 part 'summary.freezed.dart';
 
 @freezed
-class SummaryModel with _$SummaryModel {
+abstract class SummaryModel with _$SummaryModel {
   const factory SummaryModel(Income income, Expense expense) = _SummaryModel;
 }

@@ -8,7 +8,7 @@ import 'vo/budget_name.dart';
 part 'budget_graph_data.freezed.dart';
 
 @freezed
-class BudgetGraphData with _$BudgetGraphData {
+abstract class BudgetGraphData with _$BudgetGraphData {
   const factory BudgetGraphData({
     required BudgetName name,
     required BudgetSpent spent,

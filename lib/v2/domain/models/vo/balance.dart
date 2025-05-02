@@ -8,7 +8,7 @@ part 'balance.freezed.dart';
 @freezed
 
 /// Balance entity.
-class Balance with _$Balance {
+abstract class Balance with _$Balance {
   const factory Balance(Income income, Expense expense) = _Balance;
 
   const Balance._();

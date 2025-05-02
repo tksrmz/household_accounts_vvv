@@ -4,7 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'budget_name.freezed.dart';
 
 @freezed
-class BudgetName with _$BudgetName {
+abstract class BudgetName with _$BudgetName {
   /// 最大の文字数
   static const maxLength = 20;
 
