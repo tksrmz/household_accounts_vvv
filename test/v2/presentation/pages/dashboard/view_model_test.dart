@@ -19,7 +19,7 @@ void main() {
     reset(mockSummaryUseCase);
   });
 
-  test('初期化前はModelがnullであり、エラー状態ではない', () {
+  test('初期化前はModelが初期値であり、エラー状態ではない', () {
     final sut = SummaryViewModel(
       summaryUseCase: mockSummaryUseCase,
     );
@@ -27,7 +27,7 @@ void main() {
     verifyNoMoreInteractions(mockSummaryUseCase);
     expect(sut.isBeforeInitialization, isTrue);
     expect(sut.income, isNull);
-    expect(sut.expense, isNull);
+    expect(sut.expense, Expense.empty);
     expect(sut.hasError, isFalse);
   });
 
@@ -94,7 +94,7 @@ void main() {
       );
     });
 
-    test('エラー状態になり、Modelを取得できない', () async {
+    test('エラー状態になり、Modelは初期値である', () async {
       final sut = SummaryViewModel(
         summaryUseCase: mockSummaryUseCase,
       );
@@ -103,7 +103,7 @@ void main() {
       verify(mockSummaryUseCase.fetch(date)).called(1);
       expect(sut.isBeforeInitialization, isFalse);
       expect(sut.income, isNull);
-      expect(sut.expense, isNull);
+      expect(sut.expense, Expense.empty);
       expect(sut.hasError, isTrue);
     });
 
