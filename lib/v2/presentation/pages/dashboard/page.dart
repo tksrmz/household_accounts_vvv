@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'view_model.dart';
-import 'widget/error_message.dart';
-import 'widget/summary_panel.dart';
+import '../../../../presentation/dashboard/view_model.dart';
+import '../../../../presentation/dashboard/widget/error_message.dart';
+import '../../../../presentation/dashboard/widget/summary_panel.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key, required this.date, required this.viewModel});

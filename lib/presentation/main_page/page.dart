@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:household_accounts/presentation/dashboard/page.dart';
+import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/firebase/util/path_builder.dart';
