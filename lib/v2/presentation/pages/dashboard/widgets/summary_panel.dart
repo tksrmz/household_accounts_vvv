@@ -4,8 +4,8 @@ import '../../../../../../common/logic/formatter.dart';
 import '../../../../../entity/balance.dart';
 import '../../../../../entity/expense.dart';
 import '../../../../../entity/income.dart';
-import '../../../../../presentation/dashboard/widget/m3_container.dart';
-import '../../../../../presentation/dashboard/widget/spaced_row.dart';
+import 'm3_container.dart';
+import 'spaced_row.dart';
 
 /// A panel that displays the given [summary].
 class SummaryPanel extends StatelessWidget {

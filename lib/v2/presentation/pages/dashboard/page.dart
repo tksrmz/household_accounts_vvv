@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../presentation/dashboard/widget/error_message.dart';
 import 'view_model.dart';
+import 'widgets/error_message.dart';
 import 'widgets/summary_panel.dart';
 
 class DashboardPage extends StatelessWidget {
