@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/entity/income.dart';
 import 'package:household_accounts/util/extension/collection_reference.dart';
 
-import '../repository/income_repository.dart';
+import '../../../v2/domain/repositories/income_repository.dart';
 
 class FirebaseIncomeRepository implements IncomeRepository {
   const FirebaseIncomeRepository(

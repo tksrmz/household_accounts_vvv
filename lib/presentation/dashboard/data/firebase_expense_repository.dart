@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/util/extension/collection_reference.dart';
 
 import '../../../entity/expense.dart';
-import '../repository/expense_repository.dart';
+import '../../../v2/domain/repositories/expense_repository.dart';
 
 class FirebaseExpenseRepository implements ExpenseRepository {
   const FirebaseExpenseRepository(

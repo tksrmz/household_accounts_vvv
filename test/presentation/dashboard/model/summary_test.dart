@@ -1,8 +1,8 @@
 import 'package:household_accounts/entity/expense.dart';
 import 'package:household_accounts/entity/income.dart';
 import 'package:household_accounts/presentation/dashboard/model/summary.dart';
-import 'package:household_accounts/presentation/dashboard/repository/expense_repository.dart';
-import 'package:household_accounts/presentation/dashboard/repository/income_repository.dart';
+import 'package:household_accounts/v2/domain/repositories/expense_repository.dart';
+import 'package:household_accounts/v2/domain/repositories/income_repository.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';

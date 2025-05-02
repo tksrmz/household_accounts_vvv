@@ -2,8 +2,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../entity/expense.dart';
 import '../../../entity/income.dart';
-import '../repository/expense_repository.dart';
-import '../repository/income_repository.dart';
+import '../../../v2/domain/repositories/expense_repository.dart';
+import '../../../v2/domain/repositories/income_repository.dart';
 
 part 'summary.freezed.dart';
 
