@@ -1,4 +1,3 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart' as foundation;
 
 import '../../../domain/models/summary.dart';
@@ -44,25 +43,17 @@ class SummaryViewModel extends foundation.ChangeNotifier {
       return;
     }
 
-    final Either<SummaryUseCaseException, SummaryModel> result =
-        await Task(() => summaryUseCase.fetch(date))
-            .attempt()
-            .map((either) => either.leftMap(cast<SummaryUseCaseException>))
-            .run();
-
-    result.fold(
-      (exception) {
-        print(exception);
-        _initStateLifecycle._fail();
-        notifyListeners();
-      },
-      (summary) {
-        _income = summary.income;
-        _expense = summary.expense;
-        _initStateLifecycle._success();
-        notifyListeners();
-      },
-    );
+    try {
+      SummaryModel summary = await summaryUseCase.fetch(date);
+      _income = summary.income;
+      _expense = summary.expense;
+      _initStateLifecycle._success();
+    } on SummaryUseCaseException catch (ex) {
+      print(ex);
+      _initStateLifecycle._fail();
+    } finally {
+      notifyListeners();
+    }
   }
 }
 
