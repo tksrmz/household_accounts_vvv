@@ -21,11 +21,8 @@ class SummaryViewModel extends foundation.ChangeNotifier {
   /// 状態
   SummaryState _summaryState;
 
-  /// 当該月の総収入（内部用）
-  Income? _income;
-
   /// 当該月の総収入
-  Income? get income => hasError ? null : _income;
+  Income? get income => _summaryState.income;
 
   /// 当該月の総支出
   Expense? get expense => _summaryState.expense;
@@ -46,8 +43,7 @@ class SummaryViewModel extends foundation.ChangeNotifier {
 
     try {
       SummaryModel summary = await summaryUseCase.fetch(date);
-      _income = summary.income;
-      _summaryState = _summaryState._success(summary.expense);
+      _summaryState = _summaryState._success(summary.income, summary.expense);
     } on SummaryUseCaseException catch (ex) {
       print(ex);
       _summaryState = _summaryState._fail();
@@ -64,16 +60,22 @@ class SummaryViewModel extends foundation.ChangeNotifier {
 class SummaryState {
   SummaryState.uninitialized()
       : _initState = _InitState.uninitialized,
+        income = Income.empty,
         expense = Expense.empty;
 
-  SummaryState.success(this.expense) : _initState = _InitState.succeeded;
+  SummaryState.success(this.income, this.expense)
+      : _initState = _InitState.succeeded;
 
   SummaryState.failed()
       : _initState = _InitState.failed,
+        income = Income.empty,
         expense = Expense.empty;
 
   /// 初期化状態
   late final _InitState _initState;
+
+  /// 当該月の総収入
+  final Income income;
 
   /// 当該月の総支出
   final Expense expense;
@@ -86,13 +88,13 @@ class SummaryState {
 
   /// 初期化されていない状態[_InitState.uninitialized]から、
   /// 初期化に成功した状態[_InitState.succeeded]へ遷移する。
-  SummaryState _success(Expense newExpense) {
+  SummaryState _success(Income newIncome, Expense newExpense) {
     assert(
       _initState == _InitState.uninitialized,
       '初期化されていない状態[_InitState.uninitialized]から、'
       '初期化に成功した状態[_InitState.succeeded]へ遷移することはできません。',
     );
-    return SummaryState.success(newExpense);
+    return SummaryState.success(newIncome, newExpense);
   }
 
   /// 初期化されていない状態[_InitState.uninitialized]から、

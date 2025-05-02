@@ -26,7 +26,7 @@ void main() {
 
     verifyNoMoreInteractions(mockSummaryUseCase);
     expect(sut.isBeforeInitialization, isTrue);
-    expect(sut.income, isNull);
+    expect(sut.income, Income.empty);
     expect(sut.expense, Expense.empty);
     expect(sut.hasError, isFalse);
   });
@@ -102,7 +102,7 @@ void main() {
 
       verify(mockSummaryUseCase.fetch(date)).called(1);
       expect(sut.isBeforeInitialization, isFalse);
-      expect(sut.income, isNull);
+      expect(sut.income, Income.empty);
       expect(sut.expense, Expense.empty);
       expect(sut.hasError, isTrue);
     });
