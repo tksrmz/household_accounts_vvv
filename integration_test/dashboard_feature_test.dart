@@ -21,7 +21,7 @@ void main() async {
     GetIt.instance.reset();
   });
 
-  testWidgets('Displays summary info', (tester) async {
+  testWidgets('ユーザーは自分の家計簿の情報をダッシュボード画面で確認できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await singInApp(tester, "single_user@example.com", "abc1234");
 
@@ -42,7 +42,7 @@ void main() async {
     // expect(find.byType(BudgetGraph), findsOneWidget);
   });
 
-  testWidgets('Displays no summary for new user', (tester) async {
+  testWidgets('新規ユーザーは自分の家計簿の情報をダッシュボード画面で確認できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await singInApp(tester, "new_user@example.com", "abc1234");
 
@@ -61,7 +61,7 @@ void main() async {
     // expect(find.byType(BudgetGraph), findsOneWidget);
   });
 
-  testWidgets('Displays summary info in pair mode', (tester) async {
+  testWidgets('ペアリング済みユーザーはふたりの家計簿の情報をダッシュボード画面で確認できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await singInApp(tester, "pair_user@example.com", "abc1234");
 
