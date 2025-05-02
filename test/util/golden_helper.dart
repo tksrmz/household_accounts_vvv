@@ -3,14 +3,19 @@ import 'package:flutter_test/flutter_test.dart';
 
 void testGoldens(
   String description, {
-  required Widget Function() builder,
   required String goldenFileName,
+  void Function()? mockFn,
+  required Widget Function() builder,
+  void Function()? expectFn,
   bool skip = false,
 }) {
   _GoldenTestWidth.values.forEach((width) {
     testWidgets(
       '[golden] ${description} (width: ${width.value})',
       (tester) async {
+        // Setup mocks before building the widget
+        mockFn?.call();
+
         final widget = builder();
         await tester.pumpWidget(
           _GoldenWrapper(
@@ -18,6 +23,9 @@ void testGoldens(
             width: width,
           ),
         );
+
+        // Additional expectations after the widget is built
+        expectFn?.call();
 
         await expectLater(
           find.byType(widget.runtimeType),
