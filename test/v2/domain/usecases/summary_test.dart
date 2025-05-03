@@ -2,7 +2,7 @@ import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:household_accounts/v2/domain/repositories/expense_repository.dart';
 import 'package:household_accounts/v2/domain/repositories/income_repository.dart';
-import 'package:household_accounts/v2/domain/usecases/summary.dart';
+import 'package:household_accounts/v2/domain/usecases/dashboard.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
@@ -48,15 +48,15 @@ void main() {
         (_) async => testData.expenseAnswer,
       );
 
-      final summary = await SummaryUseCase(
+      final result = await DashboardUseCase(
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
       ).fetch(date);
 
       verify(mockIncomeRepository.fetchMonthly(date)).called(1);
       verify(mockExpenseRepository.fetchMonthly(date)).called(1);
-      expect(summary.income.value, testData.expectedIncome);
-      expect(summary.expense.value, testData.expectedExpense);
+      expect(result.income.value, testData.expectedIncome);
+      expect(result.expense.value, testData.expectedExpense);
     });
   });
 
@@ -73,11 +73,11 @@ void main() {
     );
 
     expect(
-      () async => await SummaryUseCase(
+      () async => await DashboardUseCase(
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
       ).fetch(date),
-      throwsA(isA<SummaryUseCaseException>()),
+      throwsA(isA<DashboardUseCaseException>()),
     );
   });
 
@@ -94,11 +94,11 @@ void main() {
     );
 
     expect(
-      () async => await SummaryUseCase(
+      () async => await DashboardUseCase(
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
       ).fetch(date),
-      throwsA(isA<SummaryUseCaseException>()),
+      throwsA(isA<DashboardUseCaseException>()),
     );
   });
 }

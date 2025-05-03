@@ -2,29 +2,29 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/summary.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
-import 'package:household_accounts/v2/domain/usecases/summary.dart';
+import 'package:household_accounts/v2/domain/usecases/dashboard.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-@GenerateNiceMocks([MockSpec<SummaryUseCase>()])
+@GenerateNiceMocks([MockSpec<DashboardUseCase>()])
 import 'view_model_test.mocks.dart';
 
 void main() {
-  final mockSummaryUseCase = MockSummaryUseCase();
+  final mockUseCase = MockDashboardUseCase();
   final date = DateTime(2025, 1);
 
   tearDown(() {
     // モックのクリーンアップ
-    reset(mockSummaryUseCase);
+    reset(mockUseCase);
   });
 
   test('初期化前はModelが初期値であり、エラー状態ではない', () {
-    final sut = SummaryViewModel(
-      summaryUseCase: mockSummaryUseCase,
+    final sut = DashboardViewModel(
+      dashboardUseCase: mockUseCase,
     );
 
-    verifyNoMoreInteractions(mockSummaryUseCase);
+    verifyNoMoreInteractions(mockUseCase);
     expect(sut.value.isUninitialized, isTrue);
     expect(sut.value.income, Income.empty);
     expect(sut.value.expense, Expense.empty);
@@ -34,18 +34,18 @@ void main() {
   group('初期化に成功したとき', () {
     setUp(() {
       // mock
-      when(mockSummaryUseCase.fetch(date)).thenAnswer(
+      when(mockUseCase.fetch(date)).thenAnswer(
         (_) async => SummaryModel(Income(100), Expense(70)),
       );
     });
 
     test('Modelを取得でき、エラー状態ではない', () async {
-      final sut = SummaryViewModel(
-        summaryUseCase: mockSummaryUseCase,
+      final sut = DashboardViewModel(
+        dashboardUseCase: mockUseCase,
       );
       await sut.init(date);
 
-      verify(mockSummaryUseCase.fetch(date)).called(1);
+      verify(mockUseCase.fetch(date)).called(1);
       expect(sut.value.isUninitialized, isFalse);
       expect(sut.value.income, Income(100));
       expect(sut.value.expense, Expense(70));
@@ -53,8 +53,8 @@ void main() {
     });
 
     test('notifyListeners()を呼び出しており、エラー状態ではない', () async {
-      final sut = SummaryViewModel(
-        summaryUseCase: mockSummaryUseCase,
+      final sut = DashboardViewModel(
+        dashboardUseCase: mockUseCase,
       );
       var notifyListenersCalled = false;
       sut.addListener(() {
@@ -71,8 +71,8 @@ void main() {
     });
 
     test('init()が2回以上呼び出されても何もしない', () async {
-      final sut = SummaryViewModel(
-        summaryUseCase: mockSummaryUseCase,
+      final sut = DashboardViewModel(
+        dashboardUseCase: mockUseCase,
       );
       var counter = 0;
       sut.addListener(() {
@@ -89,18 +89,18 @@ void main() {
 
   group('初期化に失敗したとき', () {
     setUp(() {
-      when(mockSummaryUseCase.fetch(any)).thenAnswer(
-        (_) async => throw SummaryUseCaseException('テスト：エラーが発生しました'),
+      when(mockUseCase.fetch(any)).thenAnswer(
+        (_) async => throw DashboardUseCaseException('テスト：エラーが発生しました'),
       );
     });
 
     test('エラー状態になり、Modelは初期値である', () async {
-      final sut = SummaryViewModel(
-        summaryUseCase: mockSummaryUseCase,
+      final sut = DashboardViewModel(
+        dashboardUseCase: mockUseCase,
       );
       await sut.init(date);
 
-      verify(mockSummaryUseCase.fetch(date)).called(1);
+      verify(mockUseCase.fetch(date)).called(1);
       expect(sut.value.isUninitialized, isFalse);
       expect(sut.value.income, Income.empty);
       expect(sut.value.expense, Expense.empty);
@@ -108,8 +108,8 @@ void main() {
     });
 
     test('notifyListeners()を呼び出している', () async {
-      final sut = SummaryViewModel(
-        summaryUseCase: mockSummaryUseCase,
+      final sut = DashboardViewModel(
+        dashboardUseCase: mockUseCase,
       );
       var notifyListenersCalled = false;
       sut.addListener(() {
@@ -126,8 +126,8 @@ void main() {
     });
 
     test('init()が2回以上呼び出されても何もしない', () async {
-      final sut = SummaryViewModel(
-        summaryUseCase: mockSummaryUseCase,
+      final sut = DashboardViewModel(
+        dashboardUseCase: mockUseCase,
       );
       var counter = 0;
       sut.addListener(() {

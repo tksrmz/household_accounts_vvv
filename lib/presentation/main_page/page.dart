@@ -7,7 +7,7 @@ import '../../data/firebase/util/path_builder.dart';
 import '../../util/type/single_or_pair.dart';
 import '../../v2/data/repositories/firebase_expense_repository.dart';
 import '../../v2/data/repositories/firebase_income_repository.dart';
-import '../../v2/domain/usecases/summary.dart';
+import '../../v2/domain/usecases/dashboard.dart';
 import '../../v2/presentation/pages/dashboard/view_model.dart';
 import '../budget_viewer/budget_viewer_page.dart';
 import '../category_viewer/category_viewer_page.dart';
@@ -47,8 +47,8 @@ class _MainPageState extends State<MainPage> {
 
           return DashboardPage(
             date: DateTime.now(),
-            viewModel: SummaryViewModel(
-              summaryUseCase: SummaryUseCase(
+            viewModel: DashboardViewModel(
+              dashboardUseCase: DashboardUseCase(
                 incomeRepository: FirebaseIncomeRepository(
                   FirebaseFirestore.instance,
                   isSingle

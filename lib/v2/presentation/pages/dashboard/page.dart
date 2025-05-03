@@ -14,7 +14,7 @@ class DashboardPage extends StatelessWidget {
   }
 
   final DateTime date;
-  final SummaryViewModel viewModel;
+  final DashboardViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {

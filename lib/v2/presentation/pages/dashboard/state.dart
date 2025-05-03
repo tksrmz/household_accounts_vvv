@@ -1,24 +1,24 @@
 import '../../../domain/models/vo/expense.dart';
 import '../../../domain/models/vo/income.dart';
 
-/// ダッシュボードのサマリの状態を表すクラス
+/// ダッシュボードの状態を表すクラス
 ///
-/// このクラスは、ダッシュボードのサマリの状態を管理する。
+/// このクラスは、ダッシュボードの状態を管理する。
 /// 状態の適切な遷移と、状態に応じたモデルの値を露出させることが責務。
-class SummaryState {
+class DashboardState {
   /// 初期化されていない状態を作成する
-  SummaryState.uninitialized()
+  DashboardState.uninitialized()
       : _initState = _InitStateLifecycle(),
         income = Income.empty,
         expense = Expense.empty;
 
-  SummaryState._success(this._initState, this.income, this.expense)
+  DashboardState._success(this._initState, this.income, this.expense)
       : assert(
           _initState._isSucceeded,
           '初期化に成功した状態でなければなりません。',
         );
 
-  SummaryState._failed(this._initState)
+  DashboardState._failed(this._initState)
       : assert(
           _initState._isFailed,
           '初期化に失敗した状態でなければなりません。',
@@ -42,8 +42,8 @@ class SummaryState {
   bool get isFailed => _initState._isFailed;
 
   /// 初期化に成功した
-  SummaryState success(Income newIncome, Expense newExpense) {
-    return SummaryState._success(
+  DashboardState success(Income newIncome, Expense newExpense) {
+    return DashboardState._success(
       _initState._success(),
       newIncome,
       newExpense,
@@ -51,8 +51,8 @@ class SummaryState {
   }
 
   /// 初期化に失敗した
-  SummaryState fail() {
-    return SummaryState._failed(_initState._fail());
+  DashboardState fail() {
+    return DashboardState._failed(_initState._fail());
   }
 }
 

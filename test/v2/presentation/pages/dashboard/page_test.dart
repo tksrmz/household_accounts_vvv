@@ -8,7 +8,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../../../util/golden_helper.dart';
-@GenerateNiceMocks([MockSpec<SummaryViewModel>()])
+@GenerateNiceMocks([MockSpec<DashboardViewModel>()])
 import 'page_test.mocks.dart';
 
 void main() {
@@ -21,7 +21,7 @@ void main() {
    * - BudgetGraphModel.fetchでBudgetGraphDataListを取得できる
    * - dateをX月1日00:00:00に整形するロジックをモデルに移す
    */
-  final mockViewModel = MockSummaryViewModel();
+  final mockViewModel = MockDashboardViewModel();
   final targetBuilder = () => DashboardPage(
         date: DateTime(2025, 1),
         viewModel: mockViewModel,
@@ -37,7 +37,7 @@ void main() {
     goldenFileName: 'dashboard_page_loading',
     mockFn: () {
       when(mockViewModel.value).thenReturn(
-        SummaryState.uninitialized(),
+        DashboardState.uninitialized(),
       );
     },
     builder: targetBuilder,
@@ -51,7 +51,7 @@ void main() {
     goldenFileName: 'dashboard_page_complete',
     mockFn: () {
       when(mockViewModel.value).thenReturn(
-        SummaryState.uninitialized().success(
+        DashboardState.uninitialized().success(
           Income(99),
           Expense(200),
         ),
@@ -68,7 +68,7 @@ void main() {
     goldenFileName: 'dashboard_page_error',
     mockFn: () {
       when(mockViewModel.value).thenReturn(
-        SummaryState.uninitialized().fail(),
+        DashboardState.uninitialized().fail(),
       );
     },
     builder: targetBuilder,

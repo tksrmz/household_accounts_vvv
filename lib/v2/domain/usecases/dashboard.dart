@@ -6,10 +6,10 @@ import '../models/vo/income.dart';
 import '../repositories/expense_repository.dart';
 import '../repositories/income_repository.dart';
 
-part 'summary.freezed.dart';
+part 'dashboard.freezed.dart';
 
-class SummaryUseCase {
-  const SummaryUseCase({
+class DashboardUseCase {
+  const DashboardUseCase({
     required this.incomeRepository,
     required this.expenseRepository,
   });
@@ -19,7 +19,7 @@ class SummaryUseCase {
 
   /// 当該月の収支データを取得する
   ///
-  /// 例外が発生した場合は[SummaryUseCaseException]をスローする
+  /// 例外が発生した場合は[DashboardUseCaseException]をスローする
   ///
   /// [date] 取得対象の年月
   Future<SummaryModel> fetch(DateTime date) async {
@@ -52,16 +52,16 @@ class SummaryUseCase {
     try {
       return await supplier();
     } on Exception {
-      throw SummaryUseCaseException(errorMessage);
+      throw DashboardUseCaseException(errorMessage);
     }
   }
 }
 
-/// [SummaryUseCase]でエラーが発生したときにスローされる例外
+/// [DashboardUseCase]でエラーが発生したときにスローされる例外
 @freezed
-abstract class SummaryUseCaseException
-    with _$SummaryUseCaseException
+abstract class DashboardUseCaseException
+    with _$DashboardUseCaseException
     implements Exception {
-  const factory SummaryUseCaseException(String message) =
-      _SummaryUseCaseModelException;
+  const factory DashboardUseCaseException(String message) =
+      _DashboardUseCaseException;
 }
