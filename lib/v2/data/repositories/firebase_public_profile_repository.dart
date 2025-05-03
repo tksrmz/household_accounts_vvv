@@ -10,8 +10,9 @@ class FirebasePublicProfileRepository implements PublicProfileRepository {
   final FirebaseFirestore db;
 
   @override
-  Future<UserNameVo> fetchUserName(UserIdVo userId) {
-    // TODO: implement fetchUserName
-    throw UnimplementedError();
+  Future<UserNameVo> fetchUserName(UserIdVo userId) async {
+    final documentReference = db.doc('/publicProfiles/${userId.value}');
+    final documentSnapshot = await documentReference.get();
+    return UserNameVo(documentSnapshot.data()!['name']! as String);
   }
 }

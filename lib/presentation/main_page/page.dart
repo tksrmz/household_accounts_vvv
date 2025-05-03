@@ -64,8 +64,9 @@ class _MainPageState extends State<MainPage> {
                       ? getPersonalExpenseRecordCollectionPath(userInfo.uid)
                       : getSharedExpenseRecordCollectionPath(userInfo.pairId!),
                 ),
-                publicProfileRepository:
-                    const FirebasePublicProfileRepository(),
+                publicProfileRepository: FirebasePublicProfileRepository(
+                  FirebaseFirestore.instance,
+                ),
               ),
             ),
           );
