@@ -28,6 +28,7 @@ void main() {
   final targetBuilder = () => DashboardPage(
         date: DateTime(2025, 1),
         userId: UserIdVo("testUserId"),
+        isPersonalMode: true,
         viewModel: mockViewModel,
       );
 

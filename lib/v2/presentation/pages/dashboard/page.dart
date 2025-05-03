@@ -10,12 +10,14 @@ class DashboardPage extends StatelessWidget {
     super.key,
     required DateTime date,
     required UserIdVo userId,
+    required this.isPersonalMode,
     required this.viewModel,
   }) {
     viewModel.init(date, userId);
   }
 
   final DashboardViewModel viewModel;
+  final bool isPersonalMode;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,7 @@ class DashboardPage extends StatelessWidget {
             children: [
               Center(
                 child: Text(
-                  '${state.userName.value}の家計簿',
+                  '${state.userName.value}の${isPersonalMode ? '自分' : 'ふたり'}の家計簿',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                       ),

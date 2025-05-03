@@ -34,7 +34,7 @@ void main() async {
     await tester.pumpAndSettle();
 
     // Check user name
-    expect(find.text("Hogeの家計簿"), findsOneWidget);
+    expect(find.text("Hogeの自分の家計簿"), findsOneWidget);
 
     // Check summary
     expect(find.text("収入"), findsOneWidget);
@@ -79,7 +79,7 @@ void main() async {
     // Wait for loading to finish and the dashboard to be displayed
     await tester.pumpAndSettle();
     // Check user name
-    expect(find.text("Piyoの家計簿"), findsOneWidget);
+    expect(find.text("Piyoの自分の家計簿"), findsOneWidget);
 
     // Open the navigation menu
     await tester.tap(find.byIcon(Icons.menu));
@@ -91,7 +91,7 @@ void main() async {
     await tester.pumpAndSettle();
 
     // Check user name
-    expect(find.text("PiyoとFugaの家計簿"), findsOneWidget);
+    expect(find.text("Piyoのふたりの家計簿"), findsOneWidget);
 
     // Check summary
     expect(find.text("収入"), findsOneWidget);

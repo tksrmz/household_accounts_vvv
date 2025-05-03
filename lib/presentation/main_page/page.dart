@@ -50,6 +50,7 @@ class _MainPageState extends State<MainPage> {
           return DashboardPage(
             date: DateTime.now(),
             userId: UserIdVo(userInfo.uid),
+            isPersonalMode: isSingle,
             viewModel: DashboardViewModel(
               dashboardUseCase: DashboardUseCase(
                 incomeRepository: FirebaseIncomeRepository(
