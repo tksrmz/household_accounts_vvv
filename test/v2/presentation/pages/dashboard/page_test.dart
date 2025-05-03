@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:household_accounts/v2/domain/models/dashboard_info.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
@@ -53,9 +54,11 @@ void main() {
     mockFn: () {
       when(mockViewModel.value).thenReturn(
         DashboardState.uninitialized().success(
-          IncomeVo(99),
-          ExpenseVo(200),
-          UserNameVo('testUserName'),
+          DashboardInfoModel(
+            IncomeVo(99),
+            ExpenseVo(200),
+            UserNameVo('testUserName'),
+          ),
         ),
       );
     },
