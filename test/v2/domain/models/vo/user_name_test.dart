@@ -8,8 +8,8 @@ void main() {
     'b' * 20,
   ].forEach((value) {
     test('インスタンスを生成できる ($value)', () {
-      final budgetName = UserNameVo(value);
-      expect(budgetName.value, value);
+      final userName = UserNameVo(value);
+      expect(userName.value, value);
     });
   });
 
