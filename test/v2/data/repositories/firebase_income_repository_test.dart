@@ -7,31 +7,24 @@ import 'package:test/test.dart';
 
 @GenerateNiceMocks([
   MockSpec<FirebaseFirestore>(),
-  MockSpec<CollectionReference>(),
-  MockSpec<DocumentReference>(),
-  MockSpec<DocumentSnapshot>(),
-  MockSpec<Query>(),
-  MockSpec<QuerySnapshot>(),
-  MockSpec<QueryDocumentSnapshot>(),
+  MockSpec<CollectionReference<Map<String, dynamic>>>(),
+  MockSpec<DocumentReference<Map<String, dynamic>>>(),
+  MockSpec<DocumentSnapshot<Map<String, dynamic>>>(),
+  MockSpec<Query<Map<String, dynamic>>>(),
+  MockSpec<QuerySnapshot<Map<String, dynamic>>>(),
+  MockSpec<QueryDocumentSnapshot<Map<String, dynamic>>>(),
 ])
 import 'firebase_income_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
-    late MockFirebaseFirestore mockDb;
-    late MockCollectionReference<Map<String, dynamic>> mockCollectionReference;
-    late MockQuery<Map<String, dynamic>> mockQuery;
-    late MockQuerySnapshot<Map<String, dynamic>> mockQuerySnapshot;
-    late MockQueryDocumentSnapshot<Map<String, dynamic>>
-        mockQueryDocumentSnapshot;
+    final mockDb = MockFirebaseFirestore();
+    final mockCollectionReference = MockCollectionReference();
+    final mockQuery = MockQuery();
+    final mockQuerySnapshot = MockQuerySnapshot();
+    final mockQueryDocumentSnapshot = MockQueryDocumentSnapshot();
 
     setUp(() {
-      mockDb = MockFirebaseFirestore();
-      mockCollectionReference = MockCollectionReference();
-      mockQuery = MockQuery();
-      mockQuerySnapshot = MockQuerySnapshot();
-      mockQueryDocumentSnapshot = MockQueryDocumentSnapshot();
-
       when(mockDb.collection('/personalNotes/samplePersonalNoteId/incomes'))
           .thenReturn(mockCollectionReference);
       when(mockCollectionReference.where(
@@ -150,17 +143,19 @@ void main() {
 
   // Firebaseのモックをどう使えばいいかのメモ
   group('Firestore Mock Tests', () {
-    MockFirebaseFirestore mockFirestore;
-    MockCollectionReference<Map<String, dynamic>> mockCollection;
-    MockDocumentReference<Map<String, dynamic>> mockDocument;
-    MockDocumentSnapshot<Map<String, dynamic>> mockDocumentSnapshot;
+    final mockFirestore = MockFirebaseFirestore();
+    final mockCollection = MockCollectionReference();
+    final mockDocument = MockDocumentReference();
+    final mockDocumentSnapshot = MockDocumentSnapshot();
+
+    tearDown(() {
+      reset(mockFirestore);
+      reset(mockCollection);
+      reset(mockDocument);
+      reset(mockDocumentSnapshot);
+    });
 
     test('Test Firestore get document', () async {
-      mockFirestore = MockFirebaseFirestore();
-      mockCollection = MockCollectionReference();
-      mockDocument = MockDocumentReference();
-      mockDocumentSnapshot = MockDocumentSnapshot();
-
       when(mockFirestore.collection(any)).thenReturn(mockCollection);
       when(mockCollection.doc(any)).thenReturn(mockDocument);
       when(mockDocument.get()).thenAnswer((_) async => mockDocumentSnapshot);

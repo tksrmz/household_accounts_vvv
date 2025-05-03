@@ -7,29 +7,22 @@ import 'package:test/test.dart';
 
 @GenerateNiceMocks([
   MockSpec<FirebaseFirestore>(),
-  MockSpec<CollectionReference>(),
-  MockSpec<Query>(),
-  MockSpec<QuerySnapshot>(),
-  MockSpec<QueryDocumentSnapshot>(),
+  MockSpec<CollectionReference<Map<String, dynamic>>>(),
+  MockSpec<Query<Map<String, dynamic>>>(),
+  MockSpec<QuerySnapshot<Map<String, dynamic>>>(),
+  MockSpec<QueryDocumentSnapshot<Map<String, dynamic>>>(),
 ])
 import 'firebase_expense_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
-    late MockFirebaseFirestore mockDb;
-    late MockCollectionReference<Map<String, dynamic>> mockCollectionReference;
-    late MockQuery<Map<String, dynamic>> mockQuery;
-    late MockQuerySnapshot<Map<String, dynamic>> mockQuerySnapshot;
-    late MockQueryDocumentSnapshot<Map<String, dynamic>>
-        mockQueryDocumentSnapshot;
+    final mockDb = MockFirebaseFirestore();
+    final mockCollectionReference = MockCollectionReference();
+    final mockQuery = MockQuery();
+    final mockQuerySnapshot = MockQuerySnapshot();
+    final mockQueryDocumentSnapshot = MockQueryDocumentSnapshot();
 
     setUp(() {
-      mockDb = MockFirebaseFirestore();
-      mockCollectionReference = MockCollectionReference();
-      mockQuery = MockQuery();
-      mockQuerySnapshot = MockQuerySnapshot();
-      mockQueryDocumentSnapshot = MockQueryDocumentSnapshot();
-
       when(mockDb.collection('/personalNotes/samplePersonalNoteId/expenses'))
           .thenReturn(mockCollectionReference);
       when(mockCollectionReference.where(
@@ -38,6 +31,14 @@ void main() {
         isLessThan: DateTime(2025, 2),
       )).thenReturn(mockQuery);
       when(mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
+    });
+
+    tearDown(() {
+      reset(mockDb);
+      reset(mockCollectionReference);
+      reset(mockQuery);
+      reset(mockQuerySnapshot);
+      reset(mockQueryDocumentSnapshot);
     });
 
     group('1件取得', () {
