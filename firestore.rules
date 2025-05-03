@@ -131,6 +131,10 @@ service cloud.firestore {
         && 'amount' in property && property.amount is int;
     }
 
+    match /publicProfiles/{uid} {
+      allow read: if isSignedIn();
+    }
+
     match /privateProfiles/{uid} {
       allow read: if isValidUser(uid);
     }
