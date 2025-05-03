@@ -20,6 +20,17 @@
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
-        }
+        },
+        {
+            "name": "household_accounts (update goldens)",
+            "type": "dart",
+            "request": "launch",
+            "program": "./test/",
+            "args": [
+                "--update-goldens",
+                "--tags",
+                "golden",
+            ],
+        },
     ]
 }
