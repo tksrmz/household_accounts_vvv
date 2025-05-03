@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:household_accounts/v2/domain/models/summary.dart';
+import 'package:household_accounts/v2/domain/models/dashboard_info.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:household_accounts/v2/domain/usecases/dashboard.dart';
@@ -35,7 +35,7 @@ void main() {
     setUp(() {
       // mock
       when(mockUseCase.fetch(date)).thenAnswer(
-        (_) async => SummaryModel(IncomeVo(100), ExpenseVo(70)),
+        (_) async => DashboardInfoModel(IncomeVo(100), ExpenseVo(70)),
       );
     });
 

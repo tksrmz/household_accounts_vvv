@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../domain/models/summary.dart';
+import '../../../domain/models/dashboard_info.dart';
 import '../../../domain/usecases/dashboard.dart';
 import 'state.dart';
 
@@ -19,8 +19,8 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
     }
 
     try {
-      SummaryModel summary = await _dashboardUseCase.fetch(date);
-      value = value.success(summary.income, summary.expense);
+      DashboardInfoModel info = await _dashboardUseCase.fetch(date);
+      value = value.success(info.income, info.expense);
     } on DashboardUseCaseException catch (ex) {
       print(ex);
       value = value.fail();
