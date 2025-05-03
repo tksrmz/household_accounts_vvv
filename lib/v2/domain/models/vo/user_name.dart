@@ -2,9 +2,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'user_name.freezed.dart';
 
-@freezed
-
 /// UserName entity.
+@freezed
 abstract class UserNameVo with _$UserNameVo {
   /// 最大の文字数
   static const maxLength = 20;

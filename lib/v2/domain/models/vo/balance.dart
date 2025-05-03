@@ -5,9 +5,8 @@ import 'income.dart';
 
 part 'balance.freezed.dart';
 
-@freezed
-
 /// Balance entity.
+@freezed
 abstract class BalanceVo with _$BalanceVo {
   const factory BalanceVo(IncomeVo income, ExpenseVo expense) = _BalanceVo;
 

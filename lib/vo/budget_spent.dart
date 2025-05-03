@@ -4,7 +4,7 @@ part 'budget_spent.freezed.dart';
 
 /// 予算の使用額
 @freezed
-class BudgetSpent with _$BudgetSpent {
+abstract class BudgetSpent with _$BudgetSpent {
   @Assert('value >= 0', '使用額は0以上でなければなりません')
   const factory BudgetSpent(int value) = _BudgetSpent;
 
