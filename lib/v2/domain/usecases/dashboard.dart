@@ -15,12 +15,12 @@ class DashboardUseCase {
   const DashboardUseCase({
     required this.incomeRepository,
     required this.expenseRepository,
-    this.publicProfileRepository,
+    required this.publicProfileRepository,
   });
 
   final IncomeRepository incomeRepository;
   final ExpenseRepository expenseRepository;
-  final PublicProfileRepository? publicProfileRepository;
+  final PublicProfileRepository publicProfileRepository;
 
   /// 当該月の収支データを取得する
   ///
@@ -29,11 +29,9 @@ class DashboardUseCase {
   /// [date] 取得対象の年月
   /// [userId] ユーザー名を取得するアカウントのユーザID
   Future<DashboardInfoModel> fetch(
-    DateTime date, [
-    UserIdVo userId = const UserIdVo("hoge"),
-  ]) async {
-    //   DateTime date,
-    // ) async {
+    DateTime date,
+    UserIdVo userId,
+  ) async {
     final incomeList = await _fetchIterableOfIntFromThrowableSupplier(
       () async =>
           (await incomeRepository.fetchMonthly(date)).map((e) => e.value),
@@ -46,27 +44,18 @@ class DashboardUseCase {
       'ExpenseRepositoryでエラーが発生しました',
     );
 
-    final UserNameVo? userName;
+    final UserNameVo userName;
     try {
-      userName = await publicProfileRepository?.fetchUserName(userId);
+      userName = await publicProfileRepository.fetchUserName(userId);
     } on Exception {
       throw DashboardUseCaseException('PublicProfileRepositoryでエラーが発生しました');
     }
 
-    // return DashboardInfoModel(
-    //   IncomeVo(_sumOf(incomeList)),
-    //   ExpenseVo(_sumOf(expenseList)),
-    // );
-    return userName == null
-        ? DashboardInfoModel(
-            IncomeVo(_sumOf(incomeList)),
-            ExpenseVo(_sumOf(expenseList)),
-          )
-        : DashboardInfoModel(
-            IncomeVo(_sumOf(incomeList)),
-            ExpenseVo(_sumOf(expenseList)),
-            userName,
-          );
+    return DashboardInfoModel(
+      IncomeVo(_sumOf(incomeList)),
+      ExpenseVo(_sumOf(expenseList)),
+      userName,
+    );
   }
 
   int _sumOf(Iterable<int> iterable) {

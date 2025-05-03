@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/dashboard_info.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
+import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/usecases/dashboard.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.dart';
 import 'package:mockito/annotations.dart';
@@ -13,6 +14,7 @@ import 'view_model_test.mocks.dart';
 void main() {
   final mockUseCase = MockDashboardUseCase();
   final date = DateTime(2025, 1);
+  const userId = UserIdVo('testUserId');
 
   tearDown(() {
     // モックのクリーンアップ
@@ -34,7 +36,7 @@ void main() {
   group('初期化に成功したとき', () {
     setUp(() {
       // mock
-      when(mockUseCase.fetch(date)).thenAnswer(
+      when(mockUseCase.fetch(date, userId)).thenAnswer(
         (_) async => DashboardInfoModel(IncomeVo(100), ExpenseVo(70)),
       );
     });
@@ -45,7 +47,7 @@ void main() {
       );
       await sut.init(date);
 
-      verify(mockUseCase.fetch(date)).called(1);
+      verify(mockUseCase.fetch(date, userId)).called(1);
       expect(sut.value.isUninitialized, isFalse);
       expect(sut.value.income, IncomeVo(100));
       expect(sut.value.expense, ExpenseVo(70));
@@ -89,7 +91,7 @@ void main() {
 
   group('初期化に失敗したとき', () {
     setUp(() {
-      when(mockUseCase.fetch(any)).thenAnswer(
+      when(mockUseCase.fetch(any, any)).thenAnswer(
         (_) async => throw DashboardUseCaseException('テスト：エラーが発生しました'),
       );
     });
@@ -100,7 +102,7 @@ void main() {
       );
       await sut.init(date);
 
-      verify(mockUseCase.fetch(date)).called(1);
+      verify(mockUseCase.fetch(date, userId)).called(1);
       expect(sut.value.isUninitialized, isFalse);
       expect(sut.value.income, IncomeVo.empty);
       expect(sut.value.expense, ExpenseVo.empty);

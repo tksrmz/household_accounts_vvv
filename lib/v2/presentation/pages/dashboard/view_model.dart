@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../domain/models/dashboard_info.dart';
+import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/usecases/dashboard.dart';
 import 'state.dart';
 
@@ -19,7 +20,10 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
     }
 
     try {
-      DashboardInfoModel info = await _dashboardUseCase.fetch(date);
+      DashboardInfoModel info = await _dashboardUseCase.fetch(
+        date,
+        UserIdVo("testUserId"),
+      );
       value = value.success(info.income, info.expense);
     } on DashboardUseCaseException catch (ex) {
       print(ex);
