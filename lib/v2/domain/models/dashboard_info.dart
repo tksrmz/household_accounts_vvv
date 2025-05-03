@@ -10,7 +10,7 @@ part 'dashboard_info.freezed.dart';
 abstract class DashboardInfoModel with _$DashboardInfoModel {
   const factory DashboardInfoModel(
     IncomeVo income,
-    ExpenseVo expense, [
-    @Default(const UserNameVo("hoge")) UserNameVo userName,
-  ]) = _DashboardInfoModel;
+    ExpenseVo expense,
+    UserNameVo userName,
+  ) = _DashboardInfoModel;
 }
