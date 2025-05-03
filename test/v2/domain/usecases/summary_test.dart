@@ -18,142 +18,124 @@ import 'package:test/test.dart';
 import 'summary_test.mocks.dart';
 
 void main() {
-  [
-    (
-      description: 'incomeとexpenseがともに0円のとき',
-      incomeAnswer: <IncomeVo>[],
-      expenseAnswer: <ExpenseVo>[],
-      userNameAnswer: UserNameVo('TestUserName'),
-      expectedIncome: 0,
-      expectedExpense: 0,
-      expectedUserName: 'TestUserName',
-    ),
-    (
-      description: 'incomeとexpenseがともに0円ではないとき',
-      incomeAnswer: [
-        IncomeVo(100),
-        IncomeVo(200),
-      ],
-      expenseAnswer: [
-        ExpenseVo(50),
-        ExpenseVo(100),
-      ],
-      userNameAnswer: UserNameVo('PiyoPiyo'),
-      expectedIncome: 300,
-      expectedExpense: 150,
-      expectedUserName: 'PiyoPiyo',
-    ),
-  ].forEach((testData) {
-    test(testData.description, () async {
-      final date = DateTime(2025, 1);
-      final userId = UserIdVo('testUserId');
+  final date = DateTime(2025, 1);
+  const userId = UserIdVo('testUserId');
 
-      final mockIncomeRepository = MockIncomeRepository();
-      when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-        (_) async => testData.incomeAnswer,
-      );
-      final mockExpenseRepository = MockExpenseRepository();
-      when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-        (_) async => testData.expenseAnswer,
-      );
-      final mockPublicProfileRepository = MockPublicProfileRepository();
-      when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
-        (_) async => testData.userNameAnswer,
-      );
+  final mockIncomeRepository = MockIncomeRepository();
+  final mockExpenseRepository = MockExpenseRepository();
+  final mockPublicProfileRepository = MockPublicProfileRepository();
 
-      final result = await DashboardUseCase(
-        incomeRepository: mockIncomeRepository,
-        expenseRepository: mockExpenseRepository,
-        publicProfileRepository: mockPublicProfileRepository,
-      ).fetch(date, userId);
+  tearDown(() {
+    // モックのクリーンアップ
+    reset(mockIncomeRepository);
+    reset(mockExpenseRepository);
+    reset(mockPublicProfileRepository);
+  });
 
-      verify(mockIncomeRepository.fetchMonthly(date)).called(1);
-      verify(mockExpenseRepository.fetchMonthly(date)).called(1);
-      verify(mockPublicProfileRepository.fetchUserName(userId)).called(1);
-      expect(result.income.value, testData.expectedIncome);
-      expect(result.expense.value, testData.expectedExpense);
-      expect(result.userName.value, testData.expectedUserName);
+  group("fetch", () {
+    final executeFetch = () => DashboardUseCase(
+          incomeRepository: mockIncomeRepository,
+          expenseRepository: mockExpenseRepository,
+          publicProfileRepository: mockPublicProfileRepository,
+        ).fetch(date, userId);
+
+    group("正常に取得できるとき", () {
+      [
+        (
+          description: 'incomeとexpenseがともに0円のとき',
+          incomeAnswer: <IncomeVo>[],
+          expenseAnswer: <ExpenseVo>[],
+          userNameAnswer: UserNameVo('TestUserName'),
+          expectedIncome: 0,
+          expectedExpense: 0,
+          expectedUserName: 'TestUserName',
+        ),
+        (
+          description: 'incomeとexpenseがともに0円ではないとき',
+          incomeAnswer: [
+            IncomeVo(100),
+            IncomeVo(200),
+          ],
+          expenseAnswer: [
+            ExpenseVo(50),
+            ExpenseVo(100),
+          ],
+          userNameAnswer: UserNameVo('PiyoPiyo'),
+          expectedIncome: 300,
+          expectedExpense: 150,
+          expectedUserName: 'PiyoPiyo',
+        ),
+      ].forEach((testData) {
+        test(testData.description, () async {
+          when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
+            (_) async => testData.incomeAnswer,
+          );
+          when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
+            (_) async => testData.expenseAnswer,
+          );
+          when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
+            (_) async => testData.userNameAnswer,
+          );
+
+          final result = await executeFetch();
+
+          verify(mockIncomeRepository.fetchMonthly(date)).called(1);
+          verify(mockExpenseRepository.fetchMonthly(date)).called(1);
+          verify(mockPublicProfileRepository.fetchUserName(userId)).called(1);
+          expect(result.income.value, testData.expectedIncome);
+          expect(result.expense.value, testData.expectedExpense);
+          expect(result.userName.value, testData.expectedUserName);
+        });
+      });
     });
-  });
 
-  test('IncomeRepositoryで例外が発生したとき', () async {
-    final date = DateTime(2025, 1);
-    final userId = UserIdVo('testUserId');
+    group("例外が発生するとき", () {
+      setUp(() {
+        // モックのセットアップ
+        // 例外を発生させるメソッドは、個別のテストで上書きする
+        when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
+          (_) async => <IncomeVo>[],
+        );
+        when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
+          (_) async => <ExpenseVo>[],
+        );
+        when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
+          (_) async => UserNameVo('TestUserName'),
+        );
+      });
 
-    final mockIncomeRepository = MockIncomeRepository();
-    when(mockIncomeRepository.fetchMonthly(date)).thenThrow(
-      Exception('IncomeRepositoryでエラーが発生しました'),
-    );
-    final mockExpenseRepository = MockExpenseRepository();
-    when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-      (_) async => <ExpenseVo>[],
-    );
-    final mockPublicProfileRepository = MockPublicProfileRepository();
-    when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
-      (_) async => UserNameVo('TestUserName'),
-    );
+      test('IncomeRepositoryで例外が発生したとき', () async {
+        when(mockIncomeRepository.fetchMonthly(date)).thenThrow(
+          Exception('テストエラー'),
+        );
 
-    expect(
-      () async => await DashboardUseCase(
-        incomeRepository: mockIncomeRepository,
-        expenseRepository: mockExpenseRepository,
-        publicProfileRepository: mockPublicProfileRepository,
-      ).fetch(date, userId),
-      throwsA(isA<DashboardUseCaseException>()),
-    );
-  });
+        await expectLater(
+          executeFetch,
+          throwsA(isA<DashboardUseCaseException>()),
+        );
+      });
 
-  test('ExpenseRepositoryで例外が発生したとき', () async {
-    final date = DateTime(2025, 1);
-    final userId = UserIdVo('testUserId');
+      test('ExpenseRepositoryで例外が発生したとき', () async {
+        when(mockExpenseRepository.fetchMonthly(date)).thenThrow(
+          Exception('テストエラー'),
+        );
 
-    final mockIncomeRepository = MockIncomeRepository();
-    when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-      (_) async => <IncomeVo>[],
-    );
-    final mockExpenseRepository = MockExpenseRepository();
-    when(mockExpenseRepository.fetchMonthly(date)).thenThrow(
-      Exception('ExpenseRepositoryでエラーが発生しました'),
-    );
-    final mockPublicProfileRepository = MockPublicProfileRepository();
-    when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
-      (_) async => UserNameVo('TestUserName'),
-    );
+        await expectLater(
+          executeFetch,
+          throwsA(isA<DashboardUseCaseException>()),
+        );
+      });
 
-    expect(
-      () async => await DashboardUseCase(
-        incomeRepository: mockIncomeRepository,
-        expenseRepository: mockExpenseRepository,
-        publicProfileRepository: mockPublicProfileRepository,
-      ).fetch(date, userId),
-      throwsA(isA<DashboardUseCaseException>()),
-    );
-  });
+      test('PublicProfileRepositoryで例外が発生したとき', () async {
+        when(mockPublicProfileRepository.fetchUserName(userId)).thenThrow(
+          Exception('テストエラー'),
+        );
 
-  test('PublicProfileRepositoryで例外が発生したとき', () async {
-    final date = DateTime(2025, 1);
-    final userId = UserIdVo('testUserId');
-
-    final mockIncomeRepository = MockIncomeRepository();
-    when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-      (_) async => <IncomeVo>[],
-    );
-    final mockExpenseRepository = MockExpenseRepository();
-    when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-      (_) async => <ExpenseVo>[],
-    );
-    final mockPublicProfileRepository = MockPublicProfileRepository();
-    when(mockPublicProfileRepository.fetchUserName(userId)).thenThrow(
-      Exception('PublicProfileRepositoryでエラーが発生しました'),
-    );
-
-    expect(
-      () async => await DashboardUseCase(
-        incomeRepository: mockIncomeRepository,
-        expenseRepository: mockExpenseRepository,
-        publicProfileRepository: mockPublicProfileRepository,
-      ).fetch(date, userId),
-      throwsA(isA<DashboardUseCaseException>()),
-    );
+        await expectLater(
+          executeFetch,
+          throwsA(isA<DashboardUseCaseException>()),
+        );
+      });
+    });
   });
 }
