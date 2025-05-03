@@ -14,13 +14,15 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     viewModel.init(date);
 
-    return ListenableBuilder(
-      listenable: viewModel,
-      builder: (context, child) {
-        if (viewModel.isBeforeInitialization) {
-          return CircularProgressIndicator();
+    return ValueListenableBuilder(
+      valueListenable: viewModel,
+      builder: (context, state, child) {
+        if (state.isUninitialized) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
         }
-        if (viewModel.hasError) {
+        if (state.isFailed) {
           return ErrorMessage();
         }
 
@@ -29,14 +31,9 @@ class DashboardPage extends StatelessWidget {
           child: ListView(
             children: [
               SummaryPanel(
-                viewModel.income,
-                viewModel.expense,
+                state.income,
+                state.expense,
               ),
-              // out of scope for this sprint
-              // SizedBox(height: 16.0),
-              // BudgetGraph(
-              //   list: viewModel.budgetGraphDataList!,
-              // ),
             ],
           ),
         );

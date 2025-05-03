@@ -7,11 +7,12 @@ import '../../../domain/usecases/summary.dart';
 import 'state.dart';
 
 /// ダッシュボードのサマリを表示するためのViewModel
-class SummaryViewModel extends ChangeNotifier {
+class SummaryViewModel extends ValueNotifier<SummaryState> {
   SummaryViewModel({
     required this.summaryUseCase,
     // required this.budgetGraphModel,
-  }) : _summaryState = SummaryState.uninitialized();
+  })  : _summaryState = SummaryState.uninitialized(),
+        super(SummaryState.uninitialized());
 
   final SummaryUseCase summaryUseCase;
   // final BudgetGraphModel budgetGraphModel;
@@ -42,9 +43,11 @@ class SummaryViewModel extends ChangeNotifier {
     try {
       SummaryModel summary = await summaryUseCase.fetch(date);
       _summaryState = _summaryState.success(summary.income, summary.expense);
+      value = _summaryState;
     } on SummaryUseCaseException catch (ex) {
       print(ex);
       _summaryState = _summaryState.fail();
+      value = _summaryState;
     } finally {
       notifyListeners();
     }

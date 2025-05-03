@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
+import 'package:household_accounts/v2/presentation/pages/dashboard/state.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -35,12 +36,13 @@ void main() {
     '初期化完了前はローディング画面が表示される',
     goldenFileName: 'dashboard_page_loading',
     mockFn: () {
-      when(mockViewModel.isBeforeInitialization).thenReturn(true);
+      when(mockViewModel.value).thenReturn(
+        SummaryState.uninitialized(),
+      );
     },
     builder: targetBuilder,
     expectFn: () {
       verify(mockViewModel.init(DateTime(2025, 1))).called(1);
-      verify(mockViewModel.isBeforeInitialization).called(1);
     },
   );
 
@@ -48,19 +50,16 @@ void main() {
     '初期化が正常に完了するとダッシュボードコンテンツが表示される',
     goldenFileName: 'dashboard_page_complete',
     mockFn: () {
-      when(mockViewModel.isBeforeInitialization).thenReturn(false);
-      when(mockViewModel.hasError).thenReturn(false);
-      when(mockViewModel.income).thenReturn(Income(99));
-      when(mockViewModel.expense).thenReturn(Expense(200));
+      when(mockViewModel.value).thenReturn(
+        SummaryState.uninitialized().success(
+          Income(99),
+          Expense(200),
+        ),
+      );
     },
     builder: targetBuilder,
     expectFn: () {
       verify(mockViewModel.init(DateTime(2025, 1))).called(1);
-      verify(mockViewModel.isBeforeInitialization)
-          .called(greaterThanOrEqualTo(1));
-      verify(mockViewModel.hasError).called(greaterThanOrEqualTo(1));
-      verify(mockViewModel.income).called(greaterThanOrEqualTo(1));
-      verify(mockViewModel.expense).called(greaterThanOrEqualTo(1));
     },
   );
 
@@ -68,15 +67,13 @@ void main() {
     '初期化に失敗するとエラーメッセージが表示される',
     goldenFileName: 'dashboard_page_error',
     mockFn: () {
-      when(mockViewModel.isBeforeInitialization).thenReturn(false);
-      when(mockViewModel.hasError).thenReturn(true);
+      when(mockViewModel.value).thenReturn(
+        SummaryState.uninitialized().fail(),
+      );
     },
     builder: targetBuilder,
     expectFn: () {
       verify(mockViewModel.init(DateTime(2025, 1))).called(1);
-      verify(mockViewModel.isBeforeInitialization)
-          .called(greaterThanOrEqualTo(1));
-      verify(mockViewModel.hasError).called(greaterThanOrEqualTo(1));
     },
   );
 }
