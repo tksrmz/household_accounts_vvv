@@ -4,12 +4,12 @@ import 'package:test/test.dart';
 void main() {
   [0, 100].forEach((value) {
     test('Constructor returns instance with value of ${value}.', () {
-      final actual = Expense(value);
+      final actual = ExpenseVo(value);
       expect(actual.value, equals(value));
     });
   });
 
   test('Constructor raise error', () {
-    expect(() => Expense(-1), throwsA(isA<AssertionError>()));
+    expect(() => ExpenseVo(-1), throwsA(isA<AssertionError>()));
   });
 }

@@ -9,8 +9,8 @@ void main() {
     'SummaryPanel displays income, expense and positive balance',
     goldenFileName: 'summary_panel/positive_balance',
     builder: () => SummaryPanel(
-      Income(100),
-      Expense(70),
+      IncomeVo(100),
+      ExpenseVo(70),
     ),
   );
 
@@ -18,8 +18,8 @@ void main() {
     'SummaryPanel displays income, expense and negative balance',
     goldenFileName: 'summary_panel/negative_balance',
     builder: () => SummaryPanel(
-      Income(20),
-      Expense(30),
+      IncomeVo(20),
+      ExpenseVo(30),
     ),
   );
 
@@ -27,8 +27,8 @@ void main() {
     'SummaryPanel displays income, expense and zero balance',
     goldenFileName: 'summary_panel/zero_balance',
     builder: () => SummaryPanel(
-      Income(1),
-      Expense(1),
+      IncomeVo(1),
+      ExpenseVo(1),
     ),
   );
 }

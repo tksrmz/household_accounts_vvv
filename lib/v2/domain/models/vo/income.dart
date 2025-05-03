@@ -3,15 +3,15 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'income.freezed.dart';
 
 @freezed
-abstract class Income with _$Income {
+abstract class IncomeVo with _$IncomeVo {
   /// Income entity.
   ///
   /// [value] must be positive.
   ///
   /// This constructor should be used only when the value is already verified.
   @Assert('value >= 0', 'amount is negative.')
-  const factory Income(int value) = _Income;
+  const factory IncomeVo(int value) = _IncomeVo;
 
   /// Income value used instead of null.
-  static const Income empty = Income(0);
+  static const IncomeVo empty = IncomeVo(0);
 }

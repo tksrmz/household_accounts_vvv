@@ -8,7 +8,7 @@ void main() {
     'b' * 20,
   ].forEach((value) {
     test('インスタンスを生成できる ($value)', () {
-      final budgetName = BudgetName(value);
+      final budgetName = BudgetNameVo(value);
       expect(budgetName.value, value);
     });
   });
@@ -18,7 +18,7 @@ void main() {
     'a' * 21,
   ].forEach((value) {
     test('インスタンスを生成できない ($value)', () {
-      expect(() => BudgetName(value), throwsA(isA<AssertionError>()));
+      expect(() => BudgetNameVo(value), throwsA(isA<AssertionError>()));
     });
   });
 }

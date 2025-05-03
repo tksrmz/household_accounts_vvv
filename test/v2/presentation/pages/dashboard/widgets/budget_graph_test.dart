@@ -103,7 +103,7 @@ void main() {
     goldenFileName: 'budget_graph/long_name_and_amount',
     builder: _getBuilder([
       (
-        name: 'あ' * BudgetName.maxLength,
+        name: 'あ' * BudgetNameVo.maxLength,
         /**
        * intは64bit
        *
@@ -127,7 +127,7 @@ BudgetGraph Function() _getBuilder(
           data
               .map(
                 (e) => BudgetGraphData(
-                  name: BudgetName(e.name),
+                  name: BudgetNameVo(e.name),
                   spent: BudgetSpent(e.spent),
                   budget: BudgetAmount(e.budget),
                 ),

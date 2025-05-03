@@ -14,7 +14,7 @@ void main() {
     test(
         'Constructor returns normally (Income: ${income}, Expense: ${expense})',
         () {
-      final actual = Balance(Income(income), Expense(expense));
+      final actual = BalanceVo(IncomeVo(income), ExpenseVo(expense));
       expect(actual.value, equals(expected));
     });
   });

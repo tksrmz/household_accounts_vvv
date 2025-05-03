@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../domain/models/summary.dart';
+import '../../../domain/models/dashboard_info.dart';
+import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/usecases/dashboard.dart';
 import 'state.dart';
 
@@ -13,14 +14,17 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
 
   final DashboardUseCase _dashboardUseCase;
 
-  Future<void> init(DateTime date) async {
+  Future<void> init(
+    DateTime date,
+    UserIdVo userId,
+  ) async {
     if (!value.isUninitialized) {
       return;
     }
 
     try {
-      SummaryModel summary = await _dashboardUseCase.fetch(date);
-      value = value.success(summary.income, summary.expense);
+      DashboardInfoModel info = await _dashboardUseCase.fetch(date, userId);
+      value = value.success(info);
     } on DashboardUseCaseException catch (ex) {
       print(ex);
       value = value.fail();

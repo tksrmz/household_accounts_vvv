@@ -14,13 +14,13 @@ class FirebaseIncomeRepository implements IncomeRepository {
   final String _collectionPath;
 
   @override
-  Future<List<Income>> fetchMonthly(DateTime date) async {
+  Future<List<IncomeVo>> fetchMonthly(DateTime date) async {
     final querySnapshot = await db
         .collection(_collectionPath)
         .whereInThisMonth('date', date)
         .get();
     return querySnapshot.docs
-        .map((doc) => Income(doc.data()['amount']!))
+        .map((doc) => IncomeVo(doc.data()['amount']!))
         .toList(growable: false);
   }
 }

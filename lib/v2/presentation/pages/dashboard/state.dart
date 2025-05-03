@@ -1,5 +1,7 @@
+import '../../../domain/models/dashboard_info.dart';
 import '../../../domain/models/vo/expense.dart';
 import '../../../domain/models/vo/income.dart';
+import '../../../domain/models/vo/user_name.dart';
 
 /// ダッシュボードの状態を表すクラス
 ///
@@ -9,10 +11,9 @@ class DashboardState {
   /// 初期化されていない状態を作成する
   DashboardState.uninitialized()
       : _initState = _InitStateLifecycle(),
-        income = Income.empty,
-        expense = Expense.empty;
+        _info = _emptyInfo;
 
-  DashboardState._success(this._initState, this.income, this.expense)
+  DashboardState._success(this._initState, this._info)
       : assert(
           _initState._isSucceeded,
           '初期化に成功した状態でなければなりません。',
@@ -23,17 +24,27 @@ class DashboardState {
           _initState._isFailed,
           '初期化に失敗した状態でなければなりません。',
         ),
-        income = Income.empty,
-        expense = Expense.empty;
+        _info = _emptyInfo;
 
   /// 初期化状態
   final _InitStateLifecycle _initState;
 
+  /// モデル
+  final DashboardInfoModel _info;
+  static const DashboardInfoModel _emptyInfo = DashboardInfoModel(
+    IncomeVo.empty,
+    ExpenseVo.empty,
+    UserNameVo.empty,
+  );
+
   /// 当該月の総収入
-  final Income income;
+  IncomeVo get income => _info.income;
 
   /// 当該月の総支出
-  final Expense expense;
+  ExpenseVo get expense => _info.expense;
+
+  /// ユーザー名
+  UserNameVo get userName => _info.userName;
 
   /// 初期化前かどうか
   bool get isUninitialized => _initState._isUninitialized;
@@ -42,12 +53,8 @@ class DashboardState {
   bool get isFailed => _initState._isFailed;
 
   /// 初期化に成功した
-  DashboardState success(Income newIncome, Expense newExpense) {
-    return DashboardState._success(
-      _initState._success(),
-      newIncome,
-      newExpense,
-    );
+  DashboardState success(DashboardInfoModel newInfo) {
+    return DashboardState._success(_initState._success(), newInfo);
   }
 
   /// 初期化に失敗した

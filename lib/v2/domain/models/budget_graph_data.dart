@@ -10,7 +10,7 @@ part 'budget_graph_data.freezed.dart';
 @freezed
 abstract class BudgetGraphData with _$BudgetGraphData {
   const factory BudgetGraphData({
-    required BudgetName name,
+    required BudgetNameVo name,
     required BudgetSpent spent,
     required BudgetAmount budget,
   }) = _BudgetGraphData;

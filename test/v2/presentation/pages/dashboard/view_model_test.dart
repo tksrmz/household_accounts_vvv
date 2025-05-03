@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:household_accounts/v2/domain/models/summary.dart';
+import 'package:household_accounts/v2/domain/models/dashboard_info.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
+import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
+import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
 import 'package:household_accounts/v2/domain/usecases/dashboard.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.dart';
 import 'package:mockito/annotations.dart';
@@ -13,6 +15,7 @@ import 'view_model_test.mocks.dart';
 void main() {
   final mockUseCase = MockDashboardUseCase();
   final date = DateTime(2025, 1);
+  const userId = UserIdVo('testUserId');
 
   tearDown(() {
     // モックのクリーンアップ
@@ -26,16 +29,21 @@ void main() {
 
     verifyNoMoreInteractions(mockUseCase);
     expect(sut.value.isUninitialized, isTrue);
-    expect(sut.value.income, Income.empty);
-    expect(sut.value.expense, Expense.empty);
+    expect(sut.value.income, IncomeVo.empty);
+    expect(sut.value.expense, ExpenseVo.empty);
+    expect(sut.value.userName, UserNameVo.empty);
     expect(sut.value.isFailed, isFalse);
   });
 
   group('初期化に成功したとき', () {
     setUp(() {
       // mock
-      when(mockUseCase.fetch(date)).thenAnswer(
-        (_) async => SummaryModel(Income(100), Expense(70)),
+      when(mockUseCase.fetch(date, userId)).thenAnswer(
+        (_) async => DashboardInfoModel(
+          IncomeVo(100),
+          ExpenseVo(70),
+          UserNameVo("testUserId"),
+        ),
       );
     });
 
@@ -43,12 +51,13 @@ void main() {
       final sut = DashboardViewModel(
         dashboardUseCase: mockUseCase,
       );
-      await sut.init(date);
+      await sut.init(date, userId);
 
-      verify(mockUseCase.fetch(date)).called(1);
+      verify(mockUseCase.fetch(date, userId)).called(1);
       expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.income, Income(100));
-      expect(sut.value.expense, Expense(70));
+      expect(sut.value.income, IncomeVo(100));
+      expect(sut.value.expense, ExpenseVo(70));
+      expect(sut.value.userName, UserNameVo("testUserId"));
       expect(sut.value.isFailed, isFalse);
     });
 
@@ -62,7 +71,7 @@ void main() {
       });
 
       expect(notifyListenersCalled, isFalse);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(notifyListenersCalled, isTrue);
 
       // notifyListeners()が呼び出されたら初期化が完了している
@@ -80,16 +89,16 @@ void main() {
       });
 
       expect(counter, 0);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(counter, 1);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(counter, 1);
     });
   });
 
   group('初期化に失敗したとき', () {
     setUp(() {
-      when(mockUseCase.fetch(any)).thenAnswer(
+      when(mockUseCase.fetch(any, any)).thenAnswer(
         (_) async => throw DashboardUseCaseException('テスト：エラーが発生しました'),
       );
     });
@@ -98,12 +107,13 @@ void main() {
       final sut = DashboardViewModel(
         dashboardUseCase: mockUseCase,
       );
-      await sut.init(date);
+      await sut.init(date, userId);
 
-      verify(mockUseCase.fetch(date)).called(1);
+      verify(mockUseCase.fetch(date, userId)).called(1);
       expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.income, Income.empty);
-      expect(sut.value.expense, Expense.empty);
+      expect(sut.value.income, IncomeVo.empty);
+      expect(sut.value.expense, ExpenseVo.empty);
+      expect(sut.value.userName, UserNameVo.empty);
       expect(sut.value.isFailed, isTrue);
     });
 
@@ -117,7 +127,7 @@ void main() {
       });
 
       expect(notifyListenersCalled, isFalse);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(notifyListenersCalled, isTrue);
 
       // notifyListeners()が呼び出されたら初期化が完了している
@@ -135,9 +145,9 @@ void main() {
       });
 
       expect(counter, 0);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(counter, 1);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(counter, 1);
     });
   });

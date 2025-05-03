@@ -9,5 +9,5 @@ abstract interface class ExpenseRepository {
   /// 返却されるListの順番については保証されない。
   ///
   /// [date] 取得対象の年月
-  Future<List<Expense>> fetchMonthly(DateTime date);
+  Future<List<ExpenseVo>> fetchMonthly(DateTime date);
 }

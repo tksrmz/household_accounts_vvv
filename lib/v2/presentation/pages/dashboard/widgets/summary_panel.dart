@@ -13,11 +13,11 @@ class SummaryPanel extends StatelessWidget {
     this.income,
     this.expense, {
     super.key,
-  }) : balance = Balance(income, expense);
+  }) : balance = BalanceVo(income, expense);
 
-  final Income income;
-  final Expense expense;
-  final Balance balance;
+  final IncomeVo income;
+  final ExpenseVo expense;
+  final BalanceVo balance;
 
   @override
   Widget build(BuildContext context) {
@@ -78,9 +78,9 @@ class _Values extends StatelessWidget {
     this.balance,
   );
 
-  final Income income;
-  final Expense expense;
-  final Balance balance;
+  final IncomeVo income;
+  final ExpenseVo expense;
+  final BalanceVo balance;
 
   @override
   Widget build(BuildContext context) {

@@ -5,13 +5,12 @@ import 'income.dart';
 
 part 'balance.freezed.dart';
 
-@freezed
-
 /// Balance entity.
-abstract class Balance with _$Balance {
-  const factory Balance(Income income, Expense expense) = _Balance;
+@freezed
+abstract class BalanceVo with _$BalanceVo {
+  const factory BalanceVo(IncomeVo income, ExpenseVo expense) = _BalanceVo;
 
-  const Balance._();
+  const BalanceVo._();
 
   int get value => income.value - expense.value;
 }

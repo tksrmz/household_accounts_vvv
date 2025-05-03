@@ -1,10 +1,13 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:household_accounts/v2/domain/models/dashboard_info.dart';
+import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
 
-import '../models/summary.dart';
 import '../models/vo/expense.dart';
 import '../models/vo/income.dart';
+import '../models/vo/user_id.dart';
 import '../repositories/expense_repository.dart';
 import '../repositories/income_repository.dart';
+import '../repositories/public_profile_repository.dart';
 
 part 'dashboard.freezed.dart';
 
@@ -12,17 +15,23 @@ class DashboardUseCase {
   const DashboardUseCase({
     required this.incomeRepository,
     required this.expenseRepository,
+    required this.publicProfileRepository,
   });
 
   final IncomeRepository incomeRepository;
   final ExpenseRepository expenseRepository;
+  final PublicProfileRepository publicProfileRepository;
 
   /// 当該月の収支データを取得する
   ///
   /// 例外が発生した場合は[DashboardUseCaseException]をスローする
   ///
   /// [date] 取得対象の年月
-  Future<SummaryModel> fetch(DateTime date) async {
+  /// [userId] ユーザー名を取得するアカウントのユーザID
+  Future<DashboardInfoModel> fetch(
+    DateTime date,
+    UserIdVo userId,
+  ) async {
     final incomeList = await _fetchIterableOfIntFromThrowableSupplier(
       () async =>
           (await incomeRepository.fetchMonthly(date)).map((e) => e.value),
@@ -35,9 +44,17 @@ class DashboardUseCase {
       'ExpenseRepositoryでエラーが発生しました',
     );
 
-    return SummaryModel(
-      Income(_sumOf(incomeList)),
-      Expense(_sumOf(expenseList)),
+    final UserNameVo userName;
+    try {
+      userName = await publicProfileRepository.fetchUserName(userId);
+    } on Exception {
+      throw DashboardUseCaseException('PublicProfileRepositoryでエラーが発生しました');
+    }
+
+    return DashboardInfoModel(
+      IncomeVo(_sumOf(incomeList)),
+      ExpenseVo(_sumOf(expenseList)),
+      userName,
     );
   }
 
