@@ -36,8 +36,8 @@ class DashboardUseCase {
     );
 
     return SummaryModel(
-      Income(_sumOf(incomeList)),
-      Expense(_sumOf(expenseList)),
+      IncomeVo(_sumOf(incomeList)),
+      ExpenseVo(_sumOf(expenseList)),
     );
   }
 

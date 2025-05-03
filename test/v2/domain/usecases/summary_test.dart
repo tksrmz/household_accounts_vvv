@@ -17,20 +17,20 @@ void main() {
   [
     (
       description: 'incomeとexpenseがともに0円のとき',
-      incomeAnswer: <Income>[],
-      expenseAnswer: <Expense>[],
+      incomeAnswer: <IncomeVo>[],
+      expenseAnswer: <ExpenseVo>[],
       expectedIncome: 0,
       expectedExpense: 0,
     ),
     (
       description: 'incomeとexpenseがともに0円ではないとき',
       incomeAnswer: [
-        Income(100),
-        Income(200),
+        IncomeVo(100),
+        IncomeVo(200),
       ],
       expenseAnswer: [
-        Expense(50),
-        Expense(100),
+        ExpenseVo(50),
+        ExpenseVo(100),
       ],
       expectedIncome: 300,
       expectedExpense: 150,
@@ -69,7 +69,7 @@ void main() {
     );
     final mockExpenseRepository = MockExpenseRepository();
     when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-      (_) async => <Expense>[],
+      (_) async => <ExpenseVo>[],
     );
 
     expect(
@@ -86,7 +86,7 @@ void main() {
 
     final mockIncomeRepository = MockIncomeRepository();
     when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-      (_) async => <Income>[],
+      (_) async => <IncomeVo>[],
     );
     final mockExpenseRepository = MockExpenseRepository();
     when(mockExpenseRepository.fetchMonthly(date)).thenThrow(

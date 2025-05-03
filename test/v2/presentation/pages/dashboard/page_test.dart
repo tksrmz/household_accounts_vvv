@@ -52,8 +52,8 @@ void main() {
     mockFn: () {
       when(mockViewModel.value).thenReturn(
         DashboardState.uninitialized().success(
-          Income(99),
-          Expense(200),
+          IncomeVo(99),
+          ExpenseVo(200),
         ),
       );
     },

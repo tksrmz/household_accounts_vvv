@@ -9,8 +9,8 @@ class DashboardState {
   /// 初期化されていない状態を作成する
   DashboardState.uninitialized()
       : _initState = _InitStateLifecycle(),
-        income = Income.empty,
-        expense = Expense.empty;
+        income = IncomeVo.empty,
+        expense = ExpenseVo.empty;
 
   DashboardState._success(this._initState, this.income, this.expense)
       : assert(
@@ -23,17 +23,17 @@ class DashboardState {
           _initState._isFailed,
           '初期化に失敗した状態でなければなりません。',
         ),
-        income = Income.empty,
-        expense = Expense.empty;
+        income = IncomeVo.empty,
+        expense = ExpenseVo.empty;
 
   /// 初期化状態
   final _InitStateLifecycle _initState;
 
   /// 当該月の総収入
-  final Income income;
+  final IncomeVo income;
 
   /// 当該月の総支出
-  final Expense expense;
+  final ExpenseVo expense;
 
   /// 初期化前かどうか
   bool get isUninitialized => _initState._isUninitialized;
@@ -42,7 +42,7 @@ class DashboardState {
   bool get isFailed => _initState._isFailed;
 
   /// 初期化に成功した
-  DashboardState success(Income newIncome, Expense newExpense) {
+  DashboardState success(IncomeVo newIncome, ExpenseVo newExpense) {
     return DashboardState._success(
       _initState._success(),
       newIncome,

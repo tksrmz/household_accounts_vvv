@@ -26,8 +26,8 @@ void main() {
 
     verifyNoMoreInteractions(mockUseCase);
     expect(sut.value.isUninitialized, isTrue);
-    expect(sut.value.income, Income.empty);
-    expect(sut.value.expense, Expense.empty);
+    expect(sut.value.income, IncomeVo.empty);
+    expect(sut.value.expense, ExpenseVo.empty);
     expect(sut.value.isFailed, isFalse);
   });
 
@@ -35,7 +35,7 @@ void main() {
     setUp(() {
       // mock
       when(mockUseCase.fetch(date)).thenAnswer(
-        (_) async => SummaryModel(Income(100), Expense(70)),
+        (_) async => SummaryModel(IncomeVo(100), ExpenseVo(70)),
       );
     });
 
@@ -47,8 +47,8 @@ void main() {
 
       verify(mockUseCase.fetch(date)).called(1);
       expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.income, Income(100));
-      expect(sut.value.expense, Expense(70));
+      expect(sut.value.income, IncomeVo(100));
+      expect(sut.value.expense, ExpenseVo(70));
       expect(sut.value.isFailed, isFalse);
     });
 
@@ -102,8 +102,8 @@ void main() {
 
       verify(mockUseCase.fetch(date)).called(1);
       expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.income, Income.empty);
-      expect(sut.value.expense, Expense.empty);
+      expect(sut.value.income, IncomeVo.empty);
+      expect(sut.value.expense, ExpenseVo.empty);
       expect(sut.value.isFailed, isTrue);
     });
 

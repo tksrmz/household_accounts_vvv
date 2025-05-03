@@ -79,7 +79,7 @@ void main() {
           verify(mockQueryDocumentSnapshot.data()).called(1);
 
           expect(expenseList, hasLength(1));
-          expect(expenseList[0], Expense(100));
+          expect(expenseList[0], ExpenseVo(100));
         });
       });
     });
@@ -118,8 +118,8 @@ void main() {
 
         // クエリの正しさは別のテストで確認しているので、取得した結果だけ確認
         expect(expenseList, hasLength(2));
-        expect(expenseList[0], Expense(100));
-        expect(expenseList[1], Expense(200));
+        expect(expenseList[0], ExpenseVo(100));
+        expect(expenseList[1], ExpenseVo(200));
       });
     });
 

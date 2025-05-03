@@ -7,5 +7,6 @@ part 'summary.freezed.dart';
 
 @freezed
 abstract class SummaryModel with _$SummaryModel {
-  const factory SummaryModel(Income income, Expense expense) = _SummaryModel;
+  const factory SummaryModel(IncomeVo income, ExpenseVo expense) =
+      _SummaryModel;
 }

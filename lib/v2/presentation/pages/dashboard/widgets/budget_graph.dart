@@ -63,12 +63,12 @@ class _BudgetGraphDataForPlot {
 
   /// その他用のコンストラクタ
   _BudgetGraphDataForPlot.etc(BudgetSpent spent)
-      : _name = const BudgetName('その他'),
+      : _name = const BudgetNameVo('その他'),
         _spent = spent,
         _color = Color(0xFF4DC4FF);
 
   /// 表示名
-  final BudgetName _name;
+  final BudgetNameVo _name;
 
   /// 使用額
   final BudgetSpent _spent;
