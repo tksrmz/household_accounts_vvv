@@ -7,10 +7,11 @@ import 'state.dart';
 /// ダッシュボードのサマリを表示するためのViewModel
 class SummaryViewModel extends ValueNotifier<SummaryState> {
   SummaryViewModel({
-    required this.summaryUseCase,
-  }) : super(SummaryState.uninitialized());
+    required SummaryUseCase summaryUseCase,
+  })  : _summaryUseCase = summaryUseCase,
+        super(SummaryState.uninitialized());
 
-  final SummaryUseCase summaryUseCase;
+  final SummaryUseCase _summaryUseCase;
 
   Future<void> init(DateTime date) async {
     if (!value.isUninitialized) {
@@ -18,7 +19,7 @@ class SummaryViewModel extends ValueNotifier<SummaryState> {
     }
 
     try {
-      SummaryModel summary = await summaryUseCase.fetch(date);
+      SummaryModel summary = await _summaryUseCase.fetch(date);
       value = value.success(summary.income, summary.expense);
     } on SummaryUseCaseException catch (ex) {
       print(ex);
