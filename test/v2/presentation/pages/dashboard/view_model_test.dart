@@ -25,10 +25,10 @@ void main() {
     );
 
     verifyNoMoreInteractions(mockSummaryUseCase);
-    expect(sut.isBeforeInitialization, isTrue);
-    expect(sut.income, Income.empty);
-    expect(sut.expense, Expense.empty);
-    expect(sut.hasError, isFalse);
+    expect(sut.value.isUninitialized, isTrue);
+    expect(sut.value.income, Income.empty);
+    expect(sut.value.expense, Expense.empty);
+    expect(sut.value.isFailed, isFalse);
   });
 
   group('初期化に成功したとき', () {
@@ -46,10 +46,10 @@ void main() {
       await sut.init(date);
 
       verify(mockSummaryUseCase.fetch(date)).called(1);
-      expect(sut.isBeforeInitialization, isFalse);
-      expect(sut.income, Income(100));
-      expect(sut.expense, Expense(70));
-      expect(sut.hasError, isFalse);
+      expect(sut.value.isUninitialized, isFalse);
+      expect(sut.value.income, Income(100));
+      expect(sut.value.expense, Expense(70));
+      expect(sut.value.isFailed, isFalse);
     });
 
     test('notifyListeners()を呼び出しており、エラー状態ではない', () async {
@@ -66,8 +66,8 @@ void main() {
       expect(notifyListenersCalled, isTrue);
 
       // notifyListeners()が呼び出されたら初期化が完了している
-      expect(sut.isBeforeInitialization, isFalse);
-      expect(sut.hasError, isFalse);
+      expect(sut.value.isUninitialized, isFalse);
+      expect(sut.value.isFailed, isFalse);
     });
 
     test('init()が2回以上呼び出されても何もしない', () async {
@@ -101,10 +101,10 @@ void main() {
       await sut.init(date);
 
       verify(mockSummaryUseCase.fetch(date)).called(1);
-      expect(sut.isBeforeInitialization, isFalse);
-      expect(sut.income, Income.empty);
-      expect(sut.expense, Expense.empty);
-      expect(sut.hasError, isTrue);
+      expect(sut.value.isUninitialized, isFalse);
+      expect(sut.value.income, Income.empty);
+      expect(sut.value.expense, Expense.empty);
+      expect(sut.value.isFailed, isTrue);
     });
 
     test('notifyListeners()を呼び出している', () async {
@@ -121,8 +121,8 @@ void main() {
       expect(notifyListenersCalled, isTrue);
 
       // notifyListeners()が呼び出されたら初期化が完了している
-      expect(sut.isBeforeInitialization, isFalse);
-      expect(sut.hasError, isTrue);
+      expect(sut.value.isUninitialized, isFalse);
+      expect(sut.value.isFailed, isTrue);
     });
 
     test('init()が2回以上呼び出されても何もしない', () async {
