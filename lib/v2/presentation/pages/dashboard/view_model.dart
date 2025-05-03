@@ -15,9 +15,9 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
   final DashboardUseCase _dashboardUseCase;
 
   Future<void> init(
-    DateTime date, [
-    UserIdVo userId = const UserIdVo('hoge'),
-  ]) async {
+    DateTime date,
+    UserIdVo userId,
+  ) async {
     if (!value.isUninitialized) {
       return;
     }

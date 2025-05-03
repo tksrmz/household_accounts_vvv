@@ -8,6 +8,7 @@ import '../../util/type/single_or_pair.dart';
 import '../../v2/data/repositories/firebase_expense_repository.dart';
 import '../../v2/data/repositories/firebase_income_repository.dart';
 import '../../v2/data/repositories/firebase_public_profile_repository.dart';
+import '../../v2/domain/models/vo/user_id.dart';
 import '../../v2/domain/usecases/dashboard.dart';
 import '../../v2/presentation/pages/dashboard/view_model.dart';
 import '../budget_viewer/budget_viewer_page.dart';
@@ -48,6 +49,7 @@ class _MainPageState extends State<MainPage> {
 
           return DashboardPage(
             date: DateTime.now(),
+            userId: UserIdVo(userInfo.uid),
             viewModel: DashboardViewModel(
               dashboardUseCase: DashboardUseCase(
                 incomeRepository: FirebaseIncomeRepository(

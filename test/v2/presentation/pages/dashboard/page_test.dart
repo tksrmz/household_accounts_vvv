@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/dashboard_info.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
+import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/state.dart';
@@ -26,6 +27,7 @@ void main() {
   final mockViewModel = MockDashboardViewModel();
   final targetBuilder = () => DashboardPage(
         date: DateTime(2025, 1),
+        userId: UserIdVo("testUserId"),
         viewModel: mockViewModel,
       );
 
@@ -44,7 +46,10 @@ void main() {
     },
     builder: targetBuilder,
     expectFn: () {
-      verify(mockViewModel.init(DateTime(2025, 1))).called(1);
+      verify(mockViewModel.init(
+        DateTime(2025, 1),
+        UserIdVo("testUserId"),
+      )).called(1);
     },
   );
 
@@ -64,7 +69,10 @@ void main() {
     },
     builder: targetBuilder,
     expectFn: () {
-      verify(mockViewModel.init(DateTime(2025, 1))).called(1);
+      verify(mockViewModel.init(
+        DateTime(2025, 1),
+        UserIdVo("testUserId"),
+      )).called(1);
     },
   );
 
@@ -78,7 +86,10 @@ void main() {
     },
     builder: targetBuilder,
     expectFn: () {
-      verify(mockViewModel.init(DateTime(2025, 1))).called(1);
+      verify(mockViewModel.init(
+        DateTime(2025, 1),
+        UserIdVo("testUserId"),
+      )).called(1);
     },
   );
 }
