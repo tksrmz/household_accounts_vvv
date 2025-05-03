@@ -8,13 +8,11 @@ import 'package:test/test.dart';
 @GenerateNiceMocks([
   MockSpec<FirebaseFirestore>(),
   MockSpec<CollectionReference>(),
-  MockSpec<DocumentReference>(),
-  MockSpec<DocumentSnapshot>(),
   MockSpec<Query>(),
   MockSpec<QuerySnapshot>(),
   MockSpec<QueryDocumentSnapshot>(),
 ])
-import 'firebase_income_repository_test.mocks.dart';
+import 'firebase_expense_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
