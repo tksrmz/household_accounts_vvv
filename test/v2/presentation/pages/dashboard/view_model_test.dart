@@ -51,7 +51,7 @@ void main() {
       final sut = DashboardViewModel(
         dashboardUseCase: mockUseCase,
       );
-      await sut.init(date);
+      await sut.init(date, userId);
 
       verify(mockUseCase.fetch(date, userId)).called(1);
       expect(sut.value.isUninitialized, isFalse);
@@ -71,7 +71,7 @@ void main() {
       });
 
       expect(notifyListenersCalled, isFalse);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(notifyListenersCalled, isTrue);
 
       // notifyListeners()が呼び出されたら初期化が完了している
@@ -89,9 +89,9 @@ void main() {
       });
 
       expect(counter, 0);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(counter, 1);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(counter, 1);
     });
   });
@@ -107,7 +107,7 @@ void main() {
       final sut = DashboardViewModel(
         dashboardUseCase: mockUseCase,
       );
-      await sut.init(date);
+      await sut.init(date, userId);
 
       verify(mockUseCase.fetch(date, userId)).called(1);
       expect(sut.value.isUninitialized, isFalse);
@@ -127,7 +127,7 @@ void main() {
       });
 
       expect(notifyListenersCalled, isFalse);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(notifyListenersCalled, isTrue);
 
       // notifyListeners()が呼び出されたら初期化が完了している
@@ -145,9 +145,9 @@ void main() {
       });
 
       expect(counter, 0);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(counter, 1);
-      await sut.init(date);
+      await sut.init(date, userId);
       expect(counter, 1);
     });
   });

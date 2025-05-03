@@ -14,16 +14,16 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
 
   final DashboardUseCase _dashboardUseCase;
 
-  Future<void> init(DateTime date) async {
+  Future<void> init(
+    DateTime date, [
+    UserIdVo userId = const UserIdVo('hoge'),
+  ]) async {
     if (!value.isUninitialized) {
       return;
     }
 
     try {
-      DashboardInfoModel info = await _dashboardUseCase.fetch(
-        date,
-        UserIdVo("hoge"),
-      );
+      DashboardInfoModel info = await _dashboardUseCase.fetch(date, userId);
       value = value.success(info);
     } on DashboardUseCaseException catch (ex) {
       print(ex);
