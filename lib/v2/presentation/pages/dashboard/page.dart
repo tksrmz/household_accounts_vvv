@@ -5,15 +5,19 @@ import 'widgets/error_message.dart';
 import 'widgets/summary_panel.dart';
 
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key, required this.date, required this.viewModel});
+  DashboardPage({
+    super.key,
+    required this.date,
+    required this.viewModel,
+  }) {
+    viewModel.init(date);
+  }
 
   final DateTime date;
   final SummaryViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
-    viewModel.init(date);
-
     return ValueListenableBuilder(
       valueListenable: viewModel,
       builder: (context, state, child) {
