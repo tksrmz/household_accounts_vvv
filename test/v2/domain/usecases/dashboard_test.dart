@@ -15,7 +15,7 @@ import 'package:test/test.dart';
   MockSpec<ExpenseRepository>(),
   MockSpec<PublicProfileRepository>(),
 ])
-import 'summary_test.mocks.dart';
+import 'dashboard_test.mocks.dart';
 
 void main() {
   final date = DateTime(2025, 1);
