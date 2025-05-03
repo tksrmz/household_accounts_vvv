@@ -3,6 +3,7 @@ import 'package:household_accounts/v2/domain/models/dashboard_info.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
+import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
 import 'package:household_accounts/v2/domain/usecases/dashboard.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.dart';
 import 'package:mockito/annotations.dart';
@@ -30,6 +31,7 @@ void main() {
     expect(sut.value.isUninitialized, isTrue);
     expect(sut.value.income, IncomeVo.empty);
     expect(sut.value.expense, ExpenseVo.empty);
+    expect(sut.value.userName, UserNameVo.empty);
     expect(sut.value.isFailed, isFalse);
   });
 
@@ -37,7 +39,11 @@ void main() {
     setUp(() {
       // mock
       when(mockUseCase.fetch(date, userId)).thenAnswer(
-        (_) async => DashboardInfoModel(IncomeVo(100), ExpenseVo(70)),
+        (_) async => DashboardInfoModel(
+          IncomeVo(100),
+          ExpenseVo(70),
+          UserNameVo("testUserId"),
+        ),
       );
     });
 
@@ -51,6 +57,7 @@ void main() {
       expect(sut.value.isUninitialized, isFalse);
       expect(sut.value.income, IncomeVo(100));
       expect(sut.value.expense, ExpenseVo(70));
+      expect(sut.value.userName, UserNameVo("testUserId"));
       expect(sut.value.isFailed, isFalse);
     });
 
@@ -106,6 +113,7 @@ void main() {
       expect(sut.value.isUninitialized, isFalse);
       expect(sut.value.income, IncomeVo.empty);
       expect(sut.value.expense, ExpenseVo.empty);
+      expect(sut.value.userName, UserNameVo.empty);
       expect(sut.value.isFailed, isTrue);
     });
 

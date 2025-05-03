@@ -24,7 +24,11 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
         date,
         UserIdVo("testUserId"),
       );
-      value = value.success(info.income, info.expense);
+      value = value.success(
+        info.income,
+        info.expense,
+        info.userName,
+      );
     } on DashboardUseCaseException catch (ex) {
       print(ex);
       value = value.fail();

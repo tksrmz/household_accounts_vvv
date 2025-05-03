@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
+import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/state.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.dart';
@@ -54,6 +55,7 @@ void main() {
         DashboardState.uninitialized().success(
           IncomeVo(99),
           ExpenseVo(200),
+          UserNameVo('testUserName'),
         ),
       );
     },
