@@ -35,7 +35,14 @@ class DashboardPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: ListView(
             children: [
-              Text('${state.userName.value}の家計簿'),
+              Center(
+                child: Text(
+                  '${state.userName.value}の家計簿',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                ),
+              ),
               const SizedBox(height: 16),
               SummaryPanel(
                 state.income,
