@@ -13,14 +13,16 @@ part 'dashboard.freezed.dart';
 
 class DashboardUseCase {
   const DashboardUseCase({
-    required this.incomeRepository,
-    required this.expenseRepository,
-    required this.publicProfileRepository,
-  });
+    required IncomeRepository incomeRepository,
+    required ExpenseRepository expenseRepository,
+    required PublicProfileRepository publicProfileRepository,
+  })  : _incomeRepository = incomeRepository,
+        _expenseRepository = expenseRepository,
+        _publicProfileRepository = publicProfileRepository;
 
-  final IncomeRepository incomeRepository;
-  final ExpenseRepository expenseRepository;
-  final PublicProfileRepository publicProfileRepository;
+  final IncomeRepository _incomeRepository;
+  final ExpenseRepository _expenseRepository;
+  final PublicProfileRepository _publicProfileRepository;
 
   /// 当該月の収支データを取得する
   ///
@@ -34,21 +36,21 @@ class DashboardUseCase {
   ) async {
     final List<IncomeVo> incomeList;
     try {
-      incomeList = await incomeRepository.fetchMonthly(date);
+      incomeList = await _incomeRepository.fetchMonthly(date);
     } on Exception {
       throw DashboardUseCaseException('IncomeRepositoryでエラーが発生しました');
     }
 
     final List<ExpenseVo> expenseList;
     try {
-      expenseList = await expenseRepository.fetchMonthly(date);
+      expenseList = await _expenseRepository.fetchMonthly(date);
     } on Exception {
       throw DashboardUseCaseException('ExpenseRepositoryでエラーが発生しました');
     }
 
     final UserNameVo userName;
     try {
-      userName = await publicProfileRepository.fetchUserName(userId);
+      userName = await _publicProfileRepository.fetchUserName(userId);
     } on Exception {
       throw DashboardUseCaseException('PublicProfileRepositoryでエラーが発生しました');
     }

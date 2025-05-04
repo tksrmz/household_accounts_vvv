@@ -6,16 +6,16 @@ import '../../domain/repositories/expense_repository.dart';
 
 class FirebaseExpenseRepository implements ExpenseRepository {
   const FirebaseExpenseRepository(
-    this.db,
+    this._db,
     this._collectionPath,
   );
 
-  final FirebaseFirestore db;
+  final FirebaseFirestore _db;
   final String _collectionPath;
 
   @override
   Future<List<ExpenseVo>> fetchMonthly(DateTime date) async {
-    final querySnapshot = await db
+    final querySnapshot = await _db
         .collection(_collectionPath)
         .whereInThisMonth('date', date)
         .get();

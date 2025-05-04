@@ -7,12 +7,12 @@ class SettingsPage extends StatelessWidget {
   SettingsPage({
     super.key,
     required UserIdVo userId,
-    required this.viewModel,
-  }) {
-    viewModel.init(userId);
+    required SettingsViewModel viewModel,
+  }) : _viewModel = viewModel {
+    _viewModel.init(userId);
   }
 
-  final SettingsViewModel viewModel;
+  final SettingsViewModel _viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class SettingsPage extends StatelessWidget {
         title: const Text('設定'),
       ),
       body: ValueListenableBuilder(
-        valueListenable: viewModel,
+        valueListenable: _viewModel,
         builder: (context, state, child) {
           if (state.isUninitialized) {
             return const Center(

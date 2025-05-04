@@ -10,19 +10,23 @@ class DashboardPage extends StatelessWidget {
     super.key,
     required DateTime date,
     required UserIdVo userId,
-    required this.isPersonalMode,
-    required this.viewModel,
-  }) {
-    viewModel.init(date, userId);
+    required bool isPersonalMode,
+    required DashboardViewModel viewModel,
+  })  : _isPersonalMode = isPersonalMode,
+        _viewModel = viewModel {
+    // ViewModelの初期化
+    // ここでViewModelに必要なデータを渡す
+    // 例えば、ユーザーIDや日付など
+    _viewModel.init(date, userId);
   }
 
-  final DashboardViewModel viewModel;
-  final bool isPersonalMode;
+  final DashboardViewModel _viewModel;
+  final bool _isPersonalMode;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: viewModel,
+      valueListenable: _viewModel,
       builder: (context, state, child) {
         if (state.isUninitialized) {
           return Center(
@@ -39,7 +43,7 @@ class DashboardPage extends StatelessWidget {
             children: [
               Center(
                 child: Text(
-                  '${state.model.userName.value}の${isPersonalMode ? '自分' : 'ふたり'}の家計簿',
+                  '${state.model.userName.value}の${_isPersonalMode ? '自分' : 'ふたり'}の家計簿',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
