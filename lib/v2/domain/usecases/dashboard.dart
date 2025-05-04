@@ -32,17 +32,19 @@ class DashboardUseCase {
     DateTime date,
     UserIdVo userId,
   ) async {
-    final incomeList = await _fetchIterableOfIntFromThrowableSupplier(
-      () async =>
-          (await incomeRepository.fetchMonthly(date)).map((e) => e.value),
-      'IncomeRepositoryでエラーが発生しました',
-    );
+    final List<IncomeVo> incomeList;
+    try {
+      incomeList = await incomeRepository.fetchMonthly(date);
+    } on Exception {
+      throw DashboardUseCaseException('IncomeRepositoryでエラーが発生しました');
+    }
 
-    final expenseList = await _fetchIterableOfIntFromThrowableSupplier(
-      () async =>
-          (await expenseRepository.fetchMonthly(date)).map((e) => e.value),
-      'ExpenseRepositoryでエラーが発生しました',
-    );
+    final List<ExpenseVo> expenseList;
+    try {
+      expenseList = await expenseRepository.fetchMonthly(date);
+    } on Exception {
+      throw DashboardUseCaseException('ExpenseRepositoryでエラーが発生しました');
+    }
 
     final UserNameVo userName;
     try {
@@ -52,25 +54,14 @@ class DashboardUseCase {
     }
 
     return DashboardInfoModel(
-      IncomeVo(_sumOf(incomeList)),
-      ExpenseVo(_sumOf(expenseList)),
+      IncomeVo(_sumOf(incomeList.map((e) => e.value))),
+      ExpenseVo(_sumOf(expenseList.map((e) => e.value))),
       userName,
     );
   }
 
   int _sumOf(Iterable<int> iterable) {
     return iterable.fold<int>(0, (prev, element) => prev + element);
-  }
-
-  Future<Iterable<int>> _fetchIterableOfIntFromThrowableSupplier(
-    Future<Iterable<int>> Function() supplier,
-    String errorMessage,
-  ) async {
-    try {
-      return await supplier();
-    } on Exception {
-      throw DashboardUseCaseException(errorMessage);
-    }
   }
 }
 

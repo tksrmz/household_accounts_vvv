@@ -22,7 +22,7 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
       UserNameVo userName =
           await _publicProfileRepository.fetchUserName(userId);
       value = value.success(userName);
-    } catch (ex) {
+    } on Exception catch (ex) {
       print(ex);
       value = value.fail(UserNameVo.empty);
     }
