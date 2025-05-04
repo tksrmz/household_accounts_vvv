@@ -7,7 +7,7 @@ import 'package:household_accounts/v2/presentation/pages/settings/view_model.dar
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../../../../util/golden_helper.dart';
+import '../../../../test-util/golden_helper.dart';
 @GenerateNiceMocks([MockSpec<SettingsViewModel>()])
 import 'page_test.mocks.dart';
 

@@ -5,7 +5,7 @@ import 'package:household_accounts/v2/presentation/pages/dashboard/widgets/budge
 import 'package:household_accounts/vo/budget_amount.dart';
 import 'package:household_accounts/vo/budget_spent.dart';
 
-import '../../../../../util/golden_helper.dart';
+import '../../../../../test-util/golden_helper.dart';
 
 void main() {
   /**

@@ -2,7 +2,7 @@ import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/widgets/summary_panel.dart';
 
-import '../../../../../util/golden_helper.dart';
+import '../../../../../test-util/golden_helper.dart';
 
 void main() {
   testGoldens(

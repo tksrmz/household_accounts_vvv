@@ -10,7 +10,7 @@ import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.da
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../../../../util/golden_helper.dart';
+import '../../../../test-util/golden_helper.dart';
 @GenerateNiceMocks([MockSpec<DashboardViewModel>()])
 import 'page_test.mocks.dart';
 
