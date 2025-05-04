@@ -29,7 +29,9 @@ class SettingsPage extends StatelessWidget {
             );
           }
           if (state.isFailed) {
-            return const ErrorMessage();
+            return Center(
+              child: const ErrorMessage(),
+            );
           }
 
           return Padding(
