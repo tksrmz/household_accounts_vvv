@@ -32,7 +32,7 @@ Future<void> propertyFeature() async {
 
     // Verify property is created
     expect(find.text('普通預金'), findsOneWidget);
-    expect(find.text('100000'), findsOneWidget);
+    expect(find.text('¥100,000'), findsOneWidget);
 
     // Add another property
     await tester.tap(find.text('資産の追加'));
@@ -46,9 +46,9 @@ Future<void> propertyFeature() async {
 
     // Verify both properties exist
     expect(find.text('普通預金'), findsOneWidget);
-    expect(find.text('100000'), findsOneWidget);
+    expect(find.text('¥100,000'), findsOneWidget);
     expect(find.text('現金'), findsOneWidget);
-    expect(find.text('30000'), findsOneWidget);
+    expect(find.text('¥30,000'), findsOneWidget);
 
     // Edit property
     await tester.tap(find.widgetWithIcon(IconButton, Icons.edit).first);
@@ -60,9 +60,9 @@ Future<void> propertyFeature() async {
 
     // Verify property is updated
     expect(find.text('普通預金（メイン）'), findsOneWidget);
-    expect(find.text('120000'), findsOneWidget);
+    expect(find.text('¥120,000'), findsOneWidget);
     expect(find.text('普通預金'), findsNothing);
-    expect(find.text('100000'), findsNothing);
+    expect(find.text('¥100,000'), findsNothing);
 
     // Delete property
     await tester.tap(find.widgetWithIcon(IconButton, Icons.delete).first);
@@ -70,7 +70,7 @@ Future<void> propertyFeature() async {
 
     // Verify property is deleted
     expect(find.text('普通預金（メイン）'), findsNothing);
-    expect(find.text('120000'), findsNothing);
+    expect(find.text('¥120,000'), findsNothing);
   });
 
   testWidgets('ペアリング済みユーザーはふたりの家計簿で資産を管理できる', (tester) async {
@@ -108,7 +108,7 @@ Future<void> propertyFeature() async {
 
     // Verify shared property is created
     expect(find.text('共同口座'), findsOneWidget);
-    expect(find.text('200000'), findsOneWidget);
+    expect(find.text('¥200,000'), findsOneWidget);
 
     // Edit shared property
     await tester.tap(find.widgetWithIcon(IconButton, Icons.edit).first);
@@ -121,9 +121,9 @@ Future<void> propertyFeature() async {
 
     // Verify shared property is updated
     expect(find.text('共同口座（住宅ローン）'), findsOneWidget);
-    expect(find.text('250000'), findsOneWidget);
+    expect(find.text('¥250,000'), findsOneWidget);
     expect(find.text('共同口座'), findsNothing);
-    expect(find.text('200000'), findsNothing);
+    expect(find.text('¥200,000'), findsNothing);
 
     // Delete shared property
     await tester.tap(find.widgetWithIcon(IconButton, Icons.delete).first);
@@ -131,6 +131,6 @@ Future<void> propertyFeature() async {
 
     // Verify shared property is deleted
     expect(find.text('共同口座（住宅ローン）'), findsNothing);
-    expect(find.text('250000'), findsNothing);
+    expect(find.text('¥250,000'), findsNothing);
   });
 }

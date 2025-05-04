@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:household_accounts/common/logic/formatter.dart';
 import 'package:provider/provider.dart';
 
 import '../../entity/property.dart';
@@ -119,7 +120,7 @@ class _PropertyListItem extends StatelessWidget {
             _property.name,
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          Text(_property.amount.toString()),
+          Text(Formatter.simpleCurrency(_property.amount)),
         ],
       );
 
