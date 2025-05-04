@@ -9,4 +9,4 @@ pwd
 echo "integration_test/run: Run integration tests"
 cd ..
 pwd
-flutter test integration_test/dashboard_feature_test.dart
+flutter test integration_test/integration_test.dart

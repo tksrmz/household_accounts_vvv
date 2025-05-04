@@ -4,7 +4,7 @@ import 'package:household_accounts/main.dart';
 
 import 'util.dart';
 
-void main() async {
+Future<void> dashboardFeature() async {
   testWidgets('ユーザーは自分の家計簿の情報をダッシュボード画面で確認できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await singInApp(tester, "single_user@example.com", "abc1234");
