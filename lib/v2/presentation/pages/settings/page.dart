@@ -16,32 +16,37 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: viewModel,
-      builder: (context, state, child) {
-        if (state.isUninitialized) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-        if (state.isFailed) {
-          return const ErrorMessage();
-        }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('設定'),
+      ),
+      body: ValueListenableBuilder(
+        valueListenable: viewModel,
+        builder: (context, state, child) {
+          if (state.isUninitialized) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (state.isFailed) {
+            return const ErrorMessage();
+          }
 
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            children: [
-              Card(
-                child: ListTile(
-                  title: const Text('ユーザー名'),
-                  subtitle: Text(state.userName.value),
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView(
+              children: [
+                Card(
+                  child: ListTile(
+                    title: const Text('ユーザー名'),
+                    subtitle: Text(state.userName.value),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
