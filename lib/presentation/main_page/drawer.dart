@@ -1,15 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import '../../util/type/single_or_pair.dart';
+import '../../v2/data/repositories/firebase_public_profile_repository.dart';
+import '../../v2/domain/models/vo/user_id.dart';
+import '../../v2/presentation/pages/settings/page.dart';
+import '../../v2/presentation/pages/settings/view_model.dart';
 
 class MainPageDrawer extends StatelessWidget {
   const MainPageDrawer({
     required this.mode,
+    required this.userId,
     this.setter,
     Key? key,
   }) : super(key: key);
 
   final SingleOrPair mode;
+  final UserIdVo userId;
   final void Function(SingleOrPair)? setter;
 
   @override
@@ -38,7 +44,26 @@ class MainPageDrawer extends StatelessWidget {
               ],
             ),
           ),
-          setter != null ? _getListTile(context, setter!) : SizedBox.shrink(),
+          if (setter != null) _getListTile(context, setter!),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('設定'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsPage(
+                    userId: userId,
+                    viewModel: SettingsViewModel(
+                      publicProfileRepository: FirebasePublicProfileRepository(
+                        FirebaseFirestore.instance,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

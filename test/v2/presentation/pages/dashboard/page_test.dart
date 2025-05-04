@@ -5,12 +5,11 @@ import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
-import 'package:household_accounts/v2/presentation/pages/dashboard/state.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../../../../util/golden_helper.dart';
+import '../../../../test-util/golden_helper.dart';
 @GenerateNiceMocks([MockSpec<DashboardViewModel>()])
 import 'page_test.mocks.dart';
 
@@ -31,6 +30,11 @@ void main() {
         isPersonalMode: true,
         viewModel: mockViewModel,
       );
+  const uninitializedModelValue = DashboardInfoModel(
+    IncomeVo(0),
+    ExpenseVo(0),
+    UserNameVo('testUserName'),
+  );
 
   tearDown(() {
     // モックのクリーンアップ
@@ -42,7 +46,7 @@ void main() {
     goldenFileName: 'dashboard_page_loading',
     mockFn: () {
       when(mockViewModel.value).thenReturn(
-        DashboardState.uninitialized(),
+        DashboardState.uninitialized(uninitializedModelValue),
       );
     },
     builder: targetBuilder,
@@ -59,7 +63,7 @@ void main() {
     goldenFileName: 'dashboard_page_complete',
     mockFn: () {
       when(mockViewModel.value).thenReturn(
-        DashboardState.uninitialized().success(
+        DashboardState.uninitialized(uninitializedModelValue).success(
           DashboardInfoModel(
             IncomeVo(99),
             ExpenseVo(200),
@@ -81,8 +85,14 @@ void main() {
     '初期化に失敗するとエラーメッセージが表示される',
     goldenFileName: 'dashboard_page_error',
     mockFn: () {
+      const failedModelValue = DashboardInfoModel(
+        IncomeVo(0),
+        ExpenseVo(0),
+        UserNameVo('testUserName'),
+      );
       when(mockViewModel.value).thenReturn(
-        DashboardState.uninitialized().fail(),
+        DashboardState.uninitialized(uninitializedModelValue)
+            .fail(failedModelValue),
       );
     },
     builder: targetBuilder,

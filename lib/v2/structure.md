@@ -8,7 +8,7 @@ lib/
 ├── presentation/            // UIや画面関連のコード
 │   ├── pages/               // 各画面のウィジェット
 │   │   ├── view.dart        // 画面のUI
-│   │   └── view-model.dart  // 画面の状態管理
+│   │   └── view_model.dart  // 画面の状態管理
 │   ├── widgets/             // 再利用可能な小さなウィジェット
 │   └── styles/              // テーマやスタイル関連
 ├── data/                    // データ層（APIやデータベース関連）

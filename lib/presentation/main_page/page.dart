@@ -41,15 +41,16 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final userInfo = context.read<UserInfo>();
+    final isSingle = _singleOrPair == SingleOrPair.single;
+    final userId = UserIdVo(userInfo.uid);
+
     final bodies = <Widget>[
       Builder(
         builder: (context) {
-          final userInfo = context.read<UserInfo>();
-          final isSingle = _singleOrPair == SingleOrPair.single;
-
           return DashboardPage(
             date: DateTime.now(),
-            userId: UserIdVo(userInfo.uid),
+            userId: userId,
             isPersonalMode: isSingle,
             viewModel: DashboardViewModel(
               dashboardUseCase: DashboardUseCase(
@@ -86,6 +87,7 @@ class _MainPageState extends State<MainPage> {
       ),
       drawer: MainPageDrawer(
         mode: _singleOrPair,
+        userId: userId,
         setter: context.read<UserInfo>().hasPair ? _setSingleOrPair : null,
       ),
       body: Provider<SingleOrPair>.value(
