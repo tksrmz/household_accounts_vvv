@@ -5,7 +5,7 @@ import 'package:household_accounts/main.dart';
 import 'util.dart';
 
 Future<void> categoryFeature() async {
-  testWidgets('ユーザーは自分の家計簿でカテゴリを新規作成できる', (tester) async {
+  testWidgets('ユーザーは自分の家計簿でカテゴリを管理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await singInApp(tester, "single_user@example.com", "abc1234");
 
@@ -16,11 +16,7 @@ Future<void> categoryFeature() async {
     // Wait for loading to finish
     await tester.pumpAndSettle();
 
-    // Open the navigation menu
-    await tester.tap(find.byIcon(Icons.menu));
-    await tester.pumpAndSettle();
-
-    // Navigate to category screen
+    // Navigate to category screen using bottom navigation bar
     await tester.tap(find.text('カテゴリ'));
     await tester.pumpAndSettle();
 
@@ -71,7 +67,7 @@ Future<void> categoryFeature() async {
     expect(find.text('食費 (予算: ¥30,000)'), findsNothing);
   });
 
-  testWidgets('ペアリング済みユーザーはふたりの家計簿でカテゴリを新規作成できる', (tester) async {
+  testWidgets('ペアリング済みユーザーはふたりの家計簿でカテゴリを管理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await singInApp(tester, "pair_user_a@example.com", "abc1234");
 
@@ -82,7 +78,7 @@ Future<void> categoryFeature() async {
     // Wait for loading to finish
     await tester.pumpAndSettle();
 
-    // Open the navigation menu
+    // Open the navigation menu to switch to shared account
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
 
@@ -90,9 +86,7 @@ Future<void> categoryFeature() async {
     await tester.tap(find.text('ふたりの家計簿を見る'));
     await tester.pumpAndSettle();
 
-    // Navigate to category screen
-    await tester.tap(find.byIcon(Icons.menu));
-    await tester.pumpAndSettle();
+    // Navigate to category screen using bottom navigation bar
     await tester.tap(find.text('カテゴリ'));
     await tester.pumpAndSettle();
 
