@@ -6,7 +6,7 @@ import '../../../domain/models/vo/income.dart';
 import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/models/vo/user_name.dart';
 import '../../../domain/usecases/dashboard.dart';
-import 'state.dart';
+import '../state_managements/initializable_state.dart';
 
 /// ダッシュボードを表示するためのViewModel
 class DashboardViewModel extends ValueNotifier<DashboardState> {
@@ -40,3 +40,6 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
     }
   }
 }
+
+/// ダッシュボードの状態を表すクラス
+typedef DashboardState = InitializableState<DashboardInfoModel>;

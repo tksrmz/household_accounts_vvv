@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
 import 'package:household_accounts/v2/presentation/pages/settings/page.dart';
-import 'package:household_accounts/v2/presentation/pages/settings/state.dart';
 import 'package:household_accounts/v2/presentation/pages/settings/view_model.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';

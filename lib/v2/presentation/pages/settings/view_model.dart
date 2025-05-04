@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/models/vo/user_name.dart';
 import '../../../domain/repositories/public_profile_repository.dart';
-import 'state.dart';
+import '../state_managements/initializable_state.dart';
 
 /// 設定画面を表示するためのViewModel
 class SettingsViewModel extends ValueNotifier<SettingsState> {
@@ -28,3 +28,6 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
     }
   }
 }
+
+/// 設定画面の状態を表すクラス
+typedef SettingsState = InitializableState<UserNameVo>;
