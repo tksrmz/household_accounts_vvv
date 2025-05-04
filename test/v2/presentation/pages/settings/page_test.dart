@@ -28,7 +28,7 @@ void main() {
     goldenFileName: 'settings_page_loading',
     mockFn: () {
       when(mockViewModel.value).thenReturn(
-        SettingsState.uninitialized(),
+        SettingsState.uninitialized(UserNameVo.empty),
       );
     },
     builder: targetBuilder,
@@ -42,7 +42,7 @@ void main() {
     goldenFileName: 'settings_page_complete',
     mockFn: () {
       when(mockViewModel.value).thenReturn(
-        SettingsState.uninitialized().success(
+        SettingsState.uninitialized(UserNameVo.empty).success(
           UserNameVo('testUserName'),
         ),
       );
@@ -58,7 +58,7 @@ void main() {
     goldenFileName: 'settings_page_error',
     mockFn: () {
       when(mockViewModel.value).thenReturn(
-        SettingsState.uninitialized().fail(),
+        SettingsState.uninitialized(UserNameVo.empty).fail(UserNameVo.empty),
       );
     },
     builder: targetBuilder,

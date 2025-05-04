@@ -9,7 +9,7 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
   SettingsViewModel({
     required PublicProfileRepository publicProfileRepository,
   })  : _publicProfileRepository = publicProfileRepository,
-        super(SettingsState.uninitialized());
+        super(SettingsState.uninitialized(UserNameVo.empty));
 
   final PublicProfileRepository _publicProfileRepository;
 
@@ -24,7 +24,7 @@ class SettingsViewModel extends ValueNotifier<SettingsState> {
       value = value.success(userName);
     } catch (ex) {
       print(ex);
-      value = value.fail();
+      value = value.fail(UserNameVo.empty);
     }
   }
 }

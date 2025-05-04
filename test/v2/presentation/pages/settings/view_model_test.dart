@@ -25,7 +25,7 @@ void main() {
 
     verifyNoMoreInteractions(mockRepository);
     expect(sut.value.isUninitialized, isTrue);
-    expect(sut.value.userName, UserNameVo.empty);
+    expect(sut.value.model, UserNameVo.empty);
     expect(sut.value.isFailed, isFalse);
   });
 
@@ -45,7 +45,7 @@ void main() {
 
       verify(mockRepository.fetchUserName(userId)).called(1);
       expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.userName, UserNameVo("testUserName"));
+      expect(sut.value.model, UserNameVo("testUserName"));
       expect(sut.value.isFailed, isFalse);
     });
 
@@ -99,7 +99,7 @@ void main() {
 
       verify(mockRepository.fetchUserName(userId)).called(1);
       expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.userName, UserNameVo.empty);
+      expect(sut.value.model, UserNameVo.empty);
       expect(sut.value.isFailed, isTrue);
     });
 

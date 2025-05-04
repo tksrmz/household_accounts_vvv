@@ -41,7 +41,7 @@ class SettingsPage extends StatelessWidget {
                 Card(
                   child: ListTile(
                     title: const Text('ユーザー名'),
-                    subtitle: Text(state.userName.value),
+                    subtitle: Text(state.model.value),
                   ),
                 ),
               ],

@@ -29,9 +29,9 @@ void main() {
 
     verifyNoMoreInteractions(mockUseCase);
     expect(sut.value.isUninitialized, isTrue);
-    expect(sut.value.income, IncomeVo.empty);
-    expect(sut.value.expense, ExpenseVo.empty);
-    expect(sut.value.userName, UserNameVo.empty);
+    expect(sut.value.model.income, IncomeVo.empty);
+    expect(sut.value.model.expense, ExpenseVo.empty);
+    expect(sut.value.model.userName, UserNameVo.empty);
     expect(sut.value.isFailed, isFalse);
   });
 
@@ -55,9 +55,9 @@ void main() {
 
       verify(mockUseCase.fetch(date, userId)).called(1);
       expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.income, IncomeVo(100));
-      expect(sut.value.expense, ExpenseVo(70));
-      expect(sut.value.userName, UserNameVo("testUserId"));
+      expect(sut.value.model.income, IncomeVo(100));
+      expect(sut.value.model.expense, ExpenseVo(70));
+      expect(sut.value.model.userName, UserNameVo("testUserId"));
       expect(sut.value.isFailed, isFalse);
     });
 
@@ -111,9 +111,9 @@ void main() {
 
       verify(mockUseCase.fetch(date, userId)).called(1);
       expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.income, IncomeVo.empty);
-      expect(sut.value.expense, ExpenseVo.empty);
-      expect(sut.value.userName, UserNameVo.empty);
+      expect(sut.value.model.income, IncomeVo.empty);
+      expect(sut.value.model.expense, ExpenseVo.empty);
+      expect(sut.value.model.userName, UserNameVo.empty);
       expect(sut.value.isFailed, isTrue);
     });
 
