@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/models/vo/user_id.dart';
+import '../../widgets/error_message.dart';
 import 'view_model.dart';
-import 'widgets/error_message.dart';
 
 class SettingsPage extends StatelessWidget {
   SettingsPage({
