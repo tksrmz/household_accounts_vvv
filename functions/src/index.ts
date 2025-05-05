@@ -8,16 +8,11 @@ import { FieldValue } from "firebase-admin/firestore";
 
 admin.initializeApp();
 
-// constants
-// Database instance
-const db = admin.firestore();
-
 // =============================================================================
 // =============================================================================
 // Initialization of user's documents when signing up
 // =============================================================================
 // =============================================================================
-
 /**
  * Create public profile document and personal note document
  * when a user is created.
@@ -27,6 +22,9 @@ export const onCreateUser = functions
   .region("asia-northeast2")
   .auth.user().onCreate(async (user) => {
     functions.logger.info(`User ID is ${user.uid}`);
+
+    // Database instance
+    const db = admin.firestore();
 
     const batch = db.batch();
 
