@@ -199,9 +199,15 @@ Future<void> recordCreatingFeature() async {
 
   testWidgets('ペアリング済みユーザーはふたりの家計簿で収入レコードを作成できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singUpApp(
+    // FIXME: ペアリング機能未作成の間は、`pair_user_a@example.com`を使用
+    // await singUpApp(
+    //   tester,
+    //   "pair_user_can_create_income_record@example.com",
+    // );
+    await singInApp(
       tester,
-      "pair_user_can_create_income_record@example.com",
+      "pair_user_a@example.com",
+      "abc1234",
     );
 
     // Wait for loading to finish
@@ -242,7 +248,11 @@ Future<void> recordCreatingFeature() async {
 
     // 収入レコード作成
     await tester.enterText(find.widgetWithText(TextField, '金額'), '100000');
+    await tester.tap(find.text('カテゴリを選択'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('共同収入'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('資産を選択'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('共同口座'));
     await tester.pumpAndSettle();
@@ -252,13 +262,19 @@ Future<void> recordCreatingFeature() async {
 
     // 登録完了の確認
     expect(find.text('レコードを登録しました'), findsOneWidget);
-  }, skip: true /* skip as paring feature is not implemented yet */);
+  });
 
   testWidgets('ペアリング済みユーザーはふたりの家計簿で支出レコードを作成できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singUpApp(
+    // FIXME: ペアリング機能未作成の間は、`pair_user_a@example.com`を使用
+    // await singUpApp(
+    //   tester,
+    //   "pair_user_can_create_expense_record@example.com",
+    // );
+    await singInApp(
       tester,
-      "pair_user_can_create_expense_record@example.com",
+      "pair_user_a@example.com",
+      "abc1234",
     );
 
     // Wait for loading to finish
@@ -285,15 +301,16 @@ Future<void> recordCreatingFeature() async {
     await tester.tap(find.text('登録'));
     await tester.pumpAndSettle();
 
+    // FIXME: `pair_user_a@example.com`使用中は、以下の操作は不要
     // 資産画面に移動して資産を作成
-    await tester.tap(find.text('資産'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('資産の追加'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.widgetWithText(TextField, '資産名'), '共同口座');
-    await tester.enterText(find.widgetWithText(TextField, '資産額'), '300000');
-    await tester.tap(find.text('保存'));
-    await tester.pumpAndSettle();
+    // await tester.tap(find.text('資産'));
+    // await tester.pumpAndSettle();
+    // await tester.tap(find.text('資産の追加'));
+    // await tester.pumpAndSettle();
+    // await tester.enterText(find.widgetWithText(TextField, '資産名'), '共同口座');
+    // await tester.enterText(find.widgetWithText(TextField, '資産額'), '300000');
+    // await tester.tap(find.text('保存'));
+    // await tester.pumpAndSettle();
 
     // 入力画面に移動
     await tester.tap(find.text('入力'));
@@ -305,7 +322,11 @@ Future<void> recordCreatingFeature() async {
 
     // 支出レコード作成
     await tester.enterText(find.widgetWithText(TextField, '金額'), '25000');
+    await tester.tap(find.text('カテゴリを選択'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('光熱費'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('資産を選択'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('共同口座'));
     await tester.pumpAndSettle();
@@ -315,13 +336,19 @@ Future<void> recordCreatingFeature() async {
 
     // 登録完了の確認
     expect(find.text('レコードを登録しました'), findsOneWidget);
-  }, skip: true /* skip as paring feature is not implemented yet */);
+  });
 
   testWidgets('ペアリング済みユーザーはふたりの家計簿で振替レコードを作成できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singUpApp(
+    // FIXME: ペアリング機能未作成の間は、`pair_user_a@example.com`を使用
+    // await singUpApp(
+    //   tester,
+    //   "pair_user_can_create_transfer_record@example.com",
+    // );
+    await singInApp(
       tester,
-      "pair_user_can_create_transfer_record@example.com",
+      "pair_user_a@example.com",
+      "abc1234",
     );
 
     // Wait for loading to finish
@@ -365,7 +392,13 @@ Future<void> recordCreatingFeature() async {
 
     // 振替レコード作成
     await tester.enterText(find.widgetWithText(TextField, '金額'), '150000');
+    // このタイミングでは「資産を選択」が2つ表示されるので、最初のものを選択する
+    await tester.tap(find.text('資産を選択').at(0));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('共同口座A'));
+    await tester.pumpAndSettle();
+    // 振替元資産を選択したため、この「資産を選択」が1つしか表示されない。
+    await tester.tap(find.text('資産を選択'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('共同口座B'));
     await tester.pumpAndSettle();
@@ -375,5 +408,5 @@ Future<void> recordCreatingFeature() async {
 
     // 登録完了の確認
     expect(find.text('レコードを登録しました'), findsOneWidget);
-  }, skip: true /* skip as paring feature is not implemented yet */);
+  });
 }
