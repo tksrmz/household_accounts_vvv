@@ -5,6 +5,9 @@
 		}
 	],
 	"settings": {
-		"terminal.integrated.tabs.hideCondition": "never"
+		"terminal.integrated.tabs.hideCondition": "never",
+		"files.watcherExclude": {
+			"build": true
+		}
 	}
 }
