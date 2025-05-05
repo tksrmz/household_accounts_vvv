@@ -5,24 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "household_accounts",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "household_accounts (profile mode)",
+            "name": "launch (debug mode)",
             "request": "launch",
             "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "debug"
+        },
+        {
+            "name": "launch (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
             "flutterMode": "profile"
         },
         {
-            "name": "household_accounts (release mode)",
+            "name": "launch (release mode)",
             "request": "launch",
             "type": "dart",
+            "program": "lib/main.dart",
             "flutterMode": "release"
         },
         {
-            "name": "household_accounts (update goldens)",
+            "name": "test (update goldens)",
             "type": "dart",
             "request": "launch",
             "program": "./test/",
