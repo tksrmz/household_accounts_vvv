@@ -9,10 +9,6 @@ Future<void> propertyFeature() async {
     await tester.pumpWidget(const MyApp());
     await singInApp(tester, "single_user@example.com", "abc1234");
 
-    // Display loading screen
-    await tester.pump();
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
     // Wait for loading to finish
     await tester.pumpAndSettle();
 
@@ -76,10 +72,6 @@ Future<void> propertyFeature() async {
   testWidgets('ペアリング済みユーザーはふたりの家計簿で資産を管理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await singInApp(tester, "pair_user_a@example.com", "abc1234");
-
-    // Display loading screen
-    await tester.pump();
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
     // Wait for loading to finish
     await tester.pumpAndSettle();

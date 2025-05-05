@@ -31,6 +31,10 @@ Future<void> singInApp(
       description: "with sign in button",
     ),
   );
+
+  // Display loading screen of MyAppHome
+  await tester.pump();
+  expect(find.byType(CircularProgressIndicator), findsOneWidget);
 }
 
 /// 家計簿アプリにサインアップするための操作をまとめたヘルパー関数
@@ -72,7 +76,7 @@ Future<void> singUpApp(WidgetTester tester, String email) async {
     ),
   );
 
-  // Display loading screen
+  // Display loading screen of MyAppHome
   await tester.pump();
   expect(find.byType(CircularProgressIndicator), findsOneWidget);
 }

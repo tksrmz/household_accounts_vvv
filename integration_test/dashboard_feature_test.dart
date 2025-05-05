@@ -9,10 +9,6 @@ Future<void> dashboardFeature() async {
     await tester.pumpWidget(const MyApp());
     await singInApp(tester, "single_user@example.com", "abc1234");
 
-    // Display loading screen
-    await tester.pump();
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
     // Wait for loading to finish.
     // The number of pumps will not be checked as it does not matter that how long it takes
     await tester.pumpAndSettle();
@@ -35,10 +31,6 @@ Future<void> dashboardFeature() async {
     await tester.pumpWidget(const MyApp());
     await singInApp(tester, "new_user@example.com", "abc1234");
 
-    // Display loading screen
-    await tester.pump();
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
     // Wait for loading to finish.
     // The number of pumps will not be checked as it does not matter that how long it takes
     await tester.pumpAndSettle();
@@ -55,10 +47,6 @@ Future<void> dashboardFeature() async {
   testWidgets('ペアリング済みユーザーはふたりの家計簿の情報をダッシュボード画面で確認できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await singInApp(tester, "pair_user_a@example.com", "abc1234");
-
-    // Display loading screen
-    await tester.pump();
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
     // Wait for loading to finish and the dashboard to be displayed
     await tester.pumpAndSettle();
