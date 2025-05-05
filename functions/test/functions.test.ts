@@ -53,7 +53,7 @@ describe("Cloud Functions", () => {
               {
                 documentPath: `publicProfiles/${testUid}`,
                 expectedData: {
-                  name: user.uid,
+                  name: "testU",
                   createdAt: expect.any(admin.Timestamp),
                   updatedAt: expect.any(admin.Timestamp),
                 },

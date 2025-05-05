@@ -30,7 +30,7 @@ export const onCreateUser = functions
 
     // Create user's public profile.
     batch.create(db.collection("publicProfiles").doc(user.uid), {
-      name: user.uid,
+      name: user.uid.slice(0, 5),
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
