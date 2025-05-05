@@ -4,6 +4,8 @@ import * as functions from "firebase-functions/v1";
 
 // The Firebase Admin SDK to access Firestore.
 import * as admin from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
+
 admin.initializeApp();
 
 // constants
@@ -31,12 +33,12 @@ export const onCreateUser = functions
     // Create user's public profile.
     batch.create(db.collection("publicProfiles").doc(user.uid), {
       name: user.uid.slice(0, 5),
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     });
     // Create a user's personal note.
     batch.create(db.collection("personalNotes").doc(user.uid), {
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
     });
     // We won't initialize subcollections that
     // are under the user's personal note,
