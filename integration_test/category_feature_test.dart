@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
 
-import 'util.dart';
+import 'util/sign_up.dart';
 
 Future<void> categoryFeature() async {
   testWidgets('ユーザーは自分の家計簿でカテゴリを管理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singUpApp(
+    await signUpApp(
       tester,
       "users_can_manage_own_categories@example.com",
     );
@@ -68,7 +68,7 @@ Future<void> categoryFeature() async {
 
   testWidgets('ペアリング済みユーザーはふたりの家計簿でカテゴリを管理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singUpApp(
+    await signUpApp(
       tester,
       "pair_user_can_manage_their_categories@example.com",
     );

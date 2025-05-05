@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
 
-import 'util.dart';
+import 'util/sign_in.dart';
+import 'util/sign_up.dart';
 
 Future<void> recordCreatingFeature() async {
   testWidgets('ユーザーは自分の家計簿で収入レコードを作成できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singUpApp(
+    await signUpApp(
       tester,
       "user_can_create_income_record@example.com",
     );
@@ -68,7 +69,7 @@ Future<void> recordCreatingFeature() async {
 
   testWidgets('ユーザーは自分の家計簿で支出レコードを作成できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singUpApp(
+    await signUpApp(
       tester,
       "user_can_create_expense_record@example.com",
     );
@@ -135,7 +136,7 @@ Future<void> recordCreatingFeature() async {
 
   testWidgets('ユーザーは自分の家計簿で振替レコードを作成できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singUpApp(
+    await signUpApp(
       tester,
       "user_can_create_transfer_record@example.com",
     );
@@ -204,11 +205,7 @@ Future<void> recordCreatingFeature() async {
     //   tester,
     //   "pair_user_can_create_income_record@example.com",
     // );
-    await singInApp(
-      tester,
-      "pair_user_a@example.com",
-      "abc1234",
-    );
+    await signInApp(tester, pairUser);
 
     // Wait for loading to finish
     await tester.pumpAndSettle();
@@ -271,11 +268,7 @@ Future<void> recordCreatingFeature() async {
     //   tester,
     //   "pair_user_can_create_expense_record@example.com",
     // );
-    await singInApp(
-      tester,
-      "pair_user_a@example.com",
-      "abc1234",
-    );
+    await signInApp(tester, pairUser);
 
     // Wait for loading to finish
     await tester.pumpAndSettle();
@@ -345,11 +338,7 @@ Future<void> recordCreatingFeature() async {
     //   tester,
     //   "pair_user_can_create_transfer_record@example.com",
     // );
-    await singInApp(
-      tester,
-      "pair_user_a@example.com",
-      "abc1234",
-    );
+    await signInApp(tester, pairUser);
 
     // Wait for loading to finish
     await tester.pumpAndSettle();

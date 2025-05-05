@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
 
-import 'util.dart';
+import 'util/sign_in.dart';
 
 Future<void> dashboardFeature() async {
   testWidgets('ユーザーは自分の家計簿の情報をダッシュボード画面で確認できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singInApp(tester, "single_user@example.com", "abc1234");
+    await signInApp(tester, singleUser);
 
     // Wait for loading to finish.
     // The number of pumps will not be checked as it does not matter that how long it takes
@@ -29,7 +29,7 @@ Future<void> dashboardFeature() async {
 
   testWidgets('新規ユーザーは自分の家計簿の情報をダッシュボード画面で確認できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singInApp(tester, "new_user@example.com", "abc1234");
+    await signInApp(tester, newUser);
 
     // Wait for loading to finish.
     // The number of pumps will not be checked as it does not matter that how long it takes
@@ -46,7 +46,7 @@ Future<void> dashboardFeature() async {
 
   testWidgets('ペアリング済みユーザーはふたりの家計簿の情報をダッシュボード画面で確認できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singInApp(tester, "pair_user_a@example.com", "abc1234");
+    await signInApp(tester, pairUser);
 
     // Wait for loading to finish and the dashboard to be displayed
     await tester.pumpAndSettle();

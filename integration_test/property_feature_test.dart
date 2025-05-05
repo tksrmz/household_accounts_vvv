@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
 
-import 'util.dart';
+import 'util/sign_up.dart';
 
 Future<void> propertyFeature() async {
   testWidgets('ユーザーは自分の家計簿で資産を管理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singUpApp(
+    await signUpApp(
       tester,
       "user_can_manage_own_properties@example.com",
     );
@@ -74,7 +74,7 @@ Future<void> propertyFeature() async {
 
   testWidgets('ペアリング済みユーザーはふたりの家計簿で資産を管理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singUpApp(
+    await signUpApp(
       tester,
       "pair_user_can_manage_their_properties@example.com",
     );

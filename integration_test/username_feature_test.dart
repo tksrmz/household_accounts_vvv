@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
 
-import 'util.dart';
+import 'util/sign_in.dart';
 
 Future<void> userNameFeature() async {
   testWidgets('ユーザーは設定画面で自分のユーザー名を確認できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singInApp(tester, "single_user@example.com", "abc1234");
+    await signInApp(tester, singleUser);
 
     // Display loading screen
     await tester.pump();
