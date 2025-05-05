@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../../util/constant/firebase_constant.dart';
 import '../main_page/page.dart';
-import '../util/future_builder_helper.dart';
 import '../util/model/user_info.dart';
 
 class MyAppHome extends StatefulWidget {
@@ -20,29 +19,34 @@ class MyAppHome extends StatefulWidget {
 }
 
 class _MyAppHomeState extends State<MyAppHome> {
-  late final Future<DocumentSnapshot<Map<String, dynamic>>>
-      _privateProfileFuture;
+  late final Stream<DocumentSnapshot<Map<String, dynamic>>>
+      _privateProfileStream;
 
   @override
   void initState() {
     super.initState();
-    _privateProfileFuture = FirebaseFirestore.instance
-        .collection('/$FIREBASE_COLLECTION_PRIVATE_PROFILES')
-        .doc(widget.uid)
-        .get();
+    _privateProfileStream = FirebaseFirestore.instance
+        .doc('/$FIREBASE_COLLECTION_PRIVATE_PROFILES/${widget.uid}')
+        .snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      future: _privateProfileFuture,
+    return StreamBuilder(
+      stream: _privateProfileStream,
       builder: (context, snapshot) {
-        return FutureBuilderHelper<DocumentSnapshot<Map<String, dynamic>>>(
-          snapshot: snapshot,
-          onSuccess: _onSuccess,
-          onError: _onError,
-          onLoading: _onLoading,
-        );
+        if (snapshot.hasError) {
+          return _onError(context, snapshot.error!);
+        }
+
+        return switch (snapshot.connectionState) {
+          ConnectionState.none => _onLoading(context),
+          ConnectionState.waiting => _onLoading(context),
+          ConnectionState.active => snapshot.requireData.exists
+              ? _onSuccess(context, snapshot.requireData)
+              : _onLoading(context),
+          ConnectionState.done => _onSuccess(context, snapshot.requireData),
+        };
       },
     );
   }

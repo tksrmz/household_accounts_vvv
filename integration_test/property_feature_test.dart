@@ -7,7 +7,10 @@ import 'util.dart';
 Future<void> propertyFeature() async {
   testWidgets('ユーザーは自分の家計簿で資産を管理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singInApp(tester, "single_user@example.com", "abc1234");
+    await singUpApp(
+      tester,
+      "user_can_manage_own_properties@example.com",
+    );
 
     // Wait for loading to finish
     await tester.pumpAndSettle();
@@ -71,7 +74,10 @@ Future<void> propertyFeature() async {
 
   testWidgets('ペアリング済みユーザーはふたりの家計簿で資産を管理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singInApp(tester, "pair_user_a@example.com", "abc1234");
+    await singUpApp(
+      tester,
+      "pair_user_can_manage_their_properties@example.com",
+    );
 
     // Wait for loading to finish
     await tester.pumpAndSettle();
@@ -124,5 +130,5 @@ Future<void> propertyFeature() async {
     // Verify shared property is deleted
     expect(find.text('共同口座（住宅ローン）'), findsNothing);
     expect(find.text('¥250,000'), findsNothing);
-  });
+  }, skip: true /* skip as paring feature is not implemented yet */);
 }

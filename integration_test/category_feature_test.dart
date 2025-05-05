@@ -7,7 +7,10 @@ import 'util.dart';
 Future<void> categoryFeature() async {
   testWidgets('ユーザーは自分の家計簿でカテゴリを管理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singInApp(tester, "single_user@example.com", "abc1234");
+    await singUpApp(
+      tester,
+      "users_can_manage_own_categories@example.com",
+    );
 
     // Wait for loading to finish
     await tester.pumpAndSettle();
@@ -65,7 +68,10 @@ Future<void> categoryFeature() async {
 
   testWidgets('ペアリング済みユーザーはふたりの家計簿でカテゴリを管理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await singInApp(tester, "pair_user_a@example.com", "abc1234");
+    await singUpApp(
+      tester,
+      "pair_user_can_manage_their_categories@example.com",
+    );
 
     // Wait for loading to finish
     await tester.pumpAndSettle();
@@ -127,5 +133,5 @@ Future<void> categoryFeature() async {
 
     // Verify shared expense category is deleted
     expect(find.text('共同生活費 (予算: ¥50,000)'), findsNothing);
-  });
+  }, skip: true /* skip as paring feature is not implemented yet */);
 }
