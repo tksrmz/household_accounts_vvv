@@ -6,19 +6,19 @@ import '../../feature/repository/property_repository.dart';
 import '../../feature/repository/record_repository.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/repository.dart';
-import '../../util/type/single_or_pair.dart';
+import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 
-Repository<Property> selectPropertyRepository(SingleOrPair value) {
+Repository<Property> selectPropertyRepository(SelectedNote value) {
   print('$selectPropertyRepository($value)');
   final Repository<Property> repository;
 
   switch (value) {
-    case SingleOrPair.single:
+    case SelectedNote.personal:
       print('$selectPropertyRepository: Select personal repository.');
       repository = sl<PersonalPropertyRepository>();
       break;
 
-    case SingleOrPair.pair:
+    case SelectedNote.shared:
       print('$selectPropertyRepository: Select shared repository.');
       repository = sl<SharedPropertyRepository>();
       break;
@@ -27,17 +27,17 @@ Repository<Property> selectPropertyRepository(SingleOrPair value) {
   return repository;
 }
 
-Repository<IncomeCategory> selectIncomeCategoryRepository(SingleOrPair value) {
+Repository<IncomeCategory> selectIncomeCategoryRepository(SelectedNote value) {
   print('$selectPropertyRepository($value)');
   final Repository<IncomeCategory> repository;
 
   switch (value) {
-    case SingleOrPair.single:
+    case SelectedNote.personal:
       print('$selectPropertyRepository: Select personal income cateogy.');
       repository = sl<PersonalIncomeCategoryRepository>();
       break;
 
-    case SingleOrPair.pair:
+    case SelectedNote.shared:
       print('$selectPropertyRepository: Select shared income cateogy.');
       repository = sl<SharedIncomeCategoryRepository>();
       break;
@@ -47,18 +47,18 @@ Repository<IncomeCategory> selectIncomeCategoryRepository(SingleOrPair value) {
 }
 
 Repository<ExpenseCategory> selectExpenseCategoryRepository(
-  SingleOrPair value,
+  SelectedNote value,
 ) {
   print('$selectPropertyRepository($value)');
   final Repository<ExpenseCategory> repository;
 
   switch (value) {
-    case SingleOrPair.single:
+    case SelectedNote.personal:
       print('$selectPropertyRepository: Select personal expense cateogy.');
       repository = sl<PersonalExpenseCategoryRepository>();
       break;
 
-    case SingleOrPair.pair:
+    case SelectedNote.shared:
       print('$selectPropertyRepository: Select shared expense cateogy.');
       repository = sl<SharedExpenseCategoryRepository>();
       break;
@@ -68,18 +68,18 @@ Repository<ExpenseCategory> selectExpenseCategoryRepository(
 }
 
 RecordRepository<IncomeRecord> selectIncomeRecordRepository(
-  SingleOrPair value,
+  SelectedNote value,
 ) {
   print('selectIncomeRecordRepository($value)');
   final RecordRepository<IncomeRecord> repository;
 
   switch (value) {
-    case SingleOrPair.single:
+    case SelectedNote.personal:
       print('selectIncomeRecordRepository: Select personal income record.');
       repository = sl<PersonalIncomeRecordRepository>();
       break;
 
-    case SingleOrPair.pair:
+    case SelectedNote.shared:
       print('selectIncomeRecordRepository: Select shared  income record.');
       repository = sl<SharedIncomeRecordRepository>();
       break;
@@ -89,18 +89,18 @@ RecordRepository<IncomeRecord> selectIncomeRecordRepository(
 }
 
 RecordRepository<ExpenseRecord> selectExpenseRecordRepository(
-  SingleOrPair value,
+  SelectedNote value,
 ) {
   print('selectExpenseRecordRepository($value)');
   final RecordRepository<ExpenseRecord> repository;
 
   switch (value) {
-    case SingleOrPair.single:
+    case SelectedNote.personal:
       print('selectExpenseRecordRepository: Select personal expense record.');
       repository = sl<PersonalExpenseRecordRepository>();
       break;
 
-    case SingleOrPair.pair:
+    case SelectedNote.shared:
       print('selectExpenseRecordRepository: Select shared  expense record.');
       repository = sl<SharedExpenseRecordRepository>();
       break;
@@ -110,18 +110,18 @@ RecordRepository<ExpenseRecord> selectExpenseRecordRepository(
 }
 
 RecordRepository<TransferRecord> selectTransferRecordRepository(
-  SingleOrPair value,
+  SelectedNote value,
 ) {
   print('selectTransferRecordRepository($value)');
   final RecordRepository<TransferRecord> repository;
 
   switch (value) {
-    case SingleOrPair.single:
+    case SelectedNote.personal:
       print('selectTransferRecordRepository: Select personal transfer record.');
       repository = sl<PersonalTransferRecordRepository>();
       break;
 
-    case SingleOrPair.pair:
+    case SelectedNote.shared:
       print('selectTransferRecordRepository: Select shared  transfer record.');
       repository = sl<SharedTransferRecordRepository>();
       break;

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../common/logic/formatter.dart';
 import '../../entity/record.dart';
 import '../../util/type/exception_or.dart';
-import '../../util/type/single_or_pair.dart';
+import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 import '../daily_record_viewer/daily_record_viewer_page.dart';
 import '../util/date.dart';
 import '../util/future_builder_helper.dart';
@@ -48,7 +48,7 @@ class _CalendarRecordViewPageState extends State<CalendarRecordViewPage> {
         _CalendarRecordView(
           year: _year,
           month: _month,
-          singleOrPair: context.watch<SingleOrPair>(),
+          singleOrPair: context.watch<SelectedNoteState>().value,
         ),
       ],
     );
@@ -111,7 +111,7 @@ class _CalendarRecordView extends StatefulWidget {
   const _CalendarRecordView({
     required int year,
     required int month,
-    required SingleOrPair singleOrPair,
+    required SelectedNote singleOrPair,
     Key? key,
   })  : _year = year,
         _month = month,
@@ -120,7 +120,7 @@ class _CalendarRecordView extends StatefulWidget {
 
   final int _year;
   final int _month;
-  final SingleOrPair _singleOrPair;
+  final SelectedNote _singleOrPair;
 
   @override
   State<_CalendarRecordView> createState() => _CalendarRecordViewState();
@@ -169,7 +169,7 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
     _DailyRecordSummary summary,
   ) {
     final onTap = () async {
-      final sop = context.read<SingleOrPair>();
+      final sop = context.read<SelectedNoteState>().value;
       final repoId = context.read<UserInfo>().repoId(sop);
       await Navigator.push(
         context,

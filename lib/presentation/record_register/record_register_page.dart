@@ -11,8 +11,8 @@ import '../../feature/property_retrieve/property_retrieve_use_case.dart';
 import '../../feature/record_register/use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/exception_or.dart';
-import '../../util/type/single_or_pair.dart';
 import '../../util/uuid/uuid.dart';
+import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 import '../common_widget/number_text_form_field.dart';
 import '../util/model/user_info.dart';
 import '../util/repository_selector.dart';
@@ -23,19 +23,19 @@ class RecordInputPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _PageContents(
-      singleOrPair: context.watch<SingleOrPair>(),
+      singleOrPair: context.watch<SelectedNoteState>().value,
     );
   }
 }
 
 class _PageContents extends StatefulWidget {
   const _PageContents({
-    required SingleOrPair singleOrPair,
+    required SelectedNote singleOrPair,
     Key? key,
   })  : _singleOrPair = singleOrPair,
         super(key: key);
 
-  final SingleOrPair _singleOrPair;
+  final SelectedNote _singleOrPair;
 
   @override
   _PageContentsState createState() => _PageContentsState();
@@ -56,7 +56,7 @@ class _PageContentsState extends State<_PageContents> {
   late Future<ExceptionOr<List<ExpenseCategory>>> _expenseCategoriesFuture;
   late Future<ExceptionOr<List<Property>>> _propertiesFuture;
   late String _repoId;
-  late SingleOrPair _sop;
+  late SelectedNote _sop;
 
   @override
   void initState() {

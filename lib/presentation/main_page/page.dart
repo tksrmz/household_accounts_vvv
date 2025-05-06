@@ -1,16 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/firebase/util/path_builder.dart';
-import '../../util/type/single_or_pair.dart';
-import '../../v2/data/repositories/firebase_expense_repository.dart';
-import '../../v2/data/repositories/firebase_income_repository.dart';
-import '../../v2/data/repositories/firebase_public_profile_repository.dart';
 import '../../v2/domain/models/vo/user_id.dart';
 import '../../v2/domain/usecases/dashboard.dart';
 import '../../v2/presentation/pages/dashboard/view_model.dart';
+import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 import '../budget_viewer/budget_viewer_page.dart';
 import '../category_viewer/category_viewer_page.dart';
 import '../monthly_record_viewer/monthly_record_viewer_page.dart';
@@ -36,13 +31,11 @@ class _MainPageState extends State<MainPage> {
     'カテゴリ',
     '予算',
   ];
-  SingleOrPair _singleOrPair = SingleOrPair.single;
   int _index = 0;
 
   @override
   Widget build(BuildContext context) {
     final userInfo = context.read<UserInfo>();
-    final isSingle = _singleOrPair == SingleOrPair.single;
     final userId = UserIdVo(userInfo.uid);
 
     final bodies = <Widget>[
@@ -51,24 +44,11 @@ class _MainPageState extends State<MainPage> {
           return DashboardPage(
             date: DateTime.now(),
             userId: userId,
-            isPersonalMode: isSingle,
             viewModel: DashboardViewModel(
               dashboardUseCase: DashboardUseCase(
-                incomeRepository: FirebaseIncomeRepository(
-                  FirebaseFirestore.instance,
-                  isSingle
-                      ? getPersonalIncomeRecordCollectionPath(userInfo.uid)
-                      : getSharedIncomeRecordCollectionPath(userInfo.pairId!),
-                ),
-                expenseRepository: FirebaseExpenseRepository(
-                  FirebaseFirestore.instance,
-                  isSingle
-                      ? getPersonalExpenseRecordCollectionPath(userInfo.uid)
-                      : getSharedExpenseRecordCollectionPath(userInfo.pairId!),
-                ),
-                publicProfileRepository: FirebasePublicProfileRepository(
-                  FirebaseFirestore.instance,
-                ),
+                incomeRepository: context.read(),
+                expenseRepository: context.read(),
+                publicProfileRepository: context.read(),
               ),
             ),
           );
@@ -86,14 +66,13 @@ class _MainPageState extends State<MainPage> {
         title: _titles[_index],
       ),
       drawer: MainPageDrawer(
-        mode: _singleOrPair,
+        mode: context.watch<SelectedNoteState>().value,
         userId: userId,
-        setter: context.read<UserInfo>().hasPair ? _setSingleOrPair : null,
+        setter: context.read<UserInfo>().hasPair
+            ? context.read<SelectedNoteState>().select
+            : null,
       ),
-      body: Provider<SingleOrPair>.value(
-        value: _singleOrPair,
-        child: bodies[_index],
-      ),
+      body: bodies[_index],
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
@@ -132,12 +111,6 @@ class _MainPageState extends State<MainPage> {
   void _onTapped(int newIndex) {
     setState(() {
       _index = newIndex;
-    });
-  }
-
-  void _setSingleOrPair(SingleOrPair newValue) {
-    setState(() {
-      _singleOrPair = newValue;
     });
   }
 }

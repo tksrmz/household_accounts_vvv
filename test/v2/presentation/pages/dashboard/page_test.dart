@@ -6,8 +6,10 @@ import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.dart';
+import 'package:household_accounts/v2/presentation/pages/state_managements/selected_note_state.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../test-util/golden_helper.dart';
 @GenerateNiceMocks([MockSpec<DashboardViewModel>()])
@@ -24,11 +26,13 @@ void main() {
    * - dateをX月1日00:00:00に整形するロジックをモデルに移す
    */
   final mockViewModel = MockDashboardViewModel();
-  final targetBuilder = () => DashboardPage(
-        date: DateTime(2025, 1),
-        userId: UserIdVo("testUserId"),
-        isPersonalMode: true,
-        viewModel: mockViewModel,
+  final targetBuilder = () => ChangeNotifierProvider<SelectedNoteState>(
+        create: (_) => SelectedNoteState(),
+        child: DashboardPage(
+          date: DateTime(2025, 1),
+          userId: UserIdVo("testUserId"),
+          viewModel: mockViewModel,
+        ),
       );
   const uninitializedModelValue = DashboardInfoModel(
     IncomeVo(0),

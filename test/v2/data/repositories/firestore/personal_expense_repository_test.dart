@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:household_accounts/v2/data/repositories/firebase_expense_repository.dart';
+import 'package:household_accounts/v2/data/repositories/firestore/personal_expense_repository.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
+import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
@@ -12,7 +13,7 @@ import 'package:test/test.dart';
   MockSpec<QuerySnapshot<Map<String, dynamic>>>(),
   MockSpec<QueryDocumentSnapshot<Map<String, dynamic>>>(),
 ])
-import 'firebase_expense_repository_test.mocks.dart';
+import 'personal_expense_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
@@ -57,9 +58,9 @@ void main() {
           when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
           when(mockQueryDocumentSnapshot.data()).thenReturn({'amount': 100});
 
-          final sut = FirebaseExpenseRepository(
+          final sut = FirestorePersonalExpenseRepository(
             mockDb,
-            '/personalNotes/samplePersonalNoteId/expenses',
+            UserIdVo('samplePersonalNoteId'),
           );
           final expenseList = await sut.fetchMonthly(date);
 
@@ -87,9 +88,9 @@ void main() {
       test('指定された月の支出一覧を取得できる', () async {
         when(mockQuerySnapshot.docs).thenReturn([]);
 
-        final sut = FirebaseExpenseRepository(
+        final sut = FirestorePersonalExpenseRepository(
           mockDb,
-          '/personalNotes/samplePersonalNoteId/expenses',
+          UserIdVo('samplePersonalNoteId'),
         );
         final expenseList = await sut.fetchMonthly(DateTime(2025, 1));
 
@@ -109,9 +110,9 @@ void main() {
           {'amount': 200},
         ]);
 
-        final sut = FirebaseExpenseRepository(
+        final sut = FirestorePersonalExpenseRepository(
           mockDb,
-          '/personalNotes/samplePersonalNoteId/expenses',
+          UserIdVo('samplePersonalNoteId'),
         );
         final expenseList = await sut.fetchMonthly(DateTime(2025, 1));
 
@@ -137,9 +138,9 @@ void main() {
         when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
         when(mockQueryDocumentSnapshot.data()).thenReturn({'amount': value});
 
-        final sut = FirebaseExpenseRepository(
+        final sut = FirestorePersonalExpenseRepository(
           mockDb,
-          '/personalNotes/samplePersonalNoteId/expenses',
+          UserIdVo('samplePersonalNoteId'),
         );
         expect(() async => await sut.fetchMonthly(DateTime(2025, 1)),
             throwsA(isA<TypeError>()));

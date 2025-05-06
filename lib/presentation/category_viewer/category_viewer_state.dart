@@ -6,7 +6,7 @@ import '../../entity/category.dart';
 import '../../feature/category_retrieve/retrieve_expense_category_use_case.dart';
 import '../../feature/category_retrieve/retrieve_income_category_use_case.dart';
 import '../../util/service_locator/main.dart';
-import '../../util/type/single_or_pair.dart';
+import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 import '../util/model/user_info.dart';
 import '../util/repository_selector.dart';
 
@@ -26,7 +26,7 @@ class IncomeCategoryListState with ChangeNotifier {
   Exception? get failure => _failure;
 
   Future<void> fetch({
-    required SingleOrPair singleOrPair,
+    required SelectedNote singleOrPair,
     required UserInfo userInfo,
   }) async {
     print('$IncomeCategoryListState#$fetch(${singleOrPair.name}, $userInfo)');
@@ -74,7 +74,7 @@ class ExpenseCategoryListState with ChangeNotifier {
   Exception? get failure => _failure;
 
   Future<void> fetch({
-    required SingleOrPair singleOrPair,
+    required SelectedNote singleOrPair,
     required UserInfo userInfo,
   }) async {
     print('$ExpenseCategoryListState#$fetch(${singleOrPair.name}, $userInfo)');

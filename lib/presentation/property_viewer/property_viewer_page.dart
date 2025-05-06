@@ -11,7 +11,7 @@ import '../../feature/property_editing/update_property_use_case.dart';
 import '../../feature/property_register/property_register_use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/exception_or.dart';
-import '../../util/type/single_or_pair.dart';
+import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 import '../common_widget/delete_icon_button.dart';
 import '../common_widget/failure.dart';
 import '../common_widget/loading.dart';
@@ -25,12 +25,12 @@ class PropertyListBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProxyProvider<SingleOrPair, PropertyListState>(
+    return ChangeNotifierProxyProvider<SelectedNoteState, PropertyListState>(
       create: (context) => PropertyListState(),
       update: (context, singleOrPair, state) {
         return state!
           ..fetch(
-            singleOrPair: singleOrPair,
+            singleOrPair: singleOrPair.value,
             userInfo: context.read<UserInfo>(),
           );
       },
@@ -150,7 +150,7 @@ class _PropertyListItem extends StatelessWidget {
       );
 
   DeletePropertyInput _generateInput(BuildContext context) {
-    final sop = context.read<SingleOrPair>();
+    final sop = context.read<SelectedNoteState>().value;
     return DeletePropertyInput(
       propertyId: _property.id,
       repository: selectPropertyRepository(sop),
@@ -178,7 +178,7 @@ class _EditPropertyButton extends StatelessWidget {
                   propertyId: _property.id,
                   name: name,
                   amount: amount,
-                  sop: context.read<SingleOrPair>(),
+                  sop: context.read<SelectedNoteState>().value,
                   uinfo: context.read<UserInfo>(),
                 );
                 Navigator.pop(anotherContext);
@@ -203,7 +203,7 @@ class _EditPropertyButton extends StatelessWidget {
     required String propertyId,
     String? name,
     int? amount,
-    required SingleOrPair sop,
+    required SelectedNote sop,
     required UserInfo uinfo,
   }) {
     return sl<UpdatePropertyUseCase>()(
@@ -232,7 +232,7 @@ class _AddPropertyButton extends StatelessWidget {
                 await _addProperty(
                   name: name,
                   amount: amount,
-                  sop: context.read<SingleOrPair>(),
+                  sop: context.read<SelectedNoteState>().value,
                   uinfo: context.read<UserInfo>(),
                 );
                 Navigator.pop(anotherContext);
@@ -262,7 +262,7 @@ class _AddPropertyButton extends StatelessWidget {
   Future<ExceptionOr<Unit>> _addProperty({
     required String name,
     required int amount,
-    required SingleOrPair sop,
+    required SelectedNote sop,
     required UserInfo uinfo,
   }) {
     return sl<AddPropertyUseCase>()(
@@ -278,6 +278,6 @@ class _AddPropertyButton extends StatelessWidget {
 
 Future<void> _reloadState(BuildContext context) =>
     context.read<PropertyListState>().fetch(
-          singleOrPair: context.read<SingleOrPair>(),
+          singleOrPair: context.read<SelectedNoteState>().value,
           userInfo: context.read<UserInfo>(),
         );

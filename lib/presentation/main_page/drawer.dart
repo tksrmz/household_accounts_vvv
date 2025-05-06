@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../../util/type/single_or_pair.dart';
-import '../../v2/data/repositories/firebase_public_profile_repository.dart';
+import 'package:provider/provider.dart';
 import '../../v2/domain/models/vo/user_id.dart';
 import '../../v2/presentation/pages/settings/page.dart';
 import '../../v2/presentation/pages/settings/view_model.dart';
+import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 
 class MainPageDrawer extends StatelessWidget {
   const MainPageDrawer({
@@ -14,9 +13,9 @@ class MainPageDrawer extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
-  final SingleOrPair mode;
+  final SelectedNote mode;
   final UserIdVo userId;
-  final void Function(SingleOrPair)? setter;
+  final void Function(SelectedNote)? setter;
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +51,12 @@ class MainPageDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SettingsPage(
+                  builder: (_) => SettingsPage(
                     userId: userId,
                     viewModel: SettingsViewModel(
-                      publicProfileRepository: FirebasePublicProfileRepository(
-                        FirebaseFirestore.instance,
-                      ),
+                      // FIXME: context.read() won't work when BuildContext
+                      // from this builder (currently named '_') is used. why?
+                      publicProfileRepository: context.read(),
                     ),
                   ),
                 ),
@@ -73,11 +72,11 @@ class MainPageDrawer extends StatelessWidget {
     final modeText;
 
     switch (mode) {
-      case SingleOrPair.single:
+      case SelectedNote.personal:
         modeText = '自分の家計簿';
         break;
 
-      case SingleOrPair.pair:
+      case SelectedNote.shared:
         modeText = 'ふたりの家計簿';
         break;
     }
@@ -87,24 +86,24 @@ class MainPageDrawer extends StatelessWidget {
 
   ListTile _getListTile(
     BuildContext context,
-    void Function(SingleOrPair) setter,
+    void Function(SelectedNote) setter,
   ) {
     final Text title;
     final void Function() onTap;
 
     switch (mode) {
-      case SingleOrPair.single:
+      case SelectedNote.personal:
         title = Text('ふたりの家計簿を見る');
         onTap = () {
-          setter(SingleOrPair.pair);
+          setter(SelectedNote.shared);
           Navigator.pop(context); // close the drawer
         };
         break;
 
-      case SingleOrPair.pair:
+      case SelectedNote.shared:
         title = Text('自分の家計簿を見る');
         onTap = () {
-          setter(SingleOrPair.single);
+          setter(SelectedNote.personal);
           Navigator.pop(context); // close the drawer
         };
         break;
@@ -121,14 +120,14 @@ class MainPageDrawer extends StatelessWidget {
     final Icon icon;
 
     switch (mode) {
-      case SingleOrPair.single:
+      case SelectedNote.personal:
         icon = const Icon(
           Icons.person,
           color: Colors.white,
         );
         break;
 
-      case SingleOrPair.pair:
+      case SelectedNote.shared:
         icon = const Icon(
           Icons.group,
           color: Colors.white,

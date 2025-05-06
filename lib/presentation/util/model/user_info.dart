@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../../../util/type/single_or_pair.dart';
+import '../../../v2/presentation/pages/state_managements/selected_note_state.dart';
 
 @immutable
 class UserInfo {
@@ -14,17 +14,17 @@ class UserInfo {
 
   bool get hasPair => pairId != null;
 
-  String repoId(SingleOrPair value) {
+  String repoId(SelectedNote value) {
     print('$UserInfo#$repoId($value)');
 
     final String id;
     switch (value) {
-      case SingleOrPair.single:
+      case SelectedNote.personal:
         print('$UserInfo#$repoId: return uid $uid');
         id = uid;
         break;
 
-      case SingleOrPair.pair:
+      case SelectedNote.shared:
         assert(this.hasPair, 'PairId has required, but it is null!');
         print('$UserInfo#$repoId: return pairId ${pairId!}');
         id = pairId!;

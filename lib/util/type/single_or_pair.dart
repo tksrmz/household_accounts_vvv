@@ -1,4 +1,0 @@
-enum SingleOrPair {
-  single,
-  pair,
-}

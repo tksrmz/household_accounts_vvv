@@ -2,14 +2,14 @@ import '../../../entity/record.dart';
 import '../../../feature/record_retrieve/use_case.dart';
 import '../../../util/service_locator/main.dart';
 import '../../../util/type/exception_or.dart';
-import '../../../util/type/single_or_pair.dart';
+import '../../../v2/presentation/pages/state_managements/selected_note_state.dart';
 import '../repository_selector.dart';
 
 Future<ExceptionOr<List<IncomeRecord>>> fetchIncomeRecords({
   required int year,
   required int month,
   int? day,
-  required SingleOrPair sop,
+  required SelectedNote sop,
   required String repoId,
 }) async {
   final fetch = sl<RetrieveRecordsUseCase<IncomeRecord>>();
@@ -27,7 +27,7 @@ Future<ExceptionOr<List<ExpenseRecord>>> fetchExpenseRecords({
   required int year,
   required int month,
   int? day,
-  required SingleOrPair sop,
+  required SelectedNote sop,
   required String repoId,
 }) {
   final fetch = sl<RetrieveRecordsUseCase<ExpenseRecord>>();
@@ -45,7 +45,7 @@ Future<ExceptionOr<List<TransferRecord>>> fetchTransferRecords({
   required int year,
   required int month,
   int? day,
-  required SingleOrPair sop,
+  required SelectedNote sop,
   required String repoId,
 }) {
   final fetch = sl<RetrieveRecordsUseCase<TransferRecord>>();

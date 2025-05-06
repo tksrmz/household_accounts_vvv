@@ -6,7 +6,7 @@ import '../../entity/record.dart';
 import '../../feature/record_deletion/use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/exception_or.dart';
-import '../../util/type/single_or_pair.dart';
+import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 import '../common_widget/delete_icon_button.dart';
 import '../util/future_builder_helper.dart';
 import '../util/repository_selector.dart';
@@ -17,7 +17,7 @@ class DailyRecordMinute extends StatelessWidget {
     required int year,
     required int month,
     required int day,
-    required SingleOrPair sop,
+    required SelectedNote sop,
     required String repoId,
     Key? key,
   })  : _year = year,
@@ -30,7 +30,7 @@ class DailyRecordMinute extends StatelessWidget {
   final int _year;
   final int _month;
   final int _day;
-  final SingleOrPair _sop;
+  final SelectedNote _sop;
   final String _repoId;
 
   @override
@@ -55,7 +55,7 @@ class _DailyRecordMinuteBody extends StatefulWidget {
     required int year,
     required int month,
     required int day,
-    required SingleOrPair sop,
+    required SelectedNote sop,
     required String repoId,
     Key? key,
   })  : _year = year,
@@ -68,7 +68,7 @@ class _DailyRecordMinuteBody extends StatefulWidget {
   final int _year;
   final int _month;
   final int _day;
-  final SingleOrPair _sop;
+  final SelectedNote _sop;
   final String _repoId;
 
   @override
@@ -190,7 +190,7 @@ abstract class _ViewModelItem {
 
   Future<ExceptionOr<dartz.Unit>> delete({
     required String uid,
-    required SingleOrPair sop,
+    required SelectedNote sop,
   });
 }
 
@@ -211,7 +211,7 @@ class _ViewModelItemIncome extends _ViewModelItem {
   @override
   Future<ExceptionOr<dartz.Unit>> delete({
     required String uid,
-    required SingleOrPair sop,
+    required SelectedNote sop,
   }) =>
       sl<DeleteRecordUseCase<IncomeRecord>>()(
         DeleteRecordInput(
@@ -239,7 +239,7 @@ class _ViewModelItemExpense extends _ViewModelItem {
   @override
   Future<ExceptionOr<dartz.Unit>> delete({
     required String uid,
-    required SingleOrPair sop,
+    required SelectedNote sop,
   }) =>
       sl<DeleteRecordUseCase<ExpenseRecord>>()(
         DeleteRecordInput(
@@ -267,7 +267,7 @@ class _ViewModelItemTransfer extends _ViewModelItem {
   @override
   Future<ExceptionOr<dartz.Unit>> delete({
     required String uid,
-    required SingleOrPair sop,
+    required SelectedNote sop,
   }) =>
       sl<DeleteRecordUseCase<TransferRecord>>()(
         DeleteRecordInput(

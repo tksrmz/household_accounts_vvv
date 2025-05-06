@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../../feature/budget_analyzer/budget_analyzer_use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/exception_or.dart';
-import '../../util/type/single_or_pair.dart';
+import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 import '../common_widget/loading.dart';
 import '../util/model/user_info.dart';
 import '../util/repository_selector.dart';
@@ -18,19 +18,19 @@ class BudgetViewerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _PageContents(
-      singleOrPair: context.watch<SingleOrPair>(),
+      singleOrPair: context.watch<SelectedNoteState>().value,
     );
   }
 }
 
 class _PageContents extends StatefulWidget {
   const _PageContents({
-    required SingleOrPair singleOrPair,
+    required SelectedNote singleOrPair,
     Key? key,
   })  : _singleOrPair = singleOrPair,
         super(key: key);
 
-  final SingleOrPair _singleOrPair;
+  final SelectedNote _singleOrPair;
 
   @override
   State<_PageContents> createState() => _PageContentsState();

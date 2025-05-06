@@ -12,7 +12,7 @@ import '../../feature/category_register/add_expense_category_use_case.dart';
 import '../../feature/category_register/add_income_category_use_case.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/exception_or.dart';
-import '../../util/type/single_or_pair.dart';
+import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 import '../category_editor/category_editor_page.dart';
 import '../common_widget/delete_icon_button.dart';
 import '../common_widget/failure.dart';
@@ -28,22 +28,23 @@ class CategoryListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProxyProvider<SingleOrPair, IncomeCategoryListState>(
+        ChangeNotifierProxyProvider<SelectedNoteState, IncomeCategoryListState>(
           create: (context) => IncomeCategoryListState(),
           update: (context, singleOrPair, state) {
             return state!
               ..fetch(
-                singleOrPair: singleOrPair,
+                singleOrPair: singleOrPair.value,
                 userInfo: context.read<UserInfo>(),
               );
           },
         ),
-        ChangeNotifierProxyProvider<SingleOrPair, ExpenseCategoryListState>(
+        ChangeNotifierProxyProvider<SelectedNoteState,
+            ExpenseCategoryListState>(
           create: (context) => ExpenseCategoryListState(),
           update: (context, singleOrPair, state) {
             return state!
               ..fetch(
-                singleOrPair: singleOrPair,
+                singleOrPair: singleOrPair.value,
                 userInfo: context.read<UserInfo>(),
               );
           },
@@ -76,7 +77,7 @@ class _PageContent extends StatelessWidget {
         OutlinedButton(
           onPressed: () async {
             final uinfo = context.read<UserInfo>();
-            final sop = context.read<SingleOrPair>();
+            final sop = context.read<SelectedNoteState>().value;
             await Navigator.push(
               context,
               MaterialPageRoute(
@@ -109,7 +110,7 @@ class _PageContent extends StatelessWidget {
     int budget,
     CategoryType type,
     UserInfo userInfo,
-    SingleOrPair sop,
+    SelectedNote sop,
   ) {
     switch (type) {
       case CategoryType.income:
@@ -218,7 +219,7 @@ class _IncomeCategoryListItem extends StatelessWidget {
   }
 
   DeleteIncomeCategoryInput _generateInput(BuildContext context) {
-    final sop = context.read<SingleOrPair>();
+    final sop = context.read<SelectedNoteState>().value;
     return DeleteIncomeCategoryInput(
       repository: selectIncomeCategoryRepository(sop),
       uid: context.read<UserInfo>().repoId(sop),
@@ -297,7 +298,7 @@ class _ExpenseCategoryListItem extends StatelessWidget {
   }
 
   DeleteExpenseCategoryInput _generateInput(BuildContext context) {
-    final sop = context.read<SingleOrPair>();
+    final sop = context.read<SelectedNoteState>().value;
     return DeleteExpenseCategoryInput(
       repository: selectExpenseCategoryRepository(sop),
       uid: context.read<UserInfo>().repoId(sop),
@@ -328,7 +329,7 @@ class _EditCategoryButton extends StatelessWidget {
     }
     return IconButton(
       onPressed: () async {
-        final sop = context.read<SingleOrPair>();
+        final sop = context.read<SelectedNoteState>().value;
         final uinfo = context.read<UserInfo>();
 
         await Navigator.push(
@@ -359,7 +360,7 @@ class _EditCategoryButton extends StatelessWidget {
     int budget,
     CategoryType type,
     UserInfo uinfo,
-    SingleOrPair sop,
+    SelectedNote sop,
   ) {
     switch (type) {
       case CategoryType.income:
@@ -388,13 +389,13 @@ class _EditCategoryButton extends StatelessWidget {
 
 Future<void> _reloadIncomeCategoryState(BuildContext context) =>
     context.read<IncomeCategoryListState>().fetch(
-          singleOrPair: context.read<SingleOrPair>(),
+          singleOrPair: context.read<SelectedNoteState>().value,
           userInfo: context.read<UserInfo>(),
         );
 
 Future<void> _reloadExpenseCategoryState(BuildContext context) =>
     context.read<ExpenseCategoryListState>().fetch(
-          singleOrPair: context.read<SingleOrPair>(),
+          singleOrPair: context.read<SelectedNoteState>().value,
           userInfo: context.read<UserInfo>(),
         );
 

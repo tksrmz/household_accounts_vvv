@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:household_accounts/v2/data/repositories/firebase_public_profile_repository.dart';
+import 'package:household_accounts/v2/data/repositories/firestore/public_profile_repository.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
 import 'package:mockito/annotations.dart';
@@ -11,7 +11,7 @@ import 'package:test/test.dart';
   MockSpec<DocumentReference<Map<String, dynamic>>>(),
   MockSpec<DocumentSnapshot<Map<String, dynamic>>>(),
 ])
-import 'firebase_public_profile_repository_test.mocks.dart';
+import 'public_profile_repository_test.mocks.dart';
 
 void main() {
   group('fetchUserName', () {
@@ -37,7 +37,7 @@ void main() {
         'name': 'XxXSampleNameXxX',
       });
 
-      final sut = FirebasePublicProfileRepository(mockDb);
+      final sut = FirestorePublicProfileRepository(mockDb);
       final userName = await sut.fetchUserName(UserIdVo('XxXSampleUserIdXxX'));
 
       verify(mockDb.doc('/publicProfiles/XxXSampleUserIdXxX')).called(1);

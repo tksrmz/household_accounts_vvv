@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:household_accounts/v2/data/repositories/firebase_income_repository.dart';
+import 'package:household_accounts/v2/data/repositories/firestore/personal_income_repository.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
+import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
@@ -14,7 +15,7 @@ import 'package:test/test.dart';
   MockSpec<QuerySnapshot<Map<String, dynamic>>>(),
   MockSpec<QueryDocumentSnapshot<Map<String, dynamic>>>(),
 ])
-import 'firebase_income_repository_test.mocks.dart';
+import 'personal_income_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
@@ -51,9 +52,9 @@ void main() {
           when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
           when(mockQueryDocumentSnapshot.data()).thenReturn({'amount': 100});
 
-          final sut = FirebaseIncomeRepository(
+          final sut = FirestorePersonalIncomeRepository(
             mockDb,
-            '/personalNotes/samplePersonalNoteId/incomes',
+            UserIdVo('samplePersonalNoteId'),
           );
           final expenseList = await sut.fetchMonthly(date);
 
@@ -81,9 +82,9 @@ void main() {
       test('指定された月の支出一覧を取得できる', () async {
         when(mockQuerySnapshot.docs).thenReturn([]);
 
-        final sut = FirebaseIncomeRepository(
+        final sut = FirestorePersonalIncomeRepository(
           mockDb,
-          '/personalNotes/samplePersonalNoteId/incomes',
+          UserIdVo('samplePersonalNoteId'),
         );
         final expenseList = await sut.fetchMonthly(DateTime(2025, 1));
 
@@ -103,9 +104,9 @@ void main() {
           {'amount': 200},
         ]);
 
-        final sut = FirebaseIncomeRepository(
+        final sut = FirestorePersonalIncomeRepository(
           mockDb,
-          '/personalNotes/samplePersonalNoteId/incomes',
+          UserIdVo('samplePersonalNoteId'),
         );
         final expenseList = await sut.fetchMonthly(DateTime(2025, 1));
 
@@ -131,9 +132,9 @@ void main() {
         when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
         when(mockQueryDocumentSnapshot.data()).thenReturn({'amount': value});
 
-        final sut = FirebaseIncomeRepository(
+        final sut = FirestorePersonalIncomeRepository(
           mockDb,
-          '/personalNotes/samplePersonalNoteId/incomes',
+          UserIdVo('samplePersonalNoteId'),
         );
         expect(() async => await sut.fetchMonthly(DateTime(2025, 1)),
             throwsA(isA<TypeError>()));
@@ -142,30 +143,5 @@ void main() {
   });
 
   // Firebaseのモックをどう使えばいいかのメモ
-  group('Firestore Mock Tests', () {
-    final mockFirestore = MockFirebaseFirestore();
-    final mockCollection = MockCollectionReference();
-    final mockDocument = MockDocumentReference();
-    final mockDocumentSnapshot = MockDocumentSnapshot();
-
-    tearDown(() {
-      reset(mockFirestore);
-      reset(mockCollection);
-      reset(mockDocument);
-      reset(mockDocumentSnapshot);
-    });
-
-    test('Test Firestore get document', () async {
-      when(mockFirestore.collection(any)).thenReturn(mockCollection);
-      when(mockCollection.doc(any)).thenReturn(mockDocument);
-      when(mockDocument.get()).thenAnswer((_) async => mockDocumentSnapshot);
-
-      final documentSnapshot =
-          await mockFirestore.collection('users').doc('123').get();
-
-      verify(mockFirestore.collection('users')).called(1);
-      verify(mockCollection.doc('123')).called(1);
-      expect(documentSnapshot, isA<DocumentSnapshot>());
-    });
-  });
+  group('Firestore Mock Tests', () {});
 }

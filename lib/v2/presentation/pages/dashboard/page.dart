@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../domain/models/vo/user_id.dart';
+import '../state_managements/selected_note_state.dart';
 import 'view_model.dart';
 import '../../widgets/error_message.dart';
 import 'widgets/summary_panel.dart';
@@ -10,10 +12,8 @@ class DashboardPage extends StatelessWidget {
     super.key,
     required DateTime date,
     required UserIdVo userId,
-    required bool isPersonalMode,
     required DashboardViewModel viewModel,
-  })  : _isPersonalMode = isPersonalMode,
-        _viewModel = viewModel {
+  }) : _viewModel = viewModel {
     // ViewModelの初期化
     // ここでViewModelに必要なデータを渡す
     // 例えば、ユーザーIDや日付など
@@ -21,10 +21,9 @@ class DashboardPage extends StatelessWidget {
   }
 
   final DashboardViewModel _viewModel;
-  final bool _isPersonalMode;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext _) {
     return ValueListenableBuilder(
       valueListenable: _viewModel,
       builder: (context, state, child) {
@@ -37,13 +36,14 @@ class DashboardPage extends StatelessWidget {
           return ErrorMessage();
         }
 
+        bool isPersonal = context.watch<SelectedNoteState>().isPersonal;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: ListView(
             children: [
               Center(
                 child: Text(
-                  '${state.model.userName.value}の${_isPersonalMode ? '自分' : 'ふたり'}の家計簿',
+                  '${state.model.userName.value}の${isPersonal ? '自分' : 'ふたり'}の家計簿',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
