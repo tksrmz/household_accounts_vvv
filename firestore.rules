@@ -133,6 +133,11 @@ service cloud.firestore {
 
     match /publicProfiles/{uid} {
       allow read: if isSignedIn();
+      allow update: if isValidUser(uid)
+        && request.source.data.size() == 1
+        && 'name' in request.resource.data
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 20;
     }
 
     match /privateProfiles/{uid} {
