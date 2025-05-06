@@ -6,7 +6,7 @@ import 'util/sign_in.dart';
 import 'util/sign_up.dart';
 
 Future<void> recordCreatingFeature() async {
-  testWidgets('ユーザーは自分の家計簿で収入レコードを作成できる', (tester) async {
+  testWidgets('ユーザーは自分の家計簿で収入レコードを作成できるので、収入を正確に記録できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await signUpApp(
       tester,
@@ -67,7 +67,7 @@ Future<void> recordCreatingFeature() async {
     expect(find.text('レコードを登録しました'), findsOneWidget);
   });
 
-  testWidgets('ユーザーは自分の家計簿で支出レコードを作成できる', (tester) async {
+  testWidgets('ユーザーは自分の家計簿で支出レコードを作成できるので、支出を正確に記録できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await signUpApp(
       tester,
@@ -134,7 +134,7 @@ Future<void> recordCreatingFeature() async {
     expect(find.text('レコードを登録しました'), findsOneWidget);
   });
 
-  testWidgets('ユーザーは自分の家計簿で振替レコードを作成できる', (tester) async {
+  testWidgets('ユーザーは自分の家計簿で振替レコードを作成できるので、資産間の移動を正確に記録できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await signUpApp(
       tester,
@@ -198,7 +198,7 @@ Future<void> recordCreatingFeature() async {
     expect(find.text('レコードを登録しました'), findsOneWidget);
   });
 
-  testWidgets('ペアリング済みユーザーはふたりの家計簿で収入レコードを作成できる', (tester) async {
+  testWidgets('ペアリング済みユーザーはふたりの家計簿で収入レコードを作成できるので、共有収入を正確に記録できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     // FIXME: ペアリング機能未作成の間は、`pair_user_a@example.com`を使用
     // await singUpApp(
@@ -261,7 +261,7 @@ Future<void> recordCreatingFeature() async {
     expect(find.text('レコードを登録しました'), findsOneWidget);
   });
 
-  testWidgets('ペアリング済みユーザーはふたりの家計簿で支出レコードを作成できる', (tester) async {
+  testWidgets('ペアリング済みユーザーはふたりの家計簿で支出レコードを作成できるので、共有支出を正確に記録できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     // FIXME: ペアリング機能未作成の間は、`pair_user_a@example.com`を使用
     // await singUpApp(
@@ -331,7 +331,7 @@ Future<void> recordCreatingFeature() async {
     expect(find.text('レコードを登録しました'), findsOneWidget);
   });
 
-  testWidgets('ペアリング済みユーザーはふたりの家計簿で振替レコードを作成できる', (tester) async {
+  testWidgets('ペアリング済みユーザーはふたりの家計簿で振替レコードを作成できるので、共有資産間の移動を正確に記録できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     // FIXME: ペアリング機能未作成の間は、`pair_user_a@example.com`を使用
     // await singUpApp(

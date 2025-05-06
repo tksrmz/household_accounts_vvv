@@ -5,7 +5,7 @@ import 'package:household_accounts/main.dart';
 import 'util/sign_in.dart';
 
 Future<void> dashboardFeature() async {
-  testWidgets('ユーザーは自分の家計簿の情報をダッシュボード画面で確認できる', (tester) async {
+  testWidgets('ユーザーは自分の家計簿の情報をダッシュボード画面で確認できるので、家計の全体像を把握できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await signInApp(tester, singleUser);
 
@@ -27,7 +27,7 @@ Future<void> dashboardFeature() async {
     // expect(find.byType(BudgetGraph), findsOneWidget);
   });
 
-  testWidgets('新規ユーザーは自分の家計簿の情報をダッシュボード画面で確認できる', (tester) async {
+  testWidgets('新規ユーザーは自分の家計簿の情報をダッシュボード画面で確認できるので、初期状態を把握できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await signInApp(tester, newUser);
 
@@ -44,7 +44,7 @@ Future<void> dashboardFeature() async {
     // expect(find.byType(BudgetGraph), findsOneWidget);
   });
 
-  testWidgets('ペアリング済みユーザーはふたりの家計簿の情報をダッシュボード画面で確認できる', (tester) async {
+  testWidgets('ペアリング済みユーザーはふたりの家計簿の情報をダッシュボード画面で確認できるので、共有家計の全体像を把握できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await signInApp(tester, pairUser);
 

@@ -5,7 +5,7 @@ import 'package:household_accounts/main.dart';
 import 'util/sign_up.dart';
 
 Future<void> propertyFeature() async {
-  testWidgets('ユーザーは自分の家計簿で資産を管理できる', (tester) async {
+  testWidgets('ユーザーは自分の家計簿で資産を管理できるので、資産状況を正確に把握できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await signUpApp(
       tester,
@@ -72,7 +72,7 @@ Future<void> propertyFeature() async {
     expect(find.text('¥120,000'), findsNothing);
   });
 
-  testWidgets('ペアリング済みユーザーはふたりの家計簿で資産を管理できる', (tester) async {
+  testWidgets('ペアリング済みユーザーはふたりの家計簿で資産を管理できるので、共有資産状況を正確に把握できる', (tester) async {
     await tester.pumpWidget(const MyApp());
     await signUpApp(
       tester,
