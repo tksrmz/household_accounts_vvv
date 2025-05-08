@@ -19,4 +19,7 @@ class UserNameVo with _$UserNameVo {
 
   @override
   final String value;
+
+  /// 有効なユーザー名かどうか
+  static bool isValid(String str) => str.isNotEmpty && str.length <= maxLength;
 }

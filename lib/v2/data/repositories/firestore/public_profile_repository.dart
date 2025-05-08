@@ -15,4 +15,10 @@ class FirestorePublicProfileRepository implements PublicProfileRepository {
     final documentSnapshot = await documentReference.get();
     return UserNameVo(documentSnapshot.data()!['name']! as String);
   }
+
+  @override
+  Future<void> updateUserName(UserIdVo userId, UserNameVo userName) async {
+    final documentReference = _db.doc('/publicProfiles/${userId.value}');
+    await documentReference.update({'name': userName.value});
+  }
 }

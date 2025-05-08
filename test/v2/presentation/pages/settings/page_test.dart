@@ -26,9 +26,7 @@ void main() {
     '初期化完了前はローディング画面が表示される',
     goldenFileName: 'settings_page_loading',
     mockFn: () {
-      when(mockViewModel.value).thenReturn(
-        SettingsState.uninitialized(UserNameVo.empty),
-      );
+      when(mockViewModel.isUninitialized).thenReturn(true);
     },
     builder: targetBuilder,
     expectFn: () {
@@ -40,11 +38,10 @@ void main() {
     '初期化が正常に完了すると設定画面コンテンツが表示される',
     goldenFileName: 'settings_page_complete',
     mockFn: () {
-      when(mockViewModel.value).thenReturn(
-        SettingsState.uninitialized(UserNameVo.empty).success(
-          UserNameVo('testUserName'),
-        ),
-      );
+      when(mockViewModel.isUninitialized).thenReturn(false);
+      when(mockViewModel.isFailed).thenReturn(false);
+      when(mockViewModel.hasSaveError).thenReturn(false);
+      when(mockViewModel.userName).thenReturn("上田 技術");
     },
     builder: targetBuilder,
     expectFn: () {
@@ -56,9 +53,8 @@ void main() {
     '初期化に失敗するとエラーメッセージが表示される',
     goldenFileName: 'settings_page_error',
     mockFn: () {
-      when(mockViewModel.value).thenReturn(
-        SettingsState.uninitialized(UserNameVo.empty).fail(UserNameVo.empty),
-      );
+      when(mockViewModel.isUninitialized).thenReturn(false);
+      when(mockViewModel.isFailed).thenReturn(true);
     },
     builder: targetBuilder,
     expectFn: () {

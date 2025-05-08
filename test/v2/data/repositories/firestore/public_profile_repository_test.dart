@@ -47,4 +47,46 @@ void main() {
       expect(userName, UserNameVo('XxXSampleNameXxX'));
     });
   });
+
+  group('updateUserName', () {
+    final mockDb = MockFirebaseFirestore();
+    final mockDocumentReference = MockDocumentReference();
+
+    setUp(() {
+      when(mockDb.doc('/publicProfiles/XxXSampleUserIdXxX'))
+          .thenReturn(mockDocumentReference);
+      when(mockDocumentReference.update(any)).thenAnswer((_) async => {});
+    });
+
+    tearDown(() {
+      reset(mockDb);
+      reset(mockDocumentReference);
+    });
+
+    test('ユーザー名を更新できる', () async {
+      final sut = FirestorePublicProfileRepository(mockDb);
+      await sut.updateUserName(
+        UserIdVo('XxXSampleUserIdXxX'),
+        UserNameVo('NewUserName'),
+      );
+
+      verify(mockDb.doc('/publicProfiles/XxXSampleUserIdXxX')).called(1);
+      verify(mockDocumentReference.update({
+        'name': 'NewUserName',
+      })).called(1);
+    });
+
+    test('更新に失敗したら例外が発生する', () async {
+      when(mockDocumentReference.update(any)).thenThrow(Exception('更新に失敗しました'));
+
+      final sut = FirestorePublicProfileRepository(mockDb);
+      expect(
+        () => sut.updateUserName(
+          UserIdVo('XxXSampleUserIdXxX'),
+          UserNameVo('NewUserName'),
+        ),
+        throwsException,
+      );
+    });
+  });
 }
