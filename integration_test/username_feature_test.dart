@@ -23,7 +23,7 @@ Future<void> userNameFeature() async {
     await tester.pumpAndSettle();
 
     // Enter new username
-    await tester.enterText(find.byType(TextField), "New Username");
+    await tester.enterText(find.byType(TextField), "NewUsername");
     await tester.pumpAndSettle();
 
     // Save the changes
@@ -31,7 +31,7 @@ Future<void> userNameFeature() async {
     await tester.pumpAndSettle();
 
     // Verify the username was updated
-    expect(find.text("New Username"), findsOneWidget);
+    expect(find.text("NewUsername"), findsOneWidget);
   });
 
   testWidgets('ユーザー名が20文字を超えると保存ボタンが無効になる', (tester) async {
@@ -48,7 +48,7 @@ Future<void> userNameFeature() async {
     await tester.pumpAndSettle();
 
     // Tap the username field to start editing
-    await tester.tap(find.text("New Username"));
+    await tester.tap(find.text("NewUsername"));
     await tester.pumpAndSettle();
 
     // Enter a username that is too long (21 characters)
