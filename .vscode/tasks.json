@@ -33,7 +33,7 @@
 				"$dart-build_runner"
 			],
 			"group": "test",
-			"label": "integration test",
+			"label": "my integration test",
 			"presentation": {
 				"clear": true,
 			}
