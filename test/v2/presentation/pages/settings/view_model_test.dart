@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
@@ -12,10 +14,97 @@ import 'view_model_test.mocks.dart';
 void main() {
   final mockRepository = MockPublicProfileRepository();
   const userId = UserIdVo('testUserId');
+  late SettingsViewModel target;
+
+  setUp(() {
+    // テスト対象の初期化
+    target = SettingsViewModel(
+      publicProfileRepository: mockRepository,
+    );
+  });
 
   tearDown(() {
     // モックのクリーンアップ
     reset(mockRepository);
+  });
+
+  group('SettingsViewModel', () {
+    group('画面全体の状態', () {
+      test('初期化前は初期化を実行可能であること', () {
+        verifyNoMoreInteractions(mockRepository);
+        expect(
+          target.canInitialize,
+          isTrue,
+          reason: 'canInitialize is false',
+        );
+      });
+
+      test('初期化中はそのことが分かること', () {
+        when(mockRepository.fetchUserName(any)).thenAnswer(
+          (_) => Completer<UserNameVo>().future,
+        );
+
+        target.init(userId);
+
+        verify(mockRepository.fetchUserName(userId)).called(1);
+        expect(
+          target.isInitializing,
+          isTrue,
+          reason: 'isInitializing is false',
+        );
+      });
+
+      test('初期化実行中にもう一度初期化を要求されても何もしないこと', () {
+        when(mockRepository.fetchUserName(any)).thenAnswer(
+          (_) => Completer<UserNameVo>().future,
+        );
+
+        target.init(userId);
+        target.init(userId);
+
+        verify(mockRepository.fetchUserName(userId)).called(1);
+      });
+
+      test('初期化成功後はエラーがなく、再度初期化が可能な状態であること', () async {
+        when(mockRepository.fetchUserName(any)).thenAnswer(
+          (_) => Future.value(UserNameVo("testUserName")),
+        );
+
+        await target.init(userId);
+
+        verify(mockRepository.fetchUserName(userId)).called(1);
+        expect(
+          target.canInitialize,
+          isTrue,
+          reason: 'canInitialize is false',
+        );
+        expect(
+          target.initError,
+          isNull,
+          reason: 'initError is not null',
+        );
+      });
+
+      test('初期化失敗時はエラーがあり、再度初期化が可能な状態であること', () async {
+        when(mockRepository.fetchUserName(any)).thenThrow(
+          Exception('テスト：エラーが発生しました'),
+        );
+
+        await target.init(userId);
+
+        verify(mockRepository.fetchUserName(userId)).called(1);
+        expect(
+          target.canInitialize,
+          isTrue,
+          reason: 'canInitialize is false',
+        );
+        expect(
+          target.initError!.toString(),
+          'Exception: テスト：エラーが発生しました',
+          reason: 'initError message is wrong',
+        );
+      });
+    });
   });
 
   test('初期化前はエラー状態ではない', () {

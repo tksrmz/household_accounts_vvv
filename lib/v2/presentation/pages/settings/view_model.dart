@@ -12,6 +12,17 @@ class SettingsViewModel with ChangeNotifier {
         _loadingState = const LoadingState.uninitialized(),
         _userNameFieldState = const _UserNameFieldState('');
 
+  /// この画面の初期化を実行可能かどうか
+  bool _canInitialize = true;
+  bool get canInitialize => _canInitialize;
+
+  /// この画面を初期化中かどうか
+  bool get isInitializing => !_canInitialize;
+
+  /// 初期化時のエラー
+  Exception? _initError;
+  Exception? get initError => _initError;
+
   /// 画面全体のローディング状態を管理する
   LoadingState _loadingState;
 
@@ -30,6 +41,13 @@ class SettingsViewModel with ChangeNotifier {
   UserIdVo? _userId;
 
   Future<void> init(UserIdVo userId) async {
+    if (isInitializing) {
+      return;
+    }
+
+    _canInitialize = false;
+    notifyListeners();
+
     if (!_loadingState.isUninitialized) {
       return;
     }
@@ -41,9 +59,10 @@ class SettingsViewModel with ChangeNotifier {
       _loadingState = _loadingState.success();
       _userNameFieldState = _UserNameFieldState(userName.value);
     } on Exception catch (ex) {
-      print(ex);
+      _initError = ex;
       _loadingState = _loadingState.fail();
     } finally {
+      _canInitialize = true;
       notifyListeners();
     }
   }
