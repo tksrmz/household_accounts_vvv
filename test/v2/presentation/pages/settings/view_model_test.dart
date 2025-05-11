@@ -39,44 +39,55 @@ void main() {
         );
       });
 
-      test('初期化中はそのことが分かること', () {
+      group('初期化実行中', () {
+        setUp(() {
+          when(mockRepository.fetchUserName(any)).thenAnswer(
+            (_) => Completer<UserNameVo>().future,
+          );
+        });
+
+        test('初期化中はそのことが分かること', () async {
+          target.initialize(userId);
+          await Future.delayed(Duration(milliseconds: 100));
+
+          verify(mockRepository.fetchUserName(userId)).called(1);
+          expect(
+            target.isInitializing,
+            isTrue,
+            reason: 'isInitializing is false',
+          );
+        });
+
+        test('初期化実行中にもう一度初期化を要求されても何もしないこと', () async {
+          target.initialize(userId);
+          target.initialize(userId);
+          await Future.delayed(Duration(milliseconds: 100));
+
+          verify(mockRepository.fetchUserName(userId)).called(1);
+        });
+      });
+
+      test('初期化成功後はデータを取得可能で、エラーがなく、再度初期化が可能な状態であること', () async {
         when(mockRepository.fetchUserName(any)).thenAnswer(
-          (_) => Completer<UserNameVo>().future,
+          (_) async => UserNameVo('上田 技術'),
         );
 
-        target.init(userId);
+        await target.initialize(userId);
 
-        verify(mockRepository.fetchUserName(userId)).called(1);
         expect(
-          target.isInitializing,
-          isTrue,
-          reason: 'isInitializing is false',
+          target.userName,
+          '上田 技術',
+          reason: 'userName is wrong',
         );
-      });
-
-      test('初期化実行中にもう一度初期化を要求されても何もしないこと', () {
-        when(mockRepository.fetchUserName(any)).thenAnswer(
-          (_) => Completer<UserNameVo>().future,
-        );
-
-        target.init(userId);
-        target.init(userId);
-
-        verify(mockRepository.fetchUserName(userId)).called(1);
-      });
-
-      test('初期化成功後はエラーがなく、再度初期化が可能な状態であること', () async {
-        when(mockRepository.fetchUserName(any)).thenAnswer(
-          (_) => Future.value(UserNameVo("testUserName")),
-        );
-
-        await target.init(userId);
-
-        verify(mockRepository.fetchUserName(userId)).called(1);
         expect(
           target.canInitialize,
           isTrue,
           reason: 'canInitialize is false',
+        );
+        expect(
+          target.hasInitError,
+          isFalse,
+          reason: 'hasInitError is true',
         );
         expect(
           target.initError,
@@ -85,83 +96,34 @@ void main() {
         );
       });
 
-      test('初期化失敗時はエラーがあり、再度初期化が可能な状態であること', () async {
+      test('初期化失敗時はデータを取得できず、エラーがあり、再度初期化が可能な状態であること', () async {
         when(mockRepository.fetchUserName(any)).thenThrow(
-          Exception('テスト：エラーが発生しました'),
+          Exception('fetchUserNameエラー'),
         );
 
-        await target.init(userId);
+        await target.initialize(userId);
 
-        verify(mockRepository.fetchUserName(userId)).called(1);
+        expect(
+          target.userName,
+          isNull,
+          reason: 'targetName is not null',
+        );
         expect(
           target.canInitialize,
           isTrue,
           reason: 'canInitialize is false',
         );
         expect(
+          target.hasInitError,
+          isTrue,
+          reason: 'hasInitError is false',
+        );
+        expect(
           target.initError!.toString(),
-          'Exception: テスト：エラーが発生しました',
+          'Exception: fetchUserNameエラー',
           reason: 'initError message is wrong',
         );
       });
-    });
-  });
-
-  test('初期化前はエラー状態ではない', () {
-    final sut = SettingsViewModel(
-      publicProfileRepository: mockRepository,
-    );
-
-    verifyNoMoreInteractions(mockRepository);
-    expect(sut.isUninitialized, isTrue);
-    expect(sut.isFailed, isFalse);
-  });
-
-  group('初期化に成功したとき', () {
-    setUp(() {
-      // mock
-      when(mockRepository.fetchUserName(userId)).thenAnswer(
-        (_) async => UserNameVo("testUserName"),
-      );
-    });
-
-    test('エラー状態ではない', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-
-      verify(mockRepository.fetchUserName(userId)).called(1);
-      expect(sut.isUninitialized, isFalse);
-      expect(sut.isFailed, isFalse);
-    });
-
-    test('init()が2回以上呼び出されても何もしない', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-
-      await sut.init(userId);
-      verify(mockRepository.fetchUserName(userId)).called(1);
-    });
-  });
-
-  group('初期化に失敗したとき', () {
-    setUp(() {
-      when(mockRepository.fetchUserName(any)).thenThrow(
-        Exception('テスト：エラーが発生しました'),
-      );
-    });
-
-    test('エラー状態になる', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-
-      verify(mockRepository.fetchUserName(userId)).called(1);
-      expect(sut.isUninitialized, isFalse);
-      expect(sut.isFailed, isTrue);
     });
   });
 

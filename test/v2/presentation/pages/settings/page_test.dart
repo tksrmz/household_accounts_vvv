@@ -1,63 +1,90 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
+import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
+import 'package:household_accounts/v2/domain/repositories/public_profile_repository.dart';
 import 'package:household_accounts/v2/presentation/pages/settings/page.dart';
 import 'package:household_accounts/v2/presentation/pages/settings/view_model.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../../../test-util/golden_helper.dart';
-@GenerateNiceMocks([MockSpec<SettingsViewModel>()])
+@GenerateNiceMocks([MockSpec<PublicProfileRepository>()])
 import 'page_test.mocks.dart';
 
 void main() {
-  final mockViewModel = MockSettingsViewModel();
-  final targetBuilder = () => SettingsPage(
-        userId: UserIdVo("testUserId"),
-        viewModel: mockViewModel,
+  const userId = UserIdVo('testUserId');
+  final mockRepository = MockPublicProfileRepository();
+  final buildTarget = () => GoldenWrapper(
+        child: SettingsPage(
+          userId: userId,
+          viewModel: SettingsViewModel(
+            publicProfileRepository: mockRepository,
+          ),
+        ),
       );
 
   tearDown(() {
     // モックのクリーンアップ
-    reset(mockViewModel);
+    reset(mockRepository);
   });
 
-  testGoldens(
-    '初期化完了前はローディング画面が表示される',
-    goldenFileName: 'settings_page_loading',
-    mockFn: () {
-      when(mockViewModel.isUninitialized).thenReturn(true);
-    },
-    builder: targetBuilder,
-    expectFn: () {
-      verify(mockViewModel.init(UserIdVo("testUserId"))).called(1);
-    },
-  );
+  group('SettingsPage', () {
+    group('画面全体', () {
+      testWidgets(
+        '画面を開くとローディング画面が表示されること',
+        (tester) async {
+          when(mockRepository.fetchUserName(any)).thenAnswer(
+            (_) => Completer<UserNameVo>().future,
+          );
 
-  testGoldens(
-    '初期化が正常に完了すると設定画面コンテンツが表示される',
-    goldenFileName: 'settings_page_complete',
-    mockFn: () {
-      when(mockViewModel.isUninitialized).thenReturn(false);
-      when(mockViewModel.isFailed).thenReturn(false);
-      when(mockViewModel.hasSaveError).thenReturn(false);
-      when(mockViewModel.userName).thenReturn("上田 技術");
-    },
-    builder: targetBuilder,
-    expectFn: () {
-      verify(mockViewModel.init(UserIdVo("testUserId"))).called(1);
-    },
-  );
+          await tester.pumpWidget(buildTarget());
 
-  testGoldens(
-    '初期化に失敗するとエラーメッセージが表示される',
-    goldenFileName: 'settings_page_error',
-    mockFn: () {
-      when(mockViewModel.isUninitialized).thenReturn(false);
-      when(mockViewModel.isFailed).thenReturn(true);
-    },
-    builder: targetBuilder,
-    expectFn: () {
-      verify(mockViewModel.init(UserIdVo("testUserId"))).called(1);
-    },
-  );
+          verify(mockRepository.fetchUserName(userId)).called(1);
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile('goldens/${tester.testDescription}.png'),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        'ローディングに成功するとコンテンツが表示されること',
+        (tester) async {
+          when(mockRepository.fetchUserName(any)).thenAnswer(
+            (_) async => UserNameVo('うえだぎじゅつ'),
+          );
+
+          await tester.pumpWidget(buildTarget());
+
+          verify(mockRepository.fetchUserName(userId)).called(1);
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile('goldens/${tester.testDescription}.png'),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        'ローディングに失敗するとエラーメッセージが表示されること',
+        (tester) async {
+          when(mockRepository.fetchUserName(any)).thenThrow(
+            Exception('fetchUserNameエラー'),
+          );
+
+          await tester.pumpWidget(buildTarget());
+
+          verify(mockRepository.fetchUserName(userId)).called(1);
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile('goldens/${tester.testDescription}.png'),
+          );
+        },
+        tags: ['golden'],
+      );
+    });
+  });
 }

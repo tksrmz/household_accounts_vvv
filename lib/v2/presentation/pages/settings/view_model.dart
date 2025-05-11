@@ -1,44 +1,43 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/models/vo/user_name.dart';
 import '../../../domain/repositories/public_profile_repository.dart';
-import '../state_managements/initializable_state.dart';
 
 /// 設定画面を表示するためのViewModel
 class SettingsViewModel with ChangeNotifier {
   SettingsViewModel({
     required PublicProfileRepository publicProfileRepository,
   })  : _publicProfileRepository = publicProfileRepository,
-        _loadingState = const LoadingState.uninitialized(),
         _userNameFieldState = const _UserNameFieldState('');
 
-  /// この画面の初期化を実行可能かどうか
+  /// 初期化の状態
   bool _canInitialize = true;
   bool get canInitialize => _canInitialize;
+  bool get isInitializing => !canInitialize;
 
-  /// この画面を初期化中かどうか
-  bool get isInitializing => !_canInitialize;
-
-  /// 初期化時のエラー
+  /// 初期化のエラー状態
   Exception? _initError;
   Exception? get initError => _initError;
-
-  /// 画面全体のローディング状態を管理する
-  LoadingState _loadingState;
-
-  bool get isUninitialized => _loadingState.isUninitialized;
-  bool get isFailed => _loadingState.isFailed;
+  bool get hasInitError => _initError != null;
 
   /// ユーザー名の状態を管理する
   _UserNameFieldState _userNameFieldState;
 
   bool get isEditing => _userNameFieldState._isEditing;
-  String get userName => _userNameFieldState._userName;
+  String? _userName;
+  String? get userName => _userName;
   bool get hasValidationError => _userNameFieldState._isValidationError;
   bool get hasSaveError => _userNameFieldState._isSavingError;
 
   final PublicProfileRepository _publicProfileRepository;
   UserIdVo? _userId;
+
+  Future<void> initialize(UserIdVo userId) async {
+    await init(userId);
+  }
 
   Future<void> init(UserIdVo userId) async {
     if (isInitializing) {
@@ -48,19 +47,23 @@ class SettingsViewModel with ChangeNotifier {
     _canInitialize = false;
     notifyListeners();
 
-    if (!_loadingState.isUninitialized) {
-      return;
-    }
-
     try {
       _userId = userId;
       UserNameVo userName =
           await _publicProfileRepository.fetchUserName(userId);
-      _loadingState = _loadingState.success();
+      _initError = null;
+      _userName = userName.value;
       _userNameFieldState = _UserNameFieldState(userName.value);
     } on Exception catch (ex) {
+      developer.log(
+        'Failed to fetch user name',
+        name: 'SettingsViewModel',
+        level: Level.WARNING.value,
+        error: ex,
+        stackTrace: StackTrace.current,
+      );
+      _userName = null;
       _initError = ex;
-      _loadingState = _loadingState.fail();
     } finally {
       _canInitialize = true;
       notifyListeners();

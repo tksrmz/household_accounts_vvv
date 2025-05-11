@@ -41,44 +41,6 @@ class InitializableState<T> {
   }
 }
 
-class LoadingState {
-  /// 初期化されていない状態を作成する
-  const LoadingState.uninitialized() : _initState = _InitState.uninitialized;
-
-  /// 初期化に成功した状態を作成する
-  const LoadingState._succeeded() : _initState = _InitState.succeeded;
-
-  /// 初期化に失敗した状態を作成する
-  const LoadingState._failed() : _initState = _InitState.failed;
-
-  /// 初期化状態
-  final _InitState _initState;
-
-  /// 初期化前かどうか
-  bool get isUninitialized => _initState == _InitState.uninitialized;
-
-  /// 初期化に失敗したかどうか
-  bool get isFailed => _initState == _InitState.failed;
-
-  /// 初期化されていない状態から、初期化に成功した状態へ遷移する。
-  LoadingState success() {
-    assert(
-      isUninitialized,
-      '初期化に成功した状態へ遷移するには、初期化されていない状態である必要があります。',
-    );
-    return LoadingState._succeeded();
-  }
-
-  /// 初期化されていない状態から、初期化に失敗した状態へ遷移する。
-  LoadingState fail() {
-    assert(
-      isUninitialized,
-      '初期化に失敗した状態へ遷移するには、初期化されていない状態である必要があります。',
-    );
-    return LoadingState._failed();
-  }
-}
-
 /// 初期化状態を表す列挙型
 enum _InitState {
   /// 初期化されていない状態

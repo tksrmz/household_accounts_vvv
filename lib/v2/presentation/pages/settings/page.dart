@@ -9,7 +9,7 @@ class SettingsPage extends StatelessWidget {
     required UserIdVo userId,
     required SettingsViewModel viewModel,
   }) : _viewModel = viewModel {
-    _viewModel.init(userId);
+    _viewModel.initialize(userId);
   }
 
   final SettingsViewModel _viewModel;
@@ -23,12 +23,12 @@ class SettingsPage extends StatelessWidget {
       body: ListenableBuilder(
         listenable: _viewModel,
         builder: (context, child) {
-          if (_viewModel.isUninitialized) {
+          if (_viewModel.isInitializing) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
-          if (_viewModel.isFailed) {
+          if (_viewModel.hasInitError) {
             return const Center(
               child: ErrorMessage(),
             );
@@ -136,7 +136,7 @@ class _UserNameCardInkWell extends StatelessWidget {
 
     return InkWell(
       onTap: _viewModel.startEditing,
-      child: Text(_viewModel.userName),
+      child: Text(_viewModel.userName ?? ''),
     );
   }
 }
@@ -158,7 +158,7 @@ class _UserNameCardTextFieldState extends State<_UserNameCardTextField> {
   @override
   void initState() {
     super.initState();
-    _controller.text = widget._viewModel.userName;
+    _controller.text = widget._viewModel.userName ?? '';
   }
 
   @override
