@@ -5,23 +5,26 @@ import 'package:logging/logging.dart';
 import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/models/vo/user_name.dart';
 import '../../../domain/repositories/public_profile_repository.dart';
+import '../../commands/command.dart';
 
 /// 設定画面を表示するためのViewModel
 class SettingsViewModel with ChangeNotifier {
   SettingsViewModel({
     required PublicProfileRepository publicProfileRepository,
   })  : _publicProfileRepository = publicProfileRepository,
-        _userNameFieldState = const _UserNameFieldState('');
+        _userNameFieldState = const _UserNameFieldState('') {
+    initialize = AsyncCommand(this.init);
+  }
 
   /// 初期化の状態
-  bool _canInitialize = true;
-  bool get canInitialize => _canInitialize;
-  bool get isInitializing => !canInitialize;
+  late final AsyncCommand<UserIdVo> initialize;
+
+  /// 初期化の状態
+  bool get canInitialize => initialize.canExecute;
+  bool get isInitializing => initialize.isExecuting;
 
   /// 初期化のエラー状態
-  Exception? _initError;
-  Exception? get initError => _initError;
-  bool get hasInitError => _initError != null;
+  bool get hasInitError => initialize.hasError;
 
   /// ユーザー名の状態を管理する
   _UserNameFieldState _userNameFieldState;
@@ -35,23 +38,11 @@ class SettingsViewModel with ChangeNotifier {
   final PublicProfileRepository _publicProfileRepository;
   UserIdVo? _userId;
 
-  Future<void> initialize(UserIdVo userId) async {
-    await init(userId);
-  }
-
   Future<void> init(UserIdVo userId) async {
-    if (isInitializing) {
-      return;
-    }
-
-    _canInitialize = false;
-    notifyListeners();
-
     try {
       _userId = userId;
       UserNameVo userName =
           await _publicProfileRepository.fetchUserName(userId);
-      _initError = null;
       _userName = userName.value;
       _userNameFieldState = _UserNameFieldState(userName.value);
     } on Exception catch (ex) {
@@ -63,9 +54,8 @@ class SettingsViewModel with ChangeNotifier {
         stackTrace: StackTrace.current,
       );
       _userName = null;
-      _initError = ex;
+      rethrow;
     } finally {
-      _canInitialize = true;
       notifyListeners();
     }
   }

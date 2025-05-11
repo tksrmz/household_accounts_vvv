@@ -89,11 +89,6 @@ void main() {
           isFalse,
           reason: 'hasInitError is true',
         );
-        expect(
-          target.initError,
-          isNull,
-          reason: 'initError is not null',
-        );
       });
 
       test('初期化失敗時はデータを取得できず、エラーがあり、再度初期化が可能な状態であること', () async {
@@ -118,13 +113,11 @@ void main() {
           isTrue,
           reason: 'hasInitError is false',
         );
-        expect(
-          target.initError!.toString(),
-          'Exception: fetchUserNameエラー',
-          reason: 'initError message is wrong',
-        );
       });
     });
+
+    group('ユーザー名の編集', () {});
+    group('ユーザー名の保存', () {});
   });
 
   group('ユーザー名編集', () {
