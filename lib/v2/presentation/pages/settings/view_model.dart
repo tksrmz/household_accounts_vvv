@@ -20,10 +20,10 @@ class SettingsViewModel with ChangeNotifier {
   late final AsyncCommand<UserIdVo> initialize;
 
   /// 初期化の状態
-  bool get isInitializing => initialize.isExecuting;
+  bool get initIsRunning => initialize.isExecuting;
 
   /// 初期化のエラー状態
-  bool get hasInitError => initialize.hasError;
+  bool get initHasError => initialize.hasError;
 
   /// ユーザー名の状態を管理する
   _UserNameFieldState _userNameFieldState;

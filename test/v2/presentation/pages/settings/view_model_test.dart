@@ -32,7 +32,7 @@ void main() {
     group('画面全体の状態', () {
       test('初期化前は初期化実行中ではないこと', () {
         verifyNoMoreInteractions(mockRepository);
-        expect(target.isInitializing, isFalse);
+        expect(target.initIsRunning, isFalse);
       });
 
       group('初期化実行中', () {
@@ -47,7 +47,7 @@ void main() {
           await Future.delayed(Duration(milliseconds: 100));
 
           verify(mockRepository.fetchUserName(userId)).called(1);
-          expect(target.isInitializing, isTrue);
+          expect(target.initIsRunning, isTrue);
         });
 
         test('初期化実行中にもう一度初期化を要求されても何もしないこと', () async {
@@ -67,8 +67,8 @@ void main() {
         await target.initialize(userId);
 
         expect(target.userName, '上田 技術');
-        expect(target.isInitializing, isFalse);
-        expect(target.hasInitError, isFalse);
+        expect(target.initIsRunning, isFalse);
+        expect(target.initHasError, isFalse);
       });
 
       test('初期化失敗時はデータを取得できず、エラーがあること', () async {
@@ -79,8 +79,8 @@ void main() {
         await target.initialize(userId);
 
         expect(target.userName, isNull);
-        expect(target.isInitializing, isFalse);
-        expect(target.hasInitError, isTrue);
+        expect(target.initIsRunning, isFalse);
+        expect(target.initHasError, isTrue);
       });
     });
 
