@@ -18,7 +18,7 @@ void testGoldens(
 
         final widget = builder();
         await tester.pumpWidget(
-          _GoldenWrapper(
+          GoldenWrapper(
             child: widget,
             width: width,
           ),
@@ -38,10 +38,10 @@ void testGoldens(
   });
 }
 
-class _GoldenWrapper extends StatelessWidget {
-  const _GoldenWrapper({
+class GoldenWrapper extends StatelessWidget {
+  const GoldenWrapper({
     required this.child,
-    required this.width,
+    this.width = _GoldenTestWidth.small,
   });
 
   final Widget child;
