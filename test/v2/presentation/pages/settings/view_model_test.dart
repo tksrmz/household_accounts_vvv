@@ -30,13 +30,9 @@ void main() {
 
   group('SettingsViewModel', () {
     group('画面全体の状態', () {
-      test('初期化前は初期化を実行可能であること', () {
+      test('初期化前は初期化実行中ではないこと', () {
         verifyNoMoreInteractions(mockRepository);
-        expect(
-          target.canInitialize,
-          isTrue,
-          reason: 'canInitialize is false',
-        );
+        expect(target.isInitializing, isFalse);
       });
 
       group('初期化実行中', () {
@@ -51,11 +47,7 @@ void main() {
           await Future.delayed(Duration(milliseconds: 100));
 
           verify(mockRepository.fetchUserName(userId)).called(1);
-          expect(
-            target.isInitializing,
-            isTrue,
-            reason: 'isInitializing is false',
-          );
+          expect(target.isInitializing, isTrue);
         });
 
         test('初期化実行中にもう一度初期化を要求されても何もしないこと', () async {
@@ -67,52 +59,28 @@ void main() {
         });
       });
 
-      test('初期化成功後はデータを取得可能で、エラーがなく、再度初期化が可能な状態であること', () async {
+      test('初期化成功後はデータを取得可能で、エラーがない状態であること', () async {
         when(mockRepository.fetchUserName(any)).thenAnswer(
           (_) async => UserNameVo('上田 技術'),
         );
 
         await target.initialize(userId);
 
-        expect(
-          target.userName,
-          '上田 技術',
-          reason: 'userName is wrong',
-        );
-        expect(
-          target.canInitialize,
-          isTrue,
-          reason: 'canInitialize is false',
-        );
-        expect(
-          target.hasInitError,
-          isFalse,
-          reason: 'hasInitError is true',
-        );
+        expect(target.userName, '上田 技術');
+        expect(target.isInitializing, isFalse);
+        expect(target.hasInitError, isFalse);
       });
 
-      test('初期化失敗時はデータを取得できず、エラーがあり、再度初期化が可能な状態であること', () async {
+      test('初期化失敗時はデータを取得できず、エラーがあること', () async {
         when(mockRepository.fetchUserName(any)).thenThrow(
           Exception('fetchUserNameエラー'),
         );
 
         await target.initialize(userId);
 
-        expect(
-          target.userName,
-          isNull,
-          reason: 'targetName is not null',
-        );
-        expect(
-          target.canInitialize,
-          isTrue,
-          reason: 'canInitialize is false',
-        );
-        expect(
-          target.hasInitError,
-          isTrue,
-          reason: 'hasInitError is false',
-        );
+        expect(target.userName, isNull);
+        expect(target.isInitializing, isFalse);
+        expect(target.hasInitError, isTrue);
       });
     });
 

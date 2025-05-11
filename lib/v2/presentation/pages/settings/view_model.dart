@@ -20,7 +20,6 @@ class SettingsViewModel with ChangeNotifier {
   late final AsyncCommand<UserIdVo> initialize;
 
   /// 初期化の状態
-  bool get canInitialize => initialize.canExecute;
   bool get isInitializing => initialize.isExecuting;
 
   /// 初期化のエラー状態
