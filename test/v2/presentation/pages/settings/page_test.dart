@@ -17,14 +17,21 @@ import 'page_test.mocks.dart';
 void main() {
   const userId = UserIdVo('testUserId');
   final mockRepository = MockPublicProfileRepository();
-  final buildTarget = () => GoldenWrapper(
+  final buildTarget = (WidgetTester tester) async {
+    // golden file size is 320 * 600
+    final newSize = Size(320, 600) * tester.view.devicePixelRatio;
+    tester.view.physicalSize = newSize;
+    await tester.pumpWidget(
+      GoldenPageWrapper(
         child: SettingsPage(
           userId: userId,
           viewModel: SettingsViewModel(
             publicProfileRepository: mockRepository,
           ),
         ),
-      );
+      ),
+    );
+  };
 
   tearDown(() {
     // モックのクリーンアップ
@@ -42,7 +49,7 @@ void main() {
             (_) => Completer<UserNameVo>().future,
           );
 
-          await tester.pumpWidget(buildTarget());
+          await buildTarget(tester);
 
           await expectLater(
             find.byType(SettingsPage),
@@ -59,7 +66,7 @@ void main() {
             (_) async => UserNameVo('うえだぎじゅつ'),
           );
 
-          await tester.pumpWidget(buildTarget());
+          await buildTarget(tester);
 
           await expectLater(
             find.byType(SettingsPage),
@@ -76,7 +83,7 @@ void main() {
             Exception('fetchUserNameエラー'),
           );
 
-          await tester.pumpWidget(buildTarget());
+          await buildTarget(tester);
 
           await expectLater(
             find.byType(SettingsPage),
@@ -104,7 +111,7 @@ void main() {
       testWidgets(
         'ユーザー名を選択すると編集状態になること',
         (tester) async {
-          await tester.pumpWidget(buildTarget());
+          await buildTarget(tester);
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();
@@ -120,7 +127,7 @@ void main() {
       testWidgets(
         'ユーザー名を0文字にするとエラーメッセージが表示されること',
         (tester) async {
-          await tester.pumpWidget(buildTarget());
+          await buildTarget(tester);
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();
@@ -139,7 +146,7 @@ void main() {
       testWidgets(
         'ユーザー名を21文字にするとエラーメッセージが表示されること',
         (tester) async {
-          await tester.pumpWidget(buildTarget());
+          await buildTarget(tester);
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();
@@ -158,7 +165,7 @@ void main() {
       testWidgets(
         '有効なユーザー名に戻すと検証エラーが解消される',
         (tester) async {
-          await tester.pumpWidget(buildTarget());
+          await buildTarget(tester);
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();
@@ -180,7 +187,7 @@ void main() {
       testWidgets(
         '保存に成功すると、新しい名前が表示される',
         (tester) async {
-          await tester.pumpWidget(buildTarget());
+          await buildTarget(tester);
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();
@@ -206,16 +213,7 @@ void main() {
       testWidgets(
         '保存に失敗するとスナックバーが表示され、編集前の名前が表示される',
         (tester) async {
-          await tester.pumpWidget(
-            GoldenWrapper2(
-              child: SettingsPage(
-                userId: userId,
-                viewModel: SettingsViewModel(
-                  publicProfileRepository: mockRepository,
-                ),
-              ),
-            ),
-          );
+          await buildTarget(tester);
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();

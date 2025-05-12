@@ -18,7 +18,7 @@ void testGoldens(
 
         final widget = builder();
         await tester.pumpWidget(
-          GoldenWrapper(
+          _GoldenWrapper(
             child: widget,
             width: width,
           ),
@@ -38,8 +38,8 @@ void testGoldens(
   });
 }
 
-class GoldenWrapper extends StatelessWidget {
-  const GoldenWrapper({
+class _GoldenWrapper extends StatelessWidget {
+  const _GoldenWrapper({
     required this.child,
     this.width = _GoldenTestWidth.small,
   });
@@ -49,11 +49,8 @@ class GoldenWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'NotoSansJP',
-      ),
-      home: Scaffold(
+    return GoldenPageWrapper(
+      child: Scaffold(
         body: RepaintBoundary(
           child: SizedBox(
             width: width.value,
@@ -68,14 +65,10 @@ class GoldenWrapper extends StatelessWidget {
   }
 }
 
-class GoldenWrapper2 extends StatelessWidget {
-  const GoldenWrapper2({
-    required this.child,
-    this.width = _GoldenTestWidth.small,
-  });
+class GoldenPageWrapper extends StatelessWidget {
+  const GoldenPageWrapper({required this.child});
 
   final Widget child;
-  final _GoldenTestWidth width;
 
   @override
   Widget build(BuildContext context) {
