@@ -14,10 +14,14 @@ class SettingsViewModel with ChangeNotifier {
   })  : _publicProfileRepository = publicProfileRepository,
         _userNameFieldState = const _UserNameFieldState('') {
     initialize = AsyncCommand(this._init);
+    saveUserName = AsyncCommand0(this._updateUserName);
   }
 
   /// 初期化コマンド
   late final AsyncCommand<UserIdVo> initialize;
+
+  /// ユーザー名保存コマンド
+  late final AsyncCommand0 saveUserName;
 
   /// ユーザー名の状態を管理する
   _UserNameFieldState _userNameFieldState;
@@ -75,6 +79,10 @@ class SettingsViewModel with ChangeNotifier {
   }
 
   Future<void> save() async {
+    await _updateUserName();
+  }
+
+  Future<void> _updateUserName() async {
     _userNameFieldState = _userNameFieldState._saving();
     notifyListeners();
 
