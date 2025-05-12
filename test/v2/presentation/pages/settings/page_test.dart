@@ -206,7 +206,16 @@ void main() {
       testWidgets(
         '保存に失敗するとスナックバーが表示され、編集前の名前が表示される',
         (tester) async {
-          await tester.pumpWidget(buildTarget());
+          await tester.pumpWidget(
+            GoldenWrapper2(
+              child: SettingsPage(
+                userId: userId,
+                viewModel: SettingsViewModel(
+                  publicProfileRepository: mockRepository,
+                ),
+              ),
+            ),
+          );
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();

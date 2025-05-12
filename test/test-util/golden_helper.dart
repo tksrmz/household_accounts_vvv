@@ -68,6 +68,26 @@ class GoldenWrapper extends StatelessWidget {
   }
 }
 
+class GoldenWrapper2 extends StatelessWidget {
+  const GoldenWrapper2({
+    required this.child,
+    this.width = _GoldenTestWidth.small,
+  });
+
+  final Widget child;
+  final _GoldenTestWidth width;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        fontFamily: 'NotoSansJP',
+      ),
+      home: child,
+    );
+  }
+}
+
 enum _GoldenTestWidth {
   /// small size display
   small,
