@@ -174,9 +174,8 @@ class _UserNameCardTextFieldState extends State<_UserNameCardTextField> {
       controller: _controller,
       onChanged: widget._viewModel.updateUserName,
       decoration: InputDecoration(
-        errorText: widget._viewModel.hasValidationError
-            ? 'ユーザー名は最大20文字までにしてください'
-            : null,
+        errorText:
+            widget._viewModel.hasValidationError ? '1文字以上20文字以下にしてください' : null,
       ),
     );
   }
