@@ -14,6 +14,7 @@ import 'view_model_test.mocks.dart';
 void main() {
   final mockRepository = MockPublicProfileRepository();
   const userId = UserIdVo('testUserId');
+  const userName = UserNameVo('testUserName');
   late SettingsViewModel target;
 
   setUp(() {
@@ -84,146 +85,143 @@ void main() {
       });
     });
 
-    group('ユーザー名の編集', () {});
-    group('ユーザー名の保存', () {});
-  });
+    group('ユーザー名編集', () {
+      setUp(() {
+        when(mockRepository.fetchUserName(userId))
+            .thenAnswer((_) async => userName);
+      });
 
-  group('ユーザー名編集', () {
-    setUp(() {
-      when(mockRepository.fetchUserName(userId))
-          .thenAnswer((_) async => UserNameVo("testUserName"));
-    });
+      test('初期化後、ユーザー名が表示される', () async {
+        final sut = SettingsViewModel(
+          publicProfileRepository: mockRepository,
+        );
+        await sut.init(userId);
 
-    test('初期化後、ユーザー名が表示される', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
+        expect(sut.userName, userName.value);
+        expect(sut.isEditing, isFalse);
+      });
 
-      expect(sut.userName, "testUserName");
-      expect(sut.isEditing, isFalse);
-    });
+      test('ユーザー名を編集状態に変更できる', () async {
+        final sut = SettingsViewModel(
+          publicProfileRepository: mockRepository,
+        );
+        await sut.init(userId);
 
-    test('ユーザー名を編集状態に変更できる', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
+        sut.startEditing();
 
-      sut.startEditing();
+        expect(sut.isEditing, isTrue);
+        expect(sut.userName, userName.value);
+        expect(sut.hasValidationError, isFalse);
+      });
 
-      expect(sut.isEditing, isTrue);
-      expect(sut.userName, "testUserName");
-      expect(sut.hasValidationError, isFalse);
-    });
+      test('ユーザー名が0文字になると検証エラーになる', () async {
+        final sut = SettingsViewModel(
+          publicProfileRepository: mockRepository,
+        );
+        await sut.init(userId);
+        sut.startEditing();
 
-    test('ユーザー名が0文字になると検証エラーになる', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      sut.startEditing();
+        sut.updateUserName('');
 
-      sut.updateUserName('');
+        expect(sut.hasValidationError, isTrue);
+        expect(sut.isEditing, isFalse);
+      });
 
-      expect(sut.hasValidationError, isTrue);
-      expect(sut.isEditing, isFalse);
-    });
+      test('ユーザー名が20文字を超えると検証エラーになる', () async {
+        final sut = SettingsViewModel(
+          publicProfileRepository: mockRepository,
+        );
+        await sut.init(userId);
+        sut.startEditing();
 
-    test('ユーザー名が20文字を超えると検証エラーになる', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      sut.startEditing();
+        sut.updateUserName("a" * 21);
 
-      sut.updateUserName("a" * 21);
+        expect(sut.hasValidationError, isTrue);
+        expect(sut.isEditing, isFalse);
+      });
 
-      expect(sut.hasValidationError, isTrue);
-      expect(sut.isEditing, isFalse);
-    });
+      test('有効なユーザー名に戻すと検証エラーが解消される', () async {
+        final sut = SettingsViewModel(
+          publicProfileRepository: mockRepository,
+        );
+        await sut.init(userId);
+        sut.startEditing();
+        sut.updateUserName("a" * 21);
 
-    test('有効なユーザー名に戻すと検証エラーが解消される', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      sut.startEditing();
-      sut.updateUserName("a" * 21);
+        sut.updateUserName("validUsername");
 
-      sut.updateUserName("validUsername");
+        expect(sut.hasValidationError, isFalse);
+        expect(sut.isEditing, isTrue);
+      });
 
-      expect(sut.hasValidationError, isFalse);
-      expect(sut.isEditing, isTrue);
-    });
+      test('保存に成功すると編集状態が終了し、新しい名前が表示される', () async {
+        final sut = SettingsViewModel(
+          publicProfileRepository: mockRepository,
+        );
+        await sut.init(userId);
+        sut.startEditing();
 
-    test('保存に成功すると編集状態が終了し、新しい名前が表示される', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      sut.startEditing();
+        const newUserName = "newUserName";
+        sut.updateUserName(newUserName);
 
-      const newUserName = "newUserName";
-      sut.updateUserName(newUserName);
+        // モックの設定
+        when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
+            .thenAnswer((_) async => {});
 
-      // モックの設定
-      when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .thenAnswer((_) async => {});
+        await sut.save();
 
-      await sut.save();
+        verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
+            .called(1);
+        expect(sut.isEditing, isFalse);
+        expect(sut.userName, newUserName);
+      });
 
-      verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .called(1);
-      expect(sut.isEditing, isFalse);
-      expect(sut.userName, newUserName);
-    });
+      test('保存に失敗するとエラー状態になり、編集前の名前が表示される', () async {
+        final sut = SettingsViewModel(
+          publicProfileRepository: mockRepository,
+        );
+        await sut.init(userId);
+        const newUserName = "newUserName";
 
-    test('保存に失敗するとエラー状態になり、編集前の名前が表示される', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      const newUserName = "newUserName";
+        sut.startEditing();
+        sut.updateUserName(newUserName);
 
-      sut.startEditing();
-      sut.updateUserName(newUserName);
+        // モックの設定
+        when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
+            .thenThrow(Exception('保存に失敗しました'));
 
-      // モックの設定
-      when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .thenThrow(Exception('保存に失敗しました'));
+        await sut.save();
 
-      await sut.save();
+        verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
+            .called(1);
+        expect(sut.isEditing, isFalse);
+        expect(sut.userName, userName.value);
+        expect(sut.hasSaveError, isTrue);
+      });
 
-      verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .called(1);
-      expect(sut.isEditing, isFalse);
-      expect(sut.userName, "testUserName");
-      expect(sut.hasSaveError, isTrue);
-    });
+      test('保存に失敗後にエラーをクリアすると、編集前の名前が表示される', () async {
+        final sut = SettingsViewModel(
+          publicProfileRepository: mockRepository,
+        );
+        await sut.init(userId);
+        const newUserName = "newUserName";
 
-    test('保存に失敗後にエラーをクリアすると、編集前の名前が表示される', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      const newUserName = "newUserName";
+        sut.startEditing();
+        sut.updateUserName(newUserName);
 
-      sut.startEditing();
-      sut.updateUserName(newUserName);
+        // モックの設定
+        when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
+            .thenThrow(Exception('保存に失敗しました'));
 
-      // モックの設定
-      when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .thenThrow(Exception('保存に失敗しました'));
+        await sut.save();
+        sut.clearSaveError();
 
-      await sut.save();
-      sut.clearSaveError();
-
-      verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .called(1);
-      expect(sut.isEditing, isFalse);
-      expect(sut.userName, "testUserName");
-      expect(sut.hasSaveError, isFalse);
+        verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
+            .called(1);
+        expect(sut.isEditing, isFalse);
+        expect(sut.userName, "testUserName");
+        expect(sut.hasSaveError, isFalse);
+      });
     });
   });
 }

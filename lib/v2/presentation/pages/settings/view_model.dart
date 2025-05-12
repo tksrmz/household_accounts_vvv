@@ -27,6 +27,8 @@ class SettingsViewModel with ChangeNotifier {
 
   /// ユーザー名の状態を管理する
   _UserNameFieldState _userNameFieldState;
+  bool get nameIsDisplayed => true;
+  bool get nameIsEditing => true;
 
   bool get isEditing => _userNameFieldState._isEditing;
   String? _userName;
@@ -73,6 +75,7 @@ class SettingsViewModel with ChangeNotifier {
   }
 
   void updateUserName(String newName) {
+    _userName = newName;
     _userNameFieldState = _userNameFieldState._editing(newName);
     notifyListeners();
   }
@@ -89,6 +92,7 @@ class SettingsViewModel with ChangeNotifier {
       print('after save: $_userNameFieldState');
     } on Exception catch (ex) {
       print(ex);
+      _userName = _userNameBeforeEditing;
       _userNameFieldState = _userNameFieldState._savingError(
         _userNameBeforeEditing,
       );
