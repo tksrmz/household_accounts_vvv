@@ -86,5 +86,148 @@ void main() {
         tags: ['golden'],
       );
     });
+
+    group('ユーザー名編集', () {
+      const userName = UserNameVo('testUserName');
+      final getFileName = (WidgetTester tester) =>
+          'goldens/name-editing/${tester.testDescription}.png';
+
+      setUp(() {
+        when(mockRepository.fetchUserName(userId))
+            .thenAnswer((_) async => userName);
+      });
+
+      // 初期化後の状態は画面全体のテストで確認できるためスキップする
+      // testWidgets('初期化後はユーザー名が編集状態ではない', (tester) async {
+      // }, tags: ['golden']);
+
+      testWidgets(
+        'ユーザー名を選択すると編集状態になること',
+        (tester) async {
+          await tester.pumpWidget(buildTarget());
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        'ユーザー名を0文字にするとエラーメッセージが表示されること',
+        (tester) async {
+          await tester.pumpWidget(buildTarget());
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), '');
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        'ユーザー名を21文字にするとエラーメッセージが表示されること',
+        (tester) async {
+          await tester.pumpWidget(buildTarget());
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), 'a' * 21);
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        '有効なユーザー名に戻すと検証エラーが解消される',
+        (tester) async {
+          await tester.pumpWidget(buildTarget());
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), '');
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), 'Gijutsu Ueda');
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        '保存に成功すると、新しい名前が表示される',
+        (tester) async {
+          await tester.pumpWidget(buildTarget());
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), 'Gijutsu Ueda');
+          await tester.pumpAndSettle();
+
+          // モックの設定
+          when(mockRepository.updateUserName(any, any))
+              .thenAnswer((_) async => {});
+
+          await tester.tap(find.text('保存'));
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        '保存に失敗するとスナックバーが表示され、編集前の名前が表示される',
+        (tester) async {
+          await tester.pumpWidget(buildTarget());
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), 'Gijutsu Ueda');
+          await tester.pumpAndSettle();
+
+          // モックの設定
+          when(mockRepository.updateUserName(any, any))
+              .thenThrow(Exception('保存に失敗しました'));
+
+          await tester.tap(find.text('保存'));
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+    });
   });
 }
