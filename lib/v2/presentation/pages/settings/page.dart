@@ -23,12 +23,12 @@ class SettingsPage extends StatelessWidget {
       body: ListenableBuilder(
         listenable: _viewModel,
         builder: (context, child) {
-          if (_viewModel.initIsRunning) {
+          if (_viewModel.initialize.isExecuting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
-          if (_viewModel.initHasError) {
+          if (_viewModel.initialize.hasError) {
             return const Center(
               child: ErrorMessage(),
             );
