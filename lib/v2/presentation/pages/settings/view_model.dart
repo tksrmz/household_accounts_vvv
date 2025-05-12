@@ -53,7 +53,7 @@ class SettingsViewModel with ChangeNotifier {
     } on Exception catch (ex) {
       developer.log(
         'Failed to fetch user name',
-        name: 'SettingsViewModel',
+        name: 'SettingsViewModel._init',
         level: Level.WARNING.value,
         error: ex,
         stackTrace: StackTrace.current,
@@ -86,12 +86,16 @@ class SettingsViewModel with ChangeNotifier {
 
     try {
       final newUserName = UserNameVo(_userNameFieldState._userName);
-      print('before save: $_userNameFieldState');
       await _publicProfileRepository.updateUserName(_userId!, newUserName);
       _userNameFieldState = _userNameFieldState._display();
-      print('after save: $_userNameFieldState');
     } on Exception catch (ex) {
-      print(ex);
+      developer.log(
+        'Failed to save a new user name',
+        name: 'SettingsViewModel.save',
+        level: Level.WARNING.value,
+        error: ex,
+        stackTrace: StackTrace.current,
+      );
       _userName = _userNameBeforeEditing;
       _userNameFieldState = _userNameFieldState._savingError(
         _userNameBeforeEditing,
