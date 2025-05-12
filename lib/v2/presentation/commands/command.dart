@@ -44,3 +44,45 @@ class AsyncCommand<T> with ChangeNotifier {
     }
   }
 }
+
+class AsyncCommand0 with ChangeNotifier {
+  AsyncCommand0(this._command);
+
+  final Future<void> Function() _command;
+
+  /// コマンドを実行可能かどうか
+  bool _canExecute = true;
+  bool get canExecute => _canExecute;
+  bool get isExecuting => !canExecute;
+
+  /// 初期化のエラー状態
+  Exception? _error;
+  Exception? get error => _error;
+  bool get hasError => _error != null;
+
+  Future<void> call() async {
+    if (!canExecute) {
+      return;
+    }
+
+    _canExecute = false;
+    notifyListeners();
+
+    try {
+      await _command();
+      _error = null;
+    } on Exception catch (ex) {
+      developer.log(
+        'AsyncCommand0 execution was failed',
+        name: 'AsyncCommand0',
+        level: Level.WARNING.value,
+        error: ex,
+        stackTrace: StackTrace.current,
+      );
+      _error = ex;
+    } finally {
+      _canExecute = true;
+      notifyListeners();
+    }
+  }
+}
