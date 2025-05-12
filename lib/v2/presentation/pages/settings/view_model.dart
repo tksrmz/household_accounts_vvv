@@ -13,12 +13,12 @@ class SettingsViewModel with ChangeNotifier {
     required PublicProfileRepository publicProfileRepository,
   })  : _publicProfileRepository = publicProfileRepository,
         _userNameFieldState = const _UserNameFieldState('') {
-    initialize = AsyncCommand(this._init);
-    save = AsyncCommand0(this._updateUserName);
+    init = AsyncCommand(this._init);
+    save = AsyncCommand0(this._save);
   }
 
   /// 初期化コマンド
-  late final AsyncCommand<UserIdVo> initialize;
+  late final AsyncCommand<UserIdVo> init;
 
   /// ユーザー名保存コマンド
   late final AsyncCommand0 save;
@@ -36,10 +36,6 @@ class SettingsViewModel with ChangeNotifier {
 
   final PublicProfileRepository _publicProfileRepository;
   UserIdVo? _userId;
-
-  Future<void> init(UserIdVo userId) async {
-    await _init(userId);
-  }
 
   Future<void> _init(UserIdVo userId) async {
     try {
@@ -78,7 +74,7 @@ class SettingsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _updateUserName() async {
+  Future<void> _save() async {
     _userNameFieldState = _userNameFieldState._saving();
     notifyListeners();
 

@@ -9,7 +9,7 @@ class SettingsPage extends StatelessWidget {
     required UserIdVo userId,
     required SettingsViewModel viewModel,
   }) : _viewModel = viewModel {
-    _viewModel.initialize(userId);
+    _viewModel.init(userId);
   }
 
   final SettingsViewModel _viewModel;
@@ -23,12 +23,12 @@ class SettingsPage extends StatelessWidget {
       body: ListenableBuilder(
         listenable: _viewModel,
         builder: (context, child) {
-          if (_viewModel.initialize.isExecuting) {
+          if (_viewModel.init.isExecuting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
-          if (_viewModel.initialize.hasError) {
+          if (_viewModel.init.hasError) {
             return const Center(
               child: ErrorMessage(),
             );

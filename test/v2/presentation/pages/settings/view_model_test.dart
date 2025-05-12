@@ -32,7 +32,7 @@ void main() {
     group('画面全体の状態', () {
       test('初期化前は初期化実行中ではないこと', () {
         verifyNoMoreInteractions(mockRepository);
-        expect(target.initialize.isExecuting, isFalse);
+        expect(target.init.isExecuting, isFalse);
       });
 
       group('初期化実行中', () {
@@ -43,16 +43,16 @@ void main() {
         });
 
         test('初期化中はそのことが分かること', () async {
-          target.initialize(userId);
+          target.init(userId);
           await Future.delayed(Duration(milliseconds: 100));
 
           verify(mockRepository.fetchUserName(userId)).called(1);
-          expect(target.initialize.isExecuting, isTrue);
+          expect(target.init.isExecuting, isTrue);
         });
 
         test('初期化実行中にもう一度初期化を要求されても何もしないこと', () async {
-          target.initialize(userId);
-          target.initialize(userId);
+          target.init(userId);
+          target.init(userId);
           await Future.delayed(Duration(milliseconds: 100));
 
           verify(mockRepository.fetchUserName(userId)).called(1);
@@ -64,11 +64,11 @@ void main() {
           (_) async => UserNameVo('上田 技術'),
         );
 
-        await target.initialize(userId);
+        await target.init(userId);
 
         expect(target.userName, '上田 技術');
-        expect(target.initialize.isExecuting, isFalse);
-        expect(target.initialize.hasError, isFalse);
+        expect(target.init.isExecuting, isFalse);
+        expect(target.init.hasError, isFalse);
       });
 
       test('初期化失敗時はデータを取得できず、エラーがあること', () async {
@@ -76,11 +76,11 @@ void main() {
           Exception('fetchUserNameエラー'),
         );
 
-        await target.initialize(userId);
+        await target.init(userId);
 
         expect(target.userName, isNull);
-        expect(target.initialize.isExecuting, isFalse);
-        expect(target.initialize.hasError, isTrue);
+        expect(target.init.isExecuting, isFalse);
+        expect(target.init.hasError, isTrue);
       });
     });
 
