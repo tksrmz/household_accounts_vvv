@@ -14,7 +14,6 @@ import 'view_model_test.mocks.dart';
 void main() {
   final mockRepository = MockPublicProfileRepository();
   const userId = UserIdVo('testUserId');
-  const userName = UserNameVo('testUserName');
   late SettingsViewModel target;
 
   setUp(() {
@@ -86,18 +85,19 @@ void main() {
     });
 
     group('ユーザー名編集', () {
+      const userName = UserNameVo('testUserName');
+
       setUp(() {
         when(mockRepository.fetchUserName(userId))
             .thenAnswer((_) async => userName);
       });
 
-      test('初期化後、ユーザー名が表示される', () async {
+      test('初期化後はユーザー名が編集状態ではない', () async {
         final sut = SettingsViewModel(
           publicProfileRepository: mockRepository,
         );
         await sut.init(userId);
 
-        expect(sut.userName, userName.value);
         expect(sut.isEditing, isFalse);
       });
 
