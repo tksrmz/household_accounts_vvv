@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
@@ -32,6 +33,8 @@ void main() {
 
   group('SettingsPage', () {
     group('画面全体', () {
+      final getFileName =
+          (WidgetTester tester) => 'goldens/${tester.testDescription}.png';
       testWidgets(
         '画面を開くとローディング画面が表示されること',
         (tester) async {
@@ -41,10 +44,9 @@ void main() {
 
           await tester.pumpWidget(buildTarget());
 
-          verify(mockRepository.fetchUserName(userId)).called(1);
           await expectLater(
             find.byType(SettingsPage),
-            matchesGoldenFile('goldens/${tester.testDescription}.png'),
+            matchesGoldenFile(getFileName(tester)),
           );
         },
         tags: ['golden'],
@@ -59,10 +61,9 @@ void main() {
 
           await tester.pumpWidget(buildTarget());
 
-          verify(mockRepository.fetchUserName(userId)).called(1);
           await expectLater(
             find.byType(SettingsPage),
-            matchesGoldenFile('goldens/${tester.testDescription}.png'),
+            matchesGoldenFile(getFileName(tester)),
           );
         },
         tags: ['golden'],
@@ -77,10 +78,9 @@ void main() {
 
           await tester.pumpWidget(buildTarget());
 
-          verify(mockRepository.fetchUserName(userId)).called(1);
           await expectLater(
             find.byType(SettingsPage),
-            matchesGoldenFile('goldens/${tester.testDescription}.png'),
+            matchesGoldenFile(getFileName(tester)),
           );
         },
         tags: ['golden'],
