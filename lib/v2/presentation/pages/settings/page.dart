@@ -21,7 +21,7 @@ class SettingsPage extends StatelessWidget {
         title: const Text('設定'),
       ),
       body: ListenableBuilder(
-        listenable: _viewModel.initialize,
+        listenable: _viewModel,
         builder: (context, child) {
           if (_viewModel.initIsRunning) {
             return const Center(
