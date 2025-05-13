@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
-import '../../../domain/models/vo/user_id.dart';
+import 'package:provider/provider.dart';
+
+import '../../../domain/models/user_auth.dart';
 import '../../widgets/error_message.dart';
 import 'view_model.dart';
 
 class SettingsPage extends StatelessWidget {
   SettingsPage({
     super.key,
-    required UserIdVo userId,
     required SettingsViewModel viewModel,
-  }) : _viewModel = viewModel {
-    _viewModel.init(userId);
-  }
+  }) : _viewModel = viewModel;
 
   final SettingsViewModel _viewModel;
 
   @override
   Widget build(BuildContext context) {
+    // TODO view modelのコンストラクタに処理を移す
+    _viewModel.init(context.read<UserAuth>().uid);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('設定'),
       ),
       body: ListenableBuilder(
-        listenable: _viewModel,
+        listenable: _viewModel.init,
         builder: (context, child) {
           if (_viewModel.init.isExecuting) {
             return const Center(
@@ -34,28 +36,35 @@ class SettingsPage extends StatelessWidget {
             );
           }
 
-          if (_viewModel.hasSaveError) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('ユーザー名の保存に失敗しました'),
-                ),
-              );
-              _viewModel.clearSaveError();
-            });
-          }
-
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListView(
-              children: [
-                _UserNameCard(
-                  viewModel: _viewModel,
-                ),
-              ],
-            ),
-          );
+          return child!;
         },
+        child: ListenableBuilder(
+          // TODO listen to something that holds state of user name editing
+          listenable: _viewModel,
+          builder: (context, _) {
+            if (_viewModel.hasSaveError) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('ユーザー名の保存に失敗しました'),
+                  ),
+                );
+                _viewModel.clearSaveError();
+              });
+            }
+
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ListView(
+                children: [
+                  _UserNameCard(
+                    viewModel: _viewModel,
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

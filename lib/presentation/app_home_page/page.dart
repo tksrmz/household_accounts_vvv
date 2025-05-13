@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:household_accounts/v2/domain/models/user_auth.dart';
 import 'package:provider/provider.dart';
 
 import '../../util/constant/firebase_constant.dart';
@@ -7,12 +8,7 @@ import '../main_page/page.dart';
 import '../util/model/user_info.dart';
 
 class MyAppHome extends StatefulWidget {
-  const MyAppHome({
-    required this.uid,
-    Key? key,
-  }) : super(key: key);
-
-  final String uid;
+  const MyAppHome({Key? key}) : super(key: key);
 
   @override
   State<MyAppHome> createState() => _MyAppHomeState();
@@ -26,7 +22,9 @@ class _MyAppHomeState extends State<MyAppHome> {
   void initState() {
     super.initState();
     _privateProfileStream = FirebaseFirestore.instance
-        .doc('/$FIREBASE_COLLECTION_PRIVATE_PROFILES/${widget.uid}')
+        .doc(
+          '/$FIREBASE_COLLECTION_PRIVATE_PROFILES/${context.read<UserAuth>().uid.value}',
+        )
         .snapshots();
   }
 
@@ -65,7 +63,7 @@ class _MyAppHomeState extends State<MyAppHome> {
     }
 
     final info = UserInfo(
-      uid: widget.uid,
+      uid: context.read<UserAuth>().uid.value,
       pairId: pairId,
     );
     return Provider<UserInfo>.value(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../domain/models/vo/user_id.dart';
+import '../../../domain/models/user_auth.dart';
 import '../state_managements/selected_note_state.dart';
 import 'view_model.dart';
 import '../../widgets/error_message.dart';
@@ -11,19 +11,17 @@ class DashboardPage extends StatelessWidget {
   DashboardPage({
     super.key,
     required DateTime date,
-    required UserIdVo userId,
     required DashboardViewModel viewModel,
-  }) : _viewModel = viewModel {
-    // ViewModelの初期化
-    // ここでViewModelに必要なデータを渡す
-    // 例えば、ユーザーIDや日付など
-    _viewModel.init(date, userId);
-  }
+  })  : _date = date,
+        _viewModel = viewModel;
 
   final DashboardViewModel _viewModel;
+  final DateTime _date;
 
   @override
-  Widget build(BuildContext _) {
+  Widget build(BuildContext context) {
+    _viewModel.init(_date, context.read<UserAuth>().uid);
+
     return ValueListenableBuilder(
       valueListenable: _viewModel,
       builder: (context, state, child) {

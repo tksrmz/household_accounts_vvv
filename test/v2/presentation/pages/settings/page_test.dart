@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:household_accounts/v2/domain/models/user_auth.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
 import 'package:household_accounts/v2/domain/repositories/public_profile_repository.dart';
@@ -9,6 +10,7 @@ import 'package:household_accounts/v2/presentation/pages/settings/page.dart';
 import 'package:household_accounts/v2/presentation/pages/settings/view_model.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../test-util/golden_helper.dart';
 @GenerateNiceMocks([MockSpec<PublicProfileRepository>()])
@@ -21,16 +23,18 @@ void main() {
     // golden file size is 320 * 600
     final newSize = Size(320, 600) * tester.view.devicePixelRatio;
     tester.view.physicalSize = newSize;
-    await tester.pumpWidget(
-      GoldenPageWrapper(
+    final widget = Provider<UserAuth>(
+      create: (_) => UserAuth(uid: UserIdVo('testUserId')),
+      child: GoldenPageWrapper(
         child: SettingsPage(
-          userId: userId,
           viewModel: SettingsViewModel(
             publicProfileRepository: mockRepository,
           ),
         ),
       ),
     );
+    await tester.pumpWidget(widget);
+    return widget;
   };
 
   tearDown(() {
@@ -67,6 +71,7 @@ void main() {
           );
 
           await buildTarget(tester);
+          await tester.pumpAndSettle();
 
           await expectLater(
             find.byType(SettingsPage),
@@ -83,7 +88,8 @@ void main() {
             Exception('fetchUserNameエラー'),
           );
 
-          await buildTarget(tester);
+          final widget = await buildTarget(tester);
+          await tester.pumpAndSettle();
 
           await expectLater(
             find.byType(SettingsPage),
@@ -112,6 +118,7 @@ void main() {
         'ユーザー名を選択すると編集状態になること',
         (tester) async {
           await buildTarget(tester);
+          await tester.pumpAndSettle();
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();
@@ -128,6 +135,7 @@ void main() {
         'ユーザー名を0文字にするとエラーメッセージが表示されること',
         (tester) async {
           await buildTarget(tester);
+          await tester.pumpAndSettle();
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();
@@ -147,6 +155,7 @@ void main() {
         'ユーザー名を21文字にするとエラーメッセージが表示されること',
         (tester) async {
           await buildTarget(tester);
+          await tester.pumpAndSettle();
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();
@@ -166,6 +175,7 @@ void main() {
         '有効なユーザー名に戻すと検証エラーが解消される',
         (tester) async {
           await buildTarget(tester);
+          await tester.pumpAndSettle();
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();
@@ -188,6 +198,7 @@ void main() {
         '保存に成功すると、新しい名前が表示される',
         (tester) async {
           await buildTarget(tester);
+          await tester.pumpAndSettle();
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();
@@ -214,6 +225,7 @@ void main() {
         '保存に失敗するとスナックバーが表示され、編集前の名前が表示される',
         (tester) async {
           await buildTarget(tester);
+          await tester.pumpAndSettle();
 
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();

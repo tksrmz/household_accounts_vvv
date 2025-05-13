@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../v2/domain/models/vo/user_id.dart';
 import '../../v2/presentation/pages/settings/page.dart';
 import '../../v2/presentation/pages/settings/view_model.dart';
 import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
@@ -8,13 +7,11 @@ import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 class MainPageDrawer extends StatelessWidget {
   const MainPageDrawer({
     required this.mode,
-    required this.userId,
     this.setter,
     Key? key,
   }) : super(key: key);
 
   final SelectedNote mode;
-  final UserIdVo userId;
   final void Function(SelectedNote)? setter;
 
   @override
@@ -52,7 +49,6 @@ class MainPageDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => SettingsPage(
-                    userId: userId,
                     viewModel: SettingsViewModel(
                       publicProfileRepository: context.read(),
                     ),
