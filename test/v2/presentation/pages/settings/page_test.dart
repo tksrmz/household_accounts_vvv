@@ -23,18 +23,18 @@ void main() {
     // golden file size is 320 * 600
     final newSize = Size(320, 600) * tester.view.devicePixelRatio;
     tester.view.physicalSize = newSize;
-    final widget = Provider<UserAuth>(
-      create: (_) => UserAuth(uid: UserIdVo('testUserId')),
-      child: GoldenPageWrapper(
-        child: SettingsPage(
-          viewModel: SettingsViewModel(
-            publicProfileRepository: mockRepository,
+    await tester.pumpWidget(
+      Provider<UserAuth>(
+        create: (_) => UserAuth(uid: UserIdVo('testUserId')),
+        child: GoldenPageWrapper(
+          child: SettingsPage(
+            viewModel: SettingsViewModel(
+              publicProfileRepository: mockRepository,
+            ),
           ),
         ),
       ),
     );
-    await tester.pumpWidget(widget);
-    return widget;
   };
 
   tearDown(() {
@@ -88,7 +88,7 @@ void main() {
             Exception('fetchUserNameエラー'),
           );
 
-          final widget = await buildTarget(tester);
+          await buildTarget(tester);
           await tester.pumpAndSettle();
 
           await expectLater(
