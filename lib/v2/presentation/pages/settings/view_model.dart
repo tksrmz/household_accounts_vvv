@@ -25,9 +25,7 @@ class SettingsViewModel with ChangeNotifier {
 
   /// ユーザー名の状態を管理する
   _UserNameFieldState _userNameFieldState;
-  bool get nameIsDisplayed => true;
-  bool get nameIsEditing => true;
-
+  
   bool get isEditing => _userNameFieldState._isEditing;
   String? _userName;
   String? get userName => _userName;
