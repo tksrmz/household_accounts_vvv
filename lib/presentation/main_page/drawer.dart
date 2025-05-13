@@ -51,11 +51,9 @@ class MainPageDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => SettingsPage(
+                  builder: (context) => SettingsPage(
                     userId: userId,
                     viewModel: SettingsViewModel(
-                      // FIXME: context.read() won't work when BuildContext
-                      // from this builder (currently named '_') is used. why?
                       publicProfileRepository: context.read(),
                     ),
                   ),

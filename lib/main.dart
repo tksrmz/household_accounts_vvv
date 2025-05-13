@@ -53,53 +53,53 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Household Accounts',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(
-            create: (_) => SelectedNoteState(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => SelectedNoteState(),
+        ),
+        // FirebaseAuthの状態を監視する
+        StreamProvider<User?>.value(
+          initialData: FirebaseAuth.instance.currentUser,
+          value: FirebaseAuth.instance.authStateChanges(),
+        ),
+        Provider<FirebaseFirestore>.value(
+          value: FirebaseFirestore.instance,
+        ),
+        Provider<PublicProfileRepository>(
+          create: (_) => FirestorePublicProfileRepository(
+            FirebaseFirestore.instance,
           ),
-          // FirebaseAuthの状態を監視する
-          StreamProvider<User?>.value(
-            initialData: FirebaseAuth.instance.currentUser,
-            value: FirebaseAuth.instance.authStateChanges(),
-          ),
-          Provider<FirebaseFirestore>.value(
-            value: FirebaseFirestore.instance,
-          ),
-          Provider<PublicProfileRepository>(
-            create: (_) => FirestorePublicProfileRepository(
-              FirebaseFirestore.instance,
-            ),
-          ),
-          ProxyProvider2<SelectedNoteState, User?, IncomeRepository>(
-            update: (context, selectedNote, user, __) {
-              final firestore = context.read<FirebaseFirestore>();
-              // FIXME: userがnullの時を適切にハンドリングする
-              final userId = UserIdVo(user?.uid ?? '');
+        ),
+        ProxyProvider2<SelectedNoteState, User?, IncomeRepository>(
+          update: (context, selectedNote, user, __) {
+            final firestore = context.read<FirebaseFirestore>();
+            // FIXME: userがnullの時を適切にハンドリングする
+            final userId = UserIdVo(user?.uid ?? '');
 
-              return selectedNote.isPersonal
-                  ? FirestorePersonalIncomeRepository(firestore, userId)
-                  : FirestoreSharedIncomeRepository(firestore, userId);
-            },
-          ),
-          ProxyProvider2<SelectedNoteState, User?, ExpenseRepository>(
-            update: (context, selectedNote, user, __) {
-              final firestore = context.read<FirebaseFirestore>();
-              // FIXME: userがnullの時を適切にハンドリングする
-              final userId = UserIdVo(user?.uid ?? '');
+            return selectedNote.isPersonal
+                ? FirestorePersonalIncomeRepository(firestore, userId)
+                : FirestoreSharedIncomeRepository(firestore, userId);
+          },
+        ),
+        ProxyProvider2<SelectedNoteState, User?, ExpenseRepository>(
+          update: (context, selectedNote, user, __) {
+            final firestore = context.read<FirebaseFirestore>();
+            // FIXME: userがnullの時を適切にハンドリングする
+            final userId = UserIdVo(user?.uid ?? '');
 
-              return selectedNote.isPersonal
-                  ? FirestorePersonalExpenseRepository(firestore, userId)
-                  : FirestoreSharedExpenseRepository(firestore, userId);
-            },
-          ),
-        ],
-        child: AuthGate(),
+            return selectedNote.isPersonal
+                ? FirestorePersonalExpenseRepository(firestore, userId)
+                : FirestoreSharedExpenseRepository(firestore, userId);
+          },
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Household Accounts',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: AuthGate(),
       ),
     );
   }
