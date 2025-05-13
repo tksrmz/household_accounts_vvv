@@ -12,7 +12,7 @@ class SettingsViewModel with ChangeNotifier {
   SettingsViewModel({
     required PublicProfileRepository publicProfileRepository,
   })  : _publicProfileRepository = publicProfileRepository,
-        _userNameFieldState = const _UserNameFieldState('') {
+        userNameFieldState = UserNameFieldState('') {
     init = AsyncCommand(this._init);
     save = AsyncCommand0(this._save);
   }
@@ -24,13 +24,13 @@ class SettingsViewModel with ChangeNotifier {
   late final AsyncCommand0 save;
 
   /// ユーザー名の状態を管理する
-  _UserNameFieldState _userNameFieldState;
-  
-  bool get isEditing => _userNameFieldState._isEditing;
+  UserNameFieldState userNameFieldState;
+
+  bool get isEditing => userNameFieldState._isEditing;
   String? _userName;
   String? get userName => _userName;
-  bool get hasValidationError => _userNameFieldState._isValidationError;
-  bool get hasSaveError => _userNameFieldState._isSavingError;
+  bool get hasValidationError => userNameFieldState._isValidationError;
+  bool get hasSaveError => userNameFieldState._isSavingError;
 
   final PublicProfileRepository _publicProfileRepository;
   UserIdVo? _userId;
@@ -41,7 +41,7 @@ class SettingsViewModel with ChangeNotifier {
       UserNameVo userName =
           await _publicProfileRepository.fetchUserName(userId);
       _userName = userName.value;
-      _userNameFieldState = _UserNameFieldState(userName.value);
+      userNameFieldState = UserNameFieldState(userName.value);
     } on Exception catch (ex) {
       developer.log(
         'Failed to fetch user name',
@@ -51,6 +51,7 @@ class SettingsViewModel with ChangeNotifier {
         stackTrace: StackTrace.current,
       );
       _userName = null;
+      // FIXME rethrowをどうにかしたい
       rethrow;
     } finally {
       notifyListeners();
@@ -61,25 +62,25 @@ class SettingsViewModel with ChangeNotifier {
   late String _userNameBeforeEditing;
 
   void startEditing() {
-    _userNameBeforeEditing = _userNameFieldState._userName;
-    _userNameFieldState = _userNameFieldState._editing();
+    _userNameBeforeEditing = userNameFieldState._userName;
+    userNameFieldState = userNameFieldState._editing();
     notifyListeners();
   }
 
   void updateUserName(String newName) {
     _userName = newName;
-    _userNameFieldState = _userNameFieldState._editing(newName);
+    userNameFieldState = userNameFieldState._editing(newName);
     notifyListeners();
   }
 
   Future<void> _save() async {
-    _userNameFieldState = _userNameFieldState._saving();
+    userNameFieldState = userNameFieldState._saving();
     notifyListeners();
 
     try {
-      final newUserName = UserNameVo(_userNameFieldState._userName);
+      final newUserName = UserNameVo(userNameFieldState._userName);
       await _publicProfileRepository.updateUserName(_userId!, newUserName);
-      _userNameFieldState = _userNameFieldState._display();
+      userNameFieldState = userNameFieldState._display();
     } on Exception catch (ex) {
       developer.log(
         'Failed to save a new user name',
@@ -89,26 +90,28 @@ class SettingsViewModel with ChangeNotifier {
         stackTrace: StackTrace.current,
       );
       _userName = _userNameBeforeEditing;
-      _userNameFieldState = _userNameFieldState._savingError(
+      userNameFieldState = userNameFieldState._savingError(
         _userNameBeforeEditing,
       );
+      // FIXME rethrowをどうにかしたい
+      rethrow;
     } finally {
       notifyListeners();
     }
   }
 
   void clearSaveError() {
-    _userNameFieldState = _userNameFieldState._display();
+    userNameFieldState = userNameFieldState._display();
     notifyListeners();
   }
 }
 
-class _UserNameFieldState {
-  const _UserNameFieldState(this._userName)
+class UserNameFieldState {
+  UserNameFieldState(this._userName)
       : _state = _UserNameFieldStateEnum._display;
 
-  /// [_UserNameFieldState]内からの使用限定
-  const _UserNameFieldState._(this._userName, this._state);
+  /// [UserNameFieldState]内からの使用限定
+  UserNameFieldState._(this._userName, this._state);
 
   final _UserNameFieldStateEnum _state;
   final String _userName;
@@ -120,7 +123,7 @@ class _UserNameFieldState {
   bool get _isSaving => _state == _UserNameFieldStateEnum._saving;
   bool get _isSavingError => _state == _UserNameFieldStateEnum._savingError;
 
-  _UserNameFieldState _editing([String? newValue]) {
+  UserNameFieldState _editing([String? newValue]) {
     assert(
       _isDisplay || _isEditing || _isValidationError,
       '表示中の状態、編集中、バリデーションエラー状態からのみ編集状態に遷移できます。',
@@ -136,7 +139,7 @@ class _UserNameFieldState {
     return _validationError(newValue);
   }
 
-  _UserNameFieldState _validationError(String newValue) {
+  UserNameFieldState _validationError(String newValue) {
     assert(
       _isEditing,
       '編集中の状態からのみバリデーションエラー状態に遷移できます。',
@@ -147,7 +150,7 @@ class _UserNameFieldState {
     );
   }
 
-  _UserNameFieldState _saving() {
+  UserNameFieldState _saving() {
     assert(
       _isEditing,
       '編集中の状態からのみ保存状態に遷移できます。',
@@ -155,7 +158,7 @@ class _UserNameFieldState {
     return _copyWith(state: _UserNameFieldStateEnum._saving);
   }
 
-  _UserNameFieldState _savingError(String newValue) {
+  UserNameFieldState _savingError(String newValue) {
     assert(
       _isSaving,
       '保存中の状態からのみ保存エラー状態に遷移できます。',
@@ -166,7 +169,7 @@ class _UserNameFieldState {
     );
   }
 
-  _UserNameFieldState _display() {
+  UserNameFieldState _display() {
     assert(
       _isSaving || _isSavingError,
       '保存中または保存エラー状態からのみ表示状態に遷移できます。',
@@ -174,11 +177,11 @@ class _UserNameFieldState {
     return _copyWith(state: _UserNameFieldStateEnum._display);
   }
 
-  _UserNameFieldState _copyWith({
+  UserNameFieldState _copyWith({
     String? userName,
     _UserNameFieldStateEnum? state,
   }) {
-    return _UserNameFieldState._(
+    return UserNameFieldState._(
       userName ?? _userName,
       state ?? _state,
     );
