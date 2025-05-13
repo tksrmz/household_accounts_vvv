@@ -12,7 +12,7 @@ class SettingsViewModel with ChangeNotifier {
   SettingsViewModel({
     required PublicProfileRepository publicProfileRepository,
   })  : _publicProfileRepository = publicProfileRepository,
-        userNameFieldState = UserNameFieldState('') {
+        userNameFieldState = UserNameFieldState(UserNameVo.empty.value) {
     init = AsyncCommand(this._init);
     save = AsyncCommand0(this._save);
   }
@@ -27,8 +27,6 @@ class SettingsViewModel with ChangeNotifier {
   UserNameFieldState userNameFieldState;
 
   bool get isEditing => userNameFieldState._isEditing;
-  String? _userName;
-  String? get userName => _userName;
 
   final PublicProfileRepository _publicProfileRepository;
   UserIdVo? _userId;
@@ -38,7 +36,6 @@ class SettingsViewModel with ChangeNotifier {
       _userId = userId;
       UserNameVo userName =
           await _publicProfileRepository.fetchUserName(userId);
-      _userName = userName.value;
       userNameFieldState = UserNameFieldState(userName.value);
     } on Exception catch (ex) {
       developer.log(
@@ -48,7 +45,6 @@ class SettingsViewModel with ChangeNotifier {
         error: ex,
         stackTrace: StackTrace.current,
       );
-      _userName = null;
       // FIXME rethrowをどうにかしたい
       rethrow;
     } finally {
@@ -60,13 +56,12 @@ class SettingsViewModel with ChangeNotifier {
   late String _userNameBeforeEditing;
 
   void startEditing() {
-    _userNameBeforeEditing = userNameFieldState._userName;
+    _userNameBeforeEditing = userNameFieldState.userName;
     userNameFieldState = userNameFieldState._editing();
     notifyListeners();
   }
 
   void updateUserName(String newName) {
-    _userName = newName;
     userNameFieldState = userNameFieldState._editing(newName);
     notifyListeners();
   }
@@ -76,7 +71,7 @@ class SettingsViewModel with ChangeNotifier {
     notifyListeners();
 
     try {
-      final newUserName = UserNameVo(userNameFieldState._userName);
+      final newUserName = UserNameVo(userNameFieldState.userName);
       await _publicProfileRepository.updateUserName(_userId!, newUserName);
       userNameFieldState = userNameFieldState._display();
     } on Exception catch (ex) {
@@ -87,7 +82,6 @@ class SettingsViewModel with ChangeNotifier {
         error: ex,
         stackTrace: StackTrace.current,
       );
-      _userName = _userNameBeforeEditing;
       userNameFieldState = userNameFieldState._savingError(
         _userNameBeforeEditing,
       );
@@ -105,14 +99,13 @@ class SettingsViewModel with ChangeNotifier {
 }
 
 class UserNameFieldState {
-  UserNameFieldState(this._userName)
-      : _state = _UserNameFieldStateEnum._display;
+  UserNameFieldState(this.userName) : _state = _UserNameFieldStateEnum._display;
 
   /// [UserNameFieldState]内からの使用限定
-  UserNameFieldState._(this._userName, this._state);
+  UserNameFieldState._(this.userName, this._state);
 
   final _UserNameFieldStateEnum _state;
-  final String _userName;
+  final String userName;
 
   bool get _isDisplay => _state == _UserNameFieldStateEnum._display;
   bool get _isEditing => _state == _UserNameFieldStateEnum._editing;
@@ -129,8 +122,8 @@ class UserNameFieldState {
 
     if (newValue == null || UserNameVo.isValid(newValue)) {
       return _copyWith(
-        userName: newValue,
-        state: _UserNameFieldStateEnum._editing,
+        newUserName: newValue,
+        newState: _UserNameFieldStateEnum._editing,
       );
     }
 
@@ -143,8 +136,8 @@ class UserNameFieldState {
       '編集中の状態からのみバリデーションエラー状態に遷移できます。',
     );
     return _copyWith(
-      userName: newValue,
-      state: _UserNameFieldStateEnum._validationError,
+      newUserName: newValue,
+      newState: _UserNameFieldStateEnum._validationError,
     );
   }
 
@@ -153,7 +146,7 @@ class UserNameFieldState {
       _isEditing,
       '編集中の状態からのみ保存状態に遷移できます。',
     );
-    return _copyWith(state: _UserNameFieldStateEnum._saving);
+    return _copyWith(newState: _UserNameFieldStateEnum._saving);
   }
 
   UserNameFieldState _savingError(String newValue) {
@@ -162,8 +155,8 @@ class UserNameFieldState {
       '保存中の状態からのみ保存エラー状態に遷移できます。',
     );
     return _copyWith(
-      userName: newValue,
-      state: _UserNameFieldStateEnum._savingError,
+      newUserName: newValue,
+      newState: _UserNameFieldStateEnum._savingError,
     );
   }
 
@@ -172,22 +165,22 @@ class UserNameFieldState {
       _isSaving || isSavingError,
       '保存中または保存エラー状態からのみ表示状態に遷移できます。',
     );
-    return _copyWith(state: _UserNameFieldStateEnum._display);
+    return _copyWith(newState: _UserNameFieldStateEnum._display);
   }
 
   UserNameFieldState _copyWith({
-    String? userName,
-    _UserNameFieldStateEnum? state,
+    String? newUserName,
+    _UserNameFieldStateEnum? newState,
   }) {
     return UserNameFieldState._(
-      userName ?? _userName,
-      state ?? _state,
+      newUserName ?? userName,
+      newState ?? _state,
     );
   }
 
   @override
   String toString() {
-    return 'UserNameFieldState{_userName: $_userName, _state: $_state}';
+    return 'UserNameFieldState{_userName: $userName, _state: $_state}';
   }
 }
 

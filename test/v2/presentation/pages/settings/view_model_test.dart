@@ -66,7 +66,7 @@ void main() {
 
         await target.init(userId);
 
-        expect(target.userName, '上田 技術');
+        expect(target.userNameFieldState.userName, '上田 技術');
         expect(target.init.isExecuting, isFalse);
         expect(target.init.hasError, isFalse);
       });
@@ -78,7 +78,7 @@ void main() {
 
         await target.init(userId);
 
-        expect(target.userName, isNull);
+        expect(target.userNameFieldState.userName, '');
         expect(target.init.isExecuting, isFalse);
         expect(target.init.hasError, isTrue);
       });
@@ -110,7 +110,7 @@ void main() {
         sut.startEditing();
 
         expect(sut.isEditing, isTrue);
-        expect(sut.userName, userName.value);
+        expect(sut.userNameFieldState.userName, userName.value);
         expect(sut.userNameFieldState.isValidationError, isFalse);
       });
 
@@ -173,7 +173,7 @@ void main() {
         verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
             .called(1);
         expect(sut.isEditing, isFalse);
-        expect(sut.userName, newUserName);
+        expect(sut.userNameFieldState.userName, newUserName);
       });
 
       test('保存に失敗するとエラー状態になり、編集前の名前が表示される', () async {
@@ -195,7 +195,7 @@ void main() {
         verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
             .called(1);
         expect(sut.isEditing, isFalse);
-        expect(sut.userName, userName.value);
+        expect(sut.userNameFieldState.userName, userName.value);
         expect(sut.userNameFieldState.isSavingError, isTrue);
       });
 
@@ -219,7 +219,7 @@ void main() {
         verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
             .called(1);
         expect(sut.isEditing, isFalse);
-        expect(sut.userName, "testUserName");
+        expect(sut.userNameFieldState.userName, "testUserName");
         expect(sut.userNameFieldState.isSavingError, isFalse);
       });
     });

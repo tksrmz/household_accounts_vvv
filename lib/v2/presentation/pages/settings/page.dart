@@ -145,7 +145,7 @@ class _UserNameCardInkWell extends StatelessWidget {
 
     return InkWell(
       onTap: _viewModel.startEditing,
-      child: Text(_viewModel.userName ?? ''),
+      child: Text(_viewModel.userNameFieldState.userName),
     );
   }
 }
@@ -167,7 +167,7 @@ class _UserNameCardTextFieldState extends State<_UserNameCardTextField> {
   @override
   void initState() {
     super.initState();
-    _controller.text = widget._viewModel.userName ?? '';
+    _controller.text = widget._viewModel.userNameFieldState.userName;
   }
 
   @override
