@@ -29,7 +29,6 @@ class SettingsViewModel with ChangeNotifier {
   bool get isEditing => userNameFieldState._isEditing;
   String? _userName;
   String? get userName => _userName;
-  bool get hasValidationError => userNameFieldState._isValidationError;
 
   final PublicProfileRepository _publicProfileRepository;
   UserIdVo? _userId;
@@ -117,14 +116,14 @@ class UserNameFieldState {
 
   bool get _isDisplay => _state == _UserNameFieldStateEnum._display;
   bool get _isEditing => _state == _UserNameFieldStateEnum._editing;
-  bool get _isValidationError =>
+  bool get isValidationError =>
       _state == _UserNameFieldStateEnum._validationError;
   bool get _isSaving => _state == _UserNameFieldStateEnum._saving;
   bool get isSavingError => _state == _UserNameFieldStateEnum._savingError;
 
   UserNameFieldState _editing([String? newValue]) {
     assert(
-      _isDisplay || _isEditing || _isValidationError,
+      _isDisplay || _isEditing || isValidationError,
       '表示中の状態、編集中、バリデーションエラー状態からのみ編集状態に遷移できます。',
     );
 

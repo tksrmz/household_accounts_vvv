@@ -111,7 +111,7 @@ void main() {
 
         expect(sut.isEditing, isTrue);
         expect(sut.userName, userName.value);
-        expect(sut.hasValidationError, isFalse);
+        expect(sut.userNameFieldState.isValidationError, isFalse);
       });
 
       test('ユーザー名が0文字になると検証エラーになる', () async {
@@ -123,7 +123,7 @@ void main() {
 
         sut.updateUserName('');
 
-        expect(sut.hasValidationError, isTrue);
+        expect(sut.userNameFieldState.isValidationError, isTrue);
         expect(sut.isEditing, isFalse);
       });
 
@@ -136,7 +136,7 @@ void main() {
 
         sut.updateUserName("a" * 21);
 
-        expect(sut.hasValidationError, isTrue);
+        expect(sut.userNameFieldState.isValidationError, isTrue);
         expect(sut.isEditing, isFalse);
       });
 
@@ -150,7 +150,7 @@ void main() {
 
         sut.updateUserName("validUsername");
 
-        expect(sut.hasValidationError, isFalse);
+        expect(sut.userNameFieldState.isValidationError, isFalse);
         expect(sut.isEditing, isTrue);
       });
 

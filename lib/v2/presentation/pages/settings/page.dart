@@ -78,7 +78,7 @@ class _UserNameCard extends StatelessWidget {
   final SettingsViewModel _viewModel;
 
   bool get _displaysUserNameTextField =>
-      _viewModel.isEditing || _viewModel.hasValidationError;
+      _viewModel.isEditing || _viewModel.userNameFieldState.isValidationError;
 
   @override
   Widget build(BuildContext context) {
@@ -183,8 +183,9 @@ class _UserNameCardTextFieldState extends State<_UserNameCardTextField> {
       controller: _controller,
       onChanged: widget._viewModel.updateUserName,
       decoration: InputDecoration(
-        errorText:
-            widget._viewModel.hasValidationError ? '1文字以上20文字以下にしてください' : null,
+        errorText: widget._viewModel.userNameFieldState.isValidationError
+            ? '1文字以上20文字以下にしてください'
+            : null,
       ),
     );
   }
