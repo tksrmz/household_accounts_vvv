@@ -42,7 +42,7 @@ class SettingsPage extends StatelessWidget {
           // TODO listen to something that holds state of user name editing
           listenable: _viewModel,
           builder: (context, _) {
-            if (_viewModel.hasSaveError) {
+            if (_viewModel.userNameFieldState.isSavingError) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

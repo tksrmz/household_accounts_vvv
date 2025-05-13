@@ -30,7 +30,6 @@ class SettingsViewModel with ChangeNotifier {
   String? _userName;
   String? get userName => _userName;
   bool get hasValidationError => userNameFieldState._isValidationError;
-  bool get hasSaveError => userNameFieldState._isSavingError;
 
   final PublicProfileRepository _publicProfileRepository;
   UserIdVo? _userId;
@@ -121,7 +120,7 @@ class UserNameFieldState {
   bool get _isValidationError =>
       _state == _UserNameFieldStateEnum._validationError;
   bool get _isSaving => _state == _UserNameFieldStateEnum._saving;
-  bool get _isSavingError => _state == _UserNameFieldStateEnum._savingError;
+  bool get isSavingError => _state == _UserNameFieldStateEnum._savingError;
 
   UserNameFieldState _editing([String? newValue]) {
     assert(
@@ -171,7 +170,7 @@ class UserNameFieldState {
 
   UserNameFieldState _display() {
     assert(
-      _isSaving || _isSavingError,
+      _isSaving || isSavingError,
       '保存中または保存エラー状態からのみ表示状態に遷移できます。',
     );
     return _copyWith(state: _UserNameFieldStateEnum._display);
