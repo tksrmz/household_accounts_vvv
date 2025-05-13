@@ -168,7 +168,7 @@ void main() {
         when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
             .thenAnswer((_) async => {});
 
-        await sut.save();
+        await sut.save(userId);
 
         verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
             .called(1);
@@ -190,7 +190,7 @@ void main() {
         when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
             .thenThrow(Exception('保存に失敗しました'));
 
-        await sut.save();
+        await sut.save(userId);
 
         verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
             .called(1);
@@ -213,7 +213,7 @@ void main() {
         when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
             .thenThrow(Exception('保存に失敗しました'));
 
-        await sut.save();
+        await sut.save(userId);
         sut.clearSaveError();
 
         verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))

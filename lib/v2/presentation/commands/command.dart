@@ -9,17 +9,7 @@ class AsyncCommand<T> extends _AsyncCommandBase {
   final Future<void> Function(T) _command;
 
   Future<void> call(T t) async {
-    return execute(() => _command(t));
-  }
-}
-
-class AsyncCommand0 extends _AsyncCommandBase {
-  AsyncCommand0(this._command);
-
-  final Future<void> Function() _command;
-
-  Future<void> call() {
-    return execute(() => _command());
+    return _execute(() => _command(t));
   }
 }
 
@@ -34,7 +24,7 @@ class _AsyncCommandBase with ChangeNotifier {
   Exception? get error => _error;
   bool get hasError => _error != null;
 
-  Future<void> execute(Future<void> Function() command) async {
+  Future<void> _execute(Future<void> Function() command) async {
     if (!canExecute) {
       return;
     }

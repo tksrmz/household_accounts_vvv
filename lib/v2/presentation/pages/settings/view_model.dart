@@ -14,24 +14,22 @@ class SettingsViewModel with ChangeNotifier {
   })  : _publicProfileRepository = publicProfileRepository,
         userNameFieldState = UserNameFieldState(UserNameVo.empty.value) {
     init = AsyncCommand(this._init);
-    save = AsyncCommand0(this._save);
+    save = AsyncCommand(this._save);
   }
 
   /// 初期化コマンド
   late final AsyncCommand<UserIdVo> init;
 
   /// ユーザー名保存コマンド
-  late final AsyncCommand0 save;
+  late final AsyncCommand<UserIdVo> save;
 
   /// ユーザー名の状態を管理する
   UserNameFieldState userNameFieldState;
 
   final PublicProfileRepository _publicProfileRepository;
-  UserIdVo? _userId;
 
   Future<void> _init(UserIdVo userId) async {
     try {
-      _userId = userId;
       UserNameVo userName =
           await _publicProfileRepository.fetchUserName(userId);
       userNameFieldState = UserNameFieldState(userName.value);
@@ -64,13 +62,13 @@ class SettingsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _save() async {
+  Future<void> _save(UserIdVo userId) async {
     userNameFieldState = userNameFieldState._saving();
     notifyListeners();
 
     try {
       final newUserName = UserNameVo(userNameFieldState.userName);
-      await _publicProfileRepository.updateUserName(_userId!, newUserName);
+      await _publicProfileRepository.updateUserName(userId, newUserName);
       userNameFieldState = userNameFieldState._display();
     } on Exception catch (ex) {
       developer.log(

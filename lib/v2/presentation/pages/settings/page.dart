@@ -122,7 +122,7 @@ class _UserNameCardSaveButton extends StatelessWidget {
         ElevatedButton(
           onPressed: _viewModel.userNameFieldState.isEditing
               ? () async {
-                  await _viewModel.save();
+                  await _viewModel.save(context.read<UserAuth>().uid);
                 }
               : null,
           child: const Text('保存'),
