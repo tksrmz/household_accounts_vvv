@@ -95,10 +95,7 @@ class _UserNameCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             if (_displaysUserNameTextField) ...[
-              _UserNameCardTextField(
-                state: _viewModel.userNameFieldState,
-                onTextChanged: _viewModel.updateUserName,
-              ),
+              _UserNameCardTextField(viewModel: _viewModel),
               const SizedBox(height: 16),
               _UserNameCardSaveButton(viewModel: _viewModel),
             ] else
@@ -156,13 +153,10 @@ class _UserNameCardInkWell extends StatelessWidget {
 
 class _UserNameCardTextField extends StatefulWidget {
   const _UserNameCardTextField({
-    required UserNameFieldState state,
-    required void Function(String) onTextChanged,
-  })  : _state = state,
-        _onTextChanged = onTextChanged;
+    required SettingsViewModel viewModel,
+  }) : _viewModel = viewModel;
 
-  final UserNameFieldState _state;
-  final void Function(String) _onTextChanged;
+  final SettingsViewModel _viewModel;
 
   @override
   State<_UserNameCardTextField> createState() => _UserNameCardTextFieldState();
@@ -174,7 +168,7 @@ class _UserNameCardTextFieldState extends State<_UserNameCardTextField> {
   @override
   void initState() {
     super.initState();
-    _controller.text = widget._state.userName;
+    _controller.text = widget._viewModel.userNameFieldState.userName;
   }
 
   @override
@@ -188,10 +182,11 @@ class _UserNameCardTextFieldState extends State<_UserNameCardTextField> {
     return TextField(
       autofocus: true,
       controller: _controller,
-      onChanged: widget._onTextChanged,
+      onChanged: widget._viewModel.updateUserName,
       decoration: InputDecoration(
-        errorText:
-            widget._state.isValidationError ? '1文字以上20文字以下にしてください' : null,
+        errorText: widget._viewModel.userNameFieldState.isValidationError
+            ? '1文字以上20文字以下にしてください'
+            : null,
       ),
     );
   }
