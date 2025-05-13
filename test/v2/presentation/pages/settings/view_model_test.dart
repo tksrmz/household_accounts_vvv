@@ -98,7 +98,7 @@ void main() {
         );
         await sut.init(userId);
 
-        expect(sut.isEditing, isFalse);
+        expect(sut.userNameFieldState.isEditing, isFalse);
       });
 
       test('ユーザー名を編集状態に変更できる', () async {
@@ -109,7 +109,7 @@ void main() {
 
         sut.startEditing();
 
-        expect(sut.isEditing, isTrue);
+        expect(sut.userNameFieldState.isEditing, isTrue);
         expect(sut.userNameFieldState.userName, userName.value);
         expect(sut.userNameFieldState.isValidationError, isFalse);
       });
@@ -124,7 +124,7 @@ void main() {
         sut.updateUserName('');
 
         expect(sut.userNameFieldState.isValidationError, isTrue);
-        expect(sut.isEditing, isFalse);
+        expect(sut.userNameFieldState.isEditing, isFalse);
       });
 
       test('ユーザー名が20文字を超えると検証エラーになる', () async {
@@ -137,7 +137,7 @@ void main() {
         sut.updateUserName("a" * 21);
 
         expect(sut.userNameFieldState.isValidationError, isTrue);
-        expect(sut.isEditing, isFalse);
+        expect(sut.userNameFieldState.isEditing, isFalse);
       });
 
       test('有効なユーザー名に戻すと検証エラーが解消される', () async {
@@ -151,7 +151,7 @@ void main() {
         sut.updateUserName("validUsername");
 
         expect(sut.userNameFieldState.isValidationError, isFalse);
-        expect(sut.isEditing, isTrue);
+        expect(sut.userNameFieldState.isEditing, isTrue);
       });
 
       test('保存に成功すると編集状態が終了し、新しい名前が表示される', () async {
@@ -172,7 +172,7 @@ void main() {
 
         verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
             .called(1);
-        expect(sut.isEditing, isFalse);
+        expect(sut.userNameFieldState.isEditing, isFalse);
         expect(sut.userNameFieldState.userName, newUserName);
       });
 
@@ -194,7 +194,7 @@ void main() {
 
         verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
             .called(1);
-        expect(sut.isEditing, isFalse);
+        expect(sut.userNameFieldState.isEditing, isFalse);
         expect(sut.userNameFieldState.userName, userName.value);
         expect(sut.userNameFieldState.isSavingError, isTrue);
       });
@@ -218,7 +218,7 @@ void main() {
 
         verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
             .called(1);
-        expect(sut.isEditing, isFalse);
+        expect(sut.userNameFieldState.isEditing, isFalse);
         expect(sut.userNameFieldState.userName, "testUserName");
         expect(sut.userNameFieldState.isSavingError, isFalse);
       });

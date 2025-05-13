@@ -26,8 +26,6 @@ class SettingsViewModel with ChangeNotifier {
   /// ユーザー名の状態を管理する
   UserNameFieldState userNameFieldState;
 
-  bool get isEditing => userNameFieldState._isEditing;
-
   final PublicProfileRepository _publicProfileRepository;
   UserIdVo? _userId;
 
@@ -108,7 +106,7 @@ class UserNameFieldState {
   final String userName;
 
   bool get _isDisplay => _state == _UserNameFieldStateEnum._display;
-  bool get _isEditing => _state == _UserNameFieldStateEnum._editing;
+  bool get isEditing => _state == _UserNameFieldStateEnum._editing;
   bool get isValidationError =>
       _state == _UserNameFieldStateEnum._validationError;
   bool get _isSaving => _state == _UserNameFieldStateEnum._saving;
@@ -116,7 +114,7 @@ class UserNameFieldState {
 
   UserNameFieldState _editing([String? newValue]) {
     assert(
-      _isDisplay || _isEditing || isValidationError,
+      _isDisplay || isEditing || isValidationError,
       '表示中の状態、編集中、バリデーションエラー状態からのみ編集状態に遷移できます。',
     );
 
@@ -132,7 +130,7 @@ class UserNameFieldState {
 
   UserNameFieldState _validationError(String newValue) {
     assert(
-      _isEditing,
+      isEditing,
       '編集中の状態からのみバリデーションエラー状態に遷移できます。',
     );
     return _copyWith(
@@ -143,7 +141,7 @@ class UserNameFieldState {
 
   UserNameFieldState _saving() {
     assert(
-      _isEditing,
+      isEditing,
       '編集中の状態からのみ保存状態に遷移できます。',
     );
     return _copyWith(newState: _UserNameFieldStateEnum._saving);

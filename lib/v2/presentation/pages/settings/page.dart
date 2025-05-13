@@ -78,7 +78,8 @@ class _UserNameCard extends StatelessWidget {
   final SettingsViewModel _viewModel;
 
   bool get _displaysUserNameTextField =>
-      _viewModel.isEditing || _viewModel.userNameFieldState.isValidationError;
+      _viewModel.userNameFieldState.isEditing ||
+      _viewModel.userNameFieldState.isValidationError;
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +120,7 @@ class _UserNameCardSaveButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         ElevatedButton(
-          onPressed: _viewModel.isEditing
+          onPressed: _viewModel.userNameFieldState.isEditing
               ? () async {
                   await _viewModel.save();
                 }
