@@ -42,8 +42,7 @@ class SettingsPage extends StatelessWidget {
                       content: Text('ユーザー名の保存に失敗しました'),
                     ),
                   );
-                  // TODO ここを save.resetError()に変える
-                  _viewModel.userNameFieldState.clearSaveError();
+                  _viewModel.save.resetError();
                 });
               }
 

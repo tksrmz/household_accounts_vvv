@@ -35,25 +35,22 @@ class SettingsViewModel {
   Future<void> _init(UserIdVo userId) async {
     _userNameBeforeEdit = await _publicProfileRepository.fetchUserName(userId);
     save = AsyncCommand((newUserName) => this._save(userId, newUserName));
-    userNameFieldState = UserNameFieldState(save);
+    userNameFieldState = UserNameFieldState();
   }
 
   Future<void> _save(UserIdVo userId, UserNameVo newUserName) async {
-    await _publicProfileRepository.updateUserName(userId, newUserName);
     userNameFieldState._display();
+    await _publicProfileRepository.updateUserName(userId, newUserName);
     _userNameBeforeEdit = newUserName;
   }
 }
 
 /// ユーザー名表示/編集の状態
 class UserNameFieldState with ChangeNotifier {
-  UserNameFieldState(this._save) : _stateMachine = _UserNameFieldStateMachine();
+  UserNameFieldState() : _stateMachine = _UserNameFieldStateMachine();
 
   /// 状態管理
   final _UserNameFieldStateMachine _stateMachine;
-
-  /// ユーザー名保存コマンド
-  final AsyncCommand<UserNameVo> _save;
 
   bool get _isDisplay =>
       _stateMachine._current == _UserNameFieldStateEnum._display;
@@ -82,12 +79,6 @@ class UserNameFieldState with ChangeNotifier {
 
     _stateMachine._transitionTo(next);
     notifyListeners();
-  }
-
-  void clearSaveError() {
-    // エラーがない状態でクリアされてもデメリットがないためアサートはしない
-    _display();
-    _save.resetError();
   }
 
   void _display() {

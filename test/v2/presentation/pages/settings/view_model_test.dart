@@ -193,7 +193,7 @@ void main() {
             .thenThrow(Exception('保存に失敗しました'));
 
         await target.save(newUserName);
-        target.userNameFieldState.clearSaveError();
+        target.save.resetError();
 
         verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .called(1);
