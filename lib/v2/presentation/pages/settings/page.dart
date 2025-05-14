@@ -38,29 +38,33 @@ class SettingsPage extends StatelessWidget {
         child: ListenableBuilder(
           // TODO listen to something that holds state of user name editing
           listenable: _viewModel,
-          builder: (context, _) {
-            if (_viewModel.userNameFieldState.isSavingError) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('ユーザー名の保存に失敗しました'),
-                  ),
-                );
-                _viewModel.clearSaveError();
-              });
-            }
+          // 以降中のためListenableBuilderを二重にする
+          builder: (_, __) => ListenableBuilder(
+            listenable: _viewModel.userNameFieldState,
+            builder: (context, _) {
+              if (_viewModel.userNameFieldState.isSavingError) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('ユーザー名の保存に失敗しました'),
+                    ),
+                  );
+                  _viewModel.clearSaveError();
+                });
+              }
 
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView(
-                children: [
-                  _UserNameCard(
-                    viewModel: _viewModel,
-                  ),
-                ],
-              ),
-            );
-          },
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ListView(
+                  children: [
+                    _UserNameCard(
+                      viewModel: _viewModel,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -96,7 +100,7 @@ class _UserNameCard extends StatelessWidget {
               const SizedBox(height: 16),
               _UserNameCardSaveButton(viewModel: _viewModel),
             ] else
-              _UserNameCardInkWell(viewModel: _viewModel),
+              _UserNameCardInkWell(state: _viewModel.userNameFieldState),
           ],
         ),
       ),
@@ -131,10 +135,10 @@ class _UserNameCardSaveButton extends StatelessWidget {
 
 class _UserNameCardInkWell extends StatelessWidget {
   const _UserNameCardInkWell({
-    required SettingsViewModel viewModel,
-  }) : _viewModel = viewModel;
+    required UserNameFieldState state,
+  }) : _state = state;
 
-  final SettingsViewModel _viewModel;
+  final UserNameFieldState _state;
 
   @override
   Widget build(BuildContext context) {
@@ -142,8 +146,8 @@ class _UserNameCardInkWell extends StatelessWidget {
     assert(debugCheckHasMaterial(context));
 
     return InkWell(
-      onTap: _viewModel.startEditing,
-      child: Text(_viewModel.userNameFieldState.userName),
+      onTap: _state.startEditing,
+      child: Text(_state.userName),
     );
   }
 }

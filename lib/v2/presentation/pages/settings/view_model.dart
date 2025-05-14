@@ -52,16 +52,7 @@ class SettingsViewModel with ChangeNotifier {
     }
   }
 
-  /// 保存失敗から表示状態へ戻るときに使うユーザー名
-  late String _userNameBeforeEditing;
-
   // TODO このあたりをステートかコマンドに移す
-  void startEditing() {
-    _userNameBeforeEditing = userNameFieldState.userName;
-    userNameFieldState._editing();
-    notifyListeners();
-  }
-
   void updateUserName(String newName) {
     userNameFieldState._editing(newName);
     notifyListeners();
@@ -83,9 +74,7 @@ class SettingsViewModel with ChangeNotifier {
         error: ex,
         stackTrace: StackTrace.current,
       );
-      userNameFieldState._savingError(
-        _userNameBeforeEditing,
-      );
+      userNameFieldState._savingError('hoge');
       // FIXME rethrowをどうにかしたい
       rethrow;
     } finally {
@@ -99,7 +88,8 @@ class SettingsViewModel with ChangeNotifier {
   }
 }
 
-class UserNameFieldState {
+/// ユーザー名表示/編集の状態
+class UserNameFieldState with ChangeNotifier {
   UserNameFieldState(this._userName)
       : _stateMachine = _UserNameFieldStateMachine();
 
@@ -110,12 +100,24 @@ class UserNameFieldState {
   String _userName;
   String get userName => _userName;
 
+  /// 保存失敗から表示状態へ戻るときに使うユーザー名
+  late String _userNameBeforeEditing;
+
+  bool get isDisplay =>
+      _stateMachine._current == _UserNameFieldStateEnum._display;
   bool get isEditing =>
       _stateMachine._current == _UserNameFieldStateEnum._editing;
   bool get isValidationError =>
       _stateMachine._current == _UserNameFieldStateEnum._validationError;
   bool get isSavingError =>
       _stateMachine._current == _UserNameFieldStateEnum._savingError;
+
+  void startEditing() {
+    assert(isDisplay, '編集を開始できるのは表示状態のときのみ');
+    _userNameBeforeEditing = _userName;
+    _stateMachine._transitionTo(_UserNameFieldStateEnum._editing);
+    notifyListeners();
+  }
 
   void _editing([String? newValue]) {
     if (newValue == null || UserNameVo.isValid(newValue)) {
