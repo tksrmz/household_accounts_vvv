@@ -149,7 +149,8 @@ class _UserNameCardSaveButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         ElevatedButton(
-          onPressed: _viewModel.userNameFieldState.isEditing
+          onPressed: _viewModel.save.canExecute &&
+                  !_viewModel.userNameFieldState.isValidationError
               ? () async {
                   await tmp();
                 }

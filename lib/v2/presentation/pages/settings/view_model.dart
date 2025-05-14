@@ -80,8 +80,6 @@ class UserNameFieldState with ChangeNotifier {
 
   bool get _isDisplay =>
       _stateMachine._current == _UserNameFieldStateEnum._display;
-  bool get isEditing =>
-      _stateMachine._current == _UserNameFieldStateEnum._editing;
   bool get isValidationError =>
       _stateMachine._current == _UserNameFieldStateEnum._validationError;
 
@@ -93,7 +91,11 @@ class UserNameFieldState with ChangeNotifier {
   }
 
   void updateUserName(String newName) {
-    assert(isEditing || isValidationError, '更新できるのは編集中かバリデーションエラーのときのみ');
+    assert(
+      _stateMachine._current == _UserNameFieldStateEnum._editing ||
+          isValidationError,
+      '更新できるのは編集中かバリデーションエラーのときのみ',
+    );
 
     final next;
     if (UserNameVo.isValid(newName)) {

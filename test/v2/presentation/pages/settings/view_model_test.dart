@@ -99,18 +99,11 @@ void main() {
             .thenAnswer((_) async => userName);
       });
 
-      test('初期化後はユーザー名が表示されており、編集状態ではない', () async {
-        final target = await build();
-
-        expect(target.userNameFieldState.isEditing, isFalse);
-      });
-
       test('ユーザー名を編集状態に変更できる', () async {
         final target = await build();
 
         target.userNameFieldState.startEditing();
 
-        expect(target.userNameFieldState.isEditing, isTrue);
         expect(target.userNameFieldState.userName, userName.value);
         expect(target.userNameFieldState.isValidationError, isFalse);
       });
@@ -122,7 +115,6 @@ void main() {
         target.userNameFieldState.updateUserName('');
 
         expect(target.userNameFieldState.isValidationError, isTrue);
-        expect(target.userNameFieldState.isEditing, isFalse);
       });
 
       test('ユーザー名が20文字を超えると検証エラーになる', () async {
@@ -132,7 +124,6 @@ void main() {
         target.userNameFieldState.updateUserName("a" * 21);
 
         expect(target.userNameFieldState.isValidationError, isTrue);
-        expect(target.userNameFieldState.isEditing, isFalse);
       });
 
       test('有効なユーザー名に戻すと検証エラーが解消される', () async {
@@ -143,7 +134,6 @@ void main() {
         target.userNameFieldState.updateUserName("validUsername");
 
         expect(target.userNameFieldState.isValidationError, isFalse);
-        expect(target.userNameFieldState.isEditing, isTrue);
       });
 
       test('保存に成功すると編集状態が終了し、新しい名前が表示される', () async {
@@ -163,7 +153,6 @@ void main() {
         verify(mockPublicProfileRepository.updateUserName(
                 userId, UserNameVo(newUserName)))
             .called(1);
-        expect(target.userNameFieldState.isEditing, isFalse);
         expect(target.userNameFieldState.userName, newUserName);
       });
 
@@ -184,7 +173,7 @@ void main() {
         verify(mockPublicProfileRepository.updateUserName(
                 userId, UserNameVo(newUserName)))
             .called(1);
-        expect(target.userNameFieldState.isEditing, isFalse);
+        expect(target.save.canExecute, isTrue);
         expect(target.userNameFieldState.userName, userName.value);
         expect(target.save.hasError, isTrue);
       });
@@ -207,7 +196,7 @@ void main() {
         verify(mockPublicProfileRepository.updateUserName(
                 userId, UserNameVo(newUserName)))
             .called(1);
-        expect(target.userNameFieldState.isEditing, isFalse);
+        expect(target.save.canExecute, isTrue);
         expect(target.userNameFieldState.userName, userName.value);
         expect(target.save.hasError, isFalse);
       });
