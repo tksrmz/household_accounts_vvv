@@ -39,8 +39,6 @@ class SettingsViewModel {
   }
 
   Future<void> _save(UserIdVo userId, UserNameVo newUserName) async {
-    userNameFieldState._saving();
-
     await _publicProfileRepository.updateUserName(userId, newUserName);
     userNameFieldState._display();
     _userNameBeforeEdit = newUserName;
@@ -92,11 +90,6 @@ class UserNameFieldState with ChangeNotifier {
     _save.resetError();
   }
 
-  void _saving() {
-    _stateMachine._transitionTo(_UserNameFieldStateEnum._saving);
-    // セーブ状態は画面から参照されないため内部の値を更新するだけでViewへ通知しない
-  }
-
   void _display() {
     _stateMachine._transitionTo(_UserNameFieldStateEnum._display);
     notifyListeners();
@@ -118,7 +111,7 @@ class _UserNameFieldStateMachine {
   static const Map<_UserNameFieldStateEnum, List<_UserNameFieldStateEnum>>
       _ruleMap = {
     _UserNameFieldStateEnum._display: [
-      _UserNameFieldStateEnum._saving,
+      _UserNameFieldStateEnum._editing,
     ],
     _UserNameFieldStateEnum._editing: [
       _UserNameFieldStateEnum._display,
@@ -126,9 +119,6 @@ class _UserNameFieldStateMachine {
       _UserNameFieldStateEnum._validationError,
     ],
     _UserNameFieldStateEnum._validationError: [
-      _UserNameFieldStateEnum._editing,
-    ],
-    _UserNameFieldStateEnum._saving: [
       _UserNameFieldStateEnum._editing,
     ],
   };
@@ -144,5 +134,4 @@ enum _UserNameFieldStateEnum {
   _display,
   _editing,
   _validationError,
-  _saving,
 }
