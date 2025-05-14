@@ -10,7 +10,7 @@ import '../../../domain/repositories/public_profile_repository.dart';
 import '../../commands/command.dart';
 
 /// 設定画面を表示するためのViewModel
-class SettingsViewModel with ChangeNotifier {
+class SettingsViewModel {
   SettingsViewModel({
     required PublicProfileRepository publicProfileRepository,
     required AuthRepository authRepository,
@@ -47,15 +47,12 @@ class SettingsViewModel with ChangeNotifier {
       );
       // FIXME rethrowをどうにかしたい
       rethrow;
-    } finally {
-      notifyListeners();
     }
   }
 
   // TODO このあたりをステートかコマンドに移す
   Future<void> _save(UserIdVo userId) async {
     userNameFieldState._saving();
-    notifyListeners();
 
     try {
       final newUserName = UserNameVo(userNameFieldState.userName);
@@ -72,8 +69,6 @@ class SettingsViewModel with ChangeNotifier {
       userNameFieldState._savingError();
       // FIXME rethrowをどうにかしたい
       rethrow;
-    } finally {
-      notifyListeners();
     }
   }
 }
@@ -126,21 +121,23 @@ class UserNameFieldState with ChangeNotifier {
 
   void clearSaveError() {
     // エラーがない状態でクリアされてもデメリットがないためアサートはしない
-    _stateMachine._transitionTo(_UserNameFieldStateEnum._display);
-    notifyListeners();
+    _display();
   }
 
   void _saving() {
     _stateMachine._transitionTo(_UserNameFieldStateEnum._saving);
+    // セーブ状態は画面から参照されないため内部の値を更新するだけでViewへ通知しない
   }
 
   void _savingError() {
     _userName = _userNameBeforeEditing;
     _stateMachine._transitionTo(_UserNameFieldStateEnum._savingError);
+    notifyListeners();
   }
 
   void _display() {
     _stateMachine._transitionTo(_UserNameFieldStateEnum._display);
+    notifyListeners();
   }
 }
 

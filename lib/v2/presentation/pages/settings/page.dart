@@ -33,16 +33,11 @@ class SettingsPage extends StatelessWidget {
             );
           }
 
-          return child!;
-        },
-        child: ListenableBuilder(
-          // TODO listen to something that holds state of user name editing
-          listenable: _viewModel,
-          // 以降中のためListenableBuilderを二重にする
-          builder: (_, __) => ListenableBuilder(
+          return ListenableBuilder(
             listenable: _viewModel.userNameFieldState,
             builder: (context, _) {
               if (_viewModel.userNameFieldState.isSavingError) {
+                print('how many?');
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -64,8 +59,8 @@ class SettingsPage extends StatelessWidget {
                 ),
               );
             },
-          ),
-        ),
+          );
+        },
       ),
     );
   }
