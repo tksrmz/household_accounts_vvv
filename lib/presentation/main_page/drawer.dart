@@ -51,6 +51,7 @@ class MainPageDrawer extends StatelessWidget {
                   builder: (context) => SettingsPage(
                     viewModel: SettingsViewModel(
                       publicProfileRepository: context.read(),
+                      authRepository: context.read(),
                     ),
                   ),
                 ),

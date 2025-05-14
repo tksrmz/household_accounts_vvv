@@ -2,8 +2,10 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
+
 import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/models/vo/user_name.dart';
+import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/repositories/public_profile_repository.dart';
 import '../../commands/command.dart';
 
@@ -11,9 +13,11 @@ import '../../commands/command.dart';
 class SettingsViewModel with ChangeNotifier {
   SettingsViewModel({
     required PublicProfileRepository publicProfileRepository,
+    required AuthRepository authRepository,
   })  : _publicProfileRepository = publicProfileRepository,
+        _authRepository = authRepository,
         userNameFieldState = UserNameFieldState(UserNameVo.empty.value) {
-    init = AsyncCommand(this._init);
+    init = AsyncCommand(this._init)..call(_authRepository.getCurrentUser().uid);
     save = AsyncCommand(this._save);
   }
 
@@ -27,6 +31,7 @@ class SettingsViewModel with ChangeNotifier {
   UserNameFieldState userNameFieldState;
 
   final PublicProfileRepository _publicProfileRepository;
+  final AuthRepository _authRepository;
 
   Future<void> _init(UserIdVo userId) async {
     try {
@@ -51,6 +56,7 @@ class SettingsViewModel with ChangeNotifier {
   /// 保存失敗から表示状態へ戻るときに使うユーザー名
   late String _userNameBeforeEditing;
 
+  // TODO このあたりをステートかコマンドに移す
   void startEditing() {
     _userNameBeforeEditing = userNameFieldState.userName;
     userNameFieldState = userNameFieldState._editing();

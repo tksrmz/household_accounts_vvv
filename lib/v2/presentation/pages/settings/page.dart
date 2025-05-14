@@ -15,9 +15,6 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO view modelのコンストラクタに処理を移す
-    _viewModel.init(context.read<UserAuth>().uid);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('設定'),
