@@ -101,20 +101,25 @@ class SettingsViewModel with ChangeNotifier {
 }
 
 class UserNameFieldState {
-  UserNameFieldState(this.userName) : _state = _UserNameFieldStateEnum._display;
+  UserNameFieldState(this.userName)
+      : _stateMachine = _UserNameFieldStateMachine();
 
   /// [UserNameFieldState]内からの使用限定
-  UserNameFieldState._(this.userName, this._state);
+  UserNameFieldState._(this.userName, this._stateMachine);
 
-  final _UserNameFieldStateEnum _state;
+  final _UserNameFieldStateMachine _stateMachine;
   final String userName;
 
-  bool get _isDisplay => _state == _UserNameFieldStateEnum._display;
-  bool get isEditing => _state == _UserNameFieldStateEnum._editing;
+  bool get _isDisplay =>
+      _stateMachine._current == _UserNameFieldStateEnum._display;
+  bool get isEditing =>
+      _stateMachine._current == _UserNameFieldStateEnum._editing;
   bool get isValidationError =>
-      _state == _UserNameFieldStateEnum._validationError;
-  bool get _isSaving => _state == _UserNameFieldStateEnum._saving;
-  bool get isSavingError => _state == _UserNameFieldStateEnum._savingError;
+      _stateMachine._current == _UserNameFieldStateEnum._validationError;
+  bool get _isSaving =>
+      _stateMachine._current == _UserNameFieldStateEnum._saving;
+  bool get isSavingError =>
+      _stateMachine._current == _UserNameFieldStateEnum._savingError;
 
   UserNameFieldState _editing([String? newValue]) {
     assert(
@@ -125,7 +130,8 @@ class UserNameFieldState {
     if (newValue == null || UserNameVo.isValid(newValue)) {
       return _copyWith(
         newUserName: newValue,
-        newState: _UserNameFieldStateEnum._editing,
+        newMachine: _stateMachine
+          .._transitionTo(_UserNameFieldStateEnum._editing),
       );
     }
 
@@ -139,7 +145,8 @@ class UserNameFieldState {
     );
     return _copyWith(
       newUserName: newValue,
-      newState: _UserNameFieldStateEnum._validationError,
+      newMachine: _stateMachine
+        .._transitionTo(_UserNameFieldStateEnum._validationError),
     );
   }
 
@@ -148,7 +155,9 @@ class UserNameFieldState {
       isEditing,
       '編集中の状態からのみ保存状態に遷移できます。',
     );
-    return _copyWith(newState: _UserNameFieldStateEnum._saving);
+    return _copyWith(
+      newMachine: _stateMachine.._transitionTo(_UserNameFieldStateEnum._saving),
+    );
   }
 
   UserNameFieldState _savingError(String newValue) {
@@ -158,7 +167,8 @@ class UserNameFieldState {
     );
     return _copyWith(
       newUserName: newValue,
-      newState: _UserNameFieldStateEnum._savingError,
+      newMachine: _stateMachine
+        .._transitionTo(_UserNameFieldStateEnum._savingError),
     );
   }
 
@@ -167,22 +177,61 @@ class UserNameFieldState {
       _isSaving || isSavingError,
       '保存中または保存エラー状態からのみ表示状態に遷移できます。',
     );
-    return _copyWith(newState: _UserNameFieldStateEnum._display);
+    return _copyWith(
+      newMachine: _stateMachine
+        .._transitionTo(_UserNameFieldStateEnum._display),
+    );
   }
 
   UserNameFieldState _copyWith({
     String? newUserName,
-    _UserNameFieldStateEnum? newState,
+    _UserNameFieldStateMachine? newMachine,
   }) {
     return UserNameFieldState._(
       newUserName ?? userName,
-      newState ?? _state,
+      newMachine ?? _stateMachine,
     );
   }
+}
 
-  @override
-  String toString() {
-    return 'UserNameFieldState{_userName: $userName, _state: $_state}';
+/// [UserNameFieldState]の状態遷移を管理するクラス
+class _UserNameFieldStateMachine {
+  /// [_UserNameFieldStateEnum._display]を初期状態としてインスタンスを生成
+  _UserNameFieldStateMachine() : _current = _UserNameFieldStateEnum._display;
+
+  /// 現在の状態
+  _UserNameFieldStateEnum _current;
+
+  /// 状態遷移のルールを記載したマップ
+  ///
+  /// 鍵：遷移先の状態
+  /// 値：許可される遷移元状態の一覧
+  static const Map<_UserNameFieldStateEnum, List<_UserNameFieldStateEnum>>
+      _ruleMap = {
+    _UserNameFieldStateEnum._display: [
+      _UserNameFieldStateEnum._saving,
+      _UserNameFieldStateEnum._savingError,
+    ],
+    _UserNameFieldStateEnum._editing: [
+      _UserNameFieldStateEnum._display,
+      _UserNameFieldStateEnum._editing,
+      _UserNameFieldStateEnum._validationError,
+    ],
+    _UserNameFieldStateEnum._validationError: [
+      _UserNameFieldStateEnum._editing,
+    ],
+    _UserNameFieldStateEnum._saving: [
+      _UserNameFieldStateEnum._editing,
+    ],
+    _UserNameFieldStateEnum._savingError: [
+      _UserNameFieldStateEnum._saving,
+    ],
+  };
+
+  /// [_current]から[next]へ遷移する
+  void _transitionTo(_UserNameFieldStateEnum next) {
+    assert(_ruleMap[next]!.contains(_current), '${_current}から${next}に遷移できません');
+    _current = next;
   }
 }
 
