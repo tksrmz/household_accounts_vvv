@@ -1,7 +1,4 @@
-import 'dart:developer' as developer;
-
 import 'package:flutter/foundation.dart';
-import 'package:logging/logging.dart';
 
 import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/models/vo/user_name.dart';
@@ -41,25 +38,12 @@ class SettingsViewModel {
     userNameFieldState = UserNameFieldState(save);
   }
 
-  // TODO このあたりをステートかコマンドに移す
   Future<void> _save(UserIdVo userId, UserNameVo newUserName) async {
     userNameFieldState._saving();
 
-    try {
-      await _publicProfileRepository.updateUserName(userId, newUserName);
-      userNameFieldState._display();
-      _userNameBeforeEdit = newUserName;
-    } on Exception catch (ex) {
-      developer.log(
-        'Failed to save a new user name',
-        name: 'SettingsViewModel.save',
-        level: Level.WARNING.value,
-        error: ex,
-        stackTrace: StackTrace.current,
-      );
-      // FIXME rethrowをどうにかしたい
-      rethrow;
-    }
+    await _publicProfileRepository.updateUserName(userId, newUserName);
+    userNameFieldState._display();
+    _userNameBeforeEdit = newUserName;
   }
 }
 
