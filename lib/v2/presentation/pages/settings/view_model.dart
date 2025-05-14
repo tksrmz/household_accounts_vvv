@@ -38,7 +38,7 @@ class SettingsViewModel {
   Future<void> _init(UserIdVo userId) async {
     _userNameBeforeEdit = await _publicProfileRepository.fetchUserName(userId);
     save = AsyncCommand((newUserName) => this._save(userId, newUserName));
-    userNameFieldState = UserNameFieldState(_userNameBeforeEdit.value, save);
+    userNameFieldState = UserNameFieldState(save);
   }
 
   // TODO このあたりをステートかコマンドに移す
@@ -66,20 +66,13 @@ class SettingsViewModel {
 
 /// ユーザー名表示/編集の状態
 class UserNameFieldState with ChangeNotifier {
-  UserNameFieldState(this._userName, this._save)
-      : _stateMachine = _UserNameFieldStateMachine();
+  UserNameFieldState(this._save) : _stateMachine = _UserNameFieldStateMachine();
 
   /// 状態管理
   final _UserNameFieldStateMachine _stateMachine;
 
   /// ユーザー名保存コマンド
   final AsyncCommand<UserNameVo> _save;
-
-  /// ユーザー名
-  String _userName;
-
-  /// 保存失敗から表示状態へ戻るときに使うユーザー名
-  late String _userNameBeforeEditing;
 
   bool get _isDisplay =>
       _stateMachine._current == _UserNameFieldStateEnum._display;
@@ -88,7 +81,6 @@ class UserNameFieldState with ChangeNotifier {
 
   void startEditing() {
     assert(_isDisplay, '編集を開始できるのは表示状態のときのみ');
-    _userNameBeforeEditing = _userName;
     _stateMachine._transitionTo(_UserNameFieldStateEnum._editing);
     notifyListeners();
   }
@@ -107,7 +99,6 @@ class UserNameFieldState with ChangeNotifier {
       next = _UserNameFieldStateEnum._validationError;
     }
 
-    _userName = newName;
     _stateMachine._transitionTo(next);
     notifyListeners();
   }
@@ -124,7 +115,6 @@ class UserNameFieldState with ChangeNotifier {
   }
 
   void _savingError() {
-    _userName = _userNameBeforeEditing;
     notifyListeners();
   }
 
