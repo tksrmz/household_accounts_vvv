@@ -53,11 +53,6 @@ class SettingsViewModel with ChangeNotifier {
   }
 
   // TODO このあたりをステートかコマンドに移す
-  void updateUserName(String newName) {
-    userNameFieldState._editing(newName);
-    notifyListeners();
-  }
-
   Future<void> _save(UserIdVo userId) async {
     userNameFieldState._saving();
     notifyListeners();
@@ -74,17 +69,12 @@ class SettingsViewModel with ChangeNotifier {
         error: ex,
         stackTrace: StackTrace.current,
       );
-      userNameFieldState._savingError('hoge');
+      userNameFieldState._savingError();
       // FIXME rethrowをどうにかしたい
       rethrow;
     } finally {
       notifyListeners();
     }
-  }
-
-  void clearSaveError() {
-    userNameFieldState._display();
-    notifyListeners();
   }
 }
 
@@ -119,27 +109,33 @@ class UserNameFieldState with ChangeNotifier {
     notifyListeners();
   }
 
-  void _editing([String? newValue]) {
-    if (newValue == null || UserNameVo.isValid(newValue)) {
-      _userName = newValue ?? _userName;
-      _stateMachine._transitionTo(_UserNameFieldStateEnum._editing);
-      return;
+  void updateUserName(String newName) {
+    assert(isEditing || isValidationError, '更新できるのは編集中かバリデーションエラーのときのみ');
+
+    final next;
+    if (UserNameVo.isValid(newName)) {
+      next = _UserNameFieldStateEnum._editing;
+    } else {
+      next = _UserNameFieldStateEnum._validationError;
     }
 
-    _validationError(newValue);
+    _userName = newName;
+    _stateMachine._transitionTo(next);
+    notifyListeners();
   }
 
-  void _validationError(String newValue) {
-    _userName = newValue;
-    _stateMachine._transitionTo(_UserNameFieldStateEnum._validationError);
+  void clearSaveError() {
+    // エラーがない状態でクリアされてもデメリットがないためアサートはしない
+    _stateMachine._transitionTo(_UserNameFieldStateEnum._display);
+    notifyListeners();
   }
 
   void _saving() {
     _stateMachine._transitionTo(_UserNameFieldStateEnum._saving);
   }
 
-  void _savingError(String newValue) {
-    _userName = newValue;
+  void _savingError() {
+    _userName = _userNameBeforeEditing;
     _stateMachine._transitionTo(_UserNameFieldStateEnum._savingError);
   }
 

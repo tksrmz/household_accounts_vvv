@@ -49,7 +49,7 @@ class SettingsPage extends StatelessWidget {
                       content: Text('ユーザー名の保存に失敗しました'),
                     ),
                   );
-                  _viewModel.clearSaveError();
+                  _viewModel.userNameFieldState.clearSaveError();
                 });
               }
 
@@ -96,7 +96,7 @@ class _UserNameCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             if (_displaysUserNameTextField) ...[
-              _UserNameCardTextField(viewModel: _viewModel),
+              _UserNameCardTextField(state: _viewModel.userNameFieldState),
               const SizedBox(height: 16),
               _UserNameCardSaveButton(viewModel: _viewModel),
             ] else
@@ -154,10 +154,10 @@ class _UserNameCardInkWell extends StatelessWidget {
 
 class _UserNameCardTextField extends StatefulWidget {
   const _UserNameCardTextField({
-    required SettingsViewModel viewModel,
-  }) : _viewModel = viewModel;
+    required UserNameFieldState state,
+  }) : _state = state;
 
-  final SettingsViewModel _viewModel;
+  final UserNameFieldState _state;
 
   @override
   State<_UserNameCardTextField> createState() => _UserNameCardTextFieldState();
@@ -169,7 +169,7 @@ class _UserNameCardTextFieldState extends State<_UserNameCardTextField> {
   @override
   void initState() {
     super.initState();
-    _controller.text = widget._viewModel.userNameFieldState.userName;
+    _controller.text = widget._state.userName;
   }
 
   @override
@@ -183,11 +183,10 @@ class _UserNameCardTextFieldState extends State<_UserNameCardTextField> {
     return TextField(
       autofocus: true,
       controller: _controller,
-      onChanged: widget._viewModel.updateUserName,
+      onChanged: widget._state.updateUserName,
       decoration: InputDecoration(
-        errorText: widget._viewModel.userNameFieldState.isValidationError
-            ? '1文字以上20文字以下にしてください'
-            : null,
+        errorText:
+            widget._state.isValidationError ? '1文字以上20文字以下にしてください' : null,
       ),
     );
   }
