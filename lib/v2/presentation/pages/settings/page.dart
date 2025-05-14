@@ -68,16 +68,31 @@ class SettingsPage extends StatelessWidget {
   }
 }
 
-class _UserNameCard extends StatelessWidget {
+class _UserNameCard extends StatefulWidget {
   const _UserNameCard({
     required SettingsViewModel viewModel,
   }) : _viewModel = viewModel;
 
   final SettingsViewModel _viewModel;
 
-  bool get _displaysUserNameTextField =>
-      _viewModel.userNameFieldState.isEditing ||
-      _viewModel.userNameFieldState.isValidationError;
+  @override
+  State<_UserNameCard> createState() => _UserNameCardState();
+}
+
+class _UserNameCardState extends State<_UserNameCard> {
+  bool isShowingTextField = false;
+
+  void showTextField() {
+    setState(() {
+      isShowingTextField = true;
+    });
+  }
+
+  void hideTextField() {
+    setState(() {
+      isShowingTextField = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,12 +107,19 @@ class _UserNameCard extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
-            if (_displaysUserNameTextField) ...[
-              _UserNameCardTextField(state: _viewModel.userNameFieldState),
+            if (isShowingTextField) ...[
+              _UserNameCardTextField(
+                  state: widget._viewModel.userNameFieldState),
               const SizedBox(height: 16),
-              _UserNameCardSaveButton(viewModel: _viewModel),
+              _UserNameCardSaveButton(
+                viewModel: widget._viewModel,
+                onSave: hideTextField,
+              ),
             ] else
-              _UserNameCardInkWell(state: _viewModel.userNameFieldState),
+              _UserNameCardInkWell(
+                state: widget._viewModel.userNameFieldState,
+                onTap: showTextField,
+              ),
           ],
         ),
       ),
@@ -108,19 +130,28 @@ class _UserNameCard extends StatelessWidget {
 class _UserNameCardSaveButton extends StatelessWidget {
   const _UserNameCardSaveButton({
     required SettingsViewModel viewModel,
-  }) : _viewModel = viewModel;
+    required void Function() onSave,
+  })  : _viewModel = viewModel,
+        _onSave = onSave;
 
   final SettingsViewModel _viewModel;
+  final void Function() _onSave;
 
   @override
   Widget build(BuildContext context) {
+    // FIXME 後で消す
+    final tmp = () async {
+      _onSave();
+      await _viewModel.save();
+    };
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         ElevatedButton(
           onPressed: _viewModel.userNameFieldState.isEditing
               ? () async {
-                  await _viewModel.save();
+                  await tmp();
                 }
               : null,
           child: const Text('保存'),
@@ -133,17 +164,26 @@ class _UserNameCardSaveButton extends StatelessWidget {
 class _UserNameCardInkWell extends StatelessWidget {
   const _UserNameCardInkWell({
     required UserNameFieldState state,
-  }) : _state = state;
+    required void Function() onTap,
+  })  : _state = state,
+        _onTap = onTap;
 
   final UserNameFieldState _state;
+  final void Function() _onTap;
 
   @override
   Widget build(BuildContext context) {
     // InkWellを使用するためにMaterialが必要
     assert(debugCheckHasMaterial(context));
 
+    // FIXME 後で消す
+    final tmpOnTap = () {
+      _onTap();
+      _state.startEditing();
+    };
+
     return InkWell(
-      onTap: _state.startEditing,
+      onTap: tmpOnTap,
       child: Text(_state.userName),
     );
   }
