@@ -33,21 +33,8 @@ class SettingsViewModel {
   final AuthRepository _authRepository;
 
   Future<void> _init(UserIdVo userId) async {
-    try {
-      UserNameVo userName =
-          await _publicProfileRepository.fetchUserName(userId);
-      userNameFieldState = UserNameFieldState(userName.value);
-    } on Exception catch (ex) {
-      developer.log(
-        'Failed to fetch user name',
-        name: 'SettingsViewModel._init',
-        level: Level.WARNING.value,
-        error: ex,
-        stackTrace: StackTrace.current,
-      );
-      // FIXME rethrowをどうにかしたい
-      rethrow;
-    }
+    UserNameVo userName = await _publicProfileRepository.fetchUserName(userId);
+    userNameFieldState = UserNameFieldState(userName.value);
   }
 
   // TODO このあたりをステートかコマンドに移す

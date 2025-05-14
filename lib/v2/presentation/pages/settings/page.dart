@@ -37,7 +37,6 @@ class SettingsPage extends StatelessWidget {
             listenable: _viewModel.userNameFieldState,
             builder: (context, _) {
               if (_viewModel.userNameFieldState.isSavingError) {
-                print('how many?');
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
