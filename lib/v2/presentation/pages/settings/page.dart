@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/models/vo/user_name.dart';
 import '../../widgets/error_message.dart';
 import 'view_model.dart';
 
@@ -80,17 +81,31 @@ class _UserNameCard extends StatefulWidget {
 }
 
 class _UserNameCardState extends State<_UserNameCard> {
-  bool isShowingTextField = false;
+  @override
+  initState() {
+    super.initState();
+    _controller.text = widget._viewModel.userName;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  final TextEditingController _controller = TextEditingController();
+
+  bool _isShowingTextField = false;
 
   void showTextField() {
     setState(() {
-      isShowingTextField = true;
+      _isShowingTextField = true;
     });
   }
 
   void hideTextField() {
     setState(() {
-      isShowingTextField = false;
+      _isShowingTextField = false;
     });
   }
 
@@ -107,17 +122,22 @@ class _UserNameCardState extends State<_UserNameCard> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
-            if (isShowingTextField) ...[
+            if (_isShowingTextField) ...[
               _UserNameCardTextField(
-                  state: widget._viewModel.userNameFieldState),
+                viewModel: widget._viewModel,
+                controller: _controller,
+              ),
               const SizedBox(height: 16),
               _UserNameCardSaveButton(
                 viewModel: widget._viewModel,
-                onSave: hideTextField,
+                onSave: () {
+                  hideTextField();
+                  widget._viewModel.save(UserNameVo(_controller.text));
+                },
               ),
             ] else
               _UserNameCardInkWell(
-                state: widget._viewModel.userNameFieldState,
+                viewModel: widget._viewModel,
                 onTap: showTextField,
               ),
           ],
@@ -139,21 +159,13 @@ class _UserNameCardSaveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // FIXME 後で消す
-    final tmp = () async {
-      _onSave();
-      await _viewModel.save();
-    };
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         ElevatedButton(
           onPressed: _viewModel.save.canExecute &&
                   !_viewModel.userNameFieldState.isValidationError
-              ? () async {
-                  await tmp();
-                }
+              ? _onSave
               : null,
           child: const Text('保存'),
         ),
@@ -164,12 +176,12 @@ class _UserNameCardSaveButton extends StatelessWidget {
 
 class _UserNameCardInkWell extends StatelessWidget {
   const _UserNameCardInkWell({
-    required UserNameFieldState state,
+    required SettingsViewModel viewModel,
     required void Function() onTap,
-  })  : _state = state,
+  })  : _viewModel = viewModel,
         _onTap = onTap;
 
-  final UserNameFieldState _state;
+  final SettingsViewModel _viewModel;
   final void Function() _onTap;
 
   @override
@@ -180,51 +192,36 @@ class _UserNameCardInkWell extends StatelessWidget {
     // FIXME 後で消す
     final tmpOnTap = () {
       _onTap();
-      _state.startEditing();
+      _viewModel.userNameFieldState.startEditing();
     };
 
     return InkWell(
       onTap: tmpOnTap,
-      child: Text(_state.userName),
+      child: Text(_viewModel.userName),
     );
   }
 }
 
-class _UserNameCardTextField extends StatefulWidget {
+class _UserNameCardTextField extends StatelessWidget {
   const _UserNameCardTextField({
-    required UserNameFieldState state,
-  }) : _state = state;
+    required SettingsViewModel viewModel,
+    required TextEditingController controller,
+  })  : _viewModel = viewModel,
+        _controller = controller;
 
-  final UserNameFieldState _state;
-
-  @override
-  State<_UserNameCardTextField> createState() => _UserNameCardTextFieldState();
-}
-
-class _UserNameCardTextFieldState extends State<_UserNameCardTextField> {
-  final TextEditingController _controller = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _controller.text = widget._state.userName;
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final SettingsViewModel _viewModel;
+  final TextEditingController _controller;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       autofocus: true,
       controller: _controller,
-      onChanged: widget._state.updateUserName,
+      onChanged: _viewModel.userNameFieldState.updateUserName,
       decoration: InputDecoration(
-        errorText:
-            widget._state.isValidationError ? '1文字以上20文字以下にしてください' : null,
+        errorText: _viewModel.userNameFieldState.isValidationError
+            ? '1文字以上20文字以下にしてください'
+            : null,
       ),
     );
   }

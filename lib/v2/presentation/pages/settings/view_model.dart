@@ -23,28 +23,32 @@ class SettingsViewModel {
   late final AsyncCommand<UserIdVo> init;
 
   /// ユーザー名保存コマンド
-  late final AsyncCommand0 save;
+  late final AsyncCommand<UserNameVo> save;
 
   /// ユーザー名の状態を管理する
   late final UserNameFieldState userNameFieldState;
+
+  /// 編集前のユーザー名
+  late UserNameVo _userNameBeforeEdit;
+  String get userName => _userNameBeforeEdit.value;
 
   final PublicProfileRepository _publicProfileRepository;
   final AuthRepository _authRepository;
 
   Future<void> _init(UserIdVo userId) async {
-    UserNameVo userName = await _publicProfileRepository.fetchUserName(userId);
-    save = AsyncCommand0(() => this._save(userId));
-    userNameFieldState = UserNameFieldState(userName.value, save);
+    _userNameBeforeEdit = await _publicProfileRepository.fetchUserName(userId);
+    save = AsyncCommand((newUserName) => this._save(userId, newUserName));
+    userNameFieldState = UserNameFieldState(_userNameBeforeEdit.value, save);
   }
 
   // TODO このあたりをステートかコマンドに移す
-  Future<void> _save(UserIdVo userId) async {
+  Future<void> _save(UserIdVo userId, UserNameVo newUserName) async {
     userNameFieldState._saving();
 
     try {
-      final newUserName = UserNameVo(userNameFieldState.userName);
       await _publicProfileRepository.updateUserName(userId, newUserName);
       userNameFieldState._display();
+      _userNameBeforeEdit = newUserName;
     } on Exception catch (ex) {
       developer.log(
         'Failed to save a new user name',
@@ -69,11 +73,10 @@ class UserNameFieldState with ChangeNotifier {
   final _UserNameFieldStateMachine _stateMachine;
 
   /// ユーザー名保存コマンド
-  final AsyncCommand0 _save;
+  final AsyncCommand<UserNameVo> _save;
 
   /// ユーザー名
   String _userName;
-  String get userName => _userName;
 
   /// 保存失敗から表示状態へ戻るときに使うユーザー名
   late String _userNameBeforeEditing;

@@ -104,7 +104,7 @@ void main() {
 
         target.userNameFieldState.startEditing();
 
-        expect(target.userNameFieldState.userName, userName.value);
+        expect(target.userName, userName.value);
         expect(target.userNameFieldState.isValidationError, isFalse);
       });
 
@@ -135,69 +135,70 @@ void main() {
 
         expect(target.userNameFieldState.isValidationError, isFalse);
       });
+    });
+
+    group('ユーザー名保存', () {
+      const currentUserName = UserNameVo('上田 技術');
+      const newUserName = UserNameVo("newUserName");
+
+      setUp(() {
+        when(mockPublicProfileRepository.fetchUserName(userId))
+            .thenAnswer((_) async => currentUserName);
+      });
 
       test('保存に成功すると編集状態が終了し、新しい名前が表示される', () async {
         final target = await build();
         target.userNameFieldState.startEditing();
 
-        const newUserName = "newUserName";
-        target.userNameFieldState.updateUserName(newUserName);
+        target.userNameFieldState.updateUserName(newUserName.value);
 
         // モックの設定
-        when(mockPublicProfileRepository.updateUserName(
-                userId, UserNameVo(newUserName)))
+        when(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .thenAnswer((_) async => {});
 
-        await target.save();
+        await target.save(newUserName);
 
-        verify(mockPublicProfileRepository.updateUserName(
-                userId, UserNameVo(newUserName)))
+        verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .called(1);
-        expect(target.userNameFieldState.userName, newUserName);
+        expect(target.userName, newUserName.value);
       });
 
       test('保存に失敗するとエラー状態になり、編集前の名前が表示される', () async {
         final target = await build();
-        const newUserName = "newUserName";
 
         target.userNameFieldState.startEditing();
-        target.userNameFieldState.updateUserName(newUserName);
+        target.userNameFieldState.updateUserName(newUserName.value);
 
         // モックの設定
-        when(mockPublicProfileRepository.updateUserName(
-                userId, UserNameVo(newUserName)))
+        when(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .thenThrow(Exception('保存に失敗しました'));
 
-        await target.save();
+        await target.save(newUserName);
 
-        verify(mockPublicProfileRepository.updateUserName(
-                userId, UserNameVo(newUserName)))
+        verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .called(1);
         expect(target.save.canExecute, isTrue);
-        expect(target.userNameFieldState.userName, userName.value);
+        expect(target.userName, currentUserName.value);
         expect(target.save.hasError, isTrue);
       });
 
       test('保存に失敗後にエラーをクリアすると、編集前の名前が表示される', () async {
         final target = await build();
-        const newUserName = "newUserName";
 
         target.userNameFieldState.startEditing();
-        target.userNameFieldState.updateUserName(newUserName);
+        target.userNameFieldState.updateUserName(newUserName.value);
 
         // モックの設定
-        when(mockPublicProfileRepository.updateUserName(
-                userId, UserNameVo(newUserName)))
+        when(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .thenThrow(Exception('保存に失敗しました'));
 
-        await target.save();
+        await target.save(newUserName);
         target.userNameFieldState.clearSaveError();
 
-        verify(mockPublicProfileRepository.updateUserName(
-                userId, UserNameVo(newUserName)))
+        verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .called(1);
         expect(target.save.canExecute, isTrue);
-        expect(target.userNameFieldState.userName, userName.value);
+        expect(target.userName, currentUserName.value);
         expect(target.save.hasError, isFalse);
       });
     });

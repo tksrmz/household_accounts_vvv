@@ -13,16 +13,6 @@ class AsyncCommand<T> extends _AsyncCommandBase {
   }
 }
 
-class AsyncCommand0 extends _AsyncCommandBase {
-  AsyncCommand0(this._command);
-
-  final Future<void> Function() _command;
-
-  Future<void> call() async {
-    return _execute(() => _command());
-  }
-}
-
 class _AsyncCommandBase with ChangeNotifier {
   /// コマンドを実行可能かどうか
   bool _canExecute = true;
