@@ -158,7 +158,7 @@ void main() {
                 userId, UserNameVo(newUserName)))
             .thenAnswer((_) async => {});
 
-        await target.save(userId);
+        await target.save();
 
         verify(mockPublicProfileRepository.updateUserName(
                 userId, UserNameVo(newUserName)))
@@ -179,7 +179,7 @@ void main() {
                 userId, UserNameVo(newUserName)))
             .thenThrow(Exception('保存に失敗しました'));
 
-        await target.save(userId);
+        await target.save();
 
         verify(mockPublicProfileRepository.updateUserName(
                 userId, UserNameVo(newUserName)))
@@ -201,7 +201,7 @@ void main() {
                 userId, UserNameVo(newUserName)))
             .thenThrow(Exception('保存に失敗しました'));
 
-        await target.save(userId);
+        await target.save();
         target.userNameFieldState.clearSaveError();
 
         verify(mockPublicProfileRepository.updateUserName(

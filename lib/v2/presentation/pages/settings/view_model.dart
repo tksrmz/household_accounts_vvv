@@ -17,14 +17,13 @@ class SettingsViewModel {
   })  : _publicProfileRepository = publicProfileRepository,
         _authRepository = authRepository {
     init = AsyncCommand(this._init)..call(_authRepository.getCurrentUser().uid);
-    save = AsyncCommand(this._save);
   }
 
   /// 初期化コマンド
   late final AsyncCommand<UserIdVo> init;
 
   /// ユーザー名保存コマンド
-  late final AsyncCommand<UserIdVo> save;
+  late final AsyncCommand0 save;
 
   /// ユーザー名の状態を管理する
   late final UserNameFieldState userNameFieldState;
@@ -35,6 +34,7 @@ class SettingsViewModel {
   Future<void> _init(UserIdVo userId) async {
     UserNameVo userName = await _publicProfileRepository.fetchUserName(userId);
     userNameFieldState = UserNameFieldState(userName.value);
+    save = AsyncCommand0(() => this._save(userId));
   }
 
   // TODO このあたりをステートかコマンドに移す
