@@ -57,7 +57,6 @@ class SettingsViewModel {
         error: ex,
         stackTrace: StackTrace.current,
       );
-      userNameFieldState._savingError();
       // FIXME rethrowをどうにかしたい
       rethrow;
     }
@@ -112,10 +111,6 @@ class UserNameFieldState with ChangeNotifier {
   void _saving() {
     _stateMachine._transitionTo(_UserNameFieldStateEnum._saving);
     // セーブ状態は画面から参照されないため内部の値を更新するだけでViewへ通知しない
-  }
-
-  void _savingError() {
-    notifyListeners();
   }
 
   void _display() {
