@@ -88,7 +88,7 @@ class UserNameFieldState with ChangeNotifier {
   /// 保存失敗から表示状態へ戻るときに使うユーザー名
   late String _userNameBeforeEditing;
 
-  bool get isDisplay =>
+  bool get _isDisplay =>
       _stateMachine._current == _UserNameFieldStateEnum._display;
   bool get isEditing =>
       _stateMachine._current == _UserNameFieldStateEnum._editing;
@@ -98,7 +98,7 @@ class UserNameFieldState with ChangeNotifier {
       _stateMachine._current == _UserNameFieldStateEnum._savingError;
 
   void startEditing() {
-    assert(isDisplay, '編集を開始できるのは表示状態のときのみ');
+    assert(_isDisplay, '編集を開始できるのは表示状態のときのみ');
     _userNameBeforeEditing = _userName;
     _stateMachine._transitionTo(_UserNameFieldStateEnum._editing);
     notifyListeners();
