@@ -257,6 +257,51 @@ void main() {
         },
         tags: ['golden'],
       );
+
+      testWidgets(
+        '失敗したあとに再度編集して保存できる',
+        (tester) async {
+          await buildTarget(tester);
+          await tester.pumpAndSettle();
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), 'Gijutsu Ueda');
+          await tester.pumpAndSettle();
+
+          // モックの設定
+          when(mockPublicProfileRepository.updateUserName(any, any))
+              .thenThrow(Exception('保存に失敗しました'));
+
+          await tester.tap(find.text('保存'));
+          // スナックバー表示確認
+          await tester.pumpAndSettle();
+          expect(find.text('ユーザー名の保存に失敗しました'), findsOneWidget);
+
+          // 再度編集
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+          await tester.enterText(find.byType(TextField), 'ソフト テス太');
+          await tester.pumpAndSettle();
+
+          // モックの設定
+          when(mockPublicProfileRepository.updateUserName(any, any))
+              .thenAnswer((_) async => {});
+
+          // 保存
+          await tester.tap(find.text('保存'));
+          await tester.pumpAndSettle();
+
+          // メモ：スナックバーが表示されてから消えるのに十分な時間が立っていないため、
+          // ゴールデンファイルにスナックバーの表示が残っている
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
     });
   });
 }

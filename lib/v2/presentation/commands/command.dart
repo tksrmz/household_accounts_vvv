@@ -59,4 +59,9 @@ class _AsyncCommandBase with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void resetError() {
+    _error = null;
+    notifyListeners();
+  }
 }

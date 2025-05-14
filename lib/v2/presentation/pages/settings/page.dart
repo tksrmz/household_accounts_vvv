@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../../domain/models/user_auth.dart';
 import '../../widgets/error_message.dart';
 import 'view_model.dart';
 
@@ -34,20 +32,25 @@ class SettingsPage extends StatelessWidget {
           }
 
           return ListenableBuilder(
-            listenable: _viewModel.userNameFieldState,
-            builder: (context, _) {
-              if (_viewModel.userNameFieldState.isSavingError) {
+            listenable: _viewModel.save,
+            builder: (context, child) {
+              if (_viewModel.save.hasError) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('ユーザー名の保存に失敗しました'),
                     ),
                   );
+                  // TODO ここを save.resetError()に変える
                   _viewModel.userNameFieldState.clearSaveError();
                 });
               }
 
-              return Padding(
+              return child!;
+            },
+            child: ListenableBuilder(
+              listenable: _viewModel.userNameFieldState,
+              builder: (_, __) => Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ListView(
                   children: [
@@ -56,8 +59,8 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ],
                 ),
-              );
-            },
+              ),
+            ),
           );
         },
       ),

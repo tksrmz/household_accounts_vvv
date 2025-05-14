@@ -186,7 +186,7 @@ void main() {
             .called(1);
         expect(target.userNameFieldState.isEditing, isFalse);
         expect(target.userNameFieldState.userName, userName.value);
-        expect(target.userNameFieldState.isSavingError, isTrue);
+        expect(target.save.hasError, isTrue);
       });
 
       test('保存に失敗後にエラーをクリアすると、編集前の名前が表示される', () async {
@@ -209,7 +209,7 @@ void main() {
             .called(1);
         expect(target.userNameFieldState.isEditing, isFalse);
         expect(target.userNameFieldState.userName, userName.value);
-        expect(target.userNameFieldState.isSavingError, isFalse);
+        expect(target.save.hasError, isFalse);
       });
     });
   });

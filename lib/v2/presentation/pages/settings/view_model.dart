@@ -33,8 +33,8 @@ class SettingsViewModel {
 
   Future<void> _init(UserIdVo userId) async {
     UserNameVo userName = await _publicProfileRepository.fetchUserName(userId);
-    userNameFieldState = UserNameFieldState(userName.value);
     save = AsyncCommand0(() => this._save(userId));
+    userNameFieldState = UserNameFieldState(userName.value, save);
   }
 
   // TODO このあたりをステートかコマンドに移す
@@ -62,11 +62,14 @@ class SettingsViewModel {
 
 /// ユーザー名表示/編集の状態
 class UserNameFieldState with ChangeNotifier {
-  UserNameFieldState(this._userName)
+  UserNameFieldState(this._userName, this._save)
       : _stateMachine = _UserNameFieldStateMachine();
 
   /// 状態管理
   final _UserNameFieldStateMachine _stateMachine;
+
+  /// ユーザー名保存コマンド
+  final AsyncCommand0 _save;
 
   /// ユーザー名
   String _userName;
@@ -81,8 +84,6 @@ class UserNameFieldState with ChangeNotifier {
       _stateMachine._current == _UserNameFieldStateEnum._editing;
   bool get isValidationError =>
       _stateMachine._current == _UserNameFieldStateEnum._validationError;
-  bool get isSavingError =>
-      _stateMachine._current == _UserNameFieldStateEnum._savingError;
 
   void startEditing() {
     assert(_isDisplay, '編集を開始できるのは表示状態のときのみ');
@@ -109,6 +110,7 @@ class UserNameFieldState with ChangeNotifier {
   void clearSaveError() {
     // エラーがない状態でクリアされてもデメリットがないためアサートはしない
     _display();
+    _save.resetError();
   }
 
   void _saving() {
@@ -118,7 +120,6 @@ class UserNameFieldState with ChangeNotifier {
 
   void _savingError() {
     _userName = _userNameBeforeEditing;
-    _stateMachine._transitionTo(_UserNameFieldStateEnum._savingError);
     notifyListeners();
   }
 
@@ -144,7 +145,6 @@ class _UserNameFieldStateMachine {
       _ruleMap = {
     _UserNameFieldStateEnum._display: [
       _UserNameFieldStateEnum._saving,
-      _UserNameFieldStateEnum._savingError,
     ],
     _UserNameFieldStateEnum._editing: [
       _UserNameFieldStateEnum._display,
@@ -156,9 +156,6 @@ class _UserNameFieldStateMachine {
     ],
     _UserNameFieldStateEnum._saving: [
       _UserNameFieldStateEnum._editing,
-    ],
-    _UserNameFieldStateEnum._savingError: [
-      _UserNameFieldStateEnum._saving,
     ],
   };
 
@@ -174,5 +171,4 @@ enum _UserNameFieldStateEnum {
   _editing,
   _validationError,
   _saving,
-  _savingError,
 }
