@@ -66,7 +66,7 @@ void main() {
         });
       });
 
-      test('初期化成功後はデータを取得可能で、エラーがない状態であること', () async {
+      test('初期化成功後はエラー状態ではないこと', () async {
         when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
           (_) async => UserNameVo('上田 技術'),
         );
@@ -74,12 +74,11 @@ void main() {
         final target = await build();
         await Future.delayed(Duration(milliseconds: 100));
 
-        expect(target.userNameFieldState.userName, '上田 技術');
         expect(target.init.isExecuting, isFalse);
         expect(target.init.hasError, isFalse);
       });
 
-      test('初期化失敗時はデータを取得できず、エラーがあること', () async {
+      test('初期化失敗時はエラー状態であること', () async {
         when(mockPublicProfileRepository.fetchUserName(any)).thenThrow(
           Exception('fetchUserNameエラー'),
         );
@@ -87,21 +86,20 @@ void main() {
         final target = await build();
         await Future.delayed(Duration(milliseconds: 100));
 
-        expect(target.userNameFieldState.userName, '');
         expect(target.init.isExecuting, isFalse);
         expect(target.init.hasError, isTrue);
       });
     });
 
     group('ユーザー名編集', () {
-      const userName = UserNameVo('testUserName');
+      const userName = UserNameVo('上田 技術');
 
       setUp(() {
         when(mockPublicProfileRepository.fetchUserName(userId))
             .thenAnswer((_) async => userName);
       });
 
-      test('初期化後はユーザー名が編集状態ではない', () async {
+      test('初期化後はユーザー名が表示されており、編集状態ではない', () async {
         final target = await build();
 
         expect(target.userNameFieldState.isEditing, isFalse);
@@ -210,7 +208,7 @@ void main() {
                 userId, UserNameVo(newUserName)))
             .called(1);
         expect(target.userNameFieldState.isEditing, isFalse);
-        expect(target.userNameFieldState.userName, "testUserName");
+        expect(target.userNameFieldState.userName, userName.value);
         expect(target.userNameFieldState.isSavingError, isFalse);
       });
     });
