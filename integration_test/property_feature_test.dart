@@ -7,10 +7,7 @@ import 'util/sign_up.dart';
 Future<void> propertyFeature() async {
   testWidgets('ユーザーは自分の家計簿で資産を管理できるので、資産状況を正確に把握できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await signUpApp(
-      tester,
-      "user_can_manage_own_properties@example.com",
-    );
+    await signUpApp(tester);
 
     // Wait for loading to finish
     await tester.pumpAndSettle();
@@ -74,10 +71,7 @@ Future<void> propertyFeature() async {
 
   testWidgets('ペアリング済みユーザーはふたりの家計簿で資産を管理できるので、共有資産状況を正確に把握できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await signUpApp(
-      tester,
-      "pair_user_can_manage_their_properties@example.com",
-    );
+    await signUpApp(tester);
 
     // Wait for loading to finish
     await tester.pumpAndSettle();
