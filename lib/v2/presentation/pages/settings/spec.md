@@ -44,8 +44,8 @@ stateDiagram-v2
     [*] --> Display
     Display --> Editing: ユーザー名にフォーカス
     Editing --> Editing: 有効なユーザー名が入力された
-    Editing --> ValidationError: ユーザー名が20文字を超えた
-    ValidationError --> Editing: ユーザー名が20文字以下になった
+    Editing --> ValidationError: ユーザー名が20文字を超えたか、ユーザー名が0文字になった
+    ValidationError --> Editing: ユーザー名が1文字以上、20文字以下になった
     Editing --> Saving: 保存ボタン押下
     Saving --> SavingError: 保存失敗
     SavingError --> Display
@@ -58,7 +58,7 @@ stateDiagram-v2
 |-|-|
 |Display|編集可能な状態のユーザー名|
 |Editing|編集中のユーザー名と、押下可能な保存ボタン|
-|ValidationError|編集中のユーザー名と、押下不可能な保存ボタンと、`ユーザー名は最大20文字までにしてください`というエラーメッセージ|
+|ValidationError|編集中のユーザー名と、押下不可能な保存ボタンと、`ユーザー名は最低1文字、最大20文字にしてください`というエラーメッセージ|
 |Saving|編集不可能な状態のユーザー名|
 |SavingError|編集可能な状態のユーザー名と、`ユーザー名の保存に失敗しました`というスナックバー|
 

@@ -22,4 +22,7 @@ class UserNameVo with _$UserNameVo {
 
   /// 有効なユーザー名かどうか
   static bool isValid(String str) => str.isNotEmpty && str.length <= maxLength;
+
+  /// 無効なユーザー名かどうか
+  static bool isNotValid(String str) => !isValid(str);
 }

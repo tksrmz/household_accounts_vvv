@@ -7,10 +7,7 @@ import 'util/sign_up.dart';
 Future<void> categoryFeature() async {
   testWidgets('ユーザーは自分の家計簿でカテゴリを管理できるので、収支をカテゴリ別に整理できる', (tester) async {
     await tester.pumpWidget(const MyApp());
-    await signUpApp(
-      tester,
-      "users_can_manage_own_categories@example.com",
-    );
+    await signUpApp(tester);
 
     // Wait for loading to finish
     await tester.pumpAndSettle();
@@ -66,12 +63,10 @@ Future<void> categoryFeature() async {
     expect(find.text('食費 (予算: ¥30,000)'), findsNothing);
   });
 
-  testWidgets('ペアリング済みユーザーはふたりの家計簿でカテゴリを管理できるので、共有収支をカテゴリ別に整理できる', (tester) async {
+  testWidgets('ペアリング済みユーザーはふたりの家計簿でカテゴリを管理できるので、共有収支をカテゴリ別に整理できる',
+      (tester) async {
     await tester.pumpWidget(const MyApp());
-    await signUpApp(
-      tester,
-      "pair_user_can_manage_their_categories@example.com",
-    );
+    await signUpApp(tester);
 
     // Wait for loading to finish
     await tester.pumpAndSettle();

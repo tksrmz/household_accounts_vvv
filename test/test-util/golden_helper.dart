@@ -41,7 +41,7 @@ void testGoldens(
 class _GoldenWrapper extends StatelessWidget {
   const _GoldenWrapper({
     required this.child,
-    required this.width,
+    this.width = _GoldenTestWidth.small,
   });
 
   final Widget child;
@@ -49,11 +49,8 @@ class _GoldenWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'NotoSansJP',
-      ),
-      home: Scaffold(
+    return GoldenPageWrapper(
+      child: Scaffold(
         body: RepaintBoundary(
           child: SizedBox(
             width: width.value,
@@ -64,6 +61,22 @@ class _GoldenWrapper extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class GoldenPageWrapper extends StatelessWidget {
+  const GoldenPageWrapper({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        fontFamily: 'NotoSansJP',
+      ),
+      home: child,
     );
   }
 }

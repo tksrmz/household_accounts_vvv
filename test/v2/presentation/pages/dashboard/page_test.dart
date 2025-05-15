@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/dashboard_info.dart';
+import 'package:household_accounts/v2/domain/models/user_auth.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
@@ -26,11 +27,17 @@ void main() {
    * - dateをX月1日00:00:00に整形するロジックをモデルに移す
    */
   final mockViewModel = MockDashboardViewModel();
-  final targetBuilder = () => ChangeNotifierProvider<SelectedNoteState>(
-        create: (_) => SelectedNoteState(),
+  final targetBuilder = () => MultiProvider(
+        providers: [
+          ChangeNotifierProvider<SelectedNoteState>(
+            create: (_) => SelectedNoteState(),
+          ),
+          Provider<UserAuth>(
+            create: (_) => UserAuth(uid: UserIdVo('testUserId')),
+          )
+        ],
         child: DashboardPage(
           date: DateTime(2025, 1),
-          userId: UserIdVo("testUserId"),
           viewModel: mockViewModel,
         ),
       );

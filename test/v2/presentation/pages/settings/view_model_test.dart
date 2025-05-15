@@ -1,217 +1,199 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:household_accounts/v2/domain/models/user_auth.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
+import 'package:household_accounts/v2/domain/repositories/auth_repository.dart';
 import 'package:household_accounts/v2/domain/repositories/public_profile_repository.dart';
 import 'package:household_accounts/v2/presentation/pages/settings/view_model.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-@GenerateNiceMocks([MockSpec<PublicProfileRepository>()])
+@GenerateNiceMocks([
+  MockSpec<PublicProfileRepository>(),
+  MockSpec<AuthRepository>(),
+])
 import 'view_model_test.mocks.dart';
 
 void main() {
-  final mockRepository = MockPublicProfileRepository();
+  final mockPublicProfileRepository = MockPublicProfileRepository();
+  final mockAuthRepository = MockAuthRepository();
   const userId = UserIdVo('testUserId');
+  const userName = UserNameVo('TestUser');
+  final build = () async {
+    final vm = SettingsViewModel(
+      publicProfileRepository: mockPublicProfileRepository,
+      authRepository: mockAuthRepository,
+    );
+    // 初期化完了を待つ
+    await Future.delayed(Duration(milliseconds: 100));
+    return vm;
+  };
+
+  setUp(() {
+    when(mockAuthRepository.getCurrentUser()).thenReturn(UserAuth(uid: userId));
+    when(mockPublicProfileRepository.fetchUserName(userId))
+        .thenAnswer((_) async => userName);
+  });
 
   tearDown(() {
     // モックのクリーンアップ
-    reset(mockRepository);
+    reset(mockPublicProfileRepository);
+    reset(mockAuthRepository);
   });
 
-  test('初期化前はエラー状態ではない', () {
-    final sut = SettingsViewModel(
-      publicProfileRepository: mockRepository,
-    );
+  group('SettingsViewModel', () {
+    group('画面全体の状態', () {
+      group('初期化実行中', () {
+        setUp(() {
+          when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
+            (_) => Completer<UserNameVo>().future,
+          );
+        });
 
-    verifyNoMoreInteractions(mockRepository);
-    expect(sut.isUninitialized, isTrue);
-    expect(sut.isFailed, isFalse);
-  });
+        test('初期化中はそのことが分かること', () async {
+          final target = await build();
 
-  group('初期化に成功したとき', () {
-    setUp(() {
-      // mock
-      when(mockRepository.fetchUserName(userId)).thenAnswer(
-        (_) async => UserNameVo("testUserName"),
-      );
+          verify(mockPublicProfileRepository.fetchUserName(userId)).called(1);
+          expect(target.init.isExecuting, isTrue);
+        });
+
+        test('初期化実行中にもう一度初期化を要求されても何もしないこと', () async {
+          final target = await build();
+          target.init(userId);
+          await Future.delayed(Duration(milliseconds: 100));
+
+          verify(mockPublicProfileRepository.fetchUserName(userId)).called(1);
+        });
+      });
+
+      test('初期化成功後はエラー状態ではないこと', () async {
+        when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
+          (_) async => UserNameVo('上田 技術'),
+        );
+
+        final target = await build();
+        await Future.delayed(Duration(milliseconds: 100));
+
+        expect(target.init.isExecuting, isFalse);
+        expect(target.init.hasError, isFalse);
+      });
+
+      test('初期化失敗時はエラー状態であること', () async {
+        when(mockPublicProfileRepository.fetchUserName(any)).thenThrow(
+          Exception('fetchUserNameエラー'),
+        );
+
+        final target = await build();
+        await Future.delayed(Duration(milliseconds: 100));
+
+        expect(target.init.isExecuting, isFalse);
+        expect(target.init.hasError, isTrue);
+      });
     });
 
-    test('エラー状態ではない', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
+    group('ユーザー名保存', () {
+      const currentUserName = UserNameVo('上田 技術');
+      const newUserName = UserNameVo("newUserName");
 
-      verify(mockRepository.fetchUserName(userId)).called(1);
-      expect(sut.isUninitialized, isFalse);
-      expect(sut.isFailed, isFalse);
-    });
+      setUp(() {
+        when(mockPublicProfileRepository.fetchUserName(userId))
+            .thenAnswer((_) async => currentUserName);
+        when(mockPublicProfileRepository.updateUserName(userId, newUserName))
+            .thenAnswer((_) async => {});
+      });
 
-    test('init()が2回以上呼び出されても何もしない', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
+      test('初期化後はサーバから取得したユーザー名が表示される', () async {
+        final target = await build();
 
-      await sut.init(userId);
-      verify(mockRepository.fetchUserName(userId)).called(1);
-    });
-  });
+        expect(target.userName, currentUserName.value);
+      });
 
-  group('初期化に失敗したとき', () {
-    setUp(() {
-      when(mockRepository.fetchUserName(any)).thenThrow(
-        Exception('テスト：エラーが発生しました'),
-      );
-    });
+      test('ユーザー名を編集状態に変更できる', () async {
+        final target = await build();
 
-    test('エラー状態になる', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
+        target.startEditing();
 
-      verify(mockRepository.fetchUserName(userId)).called(1);
-      expect(sut.isUninitialized, isFalse);
-      expect(sut.isFailed, isTrue);
-    });
-  });
+        expect(target.isEditing, isTrue);
+      });
 
-  group('ユーザー名編集', () {
-    setUp(() {
-      when(mockRepository.fetchUserName(userId))
-          .thenAnswer((_) async => UserNameVo("testUserName"));
-    });
+      test('保存に成功すると編集状態が終了し、新しい名前が表示される', () async {
+        final target = await build();
+        target.startEditing();
 
-    test('初期化後、ユーザー名が表示される', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
+        await target.save(newUserName.value);
 
-      expect(sut.userName, "testUserName");
-      expect(sut.isEditing, isFalse);
-    });
+        verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
+            .called(1);
+        expect(target.userName, newUserName.value);
+        expect(target.isEditing, isFalse);
+      });
 
-    test('ユーザー名を編集状態に変更できる', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
+      test('保存に失敗するとエラー状態になり、編集前の名前が表示される', () async {
+        final target = await build();
 
-      sut.startEditing();
+        target.startEditing();
 
-      expect(sut.isEditing, isTrue);
-      expect(sut.userName, "testUserName");
-      expect(sut.hasValidationError, isFalse);
-    });
+        // モックの設定
+        when(mockPublicProfileRepository.updateUserName(userId, newUserName))
+            .thenThrow(Exception('保存に失敗しました'));
 
-    test('ユーザー名が0文字になると検証エラーになる', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      sut.startEditing();
+        await target.save(newUserName.value);
 
-      sut.updateUserName('');
+        verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
+            .called(1);
+        expect(target.save.canExecute, isTrue);
+        expect(target.userName, currentUserName.value);
+        expect(target.save.hasError, isTrue);
+      });
 
-      expect(sut.hasValidationError, isTrue);
-      expect(sut.isEditing, isFalse);
-    });
+      test('保存に失敗後にエラーをクリアすると、編集前の名前が表示される', () async {
+        final target = await build();
 
-    test('ユーザー名が20文字を超えると検証エラーになる', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      sut.startEditing();
+        target.startEditing();
 
-      sut.updateUserName("a" * 21);
+        // モックの設定
+        when(mockPublicProfileRepository.updateUserName(userId, newUserName))
+            .thenThrow(Exception('保存に失敗しました'));
 
-      expect(sut.hasValidationError, isTrue);
-      expect(sut.isEditing, isFalse);
-    });
+        await target.save(newUserName.value);
+        target.save.resetError();
 
-    test('有効なユーザー名に戻すと検証エラーが解消される', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      sut.startEditing();
-      sut.updateUserName("a" * 21);
+        verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
+            .called(1);
+        expect(target.save.canExecute, isTrue);
+        expect(target.userName, currentUserName.value);
+        expect(target.save.hasError, isFalse);
+      });
 
-      sut.updateUserName("validUsername");
+      test('0文字のユーザー名を保存しようとすると検証エラーになる', () async {
+        final target = await build();
+        target.startEditing();
 
-      expect(sut.hasValidationError, isFalse);
-      expect(sut.isEditing, isTrue);
-    });
+        await target.save('');
 
-    test('保存に成功すると編集状態が終了し、新しい名前が表示される', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      sut.startEditing();
+        expect(target.hasValidationError, isTrue);
+      });
 
-      const newUserName = "newUserName";
-      sut.updateUserName(newUserName);
+      test('20文字を超えるユーザー名を保存しようとすると検証エラーになる', () async {
+        final target = await build();
+        target.startEditing();
 
-      // モックの設定
-      when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .thenAnswer((_) async => {});
+        await target.save("a" * 21);
 
-      await sut.save();
+        expect(target.hasValidationError, isTrue);
+      });
 
-      verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .called(1);
-      expect(sut.isEditing, isFalse);
-      expect(sut.userName, newUserName);
-    });
+      test('検証エラーになったあと、有効なユーザー名を保存できる', () async {
+        final target = await build();
+        target.startEditing();
+        await target.save("a" * 21);
+        expect(target.hasValidationError, isTrue);
 
-    test('保存に失敗するとエラー状態になり、編集前の名前が表示される', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      const newUserName = "newUserName";
-
-      sut.startEditing();
-      sut.updateUserName(newUserName);
-
-      // モックの設定
-      when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .thenThrow(Exception('保存に失敗しました'));
-
-      await sut.save();
-
-      verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .called(1);
-      expect(sut.isEditing, isFalse);
-      expect(sut.userName, "testUserName");
-      expect(sut.hasSaveError, isTrue);
-    });
-
-    test('保存に失敗後にエラーをクリアすると、編集前の名前が表示される', () async {
-      final sut = SettingsViewModel(
-        publicProfileRepository: mockRepository,
-      );
-      await sut.init(userId);
-      const newUserName = "newUserName";
-
-      sut.startEditing();
-      sut.updateUserName(newUserName);
-
-      // モックの設定
-      when(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .thenThrow(Exception('保存に失敗しました'));
-
-      await sut.save();
-      sut.clearSaveError();
-
-      verify(mockRepository.updateUserName(userId, UserNameVo(newUserName)))
-          .called(1);
-      expect(sut.isEditing, isFalse);
-      expect(sut.userName, "testUserName");
-      expect(sut.hasSaveError, isFalse);
+        await target.save("validUsername");
+        expect(target.hasValidationError, isFalse);
+      });
     });
   });
 }

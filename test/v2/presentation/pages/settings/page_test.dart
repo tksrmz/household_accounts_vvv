@@ -1,63 +1,309 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:household_accounts/v2/domain/models/user_auth.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
+import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
+import 'package:household_accounts/v2/domain/repositories/auth_repository.dart';
+import 'package:household_accounts/v2/domain/repositories/public_profile_repository.dart';
 import 'package:household_accounts/v2/presentation/pages/settings/page.dart';
 import 'package:household_accounts/v2/presentation/pages/settings/view_model.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../test-util/golden_helper.dart';
-@GenerateNiceMocks([MockSpec<SettingsViewModel>()])
+@GenerateNiceMocks([
+  MockSpec<PublicProfileRepository>(),
+  MockSpec<AuthRepository>(),
+])
 import 'page_test.mocks.dart';
 
 void main() {
-  final mockViewModel = MockSettingsViewModel();
-  final targetBuilder = () => SettingsPage(
-        userId: UserIdVo("testUserId"),
-        viewModel: mockViewModel,
-      );
+  const userId = UserIdVo('testUserId');
+  final mockPublicProfileRepository = MockPublicProfileRepository();
+  final mockAuthRepository = MockAuthRepository();
+  final buildTarget = (WidgetTester tester) async {
+    // golden file size is 320 * 600
+    final newSize = Size(320, 600) * tester.view.devicePixelRatio;
+    tester.view.physicalSize = newSize;
+    await tester.pumpWidget(
+      Provider<UserAuth>(
+        create: (_) => UserAuth(uid: UserIdVo('testUserId')),
+        child: GoldenPageWrapper(
+          child: SettingsPage(
+            viewModel: SettingsViewModel(
+              publicProfileRepository: mockPublicProfileRepository,
+              authRepository: mockAuthRepository,
+            ),
+          ),
+        ),
+      ),
+    );
+  };
 
   tearDown(() {
     // モックのクリーンアップ
-    reset(mockViewModel);
+    reset(mockPublicProfileRepository);
+    reset(mockAuthRepository);
   });
 
-  testGoldens(
-    '初期化完了前はローディング画面が表示される',
-    goldenFileName: 'settings_page_loading',
-    mockFn: () {
-      when(mockViewModel.isUninitialized).thenReturn(true);
-    },
-    builder: targetBuilder,
-    expectFn: () {
-      verify(mockViewModel.init(UserIdVo("testUserId"))).called(1);
-    },
-  );
+  group('SettingsPage', () {
+    setUp(() {
+      when(mockAuthRepository.getCurrentUser())
+          .thenReturn(UserAuth(uid: userId));
+    });
 
-  testGoldens(
-    '初期化が正常に完了すると設定画面コンテンツが表示される',
-    goldenFileName: 'settings_page_complete',
-    mockFn: () {
-      when(mockViewModel.isUninitialized).thenReturn(false);
-      when(mockViewModel.isFailed).thenReturn(false);
-      when(mockViewModel.hasSaveError).thenReturn(false);
-      when(mockViewModel.userName).thenReturn("上田 技術");
-    },
-    builder: targetBuilder,
-    expectFn: () {
-      verify(mockViewModel.init(UserIdVo("testUserId"))).called(1);
-    },
-  );
+    group('画面全体', () {
+      final getFileName =
+          (WidgetTester tester) => 'goldens/${tester.testDescription}.png';
 
-  testGoldens(
-    '初期化に失敗するとエラーメッセージが表示される',
-    goldenFileName: 'settings_page_error',
-    mockFn: () {
-      when(mockViewModel.isUninitialized).thenReturn(false);
-      when(mockViewModel.isFailed).thenReturn(true);
-    },
-    builder: targetBuilder,
-    expectFn: () {
-      verify(mockViewModel.init(UserIdVo("testUserId"))).called(1);
-    },
-  );
+      testWidgets(
+        '画面を開くとローディング画面が表示されること',
+        (tester) async {
+          when(mockPublicProfileRepository.fetchUserName(any))
+              .thenAnswer((_) => Completer<UserNameVo>().future);
+
+          await buildTarget(tester);
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        'ローディングに成功するとコンテンツが表示されること',
+        (tester) async {
+          when(mockPublicProfileRepository.fetchUserName(any))
+              .thenAnswer((_) async => UserNameVo('うえだぎじゅつ'));
+
+          await buildTarget(tester);
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        'ローディングに失敗するとエラーメッセージが表示されること',
+        (tester) async {
+          when(mockPublicProfileRepository.fetchUserName(any))
+              .thenThrow(Exception('fetchUserNameエラー'));
+
+          await buildTarget(tester);
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+    });
+
+    group('ユーザー名編集', () {
+      const userName = UserNameVo('testUserName');
+      final getFileName = (WidgetTester tester) =>
+          'goldens/name-editing/${tester.testDescription}.png';
+
+      setUp(() {
+        when(mockPublicProfileRepository.fetchUserName(userId))
+            .thenAnswer((_) async => userName);
+      });
+
+      // 初期化後の状態は画面全体のテストで確認できるためスキップする
+      // testWidgets('初期化後はユーザー名が編集状態ではない', (tester) async {
+      // }, tags: ['golden']);
+
+      testWidgets(
+        'ユーザー名を選択すると編集状態になること',
+        (tester) async {
+          await buildTarget(tester);
+          await tester.pumpAndSettle();
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        'テキストフィールドにフォーカスが当たると編集状態になること',
+        (tester) async {
+          await buildTarget(tester);
+          await tester.pumpAndSettle();
+
+          // フォーカスを当てる
+          await tester.showKeyboard(find.byType(TextField));
+          await tester.pumpAndSettle();
+
+          // 編集状態になっていることを確認（保存ボタンが表示される）
+          expect(find.text('保存'), findsOneWidget);
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        '0文字のユーザー名はバリデーションエラーで保存に失敗すること',
+        (tester) async {
+          await buildTarget(tester);
+          await tester.pumpAndSettle();
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), '');
+          await tester.tap(find.text('保存'));
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        '有効なユーザー名に戻すと検証エラーが解消される',
+        (tester) async {
+          await buildTarget(tester);
+          await tester.pumpAndSettle();
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), '');
+          await tester.tap(find.text('保存'));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), 'Gijutsu Ueda');
+          await tester.tap(find.text('保存'));
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        '保存に成功すると、新しい名前が表示される',
+        (tester) async {
+          await buildTarget(tester);
+          await tester.pumpAndSettle();
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), 'Gijutsu Ueda');
+          await tester.pumpAndSettle();
+
+          // モックの設定
+          when(mockPublicProfileRepository.updateUserName(any, any))
+              .thenAnswer((_) async => {});
+
+          await tester.tap(find.text('保存'));
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        '保存に失敗するとスナックバーが表示され、編集前の名前が表示される',
+        (tester) async {
+          await buildTarget(tester);
+          await tester.pumpAndSettle();
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), 'Gijutsu Ueda');
+          await tester.pumpAndSettle();
+
+          // モックの設定
+          when(mockPublicProfileRepository.updateUserName(any, any))
+              .thenThrow(Exception('保存に失敗しました'));
+
+          await tester.tap(find.text('保存'));
+          await tester.pumpAndSettle();
+
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+
+      testWidgets(
+        '失敗したあとに再度編集して保存できる',
+        (tester) async {
+          await buildTarget(tester);
+          await tester.pumpAndSettle();
+
+          await tester.tap(find.text(userName.value));
+          await tester.pumpAndSettle();
+
+          await tester.enterText(find.byType(TextField), 'Gijutsu Ueda');
+          await tester.pumpAndSettle();
+
+          // モックの設定
+          when(mockPublicProfileRepository.updateUserName(any, any))
+              .thenThrow(Exception('保存に失敗しました'));
+
+          await tester.tap(find.text('保存'));
+          // スナックバー表示確認
+          await tester.pumpAndSettle();
+          expect(find.text('ユーザー名の保存に失敗しました'), findsOneWidget);
+
+          // 再度編集
+          await tester.enterText(find.byType(TextField), 'ソフト テス太');
+          await tester.pumpAndSettle();
+
+          // モックの設定
+          when(mockPublicProfileRepository.updateUserName(any, any))
+              .thenAnswer((_) async => {});
+
+          // 保存
+          await tester.tap(find.text('保存'));
+          await tester.pumpAndSettle();
+
+          // メモ：スナックバーが表示されてから消えるのに十分な時間が立っていないため、
+          // ゴールデンファイルにスナックバーの表示が残っている
+          await expectLater(
+            find.byType(SettingsPage),
+            matchesGoldenFile(getFileName(tester)),
+          );
+        },
+        tags: ['golden'],
+      );
+    });
+  });
 }

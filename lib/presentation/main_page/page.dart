@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
 import 'package:provider/provider.dart';
 
-import '../../v2/domain/models/vo/user_id.dart';
 import '../../v2/domain/usecases/dashboard.dart';
 import '../../v2/presentation/pages/dashboard/view_model.dart';
 import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
@@ -35,15 +34,11 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final userInfo = context.read<UserInfo>();
-    final userId = UserIdVo(userInfo.uid);
-
     final bodies = <Widget>[
       Builder(
         builder: (context) {
           return DashboardPage(
             date: DateTime.now(),
-            userId: userId,
             viewModel: DashboardViewModel(
               dashboardUseCase: DashboardUseCase(
                 incomeRepository: context.read(),
@@ -67,7 +62,6 @@ class _MainPageState extends State<MainPage> {
       ),
       drawer: MainPageDrawer(
         mode: context.watch<SelectedNoteState>().value,
-        userId: userId,
         setter: context.read<UserInfo>().hasPair
             ? context.read<SelectedNoteState>().select
             : null,
