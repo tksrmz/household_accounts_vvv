@@ -109,7 +109,6 @@ class _UserNameCardState extends State<_UserNameCard> {
             if (widget._viewModel.isEditing) ...[
               _UserNameCardTextField(
                 controller: _controller,
-                onChanged: widget._viewModel.validateUserName,
                 hasValidationError: widget._viewModel.hasValidationError,
               ),
               const SizedBox(height: 16),
@@ -178,14 +177,11 @@ class _UserNameCardInkWell extends StatelessWidget {
 class _UserNameCardTextField extends StatelessWidget {
   const _UserNameCardTextField({
     required TextEditingController controller,
-    required void Function(String) onChanged,
     required bool hasValidationError,
   })  : _controller = controller,
-        _onChanged = onChanged,
         _hasValidationError = hasValidationError;
 
   final TextEditingController _controller;
-  final void Function(String) _onChanged;
   final bool _hasValidationError;
 
   @override
@@ -193,7 +189,6 @@ class _UserNameCardTextField extends StatelessWidget {
     return TextField(
       autofocus: true,
       controller: _controller,
-      onChanged: _onChanged,
       decoration: InputDecoration(
         errorText: _hasValidationError ? '1文字以上20文字以下にしてください' : null,
       ),

@@ -142,7 +142,7 @@ void main() {
       );
 
       testWidgets(
-        'ユーザー名を0文字にするとエラーメッセージが表示されること',
+        '0文字のユーザー名はバリデーションエラーで保存に失敗すること',
         (tester) async {
           await buildTarget(tester);
           await tester.pumpAndSettle();
@@ -151,6 +151,7 @@ void main() {
           await tester.pumpAndSettle();
 
           await tester.enterText(find.byType(TextField), '');
+          await tester.tap(find.text('保存'));
           await tester.pumpAndSettle();
 
           await expectLater(
@@ -162,7 +163,7 @@ void main() {
       );
 
       testWidgets(
-        'ユーザー名を21文字にするとエラーメッセージが表示されること',
+        '21文字のユーザー名はバリデーションエラーで保存に失敗すること',
         (tester) async {
           await buildTarget(tester);
           await tester.pumpAndSettle();
@@ -171,6 +172,7 @@ void main() {
           await tester.pumpAndSettle();
 
           await tester.enterText(find.byType(TextField), 'a' * 21);
+          await tester.tap(find.text('保存'));
           await tester.pumpAndSettle();
 
           await expectLater(
@@ -191,9 +193,11 @@ void main() {
           await tester.pumpAndSettle();
 
           await tester.enterText(find.byType(TextField), '');
+          await tester.tap(find.text('保存'));
           await tester.pumpAndSettle();
 
           await tester.enterText(find.byType(TextField), 'Gijutsu Ueda');
+          await tester.tap(find.text('保存'));
           await tester.pumpAndSettle();
 
           await expectLater(

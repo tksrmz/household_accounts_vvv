@@ -35,7 +35,7 @@ class SettingsViewModel with ChangeNotifier {
   bool get hasValidationError => _hasValidationError;
 
   /// ユーザー名をセーブできるかどうか
-  bool get canSave => save.canExecute && !hasValidationError;
+  bool get canSave => save.canExecute;
 
   final PublicProfileRepository _publicProfileRepository;
   final AuthRepository _authRepository;
@@ -50,11 +50,6 @@ class SettingsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void validateUserName(String newName) {
-    _hasValidationError = UserNameVo.isNotValid(newName);
-    notifyListeners();
-  }
-
   Future<void> _save(UserIdVo userId, String newUserName) async {
     if (UserNameVo.isNotValid(newUserName)) {
       _hasValidationError = true;
@@ -63,8 +58,6 @@ class SettingsViewModel with ChangeNotifier {
     }
     _hasValidationError = false;
     final vo = UserNameVo(newUserName);
-
-    // TODO ここにcanSaveのガードを入れる
 
     try {
       await _publicProfileRepository.updateUserName(userId, vo);
