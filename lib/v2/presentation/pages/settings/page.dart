@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/models/vo/user_name.dart';
 import '../../widgets/error_message.dart';
 import 'view_model.dart';
 
@@ -49,7 +48,7 @@ class SettingsPage extends StatelessWidget {
               return child!;
             },
             child: ListenableBuilder(
-              listenable: _viewModel.userNameFieldState,
+              listenable: _viewModel,
               builder: (_, __) => Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ListView(
@@ -94,20 +93,6 @@ class _UserNameCardState extends State<_UserNameCard> {
 
   final TextEditingController _controller = TextEditingController();
 
-  bool _isShowingTextField = false;
-
-  void showTextField() {
-    setState(() {
-      _isShowingTextField = true;
-    });
-  }
-
-  void hideTextField() {
-    setState(() {
-      _isShowingTextField = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -121,23 +106,21 @@ class _UserNameCardState extends State<_UserNameCard> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
-            if (_isShowingTextField) ...[
+            if (widget._viewModel.isEditing) ...[
               _UserNameCardTextField(
-                viewModel: widget._viewModel,
                 controller: _controller,
+                onChanged: widget._viewModel.updateUserName,
+                hasValidationError: widget._viewModel.hasValidationError,
               ),
               const SizedBox(height: 16),
               _UserNameCardSaveButton(
-                viewModel: widget._viewModel,
-                onSave: () {
-                  hideTextField();
-                  widget._viewModel.save(UserNameVo(_controller.text));
-                },
+                enabled: widget._viewModel.canSave,
+                onSave: () => widget._viewModel.save(_controller.text),
               ),
             ] else
               _UserNameCardInkWell(
-                viewModel: widget._viewModel,
-                onTap: showTextField,
+                userName: widget._viewModel.userName,
+                onTap: widget._viewModel.startEditing,
               ),
           ],
         ),
@@ -148,12 +131,12 @@ class _UserNameCardState extends State<_UserNameCard> {
 
 class _UserNameCardSaveButton extends StatelessWidget {
   const _UserNameCardSaveButton({
-    required SettingsViewModel viewModel,
+    required bool enabled,
     required void Function() onSave,
-  })  : _viewModel = viewModel,
+  })  : _enabled = enabled,
         _onSave = onSave;
 
-  final SettingsViewModel _viewModel;
+  final bool _enabled;
   final void Function() _onSave;
 
   @override
@@ -162,10 +145,7 @@ class _UserNameCardSaveButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         ElevatedButton(
-          onPressed: _viewModel.save.canExecute &&
-                  !_viewModel.userNameFieldState.isValidationError
-              ? _onSave
-              : null,
+          onPressed: _enabled ? _onSave : null,
           child: const Text('保存'),
         ),
       ],
@@ -175,12 +155,12 @@ class _UserNameCardSaveButton extends StatelessWidget {
 
 class _UserNameCardInkWell extends StatelessWidget {
   const _UserNameCardInkWell({
-    required SettingsViewModel viewModel,
+    required String userName,
     required void Function() onTap,
-  })  : _viewModel = viewModel,
+  })  : _userName = userName,
         _onTap = onTap;
 
-  final SettingsViewModel _viewModel;
+  final String _userName;
   final void Function() _onTap;
 
   @override
@@ -188,39 +168,34 @@ class _UserNameCardInkWell extends StatelessWidget {
     // InkWellを使用するためにMaterialが必要
     assert(debugCheckHasMaterial(context));
 
-    // FIXME 後で消す
-    final tmpOnTap = () {
-      _onTap();
-      _viewModel.userNameFieldState.startEditing();
-    };
-
     return InkWell(
-      onTap: tmpOnTap,
-      child: Text(_viewModel.userName),
+      onTap: _onTap,
+      child: Text(_userName),
     );
   }
 }
 
 class _UserNameCardTextField extends StatelessWidget {
   const _UserNameCardTextField({
-    required SettingsViewModel viewModel,
     required TextEditingController controller,
-  })  : _viewModel = viewModel,
-        _controller = controller;
+    required void Function(String) onChanged,
+    required bool hasValidationError,
+  })  : _controller = controller,
+        _onChanged = onChanged,
+        _hasValidationError = hasValidationError;
 
-  final SettingsViewModel _viewModel;
   final TextEditingController _controller;
+  final void Function(String) _onChanged;
+  final bool _hasValidationError;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       autofocus: true,
       controller: _controller,
-      onChanged: _viewModel.userNameFieldState.updateUserName,
+      onChanged: _onChanged,
       decoration: InputDecoration(
-        errorText: _viewModel.userNameFieldState.isValidationError
-            ? '1文字以上20文字以下にしてください'
-            : null,
+        errorText: _hasValidationError ? '1文字以上20文字以下にしてください' : null,
       ),
     );
   }

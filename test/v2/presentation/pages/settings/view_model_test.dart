@@ -20,6 +20,7 @@ void main() {
   final mockPublicProfileRepository = MockPublicProfileRepository();
   final mockAuthRepository = MockAuthRepository();
   const userId = UserIdVo('testUserId');
+  const userName = UserNameVo('TestUser');
   final build = () async {
     final vm = SettingsViewModel(
       publicProfileRepository: mockPublicProfileRepository,
@@ -30,6 +31,12 @@ void main() {
     return vm;
   };
 
+  setUp(() {
+    when(mockAuthRepository.getCurrentUser()).thenReturn(UserAuth(uid: userId));
+    when(mockPublicProfileRepository.fetchUserName(userId))
+        .thenAnswer((_) async => userName);
+  });
+
   tearDown(() {
     // モックのクリーンアップ
     reset(mockPublicProfileRepository);
@@ -37,11 +44,6 @@ void main() {
   });
 
   group('SettingsViewModel', () {
-    setUp(() {
-      when(mockAuthRepository.getCurrentUser())
-          .thenReturn(UserAuth(uid: userId));
-    });
-
     group('画面全体の状態', () {
       group('初期化実行中', () {
         setUp(() {
@@ -102,38 +104,38 @@ void main() {
       test('ユーザー名を編集状態に変更できる', () async {
         final target = await build();
 
-        target.userNameFieldState.startEditing();
+        target.startEditing();
 
         expect(target.userName, userName.value);
-        expect(target.userNameFieldState.isValidationError, isFalse);
+        expect(target.hasValidationError, isFalse);
       });
 
       test('ユーザー名が0文字になると検証エラーになる', () async {
         final target = await build();
-        target.userNameFieldState.startEditing();
+        target.startEditing();
 
-        target.userNameFieldState.updateUserName('');
+        target.updateUserName('');
 
-        expect(target.userNameFieldState.isValidationError, isTrue);
+        expect(target.hasValidationError, isTrue);
       });
 
       test('ユーザー名が20文字を超えると検証エラーになる', () async {
         final target = await build();
-        target.userNameFieldState.startEditing();
+        target.startEditing();
 
-        target.userNameFieldState.updateUserName("a" * 21);
+        target.updateUserName("a" * 21);
 
-        expect(target.userNameFieldState.isValidationError, isTrue);
+        expect(target.hasValidationError, isTrue);
       });
 
       test('有効なユーザー名に戻すと検証エラーが解消される', () async {
         final target = await build();
-        target.userNameFieldState.startEditing();
-        target.userNameFieldState.updateUserName("a" * 21);
+        target.startEditing();
+        target.updateUserName("a" * 21);
 
-        target.userNameFieldState.updateUserName("validUsername");
+        target.updateUserName("validUsername");
 
-        expect(target.userNameFieldState.isValidationError, isFalse);
+        expect(target.hasValidationError, isFalse);
       });
     });
 
@@ -148,32 +150,33 @@ void main() {
 
       test('保存に成功すると編集状態が終了し、新しい名前が表示される', () async {
         final target = await build();
-        target.userNameFieldState.startEditing();
+        target.startEditing();
 
-        target.userNameFieldState.updateUserName(newUserName.value);
+        target.updateUserName(newUserName.value);
 
         // モックの設定
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .thenAnswer((_) async => {});
 
-        await target.save(newUserName);
+        await target.save(newUserName.value);
 
         verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .called(1);
         expect(target.userName, newUserName.value);
+        expect(target.isEditing, isFalse);
       });
 
       test('保存に失敗するとエラー状態になり、編集前の名前が表示される', () async {
         final target = await build();
 
-        target.userNameFieldState.startEditing();
-        target.userNameFieldState.updateUserName(newUserName.value);
+        target.startEditing();
+        target.updateUserName(newUserName.value);
 
         // モックの設定
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .thenThrow(Exception('保存に失敗しました'));
 
-        await target.save(newUserName);
+        await target.save(newUserName.value);
 
         verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .called(1);
@@ -185,14 +188,14 @@ void main() {
       test('保存に失敗後にエラーをクリアすると、編集前の名前が表示される', () async {
         final target = await build();
 
-        target.userNameFieldState.startEditing();
-        target.userNameFieldState.updateUserName(newUserName.value);
+        target.startEditing();
+        target.updateUserName(newUserName.value);
 
         // モックの設定
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .thenThrow(Exception('保存に失敗しました'));
 
-        await target.save(newUserName);
+        await target.save(newUserName.value);
         target.save.resetError();
 
         verify(mockPublicProfileRepository.updateUserName(userId, newUserName))

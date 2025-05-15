@@ -7,7 +7,7 @@ import '../../../domain/repositories/public_profile_repository.dart';
 import '../../commands/command.dart';
 
 /// 設定画面を表示するためのViewModel
-class SettingsViewModel {
+class SettingsViewModel with ChangeNotifier {
   SettingsViewModel({
     required PublicProfileRepository publicProfileRepository,
     required AuthRepository authRepository,
@@ -20,14 +20,22 @@ class SettingsViewModel {
   late final AsyncCommand<UserIdVo> init;
 
   /// ユーザー名保存コマンド
-  late final AsyncCommand<UserNameVo> save;
-
-  /// ユーザー名の状態を管理する
-  late final UserNameFieldState userNameFieldState;
+  late final AsyncCommand<String> save;
 
   /// 編集前のユーザー名
   late UserNameVo _userNameBeforeEdit;
   String get userName => _userNameBeforeEdit.value;
+
+  /// 編集モードかどうか
+  bool _isEditing = false;
+  bool get isEditing => _isEditing;
+
+  /// ユーザー名のバリデーションエラー判定フラグ
+  bool _hasValidationError = false;
+  bool get hasValidationError => _hasValidationError;
+
+  /// ユーザー名をセーブできるかどうか
+  bool get canSave => save.canExecute && !hasValidationError;
 
   final PublicProfileRepository _publicProfileRepository;
   final AuthRepository _authRepository;
@@ -35,94 +43,38 @@ class SettingsViewModel {
   Future<void> _init(UserIdVo userId) async {
     _userNameBeforeEdit = await _publicProfileRepository.fetchUserName(userId);
     save = AsyncCommand((newUserName) => this._save(userId, newUserName));
-    userNameFieldState = UserNameFieldState();
   }
-
-  Future<void> _save(UserIdVo userId, UserNameVo newUserName) async {
-    userNameFieldState._display();
-    await _publicProfileRepository.updateUserName(userId, newUserName);
-    _userNameBeforeEdit = newUserName;
-  }
-}
-
-/// ユーザー名表示/編集の状態
-class UserNameFieldState with ChangeNotifier {
-  UserNameFieldState() : _stateMachine = _UserNameFieldStateMachine();
-
-  /// 状態管理
-  final _UserNameFieldStateMachine _stateMachine;
-
-  bool get _isDisplay =>
-      _stateMachine._current == _UserNameFieldStateEnum._display;
-  bool get isValidationError =>
-      _stateMachine._current == _UserNameFieldStateEnum._validationError;
 
   void startEditing() {
-    assert(_isDisplay, '編集を開始できるのは表示状態のときのみ');
-    _stateMachine._transitionTo(_UserNameFieldStateEnum._editing);
+    _isEditing = true;
     notifyListeners();
   }
 
   void updateUserName(String newName) {
-    assert(
-      _stateMachine._current == _UserNameFieldStateEnum._editing ||
-          isValidationError,
-      '更新できるのは編集中かバリデーションエラーのときのみ',
-    );
+    _hasValidationError = UserNameVo.isNotValid(newName);
+    notifyListeners();
+  }
 
-    final next;
-    if (UserNameVo.isValid(newName)) {
-      next = _UserNameFieldStateEnum._editing;
-    } else {
-      next = _UserNameFieldStateEnum._validationError;
+  Future<void> _save(UserIdVo userId, String newUserName) async {
+    if (UserNameVo.isNotValid(newUserName)) {
+      _hasValidationError = true;
+      notifyListeners();
+      return;
     }
+    _hasValidationError = false;
+    final vo = UserNameVo(newUserName);
 
-    _stateMachine._transitionTo(next);
-    notifyListeners();
+    // TODO ここにcanSaveのガードを入れる
+
+    try {
+      await _publicProfileRepository.updateUserName(userId, vo);
+      _userNameBeforeEdit = vo;
+    } catch (e) {
+      // 保存に失敗した場合は編集前の状態に戻す
+      rethrow;
+    } finally {
+      _isEditing = false;
+      notifyListeners();
+    }
   }
-
-  void _display() {
-    _stateMachine._transitionTo(_UserNameFieldStateEnum._display);
-    notifyListeners();
-  }
-}
-
-/// [UserNameFieldState]の状態遷移を管理するクラス
-class _UserNameFieldStateMachine {
-  /// [_UserNameFieldStateEnum._display]を初期状態としてインスタンスを生成
-  _UserNameFieldStateMachine() : _current = _UserNameFieldStateEnum._display;
-
-  /// 現在の状態
-  _UserNameFieldStateEnum _current;
-
-  /// 状態遷移のルールを記載したマップ
-  ///
-  /// 鍵：遷移先の状態
-  /// 値：許可される遷移元状態の一覧
-  static const Map<_UserNameFieldStateEnum, List<_UserNameFieldStateEnum>>
-      _ruleMap = {
-    _UserNameFieldStateEnum._display: [
-      _UserNameFieldStateEnum._editing,
-    ],
-    _UserNameFieldStateEnum._editing: [
-      _UserNameFieldStateEnum._display,
-      _UserNameFieldStateEnum._editing,
-      _UserNameFieldStateEnum._validationError,
-    ],
-    _UserNameFieldStateEnum._validationError: [
-      _UserNameFieldStateEnum._editing,
-    ],
-  };
-
-  /// [_current]から[next]へ遷移する
-  void _transitionTo(_UserNameFieldStateEnum next) {
-    assert(_ruleMap[next]!.contains(_current), '${_current}から${next}に遷移できません');
-    _current = next;
-  }
-}
-
-enum _UserNameFieldStateEnum {
-  _display,
-  _editing,
-  _validationError,
 }
