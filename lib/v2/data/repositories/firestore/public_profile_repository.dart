@@ -19,6 +19,9 @@ class FirestorePublicProfileRepository implements PublicProfileRepository {
   @override
   Future<void> updateUserName(UserIdVo userId, UserNameVo userName) async {
     final documentReference = _db.doc('/publicProfiles/${userId.value}');
-    await documentReference.update({'name': userName.value});
+    await documentReference.update({
+      'name': userName.value,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 }
