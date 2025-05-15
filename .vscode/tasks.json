@@ -37,6 +37,27 @@
 			"presentation": {
 				"clear": true,
 			}
+		},
+		{
+			"type": "shell",
+			"options": {
+				"cwd": "${workspaceFolder}/../household_accounts_firebase"
+			},
+			"command": "firebase",
+			"args": [
+				"emulators:start",
+				"--only",
+				"auth,firestore,functions",
+				"--import=${workspaceFolder}/integration_test/saved-data",
+				"--export-on-exit",
+			],
+			"problemMatcher": [
+				"$dart-build_runner"
+			],
+			"label": "edit integration test data",
+			"presentation": {
+				"clear": true,
+			}
 		}
 	]
 }
