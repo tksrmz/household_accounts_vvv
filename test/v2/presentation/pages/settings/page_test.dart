@@ -142,17 +142,17 @@ void main() {
       );
 
       testWidgets(
-        '0文字のユーザー名はバリデーションエラーで保存に失敗すること',
+        'テキストフィールドにフォーカスが当たると編集状態になること',
         (tester) async {
           await buildTarget(tester);
           await tester.pumpAndSettle();
 
-          await tester.tap(find.text(userName.value));
+          // フォーカスを当てる
+          await tester.showKeyboard(find.byType(TextField));
           await tester.pumpAndSettle();
 
-          await tester.enterText(find.byType(TextField), '');
-          await tester.tap(find.text('保存'));
-          await tester.pumpAndSettle();
+          // 編集状態になっていることを確認（保存ボタンが表示される）
+          expect(find.text('保存'), findsOneWidget);
 
           await expectLater(
             find.byType(SettingsPage),
@@ -163,7 +163,7 @@ void main() {
       );
 
       testWidgets(
-        '21文字のユーザー名はバリデーションエラーで保存に失敗すること',
+        '0文字のユーザー名はバリデーションエラーで保存に失敗すること',
         (tester) async {
           await buildTarget(tester);
           await tester.pumpAndSettle();
@@ -171,7 +171,7 @@ void main() {
           await tester.tap(find.text(userName.value));
           await tester.pumpAndSettle();
 
-          await tester.enterText(find.byType(TextField), 'a' * 21);
+          await tester.enterText(find.byType(TextField), '');
           await tester.tap(find.text('保存'));
           await tester.pumpAndSettle();
 
@@ -284,8 +284,6 @@ void main() {
           expect(find.text('ユーザー名の保存に失敗しました'), findsOneWidget);
 
           // 再度編集
-          await tester.tap(find.text(userName.value));
-          await tester.pumpAndSettle();
           await tester.enterText(find.byType(TextField), 'ソフト テス太');
           await tester.pumpAndSettle();
 

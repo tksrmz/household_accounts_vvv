@@ -93,52 +93,6 @@ void main() {
       });
     });
 
-    group('ユーザー名編集', () {
-      const userName = UserNameVo('上田 技術');
-
-      setUp(() {
-        when(mockPublicProfileRepository.fetchUserName(userId))
-            .thenAnswer((_) async => userName);
-      });
-
-      test('ユーザー名を編集状態に変更できる', () async {
-        final target = await build();
-
-        target.startEditing();
-
-        expect(target.userName, userName.value);
-        expect(target.hasValidationError, isFalse);
-      });
-
-      test('0文字のユーザー名を保存しようとすると検証エラーになる', () async {
-        final target = await build();
-        target.startEditing();
-
-        await target.save('');
-
-        expect(target.hasValidationError, isTrue);
-      });
-
-      test('20文字を超えるユーザー名を保存しようとすると検証エラーになる', () async {
-        final target = await build();
-        target.startEditing();
-
-        await target.save("a" * 21);
-
-        expect(target.hasValidationError, isTrue);
-      });
-
-      test('有効なユーザー名に戻すと検証エラーが解消される', () async {
-        final target = await build();
-        target.startEditing();
-        await target.save("a" * 21);
-        expect(target.hasValidationError, isTrue);
-
-        await target.save("validUsername");
-        expect(target.hasValidationError, isFalse);
-      });
-    });
-
     group('ユーザー名保存', () {
       const currentUserName = UserNameVo('上田 技術');
       const newUserName = UserNameVo("newUserName");
@@ -146,15 +100,27 @@ void main() {
       setUp(() {
         when(mockPublicProfileRepository.fetchUserName(userId))
             .thenAnswer((_) async => currentUserName);
+        when(mockPublicProfileRepository.updateUserName(userId, newUserName))
+            .thenAnswer((_) async => {});
+      });
+
+      test('初期化後はサーバから取得したユーザー名が表示される', () async {
+        final target = await build();
+
+        expect(target.userName, currentUserName.value);
+      });
+
+      test('ユーザー名を編集状態に変更できる', () async {
+        final target = await build();
+
+        target.startEditing();
+
+        expect(target.isEditing, isTrue);
       });
 
       test('保存に成功すると編集状態が終了し、新しい名前が表示される', () async {
         final target = await build();
         target.startEditing();
-
-        // モックの設定
-        when(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .thenAnswer((_) async => {});
 
         await target.save(newUserName.value);
 
@@ -199,6 +165,34 @@ void main() {
         expect(target.save.canExecute, isTrue);
         expect(target.userName, currentUserName.value);
         expect(target.save.hasError, isFalse);
+      });
+
+      test('0文字のユーザー名を保存しようとすると検証エラーになる', () async {
+        final target = await build();
+        target.startEditing();
+
+        await target.save('');
+
+        expect(target.hasValidationError, isTrue);
+      });
+
+      test('20文字を超えるユーザー名を保存しようとすると検証エラーになる', () async {
+        final target = await build();
+        target.startEditing();
+
+        await target.save("a" * 21);
+
+        expect(target.hasValidationError, isTrue);
+      });
+
+      test('検証エラーになったあと、有効なユーザー名を保存できる', () async {
+        final target = await build();
+        target.startEditing();
+        await target.save("a" * 21);
+        expect(target.hasValidationError, isTrue);
+
+        await target.save("validUsername");
+        expect(target.hasValidationError, isFalse);
       });
     });
   });

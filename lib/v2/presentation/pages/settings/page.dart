@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/models/vo/user_name.dart';
 import '../../widgets/error_message.dart';
 import 'view_model.dart';
 
@@ -83,15 +84,22 @@ class _UserNameCardState extends State<_UserNameCard> {
   initState() {
     super.initState();
     _controller.text = widget._viewModel.userName;
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        widget._viewModel.startEditing();
+      }
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -106,21 +114,24 @@ class _UserNameCardState extends State<_UserNameCard> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
+            _UserNameCardTextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              hasValidationError: widget._viewModel.hasValidationError,
+            ),
             if (widget._viewModel.isEditing) ...[
-              _UserNameCardTextField(
-                controller: _controller,
-                hasValidationError: widget._viewModel.hasValidationError,
-              ),
               const SizedBox(height: 16),
               _UserNameCardSaveButton(
                 enabled: widget._viewModel.canSave,
-                onSave: () => widget._viewModel.save(_controller.text),
+                onSave: () async {
+                  _focusNode.unfocus(); // フォーカスを外す
+                  await widget._viewModel.save(_controller.text);
+                  if (widget._viewModel.save.hasError) {
+                    _controller.text = widget._viewModel.userName;
+                  }
+                },
               ),
-            ] else
-              _UserNameCardInkWell(
-                userName: widget._viewModel.userName,
-                onTap: widget._viewModel.startEditing,
-              ),
+            ],
           ],
         ),
       ),
@@ -152,43 +163,28 @@ class _UserNameCardSaveButton extends StatelessWidget {
   }
 }
 
-class _UserNameCardInkWell extends StatelessWidget {
-  const _UserNameCardInkWell({
-    required String userName,
-    required void Function() onTap,
-  })  : _userName = userName,
-        _onTap = onTap;
-
-  final String _userName;
-  final void Function() _onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    // InkWellを使用するためにMaterialが必要
-    assert(debugCheckHasMaterial(context));
-
-    return InkWell(
-      onTap: _onTap,
-      child: Text(_userName),
-    );
-  }
-}
-
 class _UserNameCardTextField extends StatelessWidget {
   const _UserNameCardTextField({
     required TextEditingController controller,
     required bool hasValidationError,
+    required FocusNode focusNode,
   })  : _controller = controller,
-        _hasValidationError = hasValidationError;
+        _hasValidationError = hasValidationError,
+        _focusNode = focusNode;
 
   final TextEditingController _controller;
   final bool _hasValidationError;
+  final FocusNode _focusNode;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      autofocus: true,
+      keyboardType: TextInputType.text,
+      autofocus: false,
+      autocorrect: false,
+      maxLength: UserNameVo.maxLength,
       controller: _controller,
+      focusNode: _focusNode,
       decoration: InputDecoration(
         errorText: _hasValidationError ? '1文字以上20文字以下にしてください' : null,
       ),
