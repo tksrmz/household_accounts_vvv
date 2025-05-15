@@ -50,7 +50,7 @@ class SettingsViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateUserName(String newName) {
+  void validateUserName(String newName) {
     _hasValidationError = UserNameVo.isNotValid(newName);
     notifyListeners();
   }

@@ -114,7 +114,7 @@ void main() {
         final target = await build();
         target.startEditing();
 
-        target.updateUserName('');
+        target.validateUserName('');
 
         expect(target.hasValidationError, isTrue);
       });
@@ -123,7 +123,7 @@ void main() {
         final target = await build();
         target.startEditing();
 
-        target.updateUserName("a" * 21);
+        target.validateUserName("a" * 21);
 
         expect(target.hasValidationError, isTrue);
       });
@@ -131,9 +131,9 @@ void main() {
       test('有効なユーザー名に戻すと検証エラーが解消される', () async {
         final target = await build();
         target.startEditing();
-        target.updateUserName("a" * 21);
+        target.validateUserName("a" * 21);
 
-        target.updateUserName("validUsername");
+        target.validateUserName("validUsername");
 
         expect(target.hasValidationError, isFalse);
       });
@@ -152,7 +152,7 @@ void main() {
         final target = await build();
         target.startEditing();
 
-        target.updateUserName(newUserName.value);
+        target.validateUserName(newUserName.value);
 
         // モックの設定
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))
@@ -170,7 +170,7 @@ void main() {
         final target = await build();
 
         target.startEditing();
-        target.updateUserName(newUserName.value);
+        target.validateUserName(newUserName.value);
 
         // モックの設定
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))
@@ -189,7 +189,7 @@ void main() {
         final target = await build();
 
         target.startEditing();
-        target.updateUserName(newUserName.value);
+        target.validateUserName(newUserName.value);
 
         // モックの設定
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))

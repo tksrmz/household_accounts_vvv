@@ -109,7 +109,7 @@ class _UserNameCardState extends State<_UserNameCard> {
             if (widget._viewModel.isEditing) ...[
               _UserNameCardTextField(
                 controller: _controller,
-                onChanged: widget._viewModel.updateUserName,
+                onChanged: widget._viewModel.validateUserName,
                 hasValidationError: widget._viewModel.hasValidationError,
               ),
               const SizedBox(height: 16),
