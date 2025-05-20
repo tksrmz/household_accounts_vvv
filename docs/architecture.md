@@ -7,6 +7,7 @@ graph TD
     %% Define nodes with better styling
     A["View"]:::viewStyle
     B["ViewModel"]:::viewModelStyle
+    CMD["Command"]:::commandStyle
     C["Repository Interface"]:::repoStyle
     D["Repositories"]:::dataStyle
     SV["Services"]:::serviceStyle
@@ -18,11 +19,16 @@ graph TD
     %% Application subgraph with better spacing
     subgraph アプリケーション
         subgraph プレゼンテーションレイヤー
-            A <-->|"1:1関係"| B
+            A -->|"イベント発火"| B
+            A <-.->|"1:1関係"| B
+            B -->|"非同期処理実行"| CMD
+            CMD -->|"結果通知"| B
+            B -->|"状態通知"| A
         end
 
         subgraph ドメインレイヤー
-            B -->|"データ取得"| C
+            CMD -->|"CRUD操作"| C
+            C -->|"ドメインモデル"| CMD
         end
 
         subgraph データレイヤー
@@ -34,14 +40,16 @@ graph TD
 
     %% Firebase backend subgraph
     subgraph Firebaseバックエンド
-        E --> H
         I -->|"監視"| G
+        I -->|"監視"| H
+        E --> H
         E --> G
     end
 
     %% Enhanced styling for subgraphs and connections
     classDef viewStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#01579b,font-weight:bold
     classDef viewModelStyle fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#2e7d32,font-weight:bold
+    classDef commandStyle fill:#ffe0b2,stroke:#ff6f00,stroke-width:2px,color:#ff6f00,font-weight:bold
     classDef repoStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100,font-weight:bold
     classDef dataStyle fill:#f3e5f5,stroke:#6a1b9a,stroke-width:2px,color:#6a1b9a,font-weight:bold
     classDef serviceStyle fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#2e7d32,font-weight:bold
@@ -69,7 +77,11 @@ graph TD
 - **ViewModel**: UIの状態管理とビジネスロジックの呼び出し
   - Repositoryからデータを取得し、UI表示用に適切な形式に変換
   - Viewが必要とする状態を管理し、データを失わずに再描画を可能にする
-  - コマンド（コールバック関数）をViewに提供し、ボタン押下やフォーム送信などのイベントハンドラに接続できるようにする
+  - **コマンドパターン**を利用して非同期処理をカプセル化
+    - Repositoryに対するCRUD操作は`AsyncCommand`クラスを使用
+    - 実行状態（実行中、完了、エラー）を管理し、Viewに通知
+    - コマンド自身が`ChangeNotifier`を継承し、状態変化を監視可能
+    - 複数の非同期処理を整理し、ViewModelの複雑度を低減
 
   ※ ViewとViewModelは1:1の関係を持ち、一つの機能（フィーチャー）を定義します。
 
