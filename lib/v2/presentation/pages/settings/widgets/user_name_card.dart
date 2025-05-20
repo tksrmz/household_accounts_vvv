@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../domain/models/vo/user_name.dart';
+import '../../../../domain/models/vo/user_name.dart';
 import '../view_model.dart';
 
 class UserNameCard extends StatefulWidget {
