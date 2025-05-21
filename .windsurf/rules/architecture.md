@@ -1,5 +1,5 @@
 ---
-trigger: model_decision
+trigger: always_on
 description: 新機能の追加をするときなど、プロジェクトの全体に影響を与えるタスクをするときに参照してください。
 ---
 
