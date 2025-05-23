@@ -174,6 +174,8 @@ household_accounts/
 - dartz
   - Resultパターンのために使いたい
   - 最近更新されていないのが懸念
+  - 代替候補補
+    - [result_dart](https://pub.dev/packages/result_dart)
 - equatable
   - 今はほとんどfreezedでやっている
   - 新しく書くコードでは使用しない

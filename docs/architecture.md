@@ -114,3 +114,12 @@ graph TD
 - 各レイヤーは独立してテスト可能
 - ビジネスロジックはUIやデータソースから分離
 - Firebaseをバックエンドサービスとして活用
+
+## エラーハンドリング方針
+
+dartの`Exception`はすべて非チェック例外であるため、以下の方針でエラーハンドリングを行う。
+ただし、`Error`は本当に意図しないエラーを表すものであるためキャッチしない。
+
+- `Exception`をServices層でキャッチし、dartzパッケージの`Either<L,R>`で結果を返す。
+  - その他の`Exception`が発生しうる場所も同様に処理する。
+- `Repositories Interface`は`Either<L,R>`を返す。
