@@ -187,8 +187,6 @@ household_accounts/
 
 #### テスト
 
-- alchemist
-  - もう使っていない
 - mockito
   - モック化
 

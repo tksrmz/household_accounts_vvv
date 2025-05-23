@@ -17,7 +17,7 @@ flutter build ipa                     # Build iOS app
 
 ### Code Generation
 ```bash
-dart run build_runner build           # Generate code for freezed/json_serializable
+dart run build_runner build           # Generate code for freezed
 dart run build_runner build --delete-conflicting-outputs  # Force rebuild
 ```
 
@@ -137,7 +137,6 @@ lib/presentation/pages/feature_name/
 ### Development
 - **build_runner**: Code generation
 - **mockito**: Test mocking
-- **alchemist**: Golden file testing (legacy)
 - **integration_test**: End-to-end testing
 
 ## Development Guidelines
