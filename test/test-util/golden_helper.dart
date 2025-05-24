@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -6,7 +8,7 @@ void testGoldens(
   required String goldenFileName,
   void Function()? mockFn,
   required Widget Function() builder,
-  void Function()? expectFn,
+  FutureOr<void> Function(WidgetTester)? expectFn,
   bool skip = false,
 }) {
   _GoldenTestWidth.values.forEach((width) {
@@ -25,7 +27,7 @@ void testGoldens(
         );
 
         // Additional expectations after the widget is built
-        expectFn?.call();
+        await expectFn?.call(tester);
 
         await expectLater(
           find.byType(widget.runtimeType),

@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:household_accounts/v2/domain/models/dashboard_info.dart';
 import 'package:household_accounts/v2/domain/models/user_auth.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
+import 'package:household_accounts/v2/domain/repositories/expense_repository.dart';
+import 'package:household_accounts/v2/domain/repositories/income_repository.dart';
+import 'package:household_accounts/v2/domain/repositories/public_profile_repository.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/view_model.dart';
 import 'package:household_accounts/v2/presentation/pages/state_managements/selected_note_state.dart';
@@ -13,9 +17,14 @@ import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../test-util/golden_helper.dart';
-@GenerateNiceMocks([MockSpec<DashboardViewModel>()])
+@GenerateNiceMocks([
+  MockSpec<IncomeRepository>(),
+  MockSpec<ExpenseRepository>(),
+  MockSpec<PublicProfileRepository>(),
+])
 import 'page_test.mocks.dart';
 
+// FIXME testGoldensの代わりにGoldenWrapperを使うようにする
 void main() {
   /**
    * TODO
@@ -26,69 +35,70 @@ void main() {
    * - BudgetGraphModel.fetchでBudgetGraphDataListを取得できる
    * - dateをX月1日00:00:00に整形するロジックをモデルに移す
    */
-  final mockViewModel = MockDashboardViewModel();
+  const userId = UserIdVo('testUserId');
+  final mockIncomeRepository = MockIncomeRepository();
+  final mockExpenseRepository = MockExpenseRepository();
+  final mockPublicProfileRepository = MockPublicProfileRepository();
+
   final targetBuilder = () => MultiProvider(
         providers: [
           ChangeNotifierProvider<SelectedNoteState>(
             create: (_) => SelectedNoteState(),
           ),
           Provider<UserAuth>(
-            create: (_) => UserAuth(uid: UserIdVo('testUserId')),
+            create: (_) => UserAuth(uid: userId),
           )
         ],
         child: DashboardPage(
           date: DateTime(2025, 1),
-          viewModel: mockViewModel,
+          viewModel: DashboardViewModel(
+            incomeRepository: mockIncomeRepository,
+            expenseRepository: mockExpenseRepository,
+            publicProfileRepository: mockPublicProfileRepository,
+          ),
         ),
       );
-  const uninitializedModelValue = DashboardInfoModel(
-    IncomeVo(0),
-    ExpenseVo(0),
-    UserNameVo('testUserName'),
-  );
 
   tearDown(() {
     // モックのクリーンアップ
-    reset(mockViewModel);
+    reset(mockIncomeRepository);
+    reset(mockExpenseRepository);
+    reset(mockPublicProfileRepository);
   });
 
   testGoldens(
     '初期化完了前はローディング画面が表示される',
     goldenFileName: 'dashboard_page_loading',
     mockFn: () {
-      when(mockViewModel.value).thenReturn(
-        DashboardState.uninitialized(uninitializedModelValue),
-      );
+      // 初期化が完了しないようにFutureを返す
+      when(mockIncomeRepository.fetchMonthly(any))
+          .thenAnswer((_) => Completer<List<IncomeVo>>().future);
+      when(mockExpenseRepository.fetchMonthly(any))
+          .thenAnswer((_) => Completer<List<ExpenseVo>>().future);
+      when(mockPublicProfileRepository.fetchUserName(any))
+          .thenAnswer((_) => Completer<UserNameVo>().future);
     },
     builder: targetBuilder,
-    expectFn: () {
-      verify(mockViewModel.init(
-        DateTime(2025, 1),
-        UserIdVo("testUserId"),
-      )).called(1);
-    },
   );
 
   testGoldens(
     '初期化が正常に完了するとダッシュボードコンテンツが表示される',
     goldenFileName: 'dashboard_page_complete',
     mockFn: () {
-      when(mockViewModel.value).thenReturn(
-        DashboardState.uninitialized(uninitializedModelValue).success(
-          DashboardInfoModel(
-            IncomeVo(99),
-            ExpenseVo(200),
-            UserNameVo('testUserName'),
-          ),
-        ),
-      );
+      when(mockIncomeRepository.fetchMonthly(any))
+          .thenAnswer((_) async => [IncomeVo(99)]);
+      when(mockExpenseRepository.fetchMonthly(any))
+          .thenAnswer((_) async => [ExpenseVo(200)]);
+      when(mockPublicProfileRepository.fetchUserName(any))
+          .thenAnswer((_) async => UserNameVo('testUserName'));
     },
     builder: targetBuilder,
-    expectFn: () {
-      verify(mockViewModel.init(
-        DateTime(2025, 1),
-        UserIdVo("testUserId"),
-      )).called(1);
+    expectFn: (tester) async {
+      await tester.pumpAndSettle();
+
+      verify(mockIncomeRepository.fetchMonthly(DateTime(2025, 1))).called(1);
+      verify(mockExpenseRepository.fetchMonthly(DateTime(2025, 1))).called(1);
+      verify(mockPublicProfileRepository.fetchUserName(userId)).called(1);
     },
   );
 
@@ -96,22 +106,12 @@ void main() {
     '初期化に失敗するとエラーメッセージが表示される',
     goldenFileName: 'dashboard_page_error',
     mockFn: () {
-      const failedModelValue = DashboardInfoModel(
-        IncomeVo(0),
-        ExpenseVo(0),
-        UserNameVo('testUserName'),
-      );
-      when(mockViewModel.value).thenReturn(
-        DashboardState.uninitialized(uninitializedModelValue)
-            .fail(failedModelValue),
-      );
+      when(mockIncomeRepository.fetchMonthly(any))
+          .thenThrow(Exception('fetchMonthlyエラー'));
     },
     builder: targetBuilder,
-    expectFn: () {
-      verify(mockViewModel.init(
-        DateTime(2025, 1),
-        UserIdVo("testUserId"),
-      )).called(1);
+    expectFn: (tester) async {
+      verify(mockIncomeRepository.fetchMonthly(DateTime(2025, 1))).called(1);
     },
   );
 }
