@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
 import 'package:provider/provider.dart';
 
-import '../../v2/domain/usecases/dashboard.dart';
 import '../../v2/presentation/pages/dashboard/view_model.dart';
 import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 import '../budget_viewer/budget_viewer_page.dart';
@@ -40,11 +39,9 @@ class _MainPageState extends State<MainPage> {
           return DashboardPage(
             date: DateTime.now(),
             viewModel: DashboardViewModel(
-              dashboardUseCase: DashboardUseCase(
-                incomeRepository: context.read(),
-                expenseRepository: context.read(),
-                publicProfileRepository: context.read(),
-              ),
+              incomeRepository: context.read(),
+              expenseRepository: context.read(),
+              publicProfileRepository: context.read(),
             ),
           );
         },
