@@ -191,7 +191,268 @@ household_accounts/
   - モック化
 
 ### 🔹 推奨されるコード例 / アンチパターン
-- 今はなし
+
+#### ✅ 推奨パターン
+
+##### Repository実装例
+
+```dart
+// Repository実装例
+class FirestorePersonalIncomeRepository implements IncomeRepository {
+  const FirestorePersonalIncomeRepository(
+    this._db,
+    this._uid,
+  );
+
+  final FirebaseFirestore _db;
+  final UserIdVo _uid;
+
+  @override
+  Future<Result<List<IncomeVo>>> fetchMonthly(DateTime date) async {
+    try {
+      final querySnapshot = await _db
+          .collection('/personalNotes/${_uid.value}/incomes')
+          .whereInThisMonth('date', date)
+          .get();
+          
+      final incomes = querySnapshot.docs
+          .map((doc) => IncomeVo(doc.data()['amount']!))
+          .toList(growable: false);
+          
+      return Success(incomes);
+    } on FirebaseException catch (e) {
+      return Failure(RepositoryException('Firebase error: ${e.message}'));
+    } catch (e) {
+      return Failure(RepositoryException('Unknown error: $e'));
+    }
+  }
+}
+```
+
+##### ViewModel実装例
+
+```dart
+// ViewModel実装例
+class SettingsViewModel with ChangeNotifier {
+  SettingsViewModel({
+    required PublicProfileRepository publicProfileRepository,
+    required AuthRepository authRepository,
+  })  : _publicProfileRepository = publicProfileRepository,
+        _authRepository = authRepository {
+    // 初期化コマンドを作成し、即時実行
+    init = AsyncCommand(this._init)..call(_authRepository.getCurrentUser().uid);
+  }
+
+  /// 初期化コマンド
+  late final AsyncCommand<UserIdVo> init;
+
+  /// ユーザー名保存コマンド
+  late final AsyncCommand<String> save;
+
+  /// 編集前のユーザー名
+  late UserNameVo _userNameBeforeEdit;
+  String get userName => _userNameBeforeEdit.value;
+
+  /// 編集モードかどうか
+  bool _isEditing = false;
+  bool get isEditing => _isEditing;
+
+  /// ユーザー名のバリデーションエラー判定フラグ
+  bool _hasValidationError = false;
+  bool get hasValidationError => _hasValidationError;
+
+  /// ユーザー名をセーブできるかどうか
+  bool get canSave => save.canExecute;
+
+  final PublicProfileRepository _publicProfileRepository;
+  final AuthRepository _authRepository;
+
+  Future<void> _init(UserIdVo userId) async {
+    _userNameBeforeEdit = await _publicProfileRepository.fetchUserName(userId);
+    save = AsyncCommand((newUserName) => this._save(userId, newUserName));
+  }
+
+  void startEditing() {
+    _isEditing = true;
+    notifyListeners();
+  }
+
+  Future<void> _save(UserIdVo userId, String newUserName) async {
+    // 値オブジェクトのバリデーション
+    if (UserNameVo.isNotValid(newUserName)) {
+      _hasValidationError = true;
+      notifyListeners();
+      return;
+    }
+    _hasValidationError = false;
+    final vo = UserNameVo(newUserName);
+
+    try {
+      // リポジトリ呼び出し
+      await _publicProfileRepository.updateUserName(userId, vo);
+      _userNameBeforeEdit = vo;
+    } catch (e) {
+      // 保存に失敗した場合は編集前の状態に戻す
+      rethrow;
+    } finally {
+      _isEditing = false;
+      notifyListeners();
+    }
+  }
+}
+```
+
+##### 値オブジェクト実装例
+
+```dart
+// 値オブジェクト実装例
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'user_name.freezed.dart';
+
+@freezed
+class UserNameVo with _$UserNameVo {
+  /// ユーザー名の値オブジェクト
+  /// 
+  /// 1文字以上50文字以下の文字列である必要がある
+  factory UserNameVo(String value) {
+    assert(value.isNotEmpty, 'ユーザー名は空にできません');
+    assert(value.length <= 50, 'ユーザー名は50文字以下である必要があります');
+    return _UserNameVo(value);
+  }
+
+  const UserNameVo._();
+  
+  /// 空の値オブジェクト（初期化用）
+  static const empty = UserNameVo._('--');
+
+  /// 値が有効かどうかを判定する
+  static bool isNotValid(String value) {
+    return value.isEmpty || value.length > 50;
+  }
+}
+```
+
+##### コマンドパターン実装例
+
+```dart
+// コマンドパターン実装例
+class AsyncCommand<T> extends _AsyncCommandBase {
+  AsyncCommand(this._command);
+
+  final Future<void> Function(T) _command;
+
+  Future<void> call(T t) async {
+    return _execute(() => _command(t));
+  }
+}
+
+class _AsyncCommandBase with ChangeNotifier {
+  /// コマンドを実行可能かどうか
+  bool _canExecute = true;
+  bool get canExecute => _canExecute;
+  bool get isExecuting => !canExecute;
+
+  /// エラー状態
+  Exception? _error;
+  Exception? get error => _error;
+  bool get hasError => _error != null;
+
+  Future<void> _execute(Future<void> Function() command) async {
+    if (!canExecute) {
+      return;
+    }
+
+    _canExecute = false;
+    notifyListeners();
+
+    try {
+      await command();
+      _error = null;
+    } on Exception catch (ex, st) {
+      developer.log(
+        'AsyncCommand execution was failed',
+        name: 'AsyncCommand',
+        level: Level.WARNING.value,
+        error: ex,
+        stackTrace: st,
+      );
+      _error = ex;
+    } finally {
+      _canExecute = true;
+      notifyListeners();
+    }
+  }
+}
+```
+
+#### ❌ アンチパターン
+
+##### ViewModelに直接Firestoreロジックを書く（禁止）
+
+```dart
+// ViewModelに直接Firestoreロジックを書く（禁止）
+class IncomeViewModel extends ChangeNotifier {
+  void loadIncomes() async {
+    // ❌ レイヤー違反: ViewModelが直接Firestoreにアクセスしている
+    final snapshot = await FirebaseFirestore.instance
+        .collection('incomes').get();
+        
+    // ❌ レイヤー違反: ViewModelがFirestoreのデータ構造に依存している
+    _incomes = snapshot.docs.map((doc) => {
+      'amount': doc.data()['amount'],
+      'date': doc.data()['date'].toDate(),
+    }).toList();
+    
+    notifyListeners();
+  }
+}
+```
+
+##### 値オブジェクトを使わずにプリミティブ型を直接使う（非推奨）
+
+```dart
+// 値オブジェクトを使わずにプリミティブ型を直接使う（非推奨）
+class SettingsViewModel with ChangeNotifier {
+  // ❌ プリミティブ型を直接使用
+  String _userName = '';
+  String get userName => _userName;
+  
+  bool _isValid = true;
+  bool get isValid => _isValid;
+  
+  void validateUserName(String name) {
+    // ❌ バリデーションロジックが散在する
+    if (name.isEmpty || name.length > 50) {
+      _isValid = false;
+    } else {
+      _isValid = true;
+      _userName = name;
+    }
+    notifyListeners();
+  }
+}
+```
+
+##### エラーハンドリングを行わない（非推奨）
+
+```dart
+// エラーハンドリングを行わない（非推奨）
+class IncomeRepository implements IncomeRepository {
+  @override
+  Future<List<Income>> fetchMonthly(DateTime date) async {
+    // ❌ エラーハンドリングがない
+    final querySnapshot = await _db
+        .collection('/personalNotes/${_uid.value}/incomes')
+        .whereInThisMonth('date', date)
+        .get();
+        
+    return querySnapshot.docs
+        .map((doc) => Income.fromFirestore(doc))
+        .toList();
+  }
+}
+```
 
 ---
 

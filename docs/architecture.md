@@ -115,10 +115,202 @@ graph TD
 - ビジネスロジックはUIやデータソースから分離
 - Firebaseをバックエンドサービスとして活用
 
-## エラーハンドリング方針
+## レイヤー間通信の具体例
+
+### ViewModelからRepositoryの呼び出し
+
+ViewModelはコマンドパターンを使用してRepositoryを呼び出します。これにより、非同期処理の状態管理が容易になります。
+
+```dart
+// ViewModel内でのCommand使用例
+class SettingsViewModel with ChangeNotifier {
+  SettingsViewModel({
+    required PublicProfileRepository publicProfileRepository,
+    required AuthRepository authRepository,
+  })  : _publicProfileRepository = publicProfileRepository,
+        _authRepository = authRepository {
+    init = AsyncCommand(this._init)..call(_authRepository.getCurrentUser().uid);
+    // コマンドの初期化と即時実行
+  }
+
+  /// 初期化コマンド
+  late final AsyncCommand<UserIdVo> init;
+
+  /// ユーザー名保存コマンド
+  late final AsyncCommand<String> save;
+
+  // ...
+
+  Future<void> _init(UserIdVo userId) async {
+    _userNameBeforeEdit = await _publicProfileRepository.fetchUserName(userId);
+    save = AsyncCommand((newUserName) => this._save(userId, newUserName));
+  }
+
+  Future<void> _save(UserIdVo userId, String newUserName) async {
+    if (UserNameVo.isNotValid(newUserName)) {
+      _hasValidationError = true;
+      notifyListeners();
+      return;
+    }
+    
+    // 値オブジェクトの生成
+    final vo = UserNameVo(newUserName);
+
+    try {
+      // リポジトリ呼び出し
+      await _publicProfileRepository.updateUserName(userId, vo);
+      _userNameBeforeEdit = vo;
+    } catch (e) {
+      // エラーハンドリング
+      rethrow;
+    } finally {
+      _isEditing = false;
+      notifyListeners();
+    }
+  }
+}
+```
+
+### コマンドパターンの実装
+
+コマンドパターンは非同期処理の状態管理を容易にします。
+
+```dart
+class AsyncCommand<T> extends _AsyncCommandBase {
+  AsyncCommand(this._command);
+
+  final Future<void> Function(T) _command;
+
+  Future<void> call(T t) async {
+    return _execute(() => _command(t));
+  }
+}
+
+class _AsyncCommandBase with ChangeNotifier {
+  /// コマンドを実行可能かどうか
+  bool _canExecute = true;
+  bool get canExecute => _canExecute;
+  bool get isExecuting => !canExecute;
+
+  /// エラー状態
+  Exception? _error;
+  Exception? get error => _error;
+  bool get hasError => _error != null;
+
+  Future<void> _execute(Future<void> Function() command) async {
+    if (!canExecute) {
+      return;
+    }
+
+    _canExecute = false;
+    notifyListeners();
+
+    try {
+      await command();
+      _error = null;
+    } on Exception catch (ex, st) {
+      // エラーログ記録
+      developer.log(
+        'AsyncCommand execution was failed',
+        name: 'AsyncCommand',
+        level: Level.WARNING.value,
+        error: ex,
+        stackTrace: st,
+      );
+      _error = ex;
+    } finally {
+      _canExecute = true;
+      notifyListeners();
+    }
+  }
+}
+```
+
+## エラーハンドリング戦略
 
 dartの`Exception`はすべて非チェック例外であるため、以下の方針でエラーハンドリングを行う。
 ただし、`Error`は本当に意図しないエラーを表すものであるためキャッチしない。
+
+### レイヤー別エラーハンドリング
+
+1. **Domain Layer**: ビジネスロジックエラーはResultパターンで処理
+   ```dart
+   // Resultパターンの例
+   abstract class Result<T> {
+     R when<R>({
+       required R Function(T) success,
+       required R Function(Exception) failure,
+     });
+   }
+   
+   class Success<T> implements Result<T> {
+     final T value;
+     Success(this.value);
+     
+     @override
+     R when<R>({
+       required R Function(T) success,
+       required R Function(Exception) failure,
+     }) => success(value);
+   }
+   
+   class Failure<T> implements Result<T> {
+     final Exception exception;
+     Failure(this.exception);
+     
+     @override
+     R when<R>({
+       required R Function(T) success,
+       required R Function(Exception) failure,
+     }) => failure(exception);
+   }
+   ```
+
+2. **Data Layer**: 外部API/DB例外をキャッチしResultに変換
+   ```dart
+   // Repository実装例
+   class FirestorePersonalIncomeRepository implements IncomeRepository {
+     @override
+     Future<Result<List<IncomeVo>>> fetchMonthly(DateTime date) async {
+       try {
+         final querySnapshot = await _db
+           .collection('/personalNotes/${_uid.value}/incomes')
+           .whereInThisMonth('date', date)
+           .get();
+         
+         final incomes = querySnapshot.docs
+           .map((doc) => IncomeVo(doc.data()['amount']!))
+           .toList(growable: false);
+           
+         return Success(incomes);
+       } on FirebaseException catch (e) {
+         return Failure(RepositoryException('Firebase error: ${e.message}'));
+       } catch (e) {
+         return Failure(RepositoryException('Unknown error: $e'));
+       }
+     }
+   }
+   ```
+
+3. **Presentation Layer**: UIエラー表示とリトライ機能を提供
+   ```dart
+   // ViewModelでのエラーハンドリング
+   void loadIncomes() async {
+     final result = await _incomeRepository.fetchMonthly(DateTime.now());
+     
+     result.when(
+       success: (incomes) {
+         _incomes = incomes;
+         _errorMessage = null;
+         notifyListeners();
+       },
+       failure: (exception) {
+         _errorMessage = 'データの取得に失敗しました: ${exception.message}';
+         notifyListeners();
+       }
+     );
+   }
+   ```
 
 - `Exception`をServices層でキャッチし、dartzパッケージの`Either<L,R>`で結果を返す。
   - その他の`Exception`が発生しうる場所も同様に処理する。
