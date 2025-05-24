@@ -71,9 +71,12 @@ void main() {
       );
 
       verify(mockDb.doc('/publicProfiles/XxXSampleUserIdXxX')).called(1);
-      verify(mockDocumentReference.update({
-        'name': 'NewUserName',
-      })).called(1);
+
+      final verification = verify(mockDocumentReference.update(captureAny));
+      verification.called(1);
+      final capturedArg = verification.captured.single as Map<Object?, Object?>;
+      expect(capturedArg['name'], equals('NewUserName'));
+      expect(capturedArg['updatedAt'], isA<FieldValue>());
     });
 
     test('更新に失敗したら例外が発生する', () async {
