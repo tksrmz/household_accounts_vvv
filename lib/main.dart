@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:household_accounts/v2/data/services/firestore_service.dart';
 import 'package:provider/provider.dart';
 
 import 'feature/auth_gate/index.dart';
@@ -71,6 +72,9 @@ class MyApp extends StatelessWidget {
           FirebaseFirestore.instance,
         ),
       ),
+      Provider<FirestoreService>(
+        create: (context) => FirestoreService(context.read()),
+      ),
     ];
 
     return MultiProvider(
@@ -99,7 +103,10 @@ class MyApp extends StatelessWidget {
               final userId = user.uid;
 
               return selectedNote.isPersonal
-                  ? FirestorePersonalExpenseRepository(firestore, userId)
+                  ? FirestorePersonalExpenseRepository(
+                      context.read<FirestoreService>(),
+                      userId,
+                    )
                   : FirestoreSharedExpenseRepository(firestore, userId);
             },
           ),

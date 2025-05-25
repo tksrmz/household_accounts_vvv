@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_expense_repository.dart';
+import 'package:household_accounts/v2/data/services/firestore_service.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:mockito/annotations.dart';
@@ -59,7 +60,7 @@ void main() {
           when(mockQueryDocumentSnapshot.data()).thenReturn({'amount': 100});
 
           final sut = FirestorePersonalExpenseRepository(
-            mockDb,
+            FirestoreService(mockDb),
             UserIdVo('samplePersonalNoteId'),
           );
           final expenseList = await sut.fetchMonthly(date);
@@ -89,7 +90,7 @@ void main() {
         when(mockQuerySnapshot.docs).thenReturn([]);
 
         final sut = FirestorePersonalExpenseRepository(
-          mockDb,
+          FirestoreService(mockDb),
           UserIdVo('samplePersonalNoteId'),
         );
         final expenseList = await sut.fetchMonthly(DateTime(2025, 1));
@@ -111,7 +112,7 @@ void main() {
         ]);
 
         final sut = FirestorePersonalExpenseRepository(
-          mockDb,
+          FirestoreService(mockDb),
           UserIdVo('samplePersonalNoteId'),
         );
         final expenseList = await sut.fetchMonthly(DateTime(2025, 1));
@@ -139,7 +140,7 @@ void main() {
         when(mockQueryDocumentSnapshot.data()).thenReturn({'amount': value});
 
         final sut = FirestorePersonalExpenseRepository(
-          mockDb,
+          FirestoreService(mockDb),
           UserIdVo('samplePersonalNoteId'),
         );
         expect(() async => await sut.fetchMonthly(DateTime(2025, 1)),
