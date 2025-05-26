@@ -67,13 +67,11 @@ class MyApp extends StatelessWidget {
       Provider<FirebaseFirestore>.value(
         value: FirebaseFirestore.instance,
       ),
-      Provider<PublicProfileRepository>(
-        create: (_) => FirestorePublicProfileRepository(
-          FirebaseFirestore.instance,
-        ),
-      ),
       Provider<FirestoreService>(
-        create: (context) => FirestoreService(context.read()),
+        create: (_) => FirestoreService(context.read()),
+      ),
+      Provider<PublicProfileRepository>(
+        create: (context) => FirestorePublicProfileRepository(context.read()),
       ),
     ];
 
@@ -89,25 +87,22 @@ class MyApp extends StatelessWidget {
           ),
           ProxyProvider2<SelectedNoteState, UserAuth, IncomeRepository>(
             update: (context, selectedNote, user, __) {
-              final firestore = context.read<FirebaseFirestore>();
+              final firestoreService = context.read<FirestoreService>();
               final userId = user.uid;
 
               return selectedNote.isPersonal
-                  ? FirestorePersonalIncomeRepository(firestore, userId)
-                  : FirestoreSharedIncomeRepository(firestore, userId);
+                  ? FirestorePersonalIncomeRepository(firestoreService, userId)
+                  : FirestoreSharedIncomeRepository(firestoreService, userId);
             },
           ),
           ProxyProvider2<SelectedNoteState, UserAuth, ExpenseRepository>(
             update: (context, selectedNote, user, __) {
-              final firestore = context.read<FirebaseFirestore>();
+              final firestoreService = context.read<FirestoreService>();
               final userId = user.uid;
 
               return selectedNote.isPersonal
-                  ? FirestorePersonalExpenseRepository(
-                      context.read<FirestoreService>(),
-                      userId,
-                    )
-                  : FirestoreSharedExpenseRepository(firestore, userId);
+                  ? FirestorePersonalExpenseRepository(firestoreService, userId)
+                  : FirestoreSharedExpenseRepository(firestoreService, userId);
             },
           ),
         ];
