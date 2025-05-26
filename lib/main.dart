@@ -68,7 +68,7 @@ class MyApp extends StatelessWidget {
         value: FirebaseFirestore.instance,
       ),
       Provider<FirestoreService>(
-        create: (_) => FirestoreService(context.read()),
+        create: (context) => FirestoreService(context.read()),
       ),
       Provider<PublicProfileRepository>(
         create: (context) => FirestorePublicProfileRepository(context.read()),
