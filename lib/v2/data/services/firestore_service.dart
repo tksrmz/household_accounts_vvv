@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../domain/models/vo/user_id.dart';
+import '../../domain/models/vo/user_name.dart';
 
 /// Firestoreと連携するためのサービス
 class FirestoreService {
@@ -82,5 +83,24 @@ class FirestoreService {
         .get();
 
     return querySnapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  /// [userId]のユーザー名を取得する。
+  Future<Map<String, dynamic>> fetchPublicProfileOf(UserIdVo userId) async {
+    final documentReference = _db.doc('/publicProfiles/${userId.value}');
+    final documentSnapshot = await documentReference.get();
+    return documentSnapshot.data()!;
+  }
+
+  /// [userId]のユーザー名を更新する。
+  Future<void> updatePublicProfileNameOf(
+    UserIdVo userId,
+    UserNameVo userName,
+  ) async {
+    final documentReference = _db.doc('/publicProfiles/${userId.value}');
+    await documentReference.update({
+      'name': userName.value,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 }

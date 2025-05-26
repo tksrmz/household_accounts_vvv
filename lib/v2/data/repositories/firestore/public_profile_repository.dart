@@ -1,27 +1,22 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:household_accounts/v2/data/services/firestore_service.dart';
 
 import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/models/vo/user_name.dart';
 import '../../../domain/repositories/public_profile_repository.dart';
 
 class FirestorePublicProfileRepository implements PublicProfileRepository {
-  const FirestorePublicProfileRepository(this._db);
+  const FirestorePublicProfileRepository(this._firestoreService);
 
-  final FirebaseFirestore _db;
+  final FirestoreService _firestoreService;
 
   @override
   Future<UserNameVo> fetchUserName(UserIdVo userId) async {
-    final documentReference = _db.doc('/publicProfiles/${userId.value}');
-    final documentSnapshot = await documentReference.get();
-    return UserNameVo(documentSnapshot.data()!['name']! as String);
+    final profileData = await _firestoreService.fetchPublicProfileOf(userId);
+    return UserNameVo(profileData['name']! as String);
   }
 
   @override
   Future<void> updateUserName(UserIdVo userId, UserNameVo userName) async {
-    final documentReference = _db.doc('/publicProfiles/${userId.value}');
-    await documentReference.update({
-      'name': userName.value,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    await _firestoreService.updatePublicProfileNameOf(userId, userName);
   }
 }
