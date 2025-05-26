@@ -13,104 +13,125 @@ import 'personal_income_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
-    final mockFirestoreService = MockFirestoreService();
-    final userId = UserIdVo('samplePersonalNoteId');
+    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
-    group('1件取得', () {
-      <({String description, DateTime date})>[
-        (
-          description: '指定された月の収入一覧を取得できる',
-          date: DateTime(2025, 1),
-        ),
-        (
-          description: '初日の0時以外の日付を指定されたとき、月初の0時に整形してからデータを取得する',
-          date: DateTime(2025, 1, 2, 3, 4, 5),
-        ),
-      ].forEach((element) {
-        final (:description, :date) = element;
-        test(description, () async {
-          when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
-            userId,
-            date,
-          )).thenAnswer((_) async => [
-                {'amount': 100}
-              ]);
-
-          final sut = FirestorePersonalIncomeRepository(
-            mockFirestoreService,
-            userId,
-          );
-          final incomeList = await sut.fetchMonthly(date);
-
-          verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
-            userId,
-            date,
-          )).called(1);
-
-          expect(incomeList, hasLength(1));
-          expect(incomeList[0], IncomeVo(100));
-        });
-      });
+    tearDown(() {
+      reset(mockFirestoreService);
     });
 
-    group('0件取得', () {
+    group('1件取得', () {
       test('指定された月の収入一覧を取得できる', () async {
+        final date = DateTime(2025, 1);
         when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
           userId,
-          any,
-        )).thenAnswer((_) async => []);
+          date.year,
+          date.month,
+        )).thenAnswer((_) async => [
+              {'amount': 100}
+            ]);
 
-        final sut = FirestorePersonalIncomeRepository(
+        final target = FirestorePersonalIncomeRepository(
           mockFirestoreService,
           userId,
         );
-        final incomeList = await sut.fetchMonthly(DateTime(2025, 1));
+        final incomeList = await target.fetchMonthly(date);
 
-        expect(incomeList, hasLength(0));
+        verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+          userId,
+          date.year,
+          date.month,
+        )).called(1);
+
+        expect(incomeList, hasLength(1));
+        expect(incomeList[0], IncomeVo(100));
       });
     });
 
     group('2件取得', () {
       test('指定された月の収入一覧を取得できる', () async {
+        final date = DateTime(2025, 1);
         when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
           userId,
-          any,
-        )).thenAnswer((_) async => [
-              {'amount': 100},
-              {'amount': 100},
-            ]);
-
-        final sut = FirestorePersonalIncomeRepository(
-          mockFirestoreService,
-          userId,
-        );
-        final incomeList = await sut.fetchMonthly(DateTime(2025, 1));
-
-        expect(incomeList, hasLength(2));
-        expect(incomeList[0], IncomeVo(100));
-        expect(incomeList[1], IncomeVo(100));
-      });
-    });
-
-    group('複数件取得', () {
-      test('異なる金額の収入を取得できる', () async {
-        when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
-          userId,
-          any,
+          date.year,
+          date.month,
         )).thenAnswer((_) async => [
               {'amount': 100},
               {'amount': 200},
             ]);
 
-        final sut = FirestorePersonalIncomeRepository(
+        final target = FirestorePersonalIncomeRepository(
           mockFirestoreService,
           userId,
         );
-        final incomeList = await sut.fetchMonthly(DateTime(2025, 1));
+        final incomeList = await target.fetchMonthly(date);
+
+        verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+          userId,
+          date.year,
+          date.month,
+        )).called(1);
 
         expect(incomeList, hasLength(2));
         expect(incomeList[0], IncomeVo(100));
         expect(incomeList[1], IncomeVo(200));
+      });
+    });
+
+    group('0件取得', () {
+      test('指定された月の収入一覧を取得できる', () async {
+        final date = DateTime(2025, 1);
+        when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+          userId,
+          date.year,
+          date.month,
+        )).thenAnswer((_) async => []);
+
+        final target = FirestorePersonalIncomeRepository(
+          mockFirestoreService,
+          userId,
+        );
+        final incomeList = await target.fetchMonthly(date);
+
+        verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+          userId,
+          date.year,
+          date.month,
+        )).called(1);
+
+        expect(incomeList, hasLength(0));
+      });
+    });
+
+    <({String description, dynamic value})>[
+      (
+        description: 'amountが数値以外のとき、TypeErrorが発生する',
+        value: '100',
+      ),
+      (
+        description: 'amountがnullのとき、TypeErrorが発生する',
+        value: null,
+      ),
+    ].forEach((element) {
+      final (:description, :value) = element;
+      test(description, () async {
+        final date = DateTime(2025, 1);
+        when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+          userId,
+          date.year,
+          date.month,
+        )).thenAnswer((_) async => [
+              {'amount': value}
+            ]);
+
+        final target = FirestorePersonalIncomeRepository(
+          mockFirestoreService,
+          userId,
+        );
+        expect(
+          () async => await target.fetchMonthly(date),
+          throwsA(isA<TypeError>()),
+        );
       });
     });
   });
