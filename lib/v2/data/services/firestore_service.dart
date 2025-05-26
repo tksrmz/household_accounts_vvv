@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:household_accounts/v2/data/models/privateProfile.dart';
 
 import '../../domain/models/vo/user_id.dart';
 import '../../domain/models/vo/user_name.dart';
@@ -102,5 +103,19 @@ class FirestoreService {
       'name': userName.value,
       'updatedAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  /// ユーザーのプライベートプロファイルを取得する。
+  Future<DocumentSnapshot<PrivateProfile>> fetchPrivateProfileOf(
+    UserIdVo userId,
+  ) async {
+    return await _db
+        .doc('/privateProfiles/${userId.value}')
+        .withConverter(
+          fromFirestore: (snapshot, _) =>
+              PrivateProfile.fromJson(snapshot.data()!),
+          toFirestore: (data, _) => data.toJson(),
+        )
+        .get();
   }
 }

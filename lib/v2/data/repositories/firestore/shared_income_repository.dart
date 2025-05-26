@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:household_accounts/util/extension/collection_reference.dart';
-import 'package:household_accounts/v2/data/models/privateProfile.dart';
+import 'package:household_accounts/v2/data/services/firestore_service.dart';
 
 import '../../../domain/models/vo/income.dart';
 import '../../../domain/models/vo/user_id.dart';
@@ -8,23 +7,16 @@ import '../../../domain/repositories/income_repository.dart';
 
 class FirestoreSharedIncomeRepository implements IncomeRepository {
   const FirestoreSharedIncomeRepository(
-    this._db,
+    this._firestoreService,
     this._userId,
   );
 
-  final FirebaseFirestore _db;
+  final FirestoreService _firestoreService;
   final UserIdVo _userId;
 
   @override
   Future<List<IncomeVo>> fetchMonthly(DateTime date) async {
-    final privateProfileDocSnapshot = await _db
-        .doc('/privateProfiles/${_userId.value}')
-        .withConverter(
-          fromFirestore: (snapshot, _) =>
-              PrivateProfile.fromJson(snapshot.data()!),
-          toFirestore: (data, _) => data.toJson(),
-        )
-        .get();
+    final privateProfileDocSnapshot = await _firestoreService.fetchPrivateProfileOf(_userId);
 
     if (!privateProfileDocSnapshot.exists ||
         privateProfileDocSnapshot.data() == null) {

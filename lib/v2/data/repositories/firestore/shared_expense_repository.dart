@@ -1,30 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:household_accounts/util/extension/collection_reference.dart';
+import 'package:household_accounts/v2/data/services/firestore_service.dart';
 
 import '../../../domain/models/vo/expense.dart';
 import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/repositories/expense_repository.dart';
-import '../../models/privateProfile.dart';
 
 class FirestoreSharedExpenseRepository implements ExpenseRepository {
   const FirestoreSharedExpenseRepository(
-    this._db,
+    this._firestoreService,
     this._userId,
   );
 
-  final FirebaseFirestore _db;
+  final FirestoreService _firestoreService;
   final UserIdVo _userId;
 
   @override
   Future<List<ExpenseVo>> fetchMonthly(DateTime date) async {
-    final privateProfileDocSnapshot = await _db
-        .doc('/privateProfiles/${_userId.value}')
-        .withConverter(
-          fromFirestore: (snapshot, _) =>
-              PrivateProfile.fromJson(snapshot.data()!),
-          toFirestore: (data, _) => data.toJson(),
-        )
-        .get();
+    final privateProfileDocSnapshot = await _firestoreService.fetchPrivateProfileOf(_userId);
 
     if (!privateProfileDocSnapshot.exists ||
         privateProfileDocSnapshot.data() == null) {
