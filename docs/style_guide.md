@@ -107,12 +107,18 @@ household_accounts/
   - Use caseは導入しない。
     - 現時点では、ViewModelにビジネスロジックを集約し、コードの冗長化を避けることを優先する。
     - ロジックが肥大化・再利用性が必要になった場合に、段階的にUseCaseの導入を検討する。
-  - Repository interfaceは`domain/repository`に配置する。
+  - Repository interfaceは`domain/repositories`に配置する。
     - RepositoryはSingle source of truthであり、アプリケーションデータの信頼できる単一の情報源である。
     - とある種類のValue objectまたはEntityを取得できるのは、ひとつのRepositoryだけである。
       - Repositoryのメソッドによって、ひとつだけ取得する場合やListで取得することは許可される。
 - データレイヤーの実装は`data`フォルダに配置する。
-  - Repositoryの実装は`data/repository`に配置する。
+  - Repositoryの実装は`data/repositories`に配置する。
+    - 各Repositoryは特定のデータ種別（収入、支出など）に対する操作を担当する。
+    - Serviceを使用してデータを取得し、ドメインモデル（値オブジェクト）に変換する。
+  - Serviceは`data/services`に配置する。
+    - Serviceは外部サービス（Firestore等）へのアクセスを抽象化し、データの取得・保存のための低レベルな操作を提供する。
+    - 複数のリポジトリから共通して利用され、生のデータ（Map<String, dynamic>など）を返す。
+    - 状態を保持せず、純粋なデータアクセス機能のみを提供する。
   - 外部サービスから取得したデータを表現する型は、`data/models`に配置する。
     - 外部サービスから取得したデータを表現する型は、`freezed`アノテーションを使用する。
 - プレゼンテーションレイヤーの実装は`presentation`フォルダに配置する。
