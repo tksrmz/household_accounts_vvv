@@ -16,7 +16,8 @@ class FirestoreSharedExpenseRepository implements ExpenseRepository {
 
   @override
   Future<List<ExpenseVo>> fetchMonthly(DateTime date) async {
-    final privateProfileDocSnapshot = await _firestoreService.fetchPrivateProfileOf(_userId);
+    final privateProfileDocSnapshot =
+        await _firestoreService.fetchPrivateProfileOf(_userId);
 
     if (!privateProfileDocSnapshot.exists ||
         privateProfileDocSnapshot.data() == null) {
@@ -34,12 +35,14 @@ class FirestoreSharedExpenseRepository implements ExpenseRepository {
     final sharedNoteDocRef =
         sharedNote['ref']! as DocumentReference<Map<String, dynamic>>;
 
-    final querySnapshot = await sharedNoteDocRef
-        .collection('expenses')
-        .whereInThisMonth('date', date)
-        .get();
-    return querySnapshot.docs
-        .map((doc) => ExpenseVo(doc.data()['amount']!))
+    final expenseList = await _firestoreService.fetchMonthlySharedExpensesFrom(
+      sharedNoteDocRef,
+      date.year,
+      date.month,
+    );
+
+    return expenseList
+        .map((doc) => ExpenseVo(doc['amount']!))
         .toList(growable: false);
   }
 }

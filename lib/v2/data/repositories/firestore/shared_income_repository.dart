@@ -16,7 +16,8 @@ class FirestoreSharedIncomeRepository implements IncomeRepository {
 
   @override
   Future<List<IncomeVo>> fetchMonthly(DateTime date) async {
-    final privateProfileDocSnapshot = await _firestoreService.fetchPrivateProfileOf(_userId);
+    final privateProfileDocSnapshot =
+        await _firestoreService.fetchPrivateProfileOf(_userId);
 
     if (!privateProfileDocSnapshot.exists ||
         privateProfileDocSnapshot.data() == null) {
@@ -34,12 +35,14 @@ class FirestoreSharedIncomeRepository implements IncomeRepository {
     final sharedNoteDocRef =
         sharedNote['ref']! as DocumentReference<Map<String, dynamic>>;
 
-    final querySnapshot = await sharedNoteDocRef
-        .collection('incomes')
-        .whereInThisMonth('date', date)
-        .get();
-    return querySnapshot.docs
-        .map((doc) => IncomeVo(doc.data()['amount']!))
+    final incomeList = await _firestoreService.fetchMonthlySharedIncomesFrom(
+      sharedNoteDocRef,
+      date.year,
+      date.month,
+    );
+
+    return incomeList
+        .map((doc) => IncomeVo(doc['amount']!))
         .toList(growable: false);
   }
 }
