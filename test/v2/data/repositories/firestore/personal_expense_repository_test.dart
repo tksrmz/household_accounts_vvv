@@ -98,9 +98,8 @@ void main() {
           mockFirestoreService,
           userId,
         );
-        final result = await target.fetchMonthly(date);
         expect(
-          () => result.getOrElse(() => []),
+          () async => await target.fetchMonthly(date),
           throwsA(isA<TypeError>()),
         );
       });
