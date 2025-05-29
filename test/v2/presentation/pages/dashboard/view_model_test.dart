@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
@@ -99,10 +100,10 @@ void main() {
       ].forEach((testData) {
         test(testData.description, () async {
           when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-            (_) async => testData.incomeAnswer,
+            (_) async => Right(testData.incomeAnswer),
           );
           when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-            (_) async => testData.expenseAnswer,
+            (_) async => Right(testData.expenseAnswer),
           );
           when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
             (_) async => testData.userNameAnswer,
@@ -129,10 +130,10 @@ void main() {
 
     test('notifyListeners()を呼び出しており、エラー状態ではない', () async {
       when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-        (_) async => [IncomeVo(60), IncomeVo(40)],
+        (_) async => Right([IncomeVo(60), IncomeVo(40)]),
       );
       when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-        (_) async => [ExpenseVo(30), ExpenseVo(40)],
+        (_) async => Right([ExpenseVo(30), ExpenseVo(40)]),
       );
       when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
         (_) async => UserNameVo("testUserId"),
@@ -163,10 +164,10 @@ void main() {
     setUp(() {
       // 基本的なモックセットアップ（個別テストで例外を発生させる）
       when(mockIncomeRepository.fetchMonthly(any)).thenAnswer(
-        (_) async => <IncomeVo>[],
+        (_) async => Right(<IncomeVo>[]),
       );
       when(mockExpenseRepository.fetchMonthly(any)).thenAnswer(
-        (_) async => <ExpenseVo>[],
+        (_) async => Right(<ExpenseVo>[]),
       );
       when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
         (_) async => UserNameVo('TestUserName'),
@@ -174,8 +175,8 @@ void main() {
     });
 
     test('IncomeRepositoryで例外が発生したとき、エラー状態になり、Modelは初期値である', () async {
-      when(mockIncomeRepository.fetchMonthly(date)).thenThrow(
-        Exception('テストエラー'),
+      when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
+        (_) async => Left(Exception('テストエラー')),
       );
 
       final sut = DashboardViewModel(
@@ -194,8 +195,8 @@ void main() {
     });
 
     test('ExpenseRepositoryで例外が発生したとき、エラー状態になり、Modelは初期値である', () async {
-      when(mockExpenseRepository.fetchMonthly(date)).thenThrow(
-        Exception('テストエラー'),
+      when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
+        (_) async => Left(Exception('テストエラー')),
       );
 
       final sut = DashboardViewModel(
@@ -238,7 +239,7 @@ void main() {
 
     test('notifyListeners()を呼び出している', () async {
       when(mockIncomeRepository.fetchMonthly(any)).thenAnswer(
-        (_) async => throw Exception('テスト：エラーが発生しました'),
+        (_) async => Left(Exception('テスト：エラーが発生しました')),
       );
 
       final sut = DashboardViewModel(

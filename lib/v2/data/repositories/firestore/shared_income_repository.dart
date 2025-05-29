@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
 
 import '../../../domain/models/vo/income.dart';
@@ -15,34 +16,36 @@ class FirestoreSharedIncomeRepository implements IncomeRepository {
   final UserIdVo _userId;
 
   @override
-  Future<List<IncomeVo>> fetchMonthly(DateTime date) async {
+  Future<Either<Exception, List<IncomeVo>>> fetchMonthly(DateTime date) async {
     final privateProfileDocSnapshot =
         await _firestoreService.fetchPrivateProfileOf(_userId);
 
     if (!privateProfileDocSnapshot.exists ||
         privateProfileDocSnapshot.data() == null) {
-      return [];
+      return Right([]);
     }
 
     final sharedNote = privateProfileDocSnapshot.data()!.sharedNote;
     if (sharedNote == null) {
-      return [];
+      return Right([]);
     }
     if (!sharedNote.containsKey('ref')) {
-      return [];
+      return Right([]);
     }
 
     final sharedNoteDocRef =
         sharedNote['ref']! as DocumentReference<Map<String, dynamic>>;
 
-    final incomeList = await _firestoreService.fetchMonthlySharedIncomesFrom(
+    final result = await _firestoreService.fetchMonthlySharedIncomesFrom(
       sharedNoteDocRef,
       date.year,
       date.month,
     );
 
-    return incomeList
-        .map((doc) => IncomeVo(doc['amount']!))
-        .toList(growable: false);
+    final createIncomeVo =
+        (Map<String, dynamic> doc) => IncomeVo(doc['amount']!);
+    final convertToIncomeVoList = (List<Map<String, dynamic>> incomeList) =>
+        incomeList.map(createIncomeVo).toList(growable: false);
+    return result.map(convertToIncomeVoList);
   }
 }

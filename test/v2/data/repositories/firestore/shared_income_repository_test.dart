@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/privateProfile.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/shared_income_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
@@ -46,10 +47,10 @@ void main() {
           mockSharedNoteDocRef,
           date.year,
           date.month,
-        )).thenAnswer((_) async => [
+        )).thenAnswer((_) async => Right([
               {'amount': 100},
               {'amount': 200},
-            ]);
+            ]));
 
         final target = FirestoreSharedIncomeRepository(
           mockFirestoreService,
@@ -57,9 +58,11 @@ void main() {
         );
 
         // Act
-        final incomeList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final incomeList = result.getOrElse(() => []);
 
         // Assert
+        expect(result.isRight(), isTrue);
         expect(incomeList, hasLength(2));
         expect(incomeList[0], IncomeVo(100));
         expect(incomeList[1], IncomeVo(200));
@@ -81,9 +84,11 @@ void main() {
         );
 
         // Act
-        final incomeList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final incomeList = result.getOrElse(() => []);
 
         // Assert
+        expect(result.isRight(), isTrue);
         expect(incomeList, hasLength(0));
       });
 
@@ -102,9 +107,11 @@ void main() {
         );
 
         // Act
-        final incomeList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final incomeList = result.getOrElse(() => []);
 
         // Assert
+        expect(result.isRight(), isTrue);
         expect(incomeList, hasLength(0));
       });
 
@@ -124,9 +131,11 @@ void main() {
         );
 
         // Act
-        final incomeList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final incomeList = result.getOrElse(() => []);
 
         // Assert
+        expect(result.isRight(), isTrue);
         expect(incomeList, hasLength(0));
       });
 
@@ -147,9 +156,11 @@ void main() {
         );
 
         // Act
-        final incomeList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final incomeList = result.getOrElse(() => []);
 
         // Assert
+        expect(result.isRight(), isTrue);
         expect(incomeList, hasLength(0));
       });
     });

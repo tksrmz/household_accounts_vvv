@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/privateProfile.dart';
 
 import '../../domain/models/vo/user_id.dart';
@@ -16,7 +17,8 @@ class FirestoreService {
   /// [year]のみが指定されている場合、その年のすべての支出を取得します。
   /// [year]と[month]が指定されている場合、その月のすべての支出を取得します。
   /// [year]と[month]と[day]が指定されている場合、その日のすべての支出を取得します。
-  Future<List<Map<String, dynamic>>> fetchAllPersonalExpensesOf(
+  Future<Either<Exception, List<Map<String, dynamic>>>>
+      fetchAllPersonalExpensesOf(
     UserIdVo userId,
     int year, [
     int? month,
@@ -36,16 +38,20 @@ class FirestoreService {
             ? DateTime(year, month + 1, 1) // 月指定の場合は次の月の1日
             : DateTime(year + 1, 1, 1); // 年指定の場合は次の年の1日
 
-    final snapshot = await _db
-        .collection('/personalNotes/${userId.value}/expenses')
-        .where(
-          'date',
-          isGreaterThanOrEqualTo: firstDay,
-          isLessThan: lastDay,
-        )
-        .get();
+    try {
+      final snapshot = await _db
+          .collection('/personalNotes/${userId.value}/expenses')
+          .where(
+            'date',
+            isGreaterThanOrEqualTo: firstDay,
+            isLessThan: lastDay,
+          )
+          .get();
 
-    return snapshot.docs.map((doc) => doc.data()).toList();
+      return Right(snapshot.docs.map((doc) => doc.data()).toList());
+    } on Exception catch (e) {
+      return Left(e);
+    }
   }
 
   /// [userId]の指定された月のすべての収入を取得する。
@@ -54,7 +60,7 @@ class FirestoreService {
   /// [year]のみが指定されている場合、その年のすべての収入を取得します。
   /// [year]と[month]が指定されている場合、その月のすべての収入を取得します。
   /// [year]と[month]と[day]が指定されている場合、その日のすべての収入を取得します。
-  Future<List<Map<String, dynamic>>> fetchMonthlyPersonalIncomesOf(
+  Future<Either<Exception, List<Map<String, dynamic>>>> fetchMonthlyPersonalIncomesOf(
     UserIdVo userId,
     int year, [
     int? month,
@@ -74,16 +80,20 @@ class FirestoreService {
             ? DateTime(year, month + 1, 1) // 月指定の場合は次の月の1日
             : DateTime(year + 1, 1, 1); // 年指定の場合は次の年の1日
 
-    final querySnapshot = await _db
-        .collection('/personalNotes/${userId.value}/incomes')
-        .where(
-          'date',
-          isGreaterThanOrEqualTo: firstDay,
-          isLessThan: lastDay,
-        )
-        .get();
+    try {
+      final querySnapshot = await _db
+          .collection('/personalNotes/${userId.value}/incomes')
+          .where(
+            'date',
+            isGreaterThanOrEqualTo: firstDay,
+            isLessThan: lastDay,
+          )
+          .get();
 
-    return querySnapshot.docs.map((doc) => doc.data()).toList();
+      return Right(querySnapshot.docs.map((doc) => doc.data()).toList());
+    } on Exception catch (e) {
+      return Left(e);
+    }
   }
 
   /// [userId]のユーザー名を取得する。
@@ -125,7 +135,7 @@ class FirestoreService {
   /// [year]のみが指定されている場合、その年のすべての支出を取得します。
   /// [year]と[month]が指定されている場合、その月のすべての支出を取得します。
   /// [year]と[month]と[day]が指定されている場合、その日のすべての支出を取得します。
-  Future<List<Map<String, dynamic>>> fetchMonthlySharedExpensesFrom(
+  Future<Either<Exception, List<Map<String, dynamic>>>> fetchMonthlySharedExpensesFrom(
     DocumentReference<Map<String, dynamic>> sharedNoteDocRef,
     int year, [
     int? month,
@@ -145,16 +155,20 @@ class FirestoreService {
             ? DateTime(year, month + 1, 1) // 月指定の場合は次の月の1日
             : DateTime(year + 1, 1, 1); // 年指定の場合は次の年の1日
 
-    final querySnapshot = await sharedNoteDocRef
-        .collection('expenses')
-        .where(
-          'date',
-          isGreaterThanOrEqualTo: firstDay,
-          isLessThan: lastDay,
-        )
-        .get();
+    try {
+      final querySnapshot = await sharedNoteDocRef
+          .collection('expenses')
+          .where(
+            'date',
+            isGreaterThanOrEqualTo: firstDay,
+            isLessThan: lastDay,
+          )
+          .get();
 
-    return querySnapshot.docs.map((doc) => doc.data()).toList();
+      return Right(querySnapshot.docs.map((doc) => doc.data()).toList());
+    } on Exception catch (e) {
+      return Left(e);
+    }
   }
 
   /// 共有ノートの指定された月のすべての収入を取得する。
@@ -163,7 +177,7 @@ class FirestoreService {
   /// [year]のみが指定されている場合、その年のすべての収入を取得します。
   /// [year]と[month]が指定されている場合、その月のすべての収入を取得します。
   /// [year]と[month]と[day]が指定されている場合、その日のすべての収入を取得します。
-  Future<List<Map<String, dynamic>>> fetchMonthlySharedIncomesFrom(
+  Future<Either<Exception, List<Map<String, dynamic>>>> fetchMonthlySharedIncomesFrom(
     DocumentReference<Map<String, dynamic>> sharedNoteDocRef,
     int year, [
     int? month,
@@ -183,15 +197,19 @@ class FirestoreService {
             ? DateTime(year, month + 1, 1) // 月指定の場合は次の月の1日
             : DateTime(year + 1, 1, 1); // 年指定の場合は次の年の1日
 
-    final querySnapshot = await sharedNoteDocRef
-        .collection('incomes')
-        .where(
-          'date',
-          isGreaterThanOrEqualTo: firstDay,
-          isLessThan: lastDay,
-        )
-        .get();
+    try {
+      final querySnapshot = await sharedNoteDocRef
+          .collection('incomes')
+          .where(
+            'date',
+            isGreaterThanOrEqualTo: firstDay,
+            isLessThan: lastDay,
+          )
+          .get();
 
-    return querySnapshot.docs.map((doc) => doc.data()).toList();
+      return Right(querySnapshot.docs.map((doc) => doc.data()).toList());
+    } on Exception catch (e) {
+      return Left(e);
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/privateProfile.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
@@ -14,8 +15,10 @@ import 'package:test/test.dart';
   MockSpec<QuerySnapshot<Map<String, dynamic>>>(),
   MockSpec<QueryDocumentSnapshot<Map<String, dynamic>>>(),
   MockSpec<DocumentReference<Map<String, dynamic>>>(as: #MockDocumentReference),
-  MockSpec<DocumentSnapshot<Map<String, dynamic>>>(as: #MockDocumentSnapshotMap),
-  MockSpec<DocumentSnapshot<PrivateProfile>>(as: #MockDocumentSnapshotPrivateProfile),
+  MockSpec<DocumentSnapshot<Map<String, dynamic>>>(
+      as: #MockDocumentSnapshotMap),
+  MockSpec<DocumentSnapshot<PrivateProfile>>(
+      as: #MockDocumentSnapshotPrivateProfile),
 ])
 import 'firestore_service_test.mocks.dart';
 
@@ -62,7 +65,8 @@ void main() {
         final result = await target.fetchAllPersonalExpensesOf(userId, 2025);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/expenses')).called(1);
+        verify(mockDb.collection('/personalNotes/${userId.value}/expenses'))
+            .called(1);
         verify(mockCollectionReference.where(
           'date',
           isGreaterThanOrEqualTo: DateTime(2025, 1, 1),
@@ -72,9 +76,10 @@ void main() {
         verify(mockQuerySnapshot.docs).called(1);
         verify(mockQueryDocumentSnapshot.data()).called(1);
 
-        expect(result, isA<List<Map<String, dynamic>>>());
-        expect(result.length, 1);
-        expect(result[0]['amount'], 1000);
+        expect(result, isA<Either<Exception, List<Map<String, dynamic>>>>());
+        expect(result.isRight(), isTrue);
+        expect(result.getOrElse(() => []), hasLength(1));
+        expect(result.getOrElse(() => [])[0]['amount'], 1000);
       });
 
       test('年と月を指定した場合、その月のすべての支出を取得する', () async {
@@ -91,15 +96,17 @@ void main() {
         final result = await target.fetchAllPersonalExpensesOf(userId, 2025, 5);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/expenses')).called(1);
+        verify(mockDb.collection('/personalNotes/${userId.value}/expenses'))
+            .called(1);
         verify(mockCollectionReference.where(
           'date',
           isGreaterThanOrEqualTo: DateTime(2025, 5, 1),
           isLessThan: DateTime(2025, 6, 1),
         )).called(1);
         verify(mockQuery.get()).called(1);
-        expect(result.length, 1);
-        expect(result[0]['amount'], 1000);
+        expect(result.isRight(), isTrue);
+        expect(result.getOrElse(() => []), hasLength(1));
+        expect(result.getOrElse(() => [])[0]['amount'], 1000);
       });
 
       test('年と月と日を指定した場合、その日のすべての支出を取得する', () async {
@@ -113,18 +120,21 @@ void main() {
         final target = FirestoreService(mockDb);
 
         // Act
-        final result = await target.fetchAllPersonalExpensesOf(userId, 2025, 5, 25);
+        final result =
+            await target.fetchAllPersonalExpensesOf(userId, 2025, 5, 25);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/expenses')).called(1);
+        verify(mockDb.collection('/personalNotes/${userId.value}/expenses'))
+            .called(1);
         verify(mockCollectionReference.where(
           'date',
           isGreaterThanOrEqualTo: DateTime(2025, 5, 25),
           isLessThan: DateTime(2025, 5, 26),
         )).called(1);
         verify(mockQuery.get()).called(1);
-        expect(result.length, 1);
-        expect(result[0]['amount'], 1000);
+        expect(result.isRight(), isTrue);
+        expect(result.getOrElse(() => []), hasLength(1));
+        expect(result.getOrElse(() => [])[0]['amount'], 1000);
       });
 
       test('複数のドキュメントが返された場合、すべてのドキュメントを返す', () async {
@@ -151,9 +161,10 @@ void main() {
         // Assert
         verify(mockQuerySnapshot.docs).called(1);
         verify(mockQueryDocumentSnapshot.data()).called(2);
-        expect(result.length, 2);
-        expect(result[0]['amount'], 1000);
-        expect(result[1]['amount'], 2000);
+        expect(result.isRight(), isTrue);
+        expect(result.getOrElse(() => []), hasLength(2));
+        expect(result.getOrElse(() => [])[0]['amount'], 1000);
+        expect(result.getOrElse(() => [])[1]['amount'], 2000);
       });
 
       test('ドキュメントが存在しない場合、空のリストを返す', () async {
@@ -172,7 +183,28 @@ void main() {
 
         // Assert
         verify(mockQuerySnapshot.docs).called(1);
-        expect(result.length, 0);
+        expect(result.isRight(), isTrue);
+        expect(result.getOrElse(() => []), hasLength(0));
+      });
+
+      test('例外が発生した場合、Leftを返す', () async {
+        // Arrange
+        when(mockCollectionReference.where(
+          'date',
+          isGreaterThanOrEqualTo: DateTime(2025, 5, 1),
+          isLessThan: DateTime(2025, 6, 1),
+        )).thenReturn(mockQuery);
+        when(mockQuery.get()).thenThrow(Exception('test error'));
+
+        final target = FirestoreService(mockDb);
+
+        // Act
+        final result = await target.fetchAllPersonalExpensesOf(userId, 2025, 5);
+
+        // Assert
+        verify(mockQuery.get()).called(1);
+        expect(result.isLeft(), isTrue);
+        expect(result.fold((l) => l, (r) => r), isA<Exception>());
       });
 
       test('不適切なmonthとdayの組み合わせの場合、assertionエラーが発生する', () async {
@@ -184,7 +216,7 @@ void main() {
             throwsA(isA<AssertionError>()));
       });
     });
-    
+
     group('fetchMonthlyPersonalIncomesOf', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
@@ -226,7 +258,8 @@ void main() {
         final result = await target.fetchMonthlyPersonalIncomesOf(userId, 2025);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/incomes')).called(1);
+        verify(mockDb.collection('/personalNotes/${userId.value}/incomes'))
+            .called(1);
         verify(mockCollectionReference.where(
           'date',
           isGreaterThanOrEqualTo: DateTime(2025, 1, 1),
@@ -236,9 +269,11 @@ void main() {
         verify(mockQuerySnapshot.docs).called(1);
         verify(mockQueryDocumentSnapshot.data()).called(1);
 
-        expect(result, isA<List<Map<String, dynamic>>>());
-        expect(result.length, 1);
-        expect(result[0]['amount'], 1000);
+        expect(result, isA<Either<Exception, List<Map<String, dynamic>>>>());
+        expect(result.isRight(), isTrue);
+        final incomeList = result.getOrElse(() => []);
+        expect(incomeList, hasLength(1));
+        expect(incomeList[0]['amount'], 1000);
       });
 
       test('年と月を指定した場合、その月のすべての収入を取得する', () async {
@@ -252,18 +287,22 @@ void main() {
         final target = FirestoreService(mockDb);
 
         // Act
-        final result = await target.fetchMonthlyPersonalIncomesOf(userId, 2025, 5);
+        final result =
+            await target.fetchMonthlyPersonalIncomesOf(userId, 2025, 5);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/incomes')).called(1);
+        verify(mockDb.collection('/personalNotes/${userId.value}/incomes'))
+            .called(1);
         verify(mockCollectionReference.where(
           'date',
           isGreaterThanOrEqualTo: DateTime(2025, 5, 1),
           isLessThan: DateTime(2025, 6, 1),
         )).called(1);
         verify(mockQuery.get()).called(1);
-        expect(result.length, 1);
-        expect(result[0]['amount'], 1000);
+        expect(result.isRight(), isTrue);
+        final incomeList = result.getOrElse(() => []);
+        expect(incomeList, hasLength(1));
+        expect(incomeList[0]['amount'], 1000);
       });
 
       test('年と月と日を指定した場合、その日のすべての収入を取得する', () async {
@@ -277,18 +316,43 @@ void main() {
         final target = FirestoreService(mockDb);
 
         // Act
-        final result = await target.fetchMonthlyPersonalIncomesOf(userId, 2025, 5, 25);
+        final result =
+            await target.fetchMonthlyPersonalIncomesOf(userId, 2025, 5, 25);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/incomes')).called(1);
+        verify(mockDb.collection('/personalNotes/${userId.value}/incomes'))
+            .called(1);
         verify(mockCollectionReference.where(
           'date',
           isGreaterThanOrEqualTo: DateTime(2025, 5, 25),
           isLessThan: DateTime(2025, 5, 26),
         )).called(1);
         verify(mockQuery.get()).called(1);
-        expect(result.length, 1);
-        expect(result[0]['amount'], 1000);
+        expect(result.isRight(), isTrue);
+        final incomeList = result.getOrElse(() => []);
+        expect(incomeList, hasLength(1));
+        expect(incomeList[0]['amount'], 1000);
+      });
+
+      test('例外が発生した場合、Leftを返す', () async {
+        // Arrange
+        when(mockCollectionReference.where(
+          'date',
+          isGreaterThanOrEqualTo: DateTime(2025, 5, 1),
+          isLessThan: DateTime(2025, 6, 1),
+        )).thenReturn(mockQuery);
+        when(mockQuery.get()).thenThrow(Exception('test error'));
+
+        final target = FirestoreService(mockDb);
+
+        // Act
+        final result =
+            await target.fetchMonthlyPersonalIncomesOf(userId, 2025, 5);
+
+        // Assert
+        verify(mockQuery.get()).called(1);
+        expect(result.isLeft(), isTrue);
+        expect(result.fold((l) => l, (r) => r), isA<Exception>());
       });
 
       test('不適切なmonthとdayの組み合わせの場合、assertionエラーが発生する', () async {
@@ -296,7 +360,8 @@ void main() {
         final target = FirestoreService(mockDb);
 
         // Act & Assert
-        expect(() => target.fetchMonthlyPersonalIncomesOf(userId, 2025, null, 25),
+        expect(
+            () => target.fetchMonthlyPersonalIncomesOf(userId, 2025, null, 25),
             throwsA(isA<AssertionError>()));
       });
     });
@@ -351,8 +416,7 @@ void main() {
     setUp(() {
       when(mockDb.doc('/publicProfiles/${userId.value}'))
           .thenReturn(mockDocumentReference);
-      when(mockDocumentReference.update(any))
-          .thenAnswer((_) async => {});
+      when(mockDocumentReference.update(any)).thenAnswer((_) async => {});
     });
 
     tearDown(() {
@@ -369,11 +433,11 @@ void main() {
 
       // Assert
       verify(mockDb.doc('/publicProfiles/${userId.value}')).called(1);
-      
+
       // Using a more flexible verification approach since we can't directly match FieldValue.serverTimestamp()
       final verification = verify(mockDocumentReference.update(captureAny));
       verification.called(1);
-      
+
       // Use a safer approach to handle the captured argument
       final capturedArg = verification.captured.first;
       expect(capturedArg is Map, isTrue);
@@ -448,7 +512,8 @@ void main() {
       final target = FirestoreService(mockDb);
 
       // Act
-      final result = await target.fetchMonthlySharedExpensesFrom(mockSharedNoteDocRef, 2025, 5);
+      final result = await target.fetchMonthlySharedExpensesFrom(
+          mockSharedNoteDocRef, 2025, 5);
 
       // Assert
       verify(mockSharedNoteDocRef.collection('expenses')).called(1);
@@ -461,9 +526,32 @@ void main() {
       verify(mockQuerySnapshot.docs).called(1);
       verify(mockQueryDocumentSnapshot.data()).called(1);
 
-      expect(result, isA<List<Map<String, dynamic>>>());
-      expect(result.length, 1);
-      expect(result[0]['amount'], 1000);
+      expect(result, isA<Either<Exception, List<Map<String, dynamic>>>>());
+      expect(result.isRight(), isTrue);
+      final expenseList = result.getOrElse(() => []);
+      expect(expenseList.length, 1);
+      expect(expenseList[0]['amount'], 1000);
+    });
+
+    test('例外が発生した場合、Leftを返す', () async {
+      // Arrange
+      when(mockCollectionReference.where(
+        'date',
+        isGreaterThanOrEqualTo: DateTime(2025, 5, 1),
+        isLessThan: DateTime(2025, 6, 1),
+      )).thenReturn(mockQuery);
+      when(mockQuery.get()).thenThrow(Exception('test error'));
+
+      final target = FirestoreService(mockDb);
+
+      // Act
+      final result = await target.fetchMonthlySharedExpensesFrom(
+          mockSharedNoteDocRef, 2025, 5);
+
+      // Assert
+      verify(mockQuery.get()).called(1);
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => r), isA<Exception>());
     });
 
     test('不適切なmonthとdayの組み合わせの場合、assertionエラーが発生する', () async {
@@ -471,7 +559,9 @@ void main() {
       final target = FirestoreService(mockDb);
 
       // Act & Assert
-      expect(() => target.fetchMonthlySharedExpensesFrom(mockSharedNoteDocRef, 2025, null, 25),
+      expect(
+          () => target.fetchMonthlySharedExpensesFrom(
+              mockSharedNoteDocRef, 2025, null, 25),
           throwsA(isA<AssertionError>()));
     });
   });
@@ -515,7 +605,8 @@ void main() {
       final target = FirestoreService(mockDb);
 
       // Act
-      final result = await target.fetchMonthlySharedIncomesFrom(mockSharedNoteDocRef, 2025, 5);
+      final result = await target.fetchMonthlySharedIncomesFrom(
+          mockSharedNoteDocRef, 2025, 5);
 
       // Assert
       verify(mockSharedNoteDocRef.collection('incomes')).called(1);
@@ -528,9 +619,32 @@ void main() {
       verify(mockQuerySnapshot.docs).called(1);
       verify(mockQueryDocumentSnapshot.data()).called(1);
 
-      expect(result, isA<List<Map<String, dynamic>>>());
-      expect(result.length, 1);
-      expect(result[0]['amount'], 1000);
+      expect(result, isA<Either<Exception, List<Map<String, dynamic>>>>());
+      expect(result.isRight(), isTrue);
+      final incomeList = result.getOrElse(() => []);
+      expect(incomeList.length, 1);
+      expect(incomeList[0]['amount'], 1000);
+    });
+
+    test('例外が発生した場合、Leftを返す', () async {
+      // Arrange
+      when(mockCollectionReference.where(
+        'date',
+        isGreaterThanOrEqualTo: DateTime(2025, 5, 1),
+        isLessThan: DateTime(2025, 6, 1),
+      )).thenReturn(mockQuery);
+      when(mockQuery.get()).thenThrow(Exception('test error'));
+
+      final target = FirestoreService(mockDb);
+
+      // Act
+      final result = await target.fetchMonthlySharedIncomesFrom(
+          mockSharedNoteDocRef, 2025, 5);
+
+      // Assert
+      verify(mockQuery.get()).called(1);
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => r), isA<Exception>());
     });
 
     test('不適切なmonthとdayの組み合わせの場合、assertionエラーが発生する', () async {
@@ -538,7 +652,9 @@ void main() {
       final target = FirestoreService(mockDb);
 
       // Act & Assert
-      expect(() => target.fetchMonthlySharedIncomesFrom(mockSharedNoteDocRef, 2025, null, 25),
+      expect(
+          () => target.fetchMonthlySharedIncomesFrom(
+              mockSharedNoteDocRef, 2025, null, 25),
           throwsA(isA<AssertionError>()));
     });
   });

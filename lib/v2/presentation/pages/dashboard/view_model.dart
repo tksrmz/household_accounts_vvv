@@ -53,10 +53,22 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
 
   Future<void> _initializeData(DateTime date, UserIdVo userId) async {
     try {
-      final List<IncomeVo> incomeList =
-          await _incomeRepository.fetchMonthly(date);
-      final List<ExpenseVo> expenseList =
-          await _expenseRepository.fetchMonthly(date);
+      // FIXME: IncomeRepository now returns Either<Exception, List<IncomeVo>>
+      // This temporary implementation extracts the right value or throws on error
+      // Proper error handling should be implemented in a future PR
+      final incomeResult = await _incomeRepository.fetchMonthly(date);
+      final List<IncomeVo> incomeList = incomeResult.fold(
+        (exception) => throw exception,
+        (incomes) => incomes,
+      );
+      // FIXME: ExpenseRepository now returns Either<Exception, List<ExpenseVo>>
+      // This temporary implementation extracts the right value or throws on error
+      // Proper error handling should be implemented in a future PR
+      final expenseResult = await _expenseRepository.fetchMonthly(date);
+      final List<ExpenseVo> expenseList = expenseResult.fold(
+        (exception) => throw exception,
+        (expenses) => expenses,
+      );
       final UserNameVo userName =
           await _publicProfileRepository.fetchUserName(userId);
 

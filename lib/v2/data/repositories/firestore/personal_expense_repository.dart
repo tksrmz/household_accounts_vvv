@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
 
 import '../../../domain/models/vo/expense.dart';
@@ -14,14 +15,16 @@ class FirestorePersonalExpenseRepository implements ExpenseRepository {
   final UserIdVo _uid;
 
   @override
-  Future<List<ExpenseVo>> fetchMonthly(DateTime date) async {
-    final expenseList = await _firestoreService.fetchAllPersonalExpensesOf(
+  Future<Either<Exception, List<ExpenseVo>>> fetchMonthly(DateTime date) async {
+    final result = await _firestoreService.fetchAllPersonalExpensesOf(
       _uid,
       date.year,
       date.month,
     );
-    return expenseList
-        .map((doc) => ExpenseVo(doc['amount']!))
-        .toList(growable: false);
+    final createExpenseVo =
+        (Map<String, dynamic> doc) => ExpenseVo(doc['amount']!);
+    final convertToExpenseVoList = (List<Map<String, dynamic>> expenseList) =>
+        expenseList.map(createExpenseVo).toList(growable: false);
+    return result.map(convertToExpenseVoList);
   }
 }
