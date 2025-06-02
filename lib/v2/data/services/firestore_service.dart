@@ -97,36 +97,50 @@ class FirestoreService {
   }
 
   /// [userId]のユーザー名を取得する。
-  Future<Map<String, dynamic>> fetchPublicProfileOf(UserIdVo userId) async {
-    final documentReference = _db.doc('/publicProfiles/${userId.value}');
-    final documentSnapshot = await documentReference.get();
-    return documentSnapshot.data()!;
+  Future<Either<Exception, Map<String, dynamic>>> fetchPublicProfileOf(UserIdVo userId) async {
+    try {
+      final documentReference = _db.doc('/publicProfiles/${userId.value}');
+      final documentSnapshot = await documentReference.get();
+      return Right(documentSnapshot.data()!);
+    } on Exception catch (e) {
+      return Left(e);
+    }
   }
 
   /// [userId]のユーザー名を更新する。
-  Future<void> updatePublicProfileNameOf(
+  Future<Either<Exception, Unit>> updatePublicProfileNameOf(
     UserIdVo userId,
     UserNameVo userName,
   ) async {
-    final documentReference = _db.doc('/publicProfiles/${userId.value}');
-    await documentReference.update({
-      'name': userName.value,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      final documentReference = _db.doc('/publicProfiles/${userId.value}');
+      await documentReference.update({
+        'name': userName.value,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      return Right(unit);
+    } on Exception catch (e) {
+      return Left(e);
+    }
   }
 
   /// ユーザーのプライベートプロファイルを取得する。
-  Future<DocumentSnapshot<PrivateProfile>> fetchPrivateProfileOf(
+  Future<Either<Exception, DocumentSnapshot<PrivateProfile>>> fetchPrivateProfileOf(
     UserIdVo userId,
   ) async {
-    return await _db
-        .doc('/privateProfiles/${userId.value}')
-        .withConverter(
-          fromFirestore: (snapshot, _) =>
-              PrivateProfile.fromJson(snapshot.data()!),
-          toFirestore: (data, _) => data.toJson(),
-        )
-        .get();
+    try {
+      final documentSnapshot = await _db
+          .doc('/privateProfiles/${userId.value}')
+          .withConverter(
+            fromFirestore: (snapshot, _) =>
+                PrivateProfile.fromJson(snapshot.data()!),
+            toFirestore: (data, _) => data.toJson(),
+          )
+          .get();
+      return Right(documentSnapshot);
+    } on Exception catch (e) {
+      return Left(e);
+    }
   }
 
   /// 共有ノートの指定された月のすべての支出を取得する。

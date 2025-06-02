@@ -402,8 +402,24 @@ void main() {
       verify(mockDocumentReference.get()).called(1);
       verify(mockDocumentSnapshotMap.data()).called(1);
 
-      expect(result, isA<Map<String, dynamic>>());
-      expect(result['name'], 'Test User');
+      expect(result, isA<Either<Exception, Map<String, dynamic>>>());
+      expect(result.isRight(), isTrue);
+      final profileData = result.getOrElse(() => {});
+      expect(profileData['name'], 'Test User');
+    });
+
+    test('例外が発生した場合、Leftを返す', () async {
+      // Arrange
+      when(mockDocumentReference.get()).thenThrow(Exception('test error'));
+      final target = FirestoreService(mockDb);
+
+      // Act
+      final result = await target.fetchPublicProfileOf(userId);
+
+      // Assert
+      verify(mockDocumentReference.get()).called(1);
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => r), isA<Exception>());
     });
   });
 
@@ -429,7 +445,7 @@ void main() {
       final target = FirestoreService(mockDb);
 
       // Act
-      await target.updatePublicProfileNameOf(userId, userName);
+      final result = await target.updatePublicProfileNameOf(userId, userName);
 
       // Assert
       verify(mockDb.doc('/publicProfiles/${userId.value}')).called(1);
@@ -443,6 +459,23 @@ void main() {
       expect(capturedArg is Map, isTrue);
       expect((capturedArg as Map)['name'], equals(userName.value));
       expect(capturedArg.containsKey('updatedAt'), isTrue);
+
+      expect(result, isA<Either<Exception, Unit>>());
+      expect(result.isRight(), isTrue);
+    });
+
+    test('例外が発生した場合、Leftを返す', () async {
+      // Arrange
+      when(mockDocumentReference.update(any)).thenThrow(Exception('test error'));
+      final target = FirestoreService(mockDb);
+
+      // Act
+      final result = await target.updatePublicProfileNameOf(userId, userName);
+
+      // Assert
+      verify(mockDocumentReference.update(any)).called(1);
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => r), isA<Exception>());
     });
   });
 
