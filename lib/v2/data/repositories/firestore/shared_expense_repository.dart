@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:household_accounts/v2/data/repositories/firestore/private_profile_util.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
 
 import '../../../domain/models/vo/expense.dart';
@@ -17,35 +18,28 @@ class FirestoreSharedExpenseRepository implements ExpenseRepository {
 
   @override
   Future<Either<Exception, List<ExpenseVo>>> fetchMonthly(DateTime date) async {
-    final privateProfileDocSnapshot =
-        await _firestoreService.fetchPrivateProfileOf(_userId);
-
-    if (!privateProfileDocSnapshot.exists ||
-        privateProfileDocSnapshot.data() == null) {
-      return Right([]);
-    }
-
-    final sharedNote = privateProfileDocSnapshot.data()!.sharedNote;
-    if (sharedNote == null) {
-      return Right([]);
-    }
-    if (!sharedNote.containsKey('ref')) {
-      return Right([]);
-    }
-
-    final sharedNoteDocRef =
-        sharedNote['ref']! as DocumentReference<Map<String, dynamic>>;
-
-    final result = await _firestoreService.fetchMonthlySharedExpensesFrom(
-      sharedNoteDocRef,
-      date.year,
-      date.month,
-    );
-
     final createExpenseVo =
         (Map<String, dynamic> doc) => ExpenseVo(doc['amount']!);
     final convertToExpenseVoList = (List<Map<String, dynamic>> expenseList) =>
         expenseList.map(createExpenseVo).toList(growable: false);
-    return result.map(convertToExpenseVoList);
+
+    final createTask = (DocumentReference<SharedNoteRef> ref) => Task(
+          () => _firestoreService.fetchMonthlySharedExpensesFrom(
+            ref,
+            date.year,
+            date.month,
+          ),
+        ).map(
+          (either) => either.map<List<ExpenseVo>>(convertToExpenseVoList),
+        );
+
+    final Task<Either<Exception, List<ExpenseVo>>> task =
+        Task(() => _firestoreService.fetchPrivateProfileOf(_userId))
+            .map(getSharedNoteRef)
+            .bind(
+              (either) => either.fold((_) => Task.value(Right([])), createTask),
+            );
+
+    return await task.run();
   }
 }

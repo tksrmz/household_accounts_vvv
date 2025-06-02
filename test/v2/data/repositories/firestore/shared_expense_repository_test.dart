@@ -39,7 +39,7 @@ void main() {
         final sharedNote = {'ref': mockSharedNoteDocRef};
 
         when(mockFirestoreService.fetchPrivateProfileOf(userId))
-            .thenAnswer((_) async => mockPrivateProfileDocSnapshot);
+            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())
             .thenReturn(mockPrivateProfile);
@@ -76,7 +76,7 @@ void main() {
         final date = DateTime(2025, 1);
 
         when(mockFirestoreService.fetchPrivateProfileOf(userId))
-            .thenAnswer((_) async => mockPrivateProfileDocSnapshot);
+            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(false);
 
         final target = FirestoreSharedExpenseRepository(
@@ -98,7 +98,7 @@ void main() {
         final date = DateTime(2025, 1);
 
         when(mockFirestoreService.fetchPrivateProfileOf(userId))
-            .thenAnswer((_) async => mockPrivateProfileDocSnapshot);
+            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data()).thenReturn(null);
 
@@ -121,7 +121,7 @@ void main() {
         final date = DateTime(2025, 1);
 
         when(mockFirestoreService.fetchPrivateProfileOf(userId))
-            .thenAnswer((_) async => mockPrivateProfileDocSnapshot);
+            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())
             .thenReturn(mockPrivateProfile);
@@ -147,7 +147,7 @@ void main() {
         final sharedNote = <String, dynamic>{};
 
         when(mockFirestoreService.fetchPrivateProfileOf(userId))
-            .thenAnswer((_) async => mockPrivateProfileDocSnapshot);
+            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())
             .thenReturn(mockPrivateProfile);
