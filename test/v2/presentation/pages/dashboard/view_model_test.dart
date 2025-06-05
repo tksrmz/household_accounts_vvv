@@ -106,7 +106,7 @@ void main() {
             (_) async => Right(testData.expenseAnswer),
           );
           when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
-            (_) async => testData.userNameAnswer,
+            (_) async => Right(testData.userNameAnswer),
           );
 
           final sut = DashboardViewModel(
@@ -136,7 +136,7 @@ void main() {
         (_) async => Right([ExpenseVo(30), ExpenseVo(40)]),
       );
       when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
-        (_) async => UserNameVo("testUserId"),
+        (_) async => Right(UserNameVo("testUserId")),
       );
 
       final sut = DashboardViewModel(
@@ -170,7 +170,7 @@ void main() {
         (_) async => Right(<ExpenseVo>[]),
       );
       when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
-        (_) async => UserNameVo('TestUserName'),
+        (_) async => Right(UserNameVo('TestUserName')),
       );
     });
 

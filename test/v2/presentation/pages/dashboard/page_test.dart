@@ -77,7 +77,7 @@ void main() {
       when(mockExpenseRepository.fetchMonthly(any)).thenAnswer(
           (_) => Completer<Either<Exception, List<ExpenseVo>>>().future);
       when(mockPublicProfileRepository.fetchUserName(any))
-          .thenAnswer((_) => Completer<UserNameVo>().future);
+          .thenAnswer((_) => Completer<Either<Exception, UserNameVo>>().future);
     },
     builder: targetBuilder,
   );
@@ -91,7 +91,7 @@ void main() {
       when(mockExpenseRepository.fetchMonthly(any))
           .thenAnswer((_) async => Right([ExpenseVo(200)]));
       when(mockPublicProfileRepository.fetchUserName(any))
-          .thenAnswer((_) async => UserNameVo('testUserName'));
+          .thenAnswer((_) async => Right(UserNameVo('testUserName')));
     },
     builder: targetBuilder,
     expectFn: (tester) async {

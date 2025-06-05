@@ -63,8 +63,11 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
         (exception) => throw exception,
         (expenses) => expenses,
       );
-      final UserNameVo userName =
-          await _publicProfileRepository.fetchUserName(userId);
+      final userNameResult = await _publicProfileRepository.fetchUserName(userId);
+      final UserNameVo userName = userNameResult.fold(
+        (exception) => throw exception,
+        (name) => name,
+      );
 
       final totalIncome = IncomeVo(_sumOf(incomeList.map((e) => e.value)));
       final totalExpense = ExpenseVo(_sumOf(expenseList.map((e) => e.value)));
