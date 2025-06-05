@@ -23,11 +23,14 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
     required IncomeRepository incomeRepository,
     required ExpenseRepository expenseRepository,
     required PublicProfileRepository publicProfileRepository,
+    required DateTime date,
+    required UserIdVo userId,
   })  : _incomeRepository = incomeRepository,
         _expenseRepository = expenseRepository,
         _publicProfileRepository = publicProfileRepository,
         super(DashboardState.uninitialized(_emptyInfo)) {
     _initCommand = AsyncCommand2(_initializeData);
+    _initCommand.call(date, userId);
   }
 
   final IncomeRepository _incomeRepository;
@@ -38,18 +41,7 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
   late final AsyncCommand2<DateTime, UserIdVo> _initCommand;
 
   /// 初期化コマンドのgetter
-  AsyncCommand2<DateTime, UserIdVo> get initCommand => _initCommand;
-
-  Future<void> init(
-    DateTime date,
-    UserIdVo userId,
-  ) async {
-    if (!value.isUninitialized) {
-      return;
-    }
-
-    await _initCommand.call(date, userId);
-  }
+  AsyncCommand2<DateTime, UserIdVo> get init => _initCommand;
 
   Future<void> _initializeData(DateTime date, UserIdVo userId) async {
     try {

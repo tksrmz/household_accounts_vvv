@@ -38,21 +38,34 @@ void main() {
     reset(mockPublicProfileRepository);
   });
 
-  test('初期化前はModelが初期値であり、エラー状態ではない', () {
+  test('初期化前はModelが初期値であり、エラー状態ではない', () async {
+    when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
+      (_) async => Right(<IncomeVo>[]),
+    );
+    when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
+      (_) async => Right(<ExpenseVo>[]),
+    );
+    when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
+      (_) async => Right(UserNameVo('TestUserName')),
+    );
+
     final sut = DashboardViewModel(
       incomeRepository: mockIncomeRepository,
       expenseRepository: mockExpenseRepository,
       publicProfileRepository: mockPublicProfileRepository,
+      date: date,
+      userId: userId,
     );
 
-    verifyNoMoreInteractions(mockIncomeRepository);
-    verifyNoMoreInteractions(mockExpenseRepository);
-    verifyNoMoreInteractions(mockPublicProfileRepository);
+    // 初期化前の状態をチェック（コマンドは非同期実行されるため）
     expect(sut.value.isUninitialized, isTrue);
     expect(sut.value.model.income, IncomeVo.empty);
     expect(sut.value.model.expense, ExpenseVo.empty);
     expect(sut.value.model.userName, UserNameVo.empty);
     expect(sut.value.isFailed, isFalse);
+    
+    // 初期化コマンドが呼び出されることを確認するため少し待つ
+    await Future.delayed(Duration.zero);
   });
 
   group('初期化に成功したとき', () {
@@ -113,8 +126,14 @@ void main() {
             incomeRepository: mockIncomeRepository,
             expenseRepository: mockExpenseRepository,
             publicProfileRepository: mockPublicProfileRepository,
+            date: date,
+            userId: userId,
           );
-          await sut.init(date, userId);
+          
+          // コマンドの完了を待つ
+          while (sut.init.isExecuting) {
+            await Future.delayed(Duration(milliseconds: 10));
+          }
 
           verify(mockIncomeRepository.fetchMonthly(date)).called(1);
           verify(mockExpenseRepository.fetchMonthly(date)).called(1);
@@ -143,14 +162,19 @@ void main() {
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
         publicProfileRepository: mockPublicProfileRepository,
+        date: date,
+        userId: userId,
       );
       var notifyListenersCalled = false;
       sut.addListener(() {
         notifyListenersCalled = true;
       });
 
-      expect(notifyListenersCalled, isFalse);
-      await sut.init(date, userId);
+      // コマンドの完了を待つ
+      while (sut.init.isExecuting) {
+        await Future.delayed(Duration(milliseconds: 10));
+      }
+      
       expect(notifyListenersCalled, isTrue);
 
       // notifyListeners()が呼び出されたら初期化が完了している
@@ -183,8 +207,14 @@ void main() {
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
         publicProfileRepository: mockPublicProfileRepository,
+        date: date,
+        userId: userId,
       );
-      await sut.init(date, userId);
+      
+      // コマンドの完了を待つ
+      while (sut.init.isExecuting) {
+        await Future.delayed(Duration(milliseconds: 10));
+      }
 
       verify(mockIncomeRepository.fetchMonthly(date)).called(1);
       expect(sut.value.isUninitialized, isFalse);
@@ -203,8 +233,14 @@ void main() {
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
         publicProfileRepository: mockPublicProfileRepository,
+        date: date,
+        userId: userId,
       );
-      await sut.init(date, userId);
+      
+      // コマンドの完了を待つ
+      while (sut.init.isExecuting) {
+        await Future.delayed(Duration(milliseconds: 10));
+      }
 
       verify(mockIncomeRepository.fetchMonthly(date)).called(1);
       verify(mockExpenseRepository.fetchMonthly(date)).called(1);
@@ -224,8 +260,14 @@ void main() {
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
         publicProfileRepository: mockPublicProfileRepository,
+        date: date,
+        userId: userId,
       );
-      await sut.init(date, userId);
+      
+      // コマンドの完了を待つ
+      while (sut.init.isExecuting) {
+        await Future.delayed(Duration(milliseconds: 10));
+      }
 
       verify(mockIncomeRepository.fetchMonthly(date)).called(1);
       verify(mockExpenseRepository.fetchMonthly(date)).called(1);
@@ -246,14 +288,19 @@ void main() {
         incomeRepository: mockIncomeRepository,
         expenseRepository: mockExpenseRepository,
         publicProfileRepository: mockPublicProfileRepository,
+        date: date,
+        userId: userId,
       );
       var notifyListenersCalled = false;
       sut.addListener(() {
         notifyListenersCalled = true;
       });
 
-      expect(notifyListenersCalled, isFalse);
-      await sut.init(date, userId);
+      // コマンドの完了を待つ
+      while (sut.init.isExecuting) {
+        await Future.delayed(Duration(milliseconds: 10));
+      }
+      
       expect(notifyListenersCalled, isTrue);
 
       // notifyListeners()が呼び出されたら初期化が完了している

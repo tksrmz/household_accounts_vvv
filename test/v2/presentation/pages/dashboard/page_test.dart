@@ -51,11 +51,12 @@ void main() {
           )
         ],
         child: DashboardPage(
-          date: DateTime(2025, 1),
           viewModel: DashboardViewModel(
             incomeRepository: mockIncomeRepository,
             expenseRepository: mockExpenseRepository,
             publicProfileRepository: mockPublicProfileRepository,
+            date: DateTime(2025, 1),
+            userId: userId,
           ),
         ),
       );
