@@ -41,7 +41,11 @@ class SettingsViewModel with ChangeNotifier {
   final AuthRepository _authRepository;
 
   Future<void> _init(UserIdVo userId) async {
-    _userNameBeforeEdit = await _publicProfileRepository.fetchUserName(userId);
+    final result = await _publicProfileRepository.fetchUserName(userId);
+    result.fold(
+      (exception) => throw exception,
+      (userName) => _userNameBeforeEdit = userName,
+    );
     save = AsyncCommand((newUserName) => this._save(userId, newUserName));
   }
 
@@ -60,8 +64,11 @@ class SettingsViewModel with ChangeNotifier {
     final vo = UserNameVo(newUserName);
 
     try {
-      await _publicProfileRepository.updateUserName(userId, vo);
-      _userNameBeforeEdit = vo;
+      final result = await _publicProfileRepository.updateUserName(userId, vo);
+      result.fold(
+        (exception) => throw exception,
+        (_) => _userNameBeforeEdit = vo,
+      );
     } catch (e) {
       // 保存に失敗した場合は編集前の状態に戻す
       rethrow;
