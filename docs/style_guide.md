@@ -95,6 +95,10 @@ household_accounts/
     - つまり、`main.dart`で`Provider`を定義する。
 - 状態は可能な限りView Modelで保ち、複数の画面をまたいで必要な共有状態は`Provider`で管理する。
 - UIロジックとビジネスロジックは明確に分離する。
+- **エラーハンドリング方針**:
+  - **Data Layer**: `Either<Exception, T>`でエラー安全性を確保する
+  - **Presentation Layer**: `rethrow`によりEitherをExceptionに変換し、CommandでUI状態管理する
+  - レイヤー境界での例外変換は実用性と保守性を優先した設計判断である
 - ビジネスロジックは`domain`フォルダに配置する。
   - Value Objectは`domain/models/vo`に配置する。
     - Value Objectは`freezed`アノテーションを使用する。
@@ -203,7 +207,7 @@ household_accounts/
 ##### Repository実装例
 
 ```dart
-// Repository実装例
+// Repository実装例（Either<Exception, T>を使用）
 class FirestorePersonalIncomeRepository implements IncomeRepository {
   const FirestorePersonalIncomeRepository(
     this._db,
@@ -214,7 +218,7 @@ class FirestorePersonalIncomeRepository implements IncomeRepository {
   final UserIdVo _uid;
 
   @override
-  Future<Result<List<IncomeVo>>> fetchMonthly(DateTime date) async {
+  Future<Either<Exception, List<IncomeVo>>> fetchMonthly(DateTime date) async {
     try {
       final querySnapshot = await _db
           .collection('/personalNotes/${_uid.value}/incomes')
@@ -225,11 +229,11 @@ class FirestorePersonalIncomeRepository implements IncomeRepository {
           .map((doc) => IncomeVo(doc.data()['amount']!))
           .toList(growable: false);
           
-      return Success(incomes);
+      return Right(incomes);
     } on FirebaseException catch (e) {
-      return Failure(RepositoryException('Firebase error: ${e.message}'));
+      return Left(RepositoryException('Firebase error: ${e.message}'));
     } catch (e) {
-      return Failure(RepositoryException('Unknown error: $e'));
+      return Left(RepositoryException('Unknown error: $e'));
     }
   }
 }
@@ -274,7 +278,11 @@ class SettingsViewModel with ChangeNotifier {
   final AuthRepository _authRepository;
 
   Future<void> _init(UserIdVo userId) async {
-    _userNameBeforeEdit = await _publicProfileRepository.fetchUserName(userId);
+    final result = await _publicProfileRepository.fetchUserName(userId);
+    result.fold(
+      (exception) => throw exception, // レイヤー境界での例外変換
+      (userName) => _userNameBeforeEdit = userName,
+    );
     save = AsyncCommand((newUserName) => this._save(userId, newUserName));
   }
 
@@ -295,11 +303,14 @@ class SettingsViewModel with ChangeNotifier {
 
     try {
       // リポジトリ呼び出し
-      await _publicProfileRepository.updateUserName(userId, vo);
-      _userNameBeforeEdit = vo;
+      final result = await _publicProfileRepository.updateUserName(userId, vo);
+      result.fold(
+        (exception) => throw exception, // レイヤー境界での例外変換
+        (_) => _userNameBeforeEdit = vo,
+      );
     } catch (e) {
       // 保存に失敗した場合は編集前の状態に戻す
-      rethrow;
+      rethrow; // Commandに例外を委譲
     } finally {
       _isEditing = false;
       notifyListeners();
@@ -456,6 +467,32 @@ class IncomeRepository implements IncomeRepository {
     return querySnapshot.docs
         .map((doc) => Income.fromFirestore(doc))
         .toList();
+  }
+}
+```
+
+##### ViewModelでrethrowを使わずに直接エラー処理する（非推奨）
+
+```dart
+// ViewModelでrethrowを使わずに直接エラー処理する（非推奨）
+class IncomeViewModel with ChangeNotifier {
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+  
+  Future<void> loadIncomes() async {
+    // ❌ ViewModelでEitherを直接処理するとコードが複雑化
+    final result = await _incomeRepository.fetchMonthly(DateTime.now());
+    result.fold(
+      (exception) {
+        _errorMessage = exception.toString();
+        notifyListeners();
+      },
+      (incomes) {
+        _incomes = incomes;
+        _errorMessage = null;
+        notifyListeners();
+      }
+    );
   }
 }
 ```

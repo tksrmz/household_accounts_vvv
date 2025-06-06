@@ -228,90 +228,116 @@ class _AsyncCommandBase with ChangeNotifier {
 
 ## エラーハンドリング戦略
 
-dartの`Exception`はすべて非チェック例外であるため、以下の方針でエラーハンドリングを行う。
-ただし、`Error`は本当に意図しないエラーを表すものであるためキャッチしない。
+本プロジェクトでは、各レイヤーの責務と特性に応じて異なるエラーハンドリング戦略を採用している。
 
-### レイヤー別エラーハンドリング
+### レイヤー別エラーハンドリング方針
 
-1. **Domain Layer**: ビジネスロジックエラーはResultパターンで処理
-   ```dart
-   // Resultパターンの例
-   abstract class Result<T> {
-     R when<R>({
-       required R Function(T) success,
-       required R Function(Exception) failure,
-     });
-   }
-   
-   class Success<T> implements Result<T> {
-     final T value;
-     Success(this.value);
-     
-     @override
-     R when<R>({
-       required R Function(T) success,
-       required R Function(Exception) failure,
-     }) => success(value);
-   }
-   
-   class Failure<T> implements Result<T> {
-     final Exception exception;
-     Failure(this.exception);
-     
-     @override
-     R when<R>({
-       required R Function(T) success,
-       required R Function(Exception) failure,
-     }) => failure(exception);
-   }
-   ```
+#### 1. Data Layer: Either<Exception, T>による安全なデータアクセス
 
-2. **Data Layer**: 外部API/DB例外をキャッチしResultに変換
-   ```dart
-   // Repository実装例
-   class FirestorePersonalIncomeRepository implements IncomeRepository {
-     @override
-     Future<Result<List<IncomeVo>>> fetchMonthly(DateTime date) async {
-       try {
-         final querySnapshot = await _db
-           .collection('/personalNotes/${_uid.value}/incomes')
-           .whereInThisMonth('date', date)
-           .get();
-         
-         final incomes = querySnapshot.docs
-           .map((doc) => IncomeVo(doc.data()['amount']!))
-           .toList(growable: false);
-           
-         return Success(incomes);
-       } on FirebaseException catch (e) {
-         return Failure(RepositoryException('Firebase error: ${e.message}'));
-       } catch (e) {
-         return Failure(RepositoryException('Unknown error: $e'));
-       }
-     }
-   }
-   ```
+データ層では`dartz`パッケージの`Either<Exception, T>`を使用してエラーを安全に管理する。
 
-3. **Presentation Layer**: UIエラー表示とリトライ機能を提供
-   ```dart
-   // ViewModelでのエラーハンドリング
-   void loadIncomes() async {
-     final result = await _incomeRepository.fetchMonthly(DateTime.now());
-     
-     result.when(
-       success: (incomes) {
-         _incomes = incomes;
-         _errorMessage = null;
-         notifyListeners();
-       },
-       failure: (exception) {
-         _errorMessage = 'データの取得に失敗しました: ${exception.message}';
-         notifyListeners();
-       }
-     );
-   }
-   ```
+```dart
+// Repository実装例
+class FirestorePersonalIncomeRepository implements IncomeRepository {
+  @override
+  Future<Either<Exception, List<IncomeVo>>> fetchMonthly(DateTime date) async {
+    try {
+      final querySnapshot = await _db
+        .collection('/personalNotes/${_uid.value}/incomes')
+        .whereInThisMonth('date', date)
+        .get();
+      
+      final incomes = querySnapshot.docs
+        .map((doc) => IncomeVo(doc.data()['amount']!))
+        .toList(growable: false);
+        
+      return Right(incomes);
+    } on FirebaseException catch (e) {
+      return Left(RepositoryException('Firebase error: ${e.message}'));
+    } catch (e) {
+      return Left(RepositoryException('Unknown error: $e'));
+    }
+  }
+}
+```
 
-- `Exception`をServices層でキャッチし、dartzパッケージの`Either<L,R>`で結果を返す。
-  - その他の`Exception`が発生しうる場所も同様に処理する。
-- `Repositories Interface`は`Either<L,R>`を返す。
+**目的**: 
+- 外部API/DBアクセスの安全性確保
+- コンパイル時エラーハンドリングの強制
+- 関数型プログラミングの恩恵活用
+
+#### 2. Presentation Layer: Exception + Commandパターンによる実行状態管理
+
+プレゼンテーション層では、UIに適したException + Commandパターンを採用している。
+
+```dart
+// ViewModelでのEither → Exception変換
+Future<void> _initializeData(DateTime date, UserIdVo userId) async {
+  try {
+    final incomeResult = await _incomeRepository.fetchMonthly(date);
+    final List<IncomeVo> incomeList = incomeResult.fold(
+      (exception) => throw exception,  // レイヤー境界での例外変換
+      (incomes) => incomes,
+    );
+    
+    // データの更新
+    value = processedData;
+  } catch (ex) {
+    value = _emptyInfo;
+    rethrow; // Commandに例外を委譲
+  }
+}
+```
+
+**`rethrow`を許容する理由**:
+- **レイヤー責務の分離**: Eitherはデータ安全性、Commandは実行状態管理
+- **Flutter慣例との整合**: Flutter UIは例外ベースエラーハンドリングが標準
+- **実装の簡潔性**: UI状態管理の複雑性を最小化
+- **Commandでの統一処理**: `try-catch`による一貫したエラー状態管理
+
+#### 3. Command Pattern: UI向け実行状態の統一管理
+
+```dart
+class _AsyncCommandBase with ChangeNotifier {
+  bool _canExecute = true;
+  bool get canExecute => _canExecute;
+  bool get isExecuting => !canExecute;
+
+  Exception? _error;
+  Exception? get error => _error;
+  bool get hasError => _error != null;
+
+  Future<void> _execute(Future<void> Function() command) async {
+    if (!canExecute) return;
+
+    _canExecute = false;
+    notifyListeners();
+
+    try {
+      await command();
+      _error = null;
+    } on Exception catch (ex) {
+      _error = ex; // UI用エラー状態管理
+    } finally {
+      _canExecute = true;
+      notifyListeners();
+    }
+  }
+}
+```
+
+**メリット**:
+- 重複実行防止
+- 統一されたローディング・エラー状態
+- UIとの自然な統合
+- テスタビリティの向上
+
+### アーキテクチャの一貫性について
+
+この設計により以下が実現される：
+
+1. **Data Layer**: `Either<Exception, T>`で安全なデータ取得・変換を保証
+2. **Presentation Layer**: `Exception + Command`でUIに適した実行状態管理
+3. **レイヤー境界**: `rethrow`によるクリーンな例外変換
+
+各レイヤーが最適なパターンを採用することで、理論的純粋性よりも**実用性と保守性**を優先している。
