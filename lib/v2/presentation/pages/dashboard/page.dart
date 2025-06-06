@@ -72,7 +72,7 @@ class _DashboardContent extends StatelessWidget {
             children: [
               Center(
                 child: Text(
-                  '${state.model.userName.value}の${isPersonal ? '自分' : 'ふたり'}の家計簿',
+                  '${state.userName.value}の${isPersonal ? '自分' : 'ふたり'}の家計簿',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
@@ -80,8 +80,8 @@ class _DashboardContent extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               SummaryPanel(
-                state.model.income,
-                state.model.expense,
+                state.income,
+                state.expense,
               ),
             ],
           ),
