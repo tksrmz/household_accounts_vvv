@@ -9,10 +9,9 @@ import '../../../domain/repositories/expense_repository.dart';
 import '../../../domain/repositories/income_repository.dart';
 import '../../../domain/repositories/public_profile_repository.dart';
 import '../../commands/command.dart';
-import '../state_managements/initializable_state.dart';
 
 /// ダッシュボードを表示するためのViewModel
-class DashboardViewModel extends ValueNotifier<DashboardState> {
+class DashboardViewModel extends ValueNotifier<DashboardInfoModel> {
   static const DashboardInfoModel _emptyInfo = DashboardInfoModel(
     IncomeVo.empty,
     ExpenseVo.empty,
@@ -28,7 +27,7 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
   })  : _incomeRepository = incomeRepository,
         _expenseRepository = expenseRepository,
         _publicProfileRepository = publicProfileRepository,
-        super(DashboardState.uninitialized(_emptyInfo)) {
+        super(_emptyInfo) {
     _initCommand = AsyncCommand2(_initializeData);
     _initCommand.call(date, userId);
   }
@@ -66,9 +65,9 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
       final totalExpense = ExpenseVo(_sumOf(expenseList.map((e) => e.value)));
 
       final info = DashboardInfoModel(totalIncome, totalExpense, userName);
-      value = value.success(info);
+      value = info;
     } catch (ex) {
-      value = value.fail(_emptyInfo);
+      value = _emptyInfo;
       rethrow;
     }
   }
@@ -77,6 +76,3 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
     return iterable.fold<int>(0, (prev, element) => prev + element);
   }
 }
-
-/// ダッシュボードの状態を表すクラス
-typedef DashboardState = InitializableState<DashboardInfoModel>;

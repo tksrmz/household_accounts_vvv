@@ -152,11 +152,9 @@ void main() {
           verify(mockIncomeRepository.fetchMonthly(date)).called(1);
           verify(mockExpenseRepository.fetchMonthly(date)).called(1);
           verify(mockPublicProfileRepository.fetchUserName(userId)).called(1);
-          expect(target.value.isUninitialized, isFalse);
-          expect(target.value.model.income.value, testData.expectedIncome);
-          expect(target.value.model.expense.value, testData.expectedExpense);
-          expect(target.value.model.userName.value, testData.expectedUserName);
-          expect(target.value.isFailed, isFalse);
+          expect(target.value.income.value, testData.expectedIncome);
+          expect(target.value.expense.value, testData.expectedExpense);
+          expect(target.value.userName.value, testData.expectedUserName);
         });
       });
     });
@@ -170,11 +168,9 @@ void main() {
         final target = await build();
 
         verify(mockIncomeRepository.fetchMonthly(date)).called(1);
-        expect(target.value.isUninitialized, isFalse);
-        expect(target.value.model.income, IncomeVo.empty);
-        expect(target.value.model.expense, ExpenseVo.empty);
-        expect(target.value.model.userName, UserNameVo.empty);
-        expect(target.value.isFailed, isTrue);
+        expect(target.value.income, IncomeVo.empty);
+        expect(target.value.expense, ExpenseVo.empty);
+        expect(target.value.userName, UserNameVo.empty);
       });
 
       test('ExpenseRepositoryでエラーが発生したとき、エラー状態になりModelは初期値である', () async {
@@ -186,11 +182,9 @@ void main() {
 
         verify(mockIncomeRepository.fetchMonthly(date)).called(1);
         verify(mockExpenseRepository.fetchMonthly(date)).called(1);
-        expect(target.value.isUninitialized, isFalse);
-        expect(target.value.model.income, IncomeVo.empty);
-        expect(target.value.model.expense, ExpenseVo.empty);
-        expect(target.value.model.userName, UserNameVo.empty);
-        expect(target.value.isFailed, isTrue);
+        expect(target.value.income, IncomeVo.empty);
+        expect(target.value.expense, ExpenseVo.empty);
+        expect(target.value.userName, UserNameVo.empty);
       });
 
       test('PublicProfileRepositoryでエラーが発生したとき、エラー状態になりModelは初期値である', () async {
@@ -203,11 +197,9 @@ void main() {
         verify(mockIncomeRepository.fetchMonthly(date)).called(1);
         verify(mockExpenseRepository.fetchMonthly(date)).called(1);
         verify(mockPublicProfileRepository.fetchUserName(userId)).called(1);
-        expect(target.value.isUninitialized, isFalse);
-        expect(target.value.model.income, IncomeVo.empty);
-        expect(target.value.model.expense, ExpenseVo.empty);
-        expect(target.value.model.userName, UserNameVo.empty);
-        expect(target.value.isFailed, isTrue);
+        expect(target.value.income, IncomeVo.empty);
+        expect(target.value.expense, ExpenseVo.empty);
+        expect(target.value.userName, UserNameVo.empty);
       });
     });
   });
