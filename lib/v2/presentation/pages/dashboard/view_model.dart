@@ -55,7 +55,8 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
         (exception) => throw exception,
         (expenses) => expenses,
       );
-      final userNameResult = await _publicProfileRepository.fetchUserName(userId);
+      final userNameResult =
+          await _publicProfileRepository.fetchUserName(userId);
       final UserNameVo userName = userNameResult.fold(
         (exception) => throw exception,
         (name) => name,
@@ -68,6 +69,7 @@ class DashboardViewModel extends ValueNotifier<DashboardState> {
       value = value.success(info);
     } catch (ex) {
       value = value.fail(_emptyInfo);
+      rethrow;
     }
   }
 
