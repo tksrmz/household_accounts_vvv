@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/user_auth.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
@@ -34,7 +35,7 @@ void main() {
   setUp(() {
     when(mockAuthRepository.getCurrentUser()).thenReturn(UserAuth(uid: userId));
     when(mockPublicProfileRepository.fetchUserName(userId))
-        .thenAnswer((_) async => userName);
+        .thenAnswer((_) async => Right<Exception, UserNameVo>(userName));
   });
 
   tearDown(() {
@@ -48,7 +49,7 @@ void main() {
       group('初期化実行中', () {
         setUp(() {
           when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
-            (_) => Completer<UserNameVo>().future,
+            (_) => Completer<Either<Exception, UserNameVo>>().future,
           );
         });
 
@@ -70,7 +71,7 @@ void main() {
 
       test('初期化成功後はエラー状態ではないこと', () async {
         when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
-          (_) async => UserNameVo('上田 技術'),
+          (_) async => Right<Exception, UserNameVo>(UserNameVo('上田 技術')),
         );
 
         final target = await build();
@@ -81,8 +82,8 @@ void main() {
       });
 
       test('初期化失敗時はエラー状態であること', () async {
-        when(mockPublicProfileRepository.fetchUserName(any)).thenThrow(
-          Exception('fetchUserNameエラー'),
+        when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
+          (_) async => Left<Exception, UserNameVo>(Exception('fetchUserNameエラー')),
         );
 
         final target = await build();
@@ -99,9 +100,9 @@ void main() {
 
       setUp(() {
         when(mockPublicProfileRepository.fetchUserName(userId))
-            .thenAnswer((_) async => currentUserName);
+            .thenAnswer((_) async => Right<Exception, UserNameVo>(currentUserName));
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .thenAnswer((_) async => {});
+            .thenAnswer((_) async => Right<Exception, Unit>(unit));
       });
 
       test('初期化後はサーバから取得したユーザー名が表示される', () async {
@@ -137,7 +138,7 @@ void main() {
 
         // モックの設定
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .thenThrow(Exception('保存に失敗しました'));
+            .thenAnswer((_) async => Left<Exception, Unit>(Exception('保存に失敗しました')));
 
         await target.save(newUserName.value);
 
@@ -155,7 +156,7 @@ void main() {
 
         // モックの設定
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .thenThrow(Exception('保存に失敗しました'));
+            .thenAnswer((_) async => Left<Exception, Unit>(Exception('保存に失敗しました')));
 
         await target.save(newUserName.value);
         target.save.resetError();
@@ -186,6 +187,10 @@ void main() {
       });
 
       test('検証エラーになったあと、有効なユーザー名を保存できる', () async {
+        final validUserNameVo = UserNameVo("validUsername");
+        when(mockPublicProfileRepository.updateUserName(userId, validUserNameVo))
+            .thenAnswer((_) async => Right<Exception, Unit>(unit));
+
         final target = await build();
         target.startEditing();
         await target.save("a" * 21);

@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_expense_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
@@ -27,15 +28,16 @@ void main() {
           userId,
           date.year,
           date.month,
-        )).thenAnswer((_) async => [
+        )).thenAnswer((_) async => Right([
               {'amount': 100}
-            ]);
+            ]));
 
         final target = FirestorePersonalExpenseRepository(
           mockFirestoreService,
           userId,
         );
-        final expenseList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final expenseList = result.getOrElse(() => []);
 
         verify(mockFirestoreService.fetchAllPersonalExpensesOf(
           userId,
@@ -43,6 +45,7 @@ void main() {
           date.month,
         )).called(1);
 
+        expect(result.isRight(), isTrue);
         expect(expenseList, hasLength(1));
         expect(expenseList[0], ExpenseVo(100));
       });
@@ -55,15 +58,17 @@ void main() {
           userId,
           date.year,
           date.month,
-        )).thenAnswer((_) async => []);
+        )).thenAnswer((_) async => Right([]));
 
         final target = FirestorePersonalExpenseRepository(
           mockFirestoreService,
           userId,
         );
-        final expenseList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final expenseList = result.getOrElse(() => []);
 
         // クエリの正しさは別のテストで確認しているので、取得した結果だけ確認
+        expect(result.isRight(), isTrue);
         expect(expenseList, hasLength(0));
       });
     });
@@ -85,9 +90,9 @@ void main() {
           userId,
           date.year,
           date.month,
-        )).thenAnswer((_) async => [
+        )).thenAnswer((_) async => Right([
               {'amount': value}
-            ]);
+            ]));
 
         final target = FirestorePersonalExpenseRepository(
           mockFirestoreService,
@@ -98,6 +103,25 @@ void main() {
           throwsA(isA<TypeError>()),
         );
       });
+    });
+
+    test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
+      final date = DateTime(2025, 1);
+      final exception = Exception('test error');
+      when(mockFirestoreService.fetchAllPersonalExpensesOf(
+        userId,
+        date.year,
+        date.month,
+      )).thenAnswer((_) async => Left(exception));
+
+      final target = FirestorePersonalExpenseRepository(
+        mockFirestoreService,
+        userId,
+      );
+      final result = await target.fetchMonthly(date);
+
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => null), equals(exception));
     });
   });
 }

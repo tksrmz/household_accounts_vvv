@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/user_auth.dart';
@@ -62,8 +63,8 @@ void main() {
       testWidgets(
         '画面を開くとローディング画面が表示されること',
         (tester) async {
-          when(mockPublicProfileRepository.fetchUserName(any))
-              .thenAnswer((_) => Completer<UserNameVo>().future);
+          when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
+              (_) => Completer<Either<Exception, UserNameVo>>().future);
 
           await buildTarget(tester);
 
@@ -79,7 +80,7 @@ void main() {
         'ローディングに成功するとコンテンツが表示されること',
         (tester) async {
           when(mockPublicProfileRepository.fetchUserName(any))
-              .thenAnswer((_) async => UserNameVo('うえだぎじゅつ'));
+              .thenAnswer((_) async => Right(UserNameVo('うえだぎじゅつ')));
 
           await buildTarget(tester);
           await tester.pumpAndSettle();
@@ -96,7 +97,7 @@ void main() {
         'ローディングに失敗するとエラーメッセージが表示されること',
         (tester) async {
           when(mockPublicProfileRepository.fetchUserName(any))
-              .thenThrow(Exception('fetchUserNameエラー'));
+              .thenAnswer((_) async => Left(Exception('fetchUserNameエラー')));
 
           await buildTarget(tester);
           await tester.pumpAndSettle();
@@ -117,7 +118,7 @@ void main() {
 
       setUp(() {
         when(mockPublicProfileRepository.fetchUserName(userId))
-            .thenAnswer((_) async => userName);
+            .thenAnswer((_) async => Right(userName));
       });
 
       // 初期化後の状態は画面全体のテストで確認できるためスキップする
@@ -186,6 +187,10 @@ void main() {
       testWidgets(
         '有効なユーザー名に戻すと検証エラーが解消される',
         (tester) async {
+          when(mockPublicProfileRepository.updateUserName(
+                  userId, UserNameVo('Gijutsu Ueda')))
+              .thenAnswer((_) async => Right<Exception, Unit>(unit));
+
           await buildTarget(tester);
           await tester.pumpAndSettle();
 
@@ -222,7 +227,7 @@ void main() {
 
           // モックの設定
           when(mockPublicProfileRepository.updateUserName(any, any))
-              .thenAnswer((_) async => {});
+              .thenAnswer((_) async => Right(unit));
 
           await tester.tap(find.text('保存'));
           await tester.pumpAndSettle();
@@ -249,7 +254,7 @@ void main() {
 
           // モックの設定
           when(mockPublicProfileRepository.updateUserName(any, any))
-              .thenThrow(Exception('保存に失敗しました'));
+              .thenAnswer((_) async => Left(Exception('保存に失敗しました')));
 
           await tester.tap(find.text('保存'));
           await tester.pumpAndSettle();
@@ -276,7 +281,7 @@ void main() {
 
           // モックの設定
           when(mockPublicProfileRepository.updateUserName(any, any))
-              .thenThrow(Exception('保存に失敗しました'));
+              .thenAnswer((_) async => Left(Exception('保存に失敗しました')));
 
           await tester.tap(find.text('保存'));
           // スナックバー表示確認
@@ -289,7 +294,7 @@ void main() {
 
           // モックの設定
           when(mockPublicProfileRepository.updateUserName(any, any))
-              .thenAnswer((_) async => {});
+              .thenAnswer((_) async => Right(unit));
 
           // 保存
           await tester.tap(find.text('保存'));

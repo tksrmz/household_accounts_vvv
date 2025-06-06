@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+
 import '../models/vo/income.dart';
 
 abstract interface class IncomeRepository {
@@ -9,5 +11,5 @@ abstract interface class IncomeRepository {
   /// 返却されるListの順番については保証されない。
   ///
   /// [date] 取得対象の年月
-  Future<List<IncomeVo>> fetchMonthly(DateTime date);
+  Future<Either<Exception, List<IncomeVo>>> fetchMonthly(DateTime date);
 }

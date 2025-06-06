@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/user_auth.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
@@ -50,11 +51,12 @@ void main() {
           )
         ],
         child: DashboardPage(
-          date: DateTime(2025, 1),
           viewModel: DashboardViewModel(
             incomeRepository: mockIncomeRepository,
             expenseRepository: mockExpenseRepository,
             publicProfileRepository: mockPublicProfileRepository,
+            date: DateTime(2025, 1),
+            userId: userId,
           ),
         ),
       );
@@ -71,12 +73,12 @@ void main() {
     goldenFileName: 'dashboard_page_loading',
     mockFn: () {
       // 初期化が完了しないようにFutureを返す
-      when(mockIncomeRepository.fetchMonthly(any))
-          .thenAnswer((_) => Completer<List<IncomeVo>>().future);
-      when(mockExpenseRepository.fetchMonthly(any))
-          .thenAnswer((_) => Completer<List<ExpenseVo>>().future);
+      when(mockIncomeRepository.fetchMonthly(any)).thenAnswer(
+          (_) => Completer<Either<Exception, List<IncomeVo>>>().future);
+      when(mockExpenseRepository.fetchMonthly(any)).thenAnswer(
+          (_) => Completer<Either<Exception, List<ExpenseVo>>>().future);
       when(mockPublicProfileRepository.fetchUserName(any))
-          .thenAnswer((_) => Completer<UserNameVo>().future);
+          .thenAnswer((_) => Completer<Either<Exception, UserNameVo>>().future);
     },
     builder: targetBuilder,
   );
@@ -86,11 +88,11 @@ void main() {
     goldenFileName: 'dashboard_page_complete',
     mockFn: () {
       when(mockIncomeRepository.fetchMonthly(any))
-          .thenAnswer((_) async => [IncomeVo(99)]);
+          .thenAnswer((_) async => Right([IncomeVo(99)]));
       when(mockExpenseRepository.fetchMonthly(any))
-          .thenAnswer((_) async => [ExpenseVo(200)]);
+          .thenAnswer((_) async => Right([ExpenseVo(200)]));
       when(mockPublicProfileRepository.fetchUserName(any))
-          .thenAnswer((_) async => UserNameVo('testUserName'));
+          .thenAnswer((_) async => Right(UserNameVo('testUserName')));
     },
     builder: targetBuilder,
     expectFn: (tester) async {
@@ -107,10 +109,11 @@ void main() {
     goldenFileName: 'dashboard_page_error',
     mockFn: () {
       when(mockIncomeRepository.fetchMonthly(any))
-          .thenThrow(Exception('fetchMonthlyエラー'));
+          .thenAnswer((_) async => Left(Exception('fetchMonthlyエラー')));
     },
     builder: targetBuilder,
     expectFn: (tester) async {
+      await tester.pumpAndSettle();
       verify(mockIncomeRepository.fetchMonthly(DateTime(2025, 1))).called(1);
     },
   );

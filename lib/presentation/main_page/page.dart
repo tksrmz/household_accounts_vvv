@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/page.dart';
 import 'package:provider/provider.dart';
 
+import '../../v2/domain/models/user_auth.dart';
 import '../../v2/presentation/pages/dashboard/view_model.dart';
 import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 import '../budget_viewer/budget_viewer_page.dart';
@@ -36,12 +37,15 @@ class _MainPageState extends State<MainPage> {
     final bodies = <Widget>[
       Builder(
         builder: (context) {
+          final now = DateTime.now();
+          final userAuth = context.read<UserAuth>();
           return DashboardPage(
-            date: DateTime.now(),
             viewModel: DashboardViewModel(
               incomeRepository: context.read(),
               expenseRepository: context.read(),
               publicProfileRepository: context.read(),
+              date: now,
+              userId: userAuth.uid,
             ),
           );
         },

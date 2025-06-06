@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_income_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
@@ -27,15 +28,16 @@ void main() {
           userId,
           date.year,
           date.month,
-        )).thenAnswer((_) async => [
+        )).thenAnswer((_) async => Right([
               {'amount': 100}
-            ]);
+            ]));
 
         final target = FirestorePersonalIncomeRepository(
           mockFirestoreService,
           userId,
         );
-        final incomeList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final incomeList = result.getOrElse(() => []);
 
         verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
           userId,
@@ -43,6 +45,7 @@ void main() {
           date.month,
         )).called(1);
 
+        expect(result.isRight(), isTrue);
         expect(incomeList, hasLength(1));
         expect(incomeList[0], IncomeVo(100));
       });
@@ -55,16 +58,17 @@ void main() {
           userId,
           date.year,
           date.month,
-        )).thenAnswer((_) async => [
+        )).thenAnswer((_) async => Right([
               {'amount': 100},
               {'amount': 200},
-            ]);
+            ]));
 
         final target = FirestorePersonalIncomeRepository(
           mockFirestoreService,
           userId,
         );
-        final incomeList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final incomeList = result.getOrElse(() => []);
 
         verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
           userId,
@@ -72,6 +76,7 @@ void main() {
           date.month,
         )).called(1);
 
+        expect(result.isRight(), isTrue);
         expect(incomeList, hasLength(2));
         expect(incomeList[0], IncomeVo(100));
         expect(incomeList[1], IncomeVo(200));
@@ -85,13 +90,14 @@ void main() {
           userId,
           date.year,
           date.month,
-        )).thenAnswer((_) async => []);
+        )).thenAnswer((_) async => Right([]));
 
         final target = FirestorePersonalIncomeRepository(
           mockFirestoreService,
           userId,
         );
-        final incomeList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final incomeList = result.getOrElse(() => []);
 
         verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
           userId,
@@ -99,6 +105,7 @@ void main() {
           date.month,
         )).called(1);
 
+        expect(result.isRight(), isTrue);
         expect(incomeList, hasLength(0));
       });
     });
@@ -120,9 +127,9 @@ void main() {
           userId,
           date.year,
           date.month,
-        )).thenAnswer((_) async => [
+        )).thenAnswer((_) async => Right([
               {'amount': value}
-            ]);
+            ]));
 
         final target = FirestorePersonalIncomeRepository(
           mockFirestoreService,
@@ -133,6 +140,25 @@ void main() {
           throwsA(isA<TypeError>()),
         );
       });
+    });
+
+    test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
+      final date = DateTime(2025, 1);
+      final exception = Exception('test error');
+      when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        userId,
+        date.year,
+        date.month,
+      )).thenAnswer((_) async => Left(exception));
+
+      final target = FirestorePersonalIncomeRepository(
+        mockFirestoreService,
+        userId,
+      );
+      final result = await target.fetchMonthly(date);
+
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => null), equals(exception));
     });
   });
 }

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
@@ -18,16 +21,33 @@ import 'package:mockito/mockito.dart';
 import 'view_model_test.mocks.dart';
 
 void main() {
-  late MockIncomeRepository mockIncomeRepository;
-  late MockExpenseRepository mockExpenseRepository;
-  late MockPublicProfileRepository mockPublicProfileRepository;
+  final mockIncomeRepository = MockIncomeRepository();
+  final mockExpenseRepository = MockExpenseRepository();
+  final mockPublicProfileRepository = MockPublicProfileRepository();
   final date = DateTime(2025, 1);
   const userId = UserIdVo('testUserId');
+  const userName = UserNameVo('TestUser');
+
+  final build = () async {
+    final vm = DashboardViewModel(
+      incomeRepository: mockIncomeRepository,
+      expenseRepository: mockExpenseRepository,
+      publicProfileRepository: mockPublicProfileRepository,
+      date: date,
+      userId: userId,
+    );
+    // 初期化完了を待つ
+    await Future.delayed(Duration(milliseconds: 100));
+    return vm;
+  };
 
   setUp(() {
-    mockIncomeRepository = MockIncomeRepository();
-    mockExpenseRepository = MockExpenseRepository();
-    mockPublicProfileRepository = MockPublicProfileRepository();
+    when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
+        (_) async => Right<Exception, List<IncomeVo>>(<IncomeVo>[]));
+    when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
+        (_) async => Right<Exception, List<ExpenseVo>>(<ExpenseVo>[]));
+    when(mockPublicProfileRepository.fetchUserName(userId))
+        .thenAnswer((_) async => Right<Exception, UserNameVo>(userName));
   });
 
   tearDown(() {
@@ -37,25 +57,56 @@ void main() {
     reset(mockPublicProfileRepository);
   });
 
-  test('初期化前はModelが初期値であり、エラー状態ではない', () {
-    final sut = DashboardViewModel(
-      incomeRepository: mockIncomeRepository,
-      expenseRepository: mockExpenseRepository,
-      publicProfileRepository: mockPublicProfileRepository,
-    );
+  group('DashboardViewModel', () {
+    group('画面全体の状態', () {
+      group('初期化実行中', () {
+        setUp(() {
+          when(mockIncomeRepository.fetchMonthly(any)).thenAnswer(
+            (_) => Completer<Either<Exception, List<IncomeVo>>>().future,
+          );
+        });
 
-    verifyNoMoreInteractions(mockIncomeRepository);
-    verifyNoMoreInteractions(mockExpenseRepository);
-    verifyNoMoreInteractions(mockPublicProfileRepository);
-    expect(sut.value.isUninitialized, isTrue);
-    expect(sut.value.model.income, IncomeVo.empty);
-    expect(sut.value.model.expense, ExpenseVo.empty);
-    expect(sut.value.model.userName, UserNameVo.empty);
-    expect(sut.value.isFailed, isFalse);
-  });
+        test('初期化中はそのことが分かること', () async {
+          final target = await build();
 
-  group('初期化に成功したとき', () {
-    group('データ集約のテスト', () {
+          verify(mockIncomeRepository.fetchMonthly(date)).called(1);
+          expect(target.init.isExecuting, isTrue);
+        });
+      });
+
+      test('初期化成功後はエラー状態ではないこと', () async {
+        when(mockIncomeRepository.fetchMonthly(any)).thenAnswer(
+          (_) async => Right<Exception, List<IncomeVo>>([IncomeVo(100)]),
+        );
+        when(mockExpenseRepository.fetchMonthly(any)).thenAnswer(
+          (_) async => Right<Exception, List<ExpenseVo>>([ExpenseVo(50)]),
+        );
+        when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
+          (_) async => Right<Exception, UserNameVo>(UserNameVo('テストユーザー')),
+        );
+
+        final target = await build();
+        await Future.delayed(Duration(milliseconds: 100));
+
+        expect(target.init.isExecuting, isFalse);
+        expect(target.init.hasError, isFalse);
+      });
+
+      test('初期化失敗時はエラー状態であること', () async {
+        when(mockIncomeRepository.fetchMonthly(any)).thenAnswer(
+          (_) async =>
+              Left<Exception, List<IncomeVo>>(Exception('fetchIncomeエラー')),
+        );
+
+        final target = await build();
+        await Future.delayed(Duration(milliseconds: 100));
+
+        expect(target.init.isExecuting, isFalse);
+        expect(target.init.hasError, isTrue);
+      });
+    });
+
+    group('データ集約', () {
       [
         (
           description: 'incomeとexpenseがともに0円のとき',
@@ -68,14 +119,8 @@ void main() {
         ),
         (
           description: 'incomeとexpenseがともに0円ではないとき',
-          incomeAnswer: [
-            IncomeVo(100),
-            IncomeVo(200),
-          ],
-          expenseAnswer: [
-            ExpenseVo(50),
-            ExpenseVo(100),
-          ],
+          incomeAnswer: [IncomeVo(100), IncomeVo(200)],
+          expenseAnswer: [ExpenseVo(50), ExpenseVo(100)],
           userNameAnswer: UserNameVo('PiyoPiyo'),
           expectedIncome: 300,
           expectedExpense: 150,
@@ -83,14 +128,8 @@ void main() {
         ),
         (
           description: '複数のincomeとexpenseが正しく合計されること',
-          incomeAnswer: [
-            IncomeVo(60),
-            IncomeVo(40),
-          ],
-          expenseAnswer: [
-            ExpenseVo(30),
-            ExpenseVo(40),
-          ],
+          incomeAnswer: [IncomeVo(60), IncomeVo(40)],
+          expenseAnswer: [ExpenseVo(30), ExpenseVo(40)],
           userNameAnswer: UserNameVo('testUserId'),
           expectedIncome: 100,
           expectedExpense: 70,
@@ -99,166 +138,69 @@ void main() {
       ].forEach((testData) {
         test(testData.description, () async {
           when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-            (_) async => testData.incomeAnswer,
+            (_) async => Right(testData.incomeAnswer),
           );
           when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-            (_) async => testData.expenseAnswer,
+            (_) async => Right(testData.expenseAnswer),
           );
           when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
-            (_) async => testData.userNameAnswer,
+            (_) async => Right(testData.userNameAnswer),
           );
 
-          final sut = DashboardViewModel(
-            incomeRepository: mockIncomeRepository,
-            expenseRepository: mockExpenseRepository,
-            publicProfileRepository: mockPublicProfileRepository,
-          );
-          await sut.init(date, userId);
+          final target = await build();
 
           verify(mockIncomeRepository.fetchMonthly(date)).called(1);
           verify(mockExpenseRepository.fetchMonthly(date)).called(1);
           verify(mockPublicProfileRepository.fetchUserName(userId)).called(1);
-          expect(sut.value.isUninitialized, isFalse);
-          expect(sut.value.model.income.value, testData.expectedIncome);
-          expect(sut.value.model.expense.value, testData.expectedExpense);
-          expect(sut.value.model.userName.value, testData.expectedUserName);
-          expect(sut.value.isFailed, isFalse);
+          expect(target.value.income.value, testData.expectedIncome);
+          expect(target.value.expense.value, testData.expectedExpense);
+          expect(target.value.userName.value, testData.expectedUserName);
         });
       });
     });
 
-    test('notifyListeners()を呼び出しており、エラー状態ではない', () async {
-      when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-        (_) async => [IncomeVo(60), IncomeVo(40)],
-      );
-      when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-        (_) async => [ExpenseVo(30), ExpenseVo(40)],
-      );
-      when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
-        (_) async => UserNameVo("testUserId"),
-      );
+    group('エラーハンドリング', () {
+      test('IncomeRepositoryでエラーが発生したとき、エラー状態になりModelは初期値である', () async {
+        when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
+          (_) async => Left(Exception('IncomeRepositoryエラー')),
+        );
 
-      final sut = DashboardViewModel(
-        incomeRepository: mockIncomeRepository,
-        expenseRepository: mockExpenseRepository,
-        publicProfileRepository: mockPublicProfileRepository,
-      );
-      var notifyListenersCalled = false;
-      sut.addListener(() {
-        notifyListenersCalled = true;
+        final target = await build();
+
+        verify(mockIncomeRepository.fetchMonthly(date)).called(1);
+        expect(target.value.income, IncomeVo.empty);
+        expect(target.value.expense, ExpenseVo.empty);
+        expect(target.value.userName, UserNameVo.empty);
       });
 
-      expect(notifyListenersCalled, isFalse);
-      await sut.init(date, userId);
-      expect(notifyListenersCalled, isTrue);
+      test('ExpenseRepositoryでエラーが発生したとき、エラー状態になりModelは初期値である', () async {
+        when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
+          (_) async => Left(Exception('ExpenseRepositoryエラー')),
+        );
 
-      // notifyListeners()が呼び出されたら初期化が完了している
-      expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.isFailed, isFalse);
-    });
+        final target = await build();
 
-  });
-
-  group('初期化に失敗したとき', () {
-    setUp(() {
-      // 基本的なモックセットアップ（個別テストで例外を発生させる）
-      when(mockIncomeRepository.fetchMonthly(any)).thenAnswer(
-        (_) async => <IncomeVo>[],
-      );
-      when(mockExpenseRepository.fetchMonthly(any)).thenAnswer(
-        (_) async => <ExpenseVo>[],
-      );
-      when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
-        (_) async => UserNameVo('TestUserName'),
-      );
-    });
-
-    test('IncomeRepositoryで例外が発生したとき、エラー状態になり、Modelは初期値である', () async {
-      when(mockIncomeRepository.fetchMonthly(date)).thenThrow(
-        Exception('テストエラー'),
-      );
-
-      final sut = DashboardViewModel(
-        incomeRepository: mockIncomeRepository,
-        expenseRepository: mockExpenseRepository,
-        publicProfileRepository: mockPublicProfileRepository,
-      );
-      await sut.init(date, userId);
-
-      verify(mockIncomeRepository.fetchMonthly(date)).called(1);
-      expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.model.income, IncomeVo.empty);
-      expect(sut.value.model.expense, ExpenseVo.empty);
-      expect(sut.value.model.userName, UserNameVo.empty);
-      expect(sut.value.isFailed, isTrue);
-    });
-
-    test('ExpenseRepositoryで例外が発生したとき、エラー状態になり、Modelは初期値である', () async {
-      when(mockExpenseRepository.fetchMonthly(date)).thenThrow(
-        Exception('テストエラー'),
-      );
-
-      final sut = DashboardViewModel(
-        incomeRepository: mockIncomeRepository,
-        expenseRepository: mockExpenseRepository,
-        publicProfileRepository: mockPublicProfileRepository,
-      );
-      await sut.init(date, userId);
-
-      verify(mockIncomeRepository.fetchMonthly(date)).called(1);
-      verify(mockExpenseRepository.fetchMonthly(date)).called(1);
-      expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.model.income, IncomeVo.empty);
-      expect(sut.value.model.expense, ExpenseVo.empty);
-      expect(sut.value.model.userName, UserNameVo.empty);
-      expect(sut.value.isFailed, isTrue);
-    });
-
-    test('PublicProfileRepositoryで例外が発生したとき、エラー状態になり、Modelは初期値である', () async {
-      when(mockPublicProfileRepository.fetchUserName(userId)).thenThrow(
-        Exception('テストエラー'),
-      );
-
-      final sut = DashboardViewModel(
-        incomeRepository: mockIncomeRepository,
-        expenseRepository: mockExpenseRepository,
-        publicProfileRepository: mockPublicProfileRepository,
-      );
-      await sut.init(date, userId);
-
-      verify(mockIncomeRepository.fetchMonthly(date)).called(1);
-      verify(mockExpenseRepository.fetchMonthly(date)).called(1);
-      verify(mockPublicProfileRepository.fetchUserName(userId)).called(1);
-      expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.model.income, IncomeVo.empty);
-      expect(sut.value.model.expense, ExpenseVo.empty);
-      expect(sut.value.model.userName, UserNameVo.empty);
-      expect(sut.value.isFailed, isTrue);
-    });
-
-    test('notifyListeners()を呼び出している', () async {
-      when(mockIncomeRepository.fetchMonthly(any)).thenAnswer(
-        (_) async => throw Exception('テスト：エラーが発生しました'),
-      );
-
-      final sut = DashboardViewModel(
-        incomeRepository: mockIncomeRepository,
-        expenseRepository: mockExpenseRepository,
-        publicProfileRepository: mockPublicProfileRepository,
-      );
-      var notifyListenersCalled = false;
-      sut.addListener(() {
-        notifyListenersCalled = true;
+        verify(mockIncomeRepository.fetchMonthly(date)).called(1);
+        verify(mockExpenseRepository.fetchMonthly(date)).called(1);
+        expect(target.value.income, IncomeVo.empty);
+        expect(target.value.expense, ExpenseVo.empty);
+        expect(target.value.userName, UserNameVo.empty);
       });
 
-      expect(notifyListenersCalled, isFalse);
-      await sut.init(date, userId);
-      expect(notifyListenersCalled, isTrue);
+      test('PublicProfileRepositoryでエラーが発生したとき、エラー状態になりModelは初期値である', () async {
+        when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
+          (_) async => Left(Exception('PublicProfileRepositoryエラー')),
+        );
 
-      // notifyListeners()が呼び出されたら初期化が完了している
-      expect(sut.value.isUninitialized, isFalse);
-      expect(sut.value.isFailed, isTrue);
+        final target = await build();
+
+        verify(mockIncomeRepository.fetchMonthly(date)).called(1);
+        verify(mockExpenseRepository.fetchMonthly(date)).called(1);
+        verify(mockPublicProfileRepository.fetchUserName(userId)).called(1);
+        expect(target.value.income, IncomeVo.empty);
+        expect(target.value.expense, ExpenseVo.empty);
+        expect(target.value.userName, UserNameVo.empty);
+      });
     });
-
   });
 }

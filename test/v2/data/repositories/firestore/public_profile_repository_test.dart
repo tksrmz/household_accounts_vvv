@@ -1,4 +1,5 @@
 
+import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/public_profile_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
@@ -23,16 +24,32 @@ void main() {
 
     test('ユーザー名を取得できる', () async {
       when(mockFirestoreService.fetchPublicProfileOf(userId))
-          .thenAnswer((_) async => {
+          .thenAnswer((_) async => Right<Exception, Map<String, dynamic>>({
                 'name': 'XxXSampleNameXxX',
-              });
+              }));
 
       final sut = FirestorePublicProfileRepository(mockFirestoreService);
-      final userName = await sut.fetchUserName(userId);
+      final result = await sut.fetchUserName(userId);
 
       verify(mockFirestoreService.fetchPublicProfileOf(userId)).called(1);
 
+      expect(result, isA<Either<Exception, UserNameVo>>());
+      expect(result.isRight(), isTrue);
+      final userName = result.getOrElse(() => UserNameVo(''));
       expect(userName, UserNameVo('XxXSampleNameXxX'));
+    });
+
+    test('取得に失敗した場合、Leftを返す', () async {
+      when(mockFirestoreService.fetchPublicProfileOf(userId))
+          .thenAnswer((_) async => Left<Exception, Map<String, dynamic>>(Exception('取得に失敗しました')));
+
+      final sut = FirestorePublicProfileRepository(mockFirestoreService);
+      final result = await sut.fetchUserName(userId);
+
+      verify(mockFirestoreService.fetchPublicProfileOf(userId)).called(1);
+
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => r), isA<Exception>());
     });
   });
 
@@ -47,24 +64,30 @@ void main() {
 
     test('ユーザー名を更新できる', () async {
       when(mockFirestoreService.updatePublicProfileNameOf(userId, userName))
-          .thenAnswer((_) async => {});
+          .thenAnswer((_) async => Right<Exception, Unit>(unit));
 
       final sut = FirestorePublicProfileRepository(mockFirestoreService);
-      await sut.updateUserName(userId, userName);
+      final result = await sut.updateUserName(userId, userName);
 
       verify(mockFirestoreService.updatePublicProfileNameOf(userId, userName))
           .called(1);
+
+      expect(result, isA<Either<Exception, Unit>>());
+      expect(result.isRight(), isTrue);
     });
 
-    test('更新に失敗したら例外が発生する', () async {
+    test('更新に失敗した場合、Leftを返す', () async {
       when(mockFirestoreService.updatePublicProfileNameOf(userId, userName))
-          .thenThrow(Exception('更新に失敗しました'));
+          .thenAnswer((_) async => Left<Exception, Unit>(Exception('更新に失敗しました')));
 
       final sut = FirestorePublicProfileRepository(mockFirestoreService);
-      expect(
-        () => sut.updateUserName(userId, userName),
-        throwsException,
-      );
+      final result = await sut.updateUserName(userId, userName);
+
+      verify(mockFirestoreService.updatePublicProfileNameOf(userId, userName))
+          .called(1);
+
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => r), isA<Exception>());
     });
   });
 }

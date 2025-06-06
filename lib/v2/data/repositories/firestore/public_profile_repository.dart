@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
 
 import '../../../domain/models/vo/user_id.dart';
@@ -10,13 +11,13 @@ class FirestorePublicProfileRepository implements PublicProfileRepository {
   final FirestoreService _firestoreService;
 
   @override
-  Future<UserNameVo> fetchUserName(UserIdVo userId) async {
-    final profileData = await _firestoreService.fetchPublicProfileOf(userId);
-    return UserNameVo(profileData['name']! as String);
+  Future<Either<Exception, UserNameVo>> fetchUserName(UserIdVo userId) async {
+    final result = await _firestoreService.fetchPublicProfileOf(userId);
+    return result.map((profileData) => UserNameVo(profileData['name']! as String));
   }
 
   @override
-  Future<void> updateUserName(UserIdVo userId, UserNameVo userName) async {
-    await _firestoreService.updatePublicProfileNameOf(userId, userName);
+  Future<Either<Exception, Unit>> updateUserName(UserIdVo userId, UserNameVo userName) async {
+    return await _firestoreService.updatePublicProfileNameOf(userId, userName);
   }
 }

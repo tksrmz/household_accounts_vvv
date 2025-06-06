@@ -34,6 +34,7 @@ class _AsyncCommandBase with ChangeNotifier {
   Exception? get error => _error;
   bool get hasError => _error != null;
 
+  // TODO: change `command` to return Either<Exception, Unit> instead of void
   Future<void> _execute(Future<void> Function() command) async {
     if (!canExecute) {
       return;

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/privateProfile.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/shared_expense_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
@@ -38,7 +39,7 @@ void main() {
         final sharedNote = {'ref': mockSharedNoteDocRef};
 
         when(mockFirestoreService.fetchPrivateProfileOf(userId))
-            .thenAnswer((_) async => mockPrivateProfileDocSnapshot);
+            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())
             .thenReturn(mockPrivateProfile);
@@ -47,10 +48,10 @@ void main() {
           mockSharedNoteDocRef,
           date.year,
           date.month,
-        )).thenAnswer((_) async => [
+        )).thenAnswer((_) async => Right([
               {'amount': 100},
               {'amount': 200},
-            ]);
+            ]));
 
         final target = FirestoreSharedExpenseRepository(
           mockFirestoreService,
@@ -58,9 +59,11 @@ void main() {
         );
 
         // Act
-        final expenseList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final expenseList = result.getOrElse(() => []);
 
         // Assert
+        expect(result.isRight(), isTrue);
         expect(expenseList, hasLength(2));
         expect(expenseList[0], ExpenseVo(100));
         expect(expenseList[1], ExpenseVo(200));
@@ -73,7 +76,7 @@ void main() {
         final date = DateTime(2025, 1);
 
         when(mockFirestoreService.fetchPrivateProfileOf(userId))
-            .thenAnswer((_) async => mockPrivateProfileDocSnapshot);
+            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(false);
 
         final target = FirestoreSharedExpenseRepository(
@@ -82,9 +85,11 @@ void main() {
         );
 
         // Act
-        final expenseList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final expenseList = result.getOrElse(() => []);
 
         // Assert
+        expect(result.isRight(), isTrue);
         expect(expenseList, hasLength(0));
       });
 
@@ -93,7 +98,7 @@ void main() {
         final date = DateTime(2025, 1);
 
         when(mockFirestoreService.fetchPrivateProfileOf(userId))
-            .thenAnswer((_) async => mockPrivateProfileDocSnapshot);
+            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data()).thenReturn(null);
 
@@ -103,9 +108,11 @@ void main() {
         );
 
         // Act
-        final expenseList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final expenseList = result.getOrElse(() => []);
 
         // Assert
+        expect(result.isRight(), isTrue);
         expect(expenseList, hasLength(0));
       });
 
@@ -114,7 +121,7 @@ void main() {
         final date = DateTime(2025, 1);
 
         when(mockFirestoreService.fetchPrivateProfileOf(userId))
-            .thenAnswer((_) async => mockPrivateProfileDocSnapshot);
+            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())
             .thenReturn(mockPrivateProfile);
@@ -126,9 +133,11 @@ void main() {
         );
 
         // Act
-        final expenseList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final expenseList = result.getOrElse(() => []);
 
         // Assert
+        expect(result.isRight(), isTrue);
         expect(expenseList, hasLength(0));
       });
 
@@ -138,7 +147,7 @@ void main() {
         final sharedNote = <String, dynamic>{};
 
         when(mockFirestoreService.fetchPrivateProfileOf(userId))
-            .thenAnswer((_) async => mockPrivateProfileDocSnapshot);
+            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())
             .thenReturn(mockPrivateProfile);
@@ -150,9 +159,11 @@ void main() {
         );
 
         // Act
-        final expenseList = await target.fetchMonthly(date);
+        final result = await target.fetchMonthly(date);
+        final expenseList = result.getOrElse(() => []);
 
         // Assert
+        expect(result.isRight(), isTrue);
         expect(expenseList, hasLength(0));
       });
     });
