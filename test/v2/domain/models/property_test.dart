@@ -5,9 +5,9 @@ import 'package:household_accounts/v2/domain/models/vo/property_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/property_name.dart';
 
 void main() {
-  group('PropertyVo', () {
+  group('PropertyModel', () {
     test('有効な値で作成できること', () {
-      final property = PropertyVo(
+      final property = PropertyModel(
         id: PropertyIdVo('property-1'),
         name: PropertyNameVo('現金'),
         amount: PropertyAmountVo(10000),
@@ -18,7 +18,7 @@ void main() {
     });
 
     test('削除済み資産が定義されていること', () {
-      final deleted = PropertyVo.deleted;
+      final deleted = PropertyModel.deleted;
       expect(deleted.id.value, 'deleted-property');
       expect(deleted.name.value, '削除済み');
       expect(deleted.amount.value, 0);

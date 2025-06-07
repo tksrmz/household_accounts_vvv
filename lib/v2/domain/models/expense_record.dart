@@ -11,16 +11,16 @@ part 'expense_record.freezed.dart';
 
 /// 支出レコード
 @freezed
-abstract class ExpenseRecordVo with _$ExpenseRecordVo {
-  const factory ExpenseRecordVo({
+abstract class ExpenseRecordModel with _$ExpenseRecordModel {
+  const factory ExpenseRecordModel({
     required RecordIdVo id,
     required RecordDateVo recordDate,
     required RecordAmountVo amount,
     required RecordNoteVo note,
-    required ExpenseCategoryVo category,
-    required PropertyVo property,
+    required ExpenseCategoryModel category,
+    required PropertyModel property,
     required bool hasCheckedOut,
-  }) = _ExpenseRecordVo;
+  }) = _ExpenseRecordModel;
 
-  const ExpenseRecordVo._();
+  const ExpenseRecordModel._();
 }

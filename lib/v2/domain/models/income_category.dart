@@ -7,16 +7,16 @@ part 'income_category.freezed.dart';
 
 /// 収入カテゴリ
 @freezed
-abstract class IncomeCategoryVo with _$IncomeCategoryVo {
-  const factory IncomeCategoryVo({
+abstract class IncomeCategoryModel with _$IncomeCategoryModel {
+  const factory IncomeCategoryModel({
     required CategoryIdVo id,
     required CategoryNameVo name,
-  }) = _IncomeCategoryVo;
+  }) = _IncomeCategoryModel;
 
-  const IncomeCategoryVo._();
+  const IncomeCategoryModel._();
 
   /// 削除済みカテゴリ
-  static const deleted = IncomeCategoryVo(
+  static const deleted = IncomeCategoryModel(
     id: CategoryIdVo('deleted-income-category'),
     name: CategoryNameVo('削除済み'),
   );

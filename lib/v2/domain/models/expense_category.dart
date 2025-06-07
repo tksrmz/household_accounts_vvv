@@ -8,17 +8,17 @@ part 'expense_category.freezed.dart';
 
 /// 支出カテゴリ
 @freezed
-abstract class ExpenseCategoryVo with _$ExpenseCategoryVo {
-  const factory ExpenseCategoryVo({
+abstract class ExpenseCategoryModel with _$ExpenseCategoryModel {
+  const factory ExpenseCategoryModel({
     required CategoryIdVo id,
     required CategoryNameVo name,
     required BudgetAmountVo totalBudget,
-  }) = _ExpenseCategoryVo;
+  }) = _ExpenseCategoryModel;
 
-  const ExpenseCategoryVo._();
+  const ExpenseCategoryModel._();
 
   /// 削除済みカテゴリ
-  static const deleted = ExpenseCategoryVo(
+  static const deleted = ExpenseCategoryModel(
     id: CategoryIdVo('deleted-expense-category'),
     name: CategoryNameVo('削除済み'),
     totalBudget: BudgetAmountVo(0),
