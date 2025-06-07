@@ -5,8 +5,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:household_accounts/common/logic/formatter.dart';
 
-import '../../../../../vo/budget_amount.dart';
-import '../../../../../vo/budget_spent.dart';
+import '../../../../domain/models/vo/budget_amount.dart';
+import '../../../../domain/models/vo/budget_spent.dart';
 import '../../../../domain/models/budget_graph_data.dart';
 import '../../../../domain/models/vo/budget_name.dart';
 import '../../../../domain/usecases/budget_graph_data_list.dart';
@@ -62,7 +62,7 @@ class _BudgetGraphDataForPlot {
         _spent = data.spent;
 
   /// その他用のコンストラクタ
-  _BudgetGraphDataForPlot.etc(BudgetSpent spent)
+  _BudgetGraphDataForPlot.etc(BudgetSpentVo spent)
       : _name = const BudgetNameVo('その他'),
         _spent = spent,
         _color = Color(0xFF4DC4FF);
@@ -71,7 +71,7 @@ class _BudgetGraphDataForPlot {
   final BudgetNameVo _name;
 
   /// 使用額
-  final BudgetSpent _spent;
+  final BudgetSpentVo _spent;
 
   /// グラフの色
   final Color _color;
@@ -116,7 +116,7 @@ class _BudgetGraphDataListForPlot {
     if (toBeSummarized.isBudgetConfigured) {
       _data.add(
         _BudgetGraphDataForPlot.etc(
-          BudgetSpent.sum(toBeSummarized.toBudgetSpentList()),
+          BudgetSpentVo.sum(toBeSummarized.toBudgetSpentList()),
         ),
       );
     }
@@ -125,10 +125,10 @@ class _BudgetGraphDataListForPlot {
   final List<_BudgetGraphDataForPlot> _data;
 
   /// 合計予算
-  final BudgetAmount _totalBudget;
+  final BudgetAmountVo _totalBudget;
 
   /// 合計使用額
-  BudgetSpent get _totalSpent => BudgetSpent.sum(
+  BudgetSpentVo get _totalSpent => BudgetSpentVo.sum(
         _data.map((item) => item._spent).toList(),
       );
 
