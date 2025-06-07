@@ -1,7 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/models/income_record_model.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 
+import '../../../domain/models/income_record.dart';
+import '../../../domain/models/vo/record_id.dart';
 import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/repositories/income_repository.dart';
 
@@ -26,5 +29,25 @@ class FirestorePersonalIncomeRepository implements IncomeRepository {
     final convertToIncomeVoList = (List<Map<String, dynamic>> incomeList) =>
         incomeList.map(createIncomeVo).toList(growable: false);
     return result.map(convertToIncomeVoList);
+  }
+
+  @override
+  Future<Either<Exception, Unit>> add(IncomeRecordVo record) async {
+    final model = IncomeRecordModel(
+      id: record.id.value,
+      date: record.recordDate.value,
+      amount: record.amount.value,
+      note: record.note.value,
+      hasCheckedOut: record.hasCheckedOut,
+      createdAt: DateTime.now(),
+      property: {'ref': '/personalNotes/${_uid.value}/properties/${record.property.id.value}'},
+      category: {'ref': '/personalNotes/${_uid.value}/incomeCategories/${record.category.id.value}'},
+    );
+    return _firestoreService.addPersonalIncome(_uid, model);
+  }
+
+  @override
+  Future<Either<Exception, Unit>> delete(RecordIdVo id) async {
+    return _firestoreService.deletePersonalIncome(_uid, id.value);
   }
 }
