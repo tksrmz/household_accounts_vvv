@@ -1,7 +1,15 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_income_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/models/income_record_model.dart';
+import 'package:household_accounts/v2/domain/models/income_category.dart';
+import 'package:household_accounts/v2/domain/models/income_record.dart';
+import 'package:household_accounts/v2/domain/models/property.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_amount.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_date.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_id.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_note.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -156,6 +164,122 @@ void main() {
         userId,
       );
       final result = await target.fetchMonthly(date);
+
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => null), equals(exception));
+    });
+  });
+
+  group('add', () {
+    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    const UserIdVo userId = UserIdVo('samplePersonalNoteId');
+
+    tearDown(() {
+      reset(mockFirestoreService);
+    });
+
+    test('収入レコードを追加できる', () async {
+      final record = IncomeRecordVo(
+        id: RecordIdVo('test-record-id'),
+        recordDate: RecordDateVo(DateTime(2025, 1, 15)),
+        amount: RecordAmountVo(1000),
+        note: RecordNoteVo('テスト収入'),
+        property: PropertyVo.deleted,
+        category: IncomeCategoryVo.deleted,
+        hasCheckedOut: false,
+      );
+
+      when(mockFirestoreService.addPersonalIncome(
+        userId,
+        any,
+      )).thenAnswer((_) async => Right(unit));
+
+      final target = FirestorePersonalIncomeRepository(
+        mockFirestoreService,
+        userId,
+      );
+      final result = await target.add(record);
+
+      verify(mockFirestoreService.addPersonalIncome(
+        userId,
+        any,
+      )).called(1);
+
+      expect(result.isRight(), isTrue);
+    });
+
+    test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
+      final record = IncomeRecordVo(
+        id: RecordIdVo('test-record-id'),
+        recordDate: RecordDateVo(DateTime(2025, 1, 15)),
+        amount: RecordAmountVo(1000),
+        note: RecordNoteVo('テスト収入'),
+        property: PropertyVo.deleted,
+        category: IncomeCategoryVo.deleted,
+        hasCheckedOut: false,
+      );
+
+      final exception = Exception('test error');
+      when(mockFirestoreService.addPersonalIncome(
+        userId,
+        any,
+      )).thenAnswer((_) async => Left(exception));
+
+      final target = FirestorePersonalIncomeRepository(
+        mockFirestoreService,
+        userId,
+      );
+      final result = await target.add(record);
+
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => null), equals(exception));
+    });
+  });
+
+  group('delete', () {
+    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    const UserIdVo userId = UserIdVo('samplePersonalNoteId');
+
+    tearDown(() {
+      reset(mockFirestoreService);
+    });
+
+    test('収入レコードを削除できる', () async {
+      const recordId = RecordIdVo('test-record-id');
+
+      when(mockFirestoreService.deletePersonalIncome(
+        userId,
+        recordId.value,
+      )).thenAnswer((_) async => Right(unit));
+
+      final target = FirestorePersonalIncomeRepository(
+        mockFirestoreService,
+        userId,
+      );
+      final result = await target.delete(recordId);
+
+      verify(mockFirestoreService.deletePersonalIncome(
+        userId,
+        recordId.value,
+      )).called(1);
+
+      expect(result.isRight(), isTrue);
+    });
+
+    test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
+      const recordId = RecordIdVo('test-record-id');
+      final exception = Exception('test error');
+
+      when(mockFirestoreService.deletePersonalIncome(
+        userId,
+        recordId.value,
+      )).thenAnswer((_) async => Left(exception));
+
+      final target = FirestorePersonalIncomeRepository(
+        mockFirestoreService,
+        userId,
+      );
+      final result = await target.delete(recordId);
 
       expect(result.isLeft(), isTrue);
       expect(result.fold((l) => l, (r) => null), equals(exception));
