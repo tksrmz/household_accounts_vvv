@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/privateProfile.dart';
+import 'package:household_accounts/v2/data/models/income_category_model.dart';
+import 'package:household_accounts/v2/data/models/property_model.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
@@ -689,6 +691,227 @@ void main() {
           () => target.fetchMonthlySharedIncomesFrom(
               mockSharedNoteDocRef, 2025, null, 25),
           throwsA(isA<AssertionError>()));
+    });
+  });
+
+  group('fetchPersonalIncomeCategories', () {
+    final mockDb = MockFirebaseFirestore();
+    final mockCollectionReference = MockCollectionReference();
+    final mockQuerySnapshot = MockQuerySnapshot();
+    final mockQueryDocumentSnapshot = MockQueryDocumentSnapshot();
+    final userId = UserIdVo('testUserId');
+
+    setUp(() {
+      when(mockDb.collection('/personalNotes/${userId.value}/incomeCategories'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.get())
+          .thenAnswer((_) async => mockQuerySnapshot);
+      when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
+      when(mockQueryDocumentSnapshot.id).thenReturn('categoryId1');
+      when(mockQueryDocumentSnapshot.data()).thenReturn({
+        'name': 'Test Income Category',
+        'type': 'income',
+      });
+    });
+
+    tearDown(() {
+      reset(mockDb);
+      reset(mockCollectionReference);
+      reset(mockQuerySnapshot);
+      reset(mockQueryDocumentSnapshot);
+    });
+
+    test('収入カテゴリのリストを取得できる', () async {
+      // Arrange
+      final target = FirestoreService(mockDb);
+
+      // Act
+      final result = await target.fetchPersonalIncomeCategories(userId);
+
+      // Assert
+      verify(mockDb.collection('/personalNotes/${userId.value}/incomeCategories')).called(1);
+      verify(mockCollectionReference.get()).called(1);
+      verify(mockQuerySnapshot.docs).called(1);
+      verify(mockQueryDocumentSnapshot.data()).called(1);
+
+      expect(result, isA<Either<Exception, List<IncomeCategoryModel>>>());
+      expect(result.isRight(), isTrue);
+      final categories = result.getOrElse(() => []);
+      expect(categories, hasLength(1));
+      expect(categories[0].id, 'categoryId1');
+      expect(categories[0].name, 'Test Income Category');
+      expect(categories[0].type, 'income');
+    });
+
+    test('例外が発生した場合、Leftを返す', () async {
+      // Arrange
+      when(mockCollectionReference.get()).thenThrow(Exception('test error'));
+      final target = FirestoreService(mockDb);
+
+      // Act
+      final result = await target.fetchPersonalIncomeCategories(userId);
+
+      // Assert
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => r), isA<Exception>());
+    });
+  });
+
+  group('addPersonalIncomeCategory', () {
+    final mockDb = MockFirebaseFirestore();
+    final mockCollectionReference = MockCollectionReference();
+    final mockDocumentReference = MockDocumentReference();
+    final userId = UserIdVo('testUserId');
+    final category = IncomeCategoryModel(id: 'categoryId1', name: 'Test Category');
+
+    setUp(() {
+      when(mockDb.collection('/personalNotes/${userId.value}/incomeCategories'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.doc(category.id))
+          .thenReturn(mockDocumentReference);
+      when(mockDocumentReference.set(any)).thenAnswer((_) async => {});
+    });
+
+    tearDown(() {
+      reset(mockDb);
+      reset(mockCollectionReference);
+      reset(mockDocumentReference);
+    });
+
+    test('収入カテゴリを追加できる', () async {
+      // Arrange
+      final target = FirestoreService(mockDb);
+
+      // Act
+      final result = await target.addPersonalIncomeCategory(userId, category);
+
+      // Assert
+      verify(mockDb.collection('/personalNotes/${userId.value}/incomeCategories')).called(1);
+      verify(mockCollectionReference.doc(category.id)).called(1);
+      verify(mockDocumentReference.set(any)).called(1);
+
+      expect(result, isA<Either<Exception, Unit>>());
+      expect(result.isRight(), isTrue);
+    });
+
+    test('例外が発生した場合、Leftを返す', () async {
+      // Arrange
+      when(mockDocumentReference.set(any)).thenThrow(Exception('test error'));
+      final target = FirestoreService(mockDb);
+
+      // Act
+      final result = await target.addPersonalIncomeCategory(userId, category);
+
+      // Assert
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => r), isA<Exception>());
+    });
+  });
+
+  group('fetchPersonalProperties', () {
+    final mockDb = MockFirebaseFirestore();
+    final mockCollectionReference = MockCollectionReference();
+    final mockQuerySnapshot = MockQuerySnapshot();
+    final mockQueryDocumentSnapshot = MockQueryDocumentSnapshot();
+    final userId = UserIdVo('testUserId');
+
+    setUp(() {
+      when(mockDb.collection('/personalNotes/${userId.value}/properties'))
+          .thenReturn(mockCollectionReference);
+      when(mockCollectionReference.get())
+          .thenAnswer((_) async => mockQuerySnapshot);
+      when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
+      when(mockQueryDocumentSnapshot.id).thenReturn('propertyId1');
+      when(mockQueryDocumentSnapshot.data()).thenReturn({
+        'name': 'Test Property',
+        'amount': 10000,
+      });
+    });
+
+    tearDown(() {
+      reset(mockDb);
+      reset(mockCollectionReference);
+      reset(mockQuerySnapshot);
+      reset(mockQueryDocumentSnapshot);
+    });
+
+    test('資産のリストを取得できる', () async {
+      // Arrange
+      final target = FirestoreService(mockDb);
+
+      // Act
+      final result = await target.fetchPersonalProperties(userId);
+
+      // Assert
+      verify(mockDb.collection('/personalNotes/${userId.value}/properties')).called(1);
+      verify(mockCollectionReference.get()).called(1);
+      verify(mockQuerySnapshot.docs).called(1);
+      verify(mockQueryDocumentSnapshot.data()).called(1);
+
+      expect(result, isA<Either<Exception, List<PropertyModel>>>());
+      expect(result.isRight(), isTrue);
+      final properties = result.getOrElse(() => []);
+      expect(properties, hasLength(1));
+      expect(properties[0].id, 'propertyId1');
+      expect(properties[0].name, 'Test Property');
+      expect(properties[0].amount, 10000);
+    });
+
+    test('例外が発生した場合、Leftを返す', () async {
+      // Arrange
+      when(mockCollectionReference.get()).thenThrow(Exception('test error'));
+      final target = FirestoreService(mockDb);
+
+      // Act
+      final result = await target.fetchPersonalProperties(userId);
+
+      // Assert
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => r), isA<Exception>());
+    });
+  });
+
+  group('executeTransaction', () {
+    final mockDb = MockFirebaseFirestore();
+
+    setUp(() {
+      when(mockDb.runTransaction(any)).thenAnswer((_) async => null);
+    });
+
+    tearDown(() {
+      reset(mockDb);
+    });
+
+    test('トランザクションを実行できる', () async {
+      // Arrange
+      final target = FirestoreService(mockDb);
+      Future<void> transactionHandler(Transaction transaction) async {
+        // Mock transaction handler
+      }
+
+      // Act
+      final result = await target.executeTransaction(transactionHandler);
+
+      // Assert
+      verify(mockDb.runTransaction(any)).called(1);
+      expect(result, isA<Either<Exception, Unit>>());
+      expect(result.isRight(), isTrue);
+    });
+
+    test('例外が発生した場合、Leftを返す', () async {
+      // Arrange
+      when(mockDb.runTransaction(any)).thenThrow(Exception('test error'));
+      final target = FirestoreService(mockDb);
+      Future<void> transactionHandler(Transaction transaction) async {
+        // Mock transaction handler
+      }
+
+      // Act
+      final result = await target.executeTransaction(transactionHandler);
+
+      // Assert
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => r), isA<Exception>());
     });
   });
 }

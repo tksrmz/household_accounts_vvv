@@ -3,10 +3,10 @@ import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/privateProfile.dart';
 import 'package:household_accounts/v2/data/models/income_category_model.dart';
 import 'package:household_accounts/v2/data/models/expense_category_model.dart';
-import 'package:household_accounts/v2/data/models/property_model.dart';
 import 'package:household_accounts/v2/data/models/income_record_model.dart';
 import 'package:household_accounts/v2/data/models/expense_record_model.dart';
 import 'package:household_accounts/v2/data/models/transfer_record_model.dart';
+import 'package:household_accounts/v2/data/models/property_model.dart';
 
 import '../../domain/models/vo/user_id.dart';
 import '../../domain/models/vo/user_name.dart';
