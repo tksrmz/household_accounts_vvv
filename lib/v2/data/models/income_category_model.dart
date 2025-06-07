@@ -3,9 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'income_category_model.freezed.dart';
 
 @freezed
-class IncomeCategoryModel with _$IncomeCategoryModel {
-  const IncomeCategoryModel._();
-
+abstract class IncomeCategoryModel with _$IncomeCategoryModel {
   const factory IncomeCategoryModel({
     required String id,
     required String name,
@@ -20,7 +18,9 @@ class IncomeCategoryModel with _$IncomeCategoryModel {
       type: json['type'] as String? ?? 'income',
     );
   }
+}
 
+extension IncomeCategoryModelFirestore on IncomeCategoryModel {
   /// Firestoreに保存するためのJSONに変換
   /// idは除外（FirestoreのドキュメントIDとして使用されるため）
   Map<String, dynamic> toFirestoreJson() {

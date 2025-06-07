@@ -159,7 +159,7 @@ void main() {
       };
 
       expect(
-        () => TransferRecordModel.fromJson(json),
+        () => TransferRecordModel.fromFirestoreJson(json),
         throwsA(isA<ArgumentError>()),
       );
     });

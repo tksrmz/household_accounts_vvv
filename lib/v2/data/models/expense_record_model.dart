@@ -4,9 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'expense_record_model.freezed.dart';
 
 @freezed
-class ExpenseRecordModel with _$ExpenseRecordModel {
-  const ExpenseRecordModel._();
-
+abstract class ExpenseRecordModel with _$ExpenseRecordModel {
   const factory ExpenseRecordModel({
     required String id,
     required DateTime date,
@@ -28,6 +26,8 @@ class ExpenseRecordModel with _$ExpenseRecordModel {
       createdAt = createdAtValue.toDate();
     } else if (createdAtValue is DateTime) {
       createdAt = createdAtValue;
+    } else if (createdAtValue is String) {
+      createdAt = DateTime.parse(createdAtValue);
     } else {
       createdAt = DateTime.now();
     }
@@ -39,6 +39,12 @@ class ExpenseRecordModel with _$ExpenseRecordModel {
       date = dateValue.toDate();
     } else if (dateValue is DateTime) {
       date = dateValue;
+    } else if (dateValue is String) {
+      try {
+        date = DateTime.parse(dateValue);
+      } catch (e) {
+        throw ArgumentError('Invalid date format');
+      }
     } else {
       throw ArgumentError('Invalid date format');
     }
@@ -55,7 +61,9 @@ class ExpenseRecordModel with _$ExpenseRecordModel {
       type: json['type'] as String? ?? 'expense',
     );
   }
+}
 
+extension ExpenseRecordModelFirestore on ExpenseRecordModel {
   /// Firestoreに保存するためのJSONに変換
   /// idは除外（FirestoreのドキュメントIDとして使用されるため）
   Map<String, dynamic> toFirestoreJson() {

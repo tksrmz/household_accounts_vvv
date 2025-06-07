@@ -159,7 +159,7 @@ void main() {
       };
 
       expect(
-        () => ExpenseRecordModel.fromJson(json),
+        () => ExpenseRecordModel.fromFirestoreJson(json),
         throwsA(isA<ArgumentError>()),
       );
     });

@@ -3,9 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'expense_category_model.freezed.dart';
 
 @freezed
-class ExpenseCategoryModel with _$ExpenseCategoryModel {
-  const ExpenseCategoryModel._();
-
+abstract class ExpenseCategoryModel with _$ExpenseCategoryModel {
   const factory ExpenseCategoryModel({
     required String id,
     required String name,
@@ -22,7 +20,9 @@ class ExpenseCategoryModel with _$ExpenseCategoryModel {
       type: json['type'] as String? ?? 'expense',
     );
   }
+}
 
+extension ExpenseCategoryModelFirestore on ExpenseCategoryModel {
   /// Firestoreに保存するためのJSONに変換
   /// idは除外（FirestoreのドキュメントIDとして使用されるため）
   Map<String, dynamic> toFirestoreJson() {

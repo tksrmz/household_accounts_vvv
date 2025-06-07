@@ -4,9 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'transfer_record_model.freezed.dart';
 
 @freezed
-class TransferRecordModel with _$TransferRecordModel {
-  const TransferRecordModel._();
-
+abstract class TransferRecordModel with _$TransferRecordModel {
   const factory TransferRecordModel({
     required String id,
     required DateTime date,
@@ -28,6 +26,8 @@ class TransferRecordModel with _$TransferRecordModel {
       createdAt = createdAtValue.toDate();
     } else if (createdAtValue is DateTime) {
       createdAt = createdAtValue;
+    } else if (createdAtValue is String) {
+      createdAt = DateTime.parse(createdAtValue);
     } else {
       createdAt = DateTime.now();
     }
@@ -39,6 +39,12 @@ class TransferRecordModel with _$TransferRecordModel {
       date = dateValue.toDate();
     } else if (dateValue is DateTime) {
       date = dateValue;
+    } else if (dateValue is String) {
+      try {
+        date = DateTime.parse(dateValue);
+      } catch (e) {
+        throw ArgumentError('Invalid date format');
+      }
     } else {
       throw ArgumentError('Invalid date format');
     }
@@ -55,7 +61,9 @@ class TransferRecordModel with _$TransferRecordModel {
       type: json['type'] as String? ?? 'transfer',
     );
   }
+}
 
+extension TransferRecordModelFirestore on TransferRecordModel {
   /// Firestoreに保存するためのJSONに変換
   /// idは除外（FirestoreのドキュメントIDとして使用されるため）
   Map<String, dynamic> toFirestoreJson() {

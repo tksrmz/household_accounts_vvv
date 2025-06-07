@@ -4,9 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'income_record_model.freezed.dart';
 
 @freezed
-class IncomeRecordModel with _$IncomeRecordModel {
-  const IncomeRecordModel._();
-
+abstract class IncomeRecordModel with _$IncomeRecordModel {
   const factory IncomeRecordModel({
     required String id,
     required DateTime date,
@@ -28,6 +26,8 @@ class IncomeRecordModel with _$IncomeRecordModel {
       createdAt = createdAtValue.toDate();
     } else if (createdAtValue is DateTime) {
       createdAt = createdAtValue;
+    } else if (createdAtValue is String) {
+      createdAt = DateTime.parse(createdAtValue);
     } else {
       createdAt = DateTime.now();
     }
@@ -39,6 +39,12 @@ class IncomeRecordModel with _$IncomeRecordModel {
       date = dateValue.toDate();
     } else if (dateValue is DateTime) {
       date = dateValue;
+    } else if (dateValue is String) {
+      try {
+        date = DateTime.parse(dateValue);
+      } catch (e) {
+        throw ArgumentError('Invalid date format');
+      }
     } else {
       throw ArgumentError('Invalid date format');
     }
@@ -55,7 +61,9 @@ class IncomeRecordModel with _$IncomeRecordModel {
       type: json['type'] as String? ?? 'income',
     );
   }
+}
 
+extension IncomeRecordModelFirestore on IncomeRecordModel {
   /// Firestoreに保存するためのJSONに変換
   /// idは除外（FirestoreのドキュメントIDとして使用されるため）
   Map<String, dynamic> toFirestoreJson() {
