@@ -2,8 +2,8 @@ import 'package:household_accounts/v2/domain/models/budget_graph_data.dart';
 import 'package:household_accounts/v2/domain/models/vo/budget_name.dart';
 import 'package:household_accounts/v2/domain/usecases/budget_graph_data_list.dart';
 import 'package:household_accounts/v2/presentation/pages/dashboard/widgets/budget_graph.dart';
-import 'package:household_accounts/vo/budget_amount.dart';
-import 'package:household_accounts/vo/budget_spent.dart';
+import 'package:household_accounts/v2/domain/models/vo/budget_amount.dart';
+import 'package:household_accounts/v2/domain/models/vo/budget_spent.dart';
 
 import '../../../../../test-util/golden_helper.dart';
 
@@ -128,8 +128,8 @@ BudgetGraph Function() _getBuilder(
               .map(
                 (e) => BudgetGraphData(
                   name: BudgetNameVo(e.name),
-                  spent: BudgetSpent(e.spent),
-                  budget: BudgetAmount(e.budget),
+                  spent: BudgetSpentVo(e.spent),
+                  budget: BudgetAmountVo(e.budget),
                 ),
               )
               .toList(),

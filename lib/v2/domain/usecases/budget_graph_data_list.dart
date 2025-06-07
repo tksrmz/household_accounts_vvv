@@ -3,8 +3,8 @@ import 'dart:collection';
 import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../vo/budget_amount.dart';
-import '../../../vo/budget_spent.dart';
+import '../models/vo/budget_amount.dart';
+import '../models/vo/budget_spent.dart';
 import '../models/budget_graph_data.dart';
 
 part 'budget_graph_data_list.freezed.dart';
@@ -35,7 +35,7 @@ class BudgetGraphDataList extends Equatable {
   bool get isBudgetConfigured => !isNotBudgetConfigured;
 
   /// 予算の合計値を取得する
-  BudgetAmount get totalBudget => BudgetAmount.sum(
+  BudgetAmountVo get totalBudget => BudgetAmountVo.sum(
         _list.map((item) => item.budget).toList(),
       );
 
@@ -59,7 +59,7 @@ class BudgetGraphDataList extends Equatable {
   }
 
   /// 予算の使用額のリストへ変換する
-  UnmodifiableListView<BudgetSpent> toBudgetSpentList() {
+  UnmodifiableListView<BudgetSpentVo> toBudgetSpentList() {
     return UnmodifiableListView(_list.map((item) => item.spent).toList());
   }
 
