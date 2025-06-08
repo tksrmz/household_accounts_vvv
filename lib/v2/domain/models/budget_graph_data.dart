@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../vo/budget_amount.dart';
-import '../../../vo/budget_spent.dart';
+import 'vo/budget_amount.dart';
+import 'vo/budget_spent.dart';
 import 'vo/budget_name.dart';
 
 part 'budget_graph_data.freezed.dart';
@@ -11,7 +11,7 @@ part 'budget_graph_data.freezed.dart';
 abstract class BudgetGraphData with _$BudgetGraphData {
   const factory BudgetGraphData({
     required BudgetNameVo name,
-    required BudgetSpent spent,
-    required BudgetAmount budget,
+    required BudgetSpentVo spent,
+    required BudgetAmountVo budget,
   }) = _BudgetGraphData;
 }
