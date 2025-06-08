@@ -4,9 +4,9 @@ import 'package:household_accounts/v2/domain/models/vo/category_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/category_name.dart';
 
 void main() {
-  group('IncomeCategoryVo', () {
+  group('IncomeCategoryModel', () {
     test('有効な値で作成できること', () {
-      final category = IncomeCategoryVo(
+      final category = IncomeCategoryModel(
         id: CategoryIdVo('income-1'),
         name: CategoryNameVo('給与'),
       );
@@ -15,7 +15,7 @@ void main() {
     });
 
     test('削除済みカテゴリが定義されていること', () {
-      final deleted = IncomeCategoryVo.deleted;
+      final deleted = IncomeCategoryModel.deleted;
       expect(deleted.id.value, 'deleted-income-category');
       expect(deleted.name.value, '削除済み');
     });

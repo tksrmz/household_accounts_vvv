@@ -8,17 +8,17 @@ part 'property.freezed.dart';
 
 /// 資産
 @freezed
-abstract class PropertyVo with _$PropertyVo {
-  const factory PropertyVo({
+abstract class PropertyModel with _$PropertyModel {
+  const factory PropertyModel({
     required PropertyIdVo id,
     required PropertyNameVo name,
     required PropertyAmountVo amount,
-  }) = _PropertyVo;
+  }) = _PropertyModel;
 
-  const PropertyVo._();
+  const PropertyModel._();
 
   /// 削除済み資産
-  static final deleted = PropertyVo(
+  static const deleted = PropertyModel(
     id: PropertyIdVo('deleted-property'),
     name: PropertyNameVo('削除済み'),
     amount: PropertyAmountVo(0),

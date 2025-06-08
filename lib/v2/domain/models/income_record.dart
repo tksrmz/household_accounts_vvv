@@ -11,16 +11,16 @@ part 'income_record.freezed.dart';
 
 /// 収入レコード
 @freezed
-abstract class IncomeRecordVo with _$IncomeRecordVo {
-  const factory IncomeRecordVo({
+abstract class IncomeRecordModel with _$IncomeRecordModel {
+  const factory IncomeRecordModel({
     required RecordIdVo id,
     required RecordDateVo recordDate,
     required RecordAmountVo amount,
     required RecordNoteVo note,
-    required IncomeCategoryVo category,
-    required PropertyVo property,
+    required IncomeCategoryModel category,
+    required PropertyModel property,
     required bool hasCheckedOut,
-  }) = _IncomeRecordVo;
+  }) = _IncomeRecordModel;
 
-  const IncomeRecordVo._();
+  const IncomeRecordModel._();
 }

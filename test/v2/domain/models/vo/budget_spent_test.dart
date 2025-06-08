@@ -3,28 +3,37 @@ import 'package:household_accounts/v2/domain/models/vo/budget_spent.dart';
 
 void main() {
   group('BudgetSpentVo', () {
-    test('正の値で作成できること', () {
-      const spent = BudgetSpentVo(100);
-      expect(spent.value, 100);
+    group('コンストラクタ', () {
+      test('正の値で作成できること', () {
+        const spent = BudgetSpentVo(100);
+        expect(spent.value, 100);
+      });
+
+      test('0で作成できること', () {
+        const spent = BudgetSpentVo(0);
+        expect(spent.value, 0);
+      });
+
+      test('負の値で作成するとアサーションエラーが発生すること', () {
+        expect(() => BudgetSpentVo(-1), throwsAssertionError);
+      });
     });
 
-    test('0で作成できること', () {
-      const spent = BudgetSpentVo(0);
-      expect(spent.value, 0);
-    });
+    group('sum', () {
+      test('合計値を計算できること', () {
+        const spentList = [
+          BudgetSpentVo(100),
+          BudgetSpentVo(200),
+          BudgetSpentVo(300),
+        ];
+        final sum = BudgetSpentVo.sum(spentList);
+        expect(sum.value, 600);
+      });
 
-    test('負の値で作成するとアサーションエラーが発生すること', () {
-      expect(() => BudgetSpentVo(-1), throwsAssertionError);
-    });
-
-    test('sumメソッドで合計値を計算できること', () {
-      const spents = [
-        BudgetSpentVo(100),
-        BudgetSpentVo(200),
-        BudgetSpentVo(300),
-      ];
-      final sum = BudgetSpentVo.sum(spents);
-      expect(sum.value, 600);
+      test('空のリストの合計は0になること', () {
+        final sum = BudgetSpentVo.sum([]);
+        expect(sum.value, 0);
+      });
     });
 
     test('0の場合、isNotUsedがtrueであること', () {

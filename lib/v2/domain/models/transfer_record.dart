@@ -10,16 +10,16 @@ part 'transfer_record.freezed.dart';
 
 /// 振替レコード
 @freezed
-abstract class TransferRecordVo with _$TransferRecordVo {
-  const factory TransferRecordVo({
+abstract class TransferRecordModel with _$TransferRecordModel {
+  const factory TransferRecordModel({
     required RecordIdVo id,
     required RecordDateVo recordDate,
     required RecordAmountVo amount,
     required RecordNoteVo note,
-    required PropertyVo source,
-    required PropertyVo destination,
+    required PropertyModel source,
+    required PropertyModel destination,
     required bool hasCheckedOut,
-  }) = _TransferRecordVo;
+  }) = _TransferRecordModel;
 
-  const TransferRecordVo._();
+  const TransferRecordModel._();
 }
