@@ -8,18 +8,18 @@ abstract interface class PropertyRepository {
   /// すべての資産を取得する
   ///
   /// 返却されるListの順番については保証されない。
-  Future<Either<Exception, List<PropertyVo>>> fetchAll();
+  Future<Either<Exception, List<PropertyModel>>> fetchAll();
 
   /// 資産を追加する
   ///
   /// [property] 追加する資産
-  Future<Either<Exception, Unit>> add(PropertyVo property);
+  Future<Either<Exception, Unit>> add(PropertyModel property);
 
   /// 資産を更新する
   ///
   /// [id] 更新対象の資産ID
   /// [property] 更新後の資産データ
-  Future<Either<Exception, Unit>> update(PropertyIdVo id, PropertyVo property);
+  Future<Either<Exception, Unit>> update(PropertyIdVo id, PropertyModel property);
 
   /// 資産を削除する
   ///

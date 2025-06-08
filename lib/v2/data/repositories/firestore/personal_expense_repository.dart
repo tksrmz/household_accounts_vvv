@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/expense_record_model.dart';
+import 'package:household_accounts/v2/data/models/expense_record_model.dart' as data;
 
 import '../../../domain/models/expense_record.dart';
 import '../../../domain/models/vo/expense.dart';
@@ -32,8 +32,8 @@ class FirestorePersonalExpenseRepository implements ExpenseRepository {
   }
 
   @override
-  Future<Either<Exception, Unit>> add(ExpenseRecordVo record) async {
-    final model = ExpenseRecordModel(
+  Future<Either<Exception, Unit>> add(ExpenseRecordModel record) async {
+    final model = data.ExpenseRecordModel(
       id: record.id.value,
       date: record.recordDate.value,
       amount: record.amount.value,

@@ -18,7 +18,7 @@ abstract interface class IncomeRepository {
   /// 収入レコードを追加する
   ///
   /// [record] 追加する収入レコード
-  Future<Either<Exception, Unit>> add(IncomeRecordVo record);
+  Future<Either<Exception, Unit>> add(IncomeRecordModel record);
 
   /// 収入レコードを削除する
   ///

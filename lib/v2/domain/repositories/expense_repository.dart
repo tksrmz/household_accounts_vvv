@@ -18,7 +18,7 @@ abstract interface class ExpenseRepository {
   /// 支出レコードを追加する
   ///
   /// [record] 追加する支出レコード
-  Future<Either<Exception, Unit>> add(ExpenseRecordVo record);
+  Future<Either<Exception, Unit>> add(ExpenseRecordModel record);
 
   /// 支出レコードを削除する
   ///

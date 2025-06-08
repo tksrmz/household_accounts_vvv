@@ -46,7 +46,7 @@ class FirestoreSharedIncomeRepository implements IncomeRepository {
   }
 
   @override
-  Future<Either<Exception, Unit>> add(IncomeRecordVo record) async {
+  Future<Either<Exception, Unit>> add(IncomeRecordModel record) async {
     // TODO: Implement shared income record addition
     // This would require accessing the shared note reference and adding the record there
     return Left(Exception('Shared income record addition not yet implemented'));

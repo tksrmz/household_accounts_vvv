@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/expense_category_model.dart';
+import 'package:household_accounts/v2/data/models/expense_category_model.dart' as data;
 
 import '../../../domain/models/expense_category.dart';
 import '../../../domain/models/vo/budget_amount.dart';
@@ -19,10 +19,10 @@ class FirestoreExpenseCategoryRepository implements ExpenseCategoryRepository {
   final UserIdVo _uid;
 
   @override
-  Future<Either<Exception, List<ExpenseCategoryVo>>> fetchAll() async {
+  Future<Either<Exception, List<ExpenseCategoryModel>>> fetchAll() async {
     final result = await _firestoreService.fetchPersonalExpenseCategories(_uid);
     return result.map((categoryModels) => 
-      categoryModels.map((model) => ExpenseCategoryVo(
+      categoryModels.map((model) => ExpenseCategoryModel(
         id: CategoryIdVo(model.id),
         name: CategoryNameVo(model.name),
         totalBudget: BudgetAmountVo(model.totalBudget),
@@ -31,8 +31,8 @@ class FirestoreExpenseCategoryRepository implements ExpenseCategoryRepository {
   }
 
   @override
-  Future<Either<Exception, Unit>> add(ExpenseCategoryVo category) async {
-    final model = ExpenseCategoryModel(
+  Future<Either<Exception, Unit>> add(ExpenseCategoryModel category) async {
+    final model = data.ExpenseCategoryModel(
       id: category.id.value,
       name: category.name.value,
       totalBudget: category.totalBudget.value,
@@ -41,8 +41,8 @@ class FirestoreExpenseCategoryRepository implements ExpenseCategoryRepository {
   }
 
   @override
-  Future<Either<Exception, Unit>> update(CategoryIdVo id, ExpenseCategoryVo category) async {
-    final model = ExpenseCategoryModel(
+  Future<Either<Exception, Unit>> update(CategoryIdVo id, ExpenseCategoryModel category) async {
+    final model = data.ExpenseCategoryModel(
       id: category.id.value,
       name: category.name.value,
       totalBudget: category.totalBudget.value,

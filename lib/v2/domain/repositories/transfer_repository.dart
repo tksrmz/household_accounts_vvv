@@ -13,12 +13,12 @@ abstract interface class TransferRepository {
   /// 返却されるListの順番については保証されない。
   ///
   /// [date] 取得対象の年月
-  Future<Either<Exception, List<TransferRecordVo>>> fetchMonthly(DateTime date);
+  Future<Either<Exception, List<TransferRecordModel>>> fetchMonthly(DateTime date);
 
   /// 振替レコードを追加する
   ///
   /// [record] 追加する振替レコード
-  Future<Either<Exception, Unit>> add(TransferRecordVo record);
+  Future<Either<Exception, Unit>> add(TransferRecordModel record);
 
   /// 振替レコードを削除する
   ///

@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_income_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/income_record_model.dart';
 import 'package:household_accounts/v2/domain/models/income_category.dart';
 import 'package:household_accounts/v2/domain/models/income_record.dart';
 import 'package:household_accounts/v2/domain/models/property.dart';
@@ -179,13 +178,13 @@ void main() {
     });
 
     test('収入レコードを追加できる', () async {
-      final record = IncomeRecordVo(
+      final record = IncomeRecordModel(
         id: RecordIdVo('test-record-id'),
         recordDate: RecordDateVo(DateTime(2025, 1, 15)),
         amount: RecordAmountVo(1000),
         note: RecordNoteVo('テスト収入'),
-        property: PropertyVo.deleted,
-        category: IncomeCategoryVo.deleted,
+        property: PropertyModel.deleted,
+        category: IncomeCategoryModel.deleted,
         hasCheckedOut: false,
       );
 
@@ -209,13 +208,13 @@ void main() {
     });
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
-      final record = IncomeRecordVo(
+      final record = IncomeRecordModel(
         id: RecordIdVo('test-record-id'),
         recordDate: RecordDateVo(DateTime(2025, 1, 15)),
         amount: RecordAmountVo(1000),
         note: RecordNoteVo('テスト収入'),
-        property: PropertyVo.deleted,
-        category: IncomeCategoryVo.deleted,
+        property: PropertyModel.deleted,
+        category: IncomeCategoryModel.deleted,
         hasCheckedOut: false,
       );
 

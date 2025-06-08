@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/transfer_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/transfer_record_model.dart';
+import 'package:household_accounts/v2/data/models/transfer_record_model.dart' as data;
 import 'package:household_accounts/v2/domain/models/property.dart';
 import 'package:household_accounts/v2/domain/models/transfer_record.dart';
 import 'package:household_accounts/v2/domain/models/vo/record_amount.dart';
@@ -29,7 +29,7 @@ void main() {
 
     test('指定された月の振替一覧を取得できる', () async {
       final date = DateTime(2025, 1);
-      final mockModel = TransferRecordModel(
+      final mockModel = data.TransferRecordModel(
         id: 'test-id',
         date: DateTime(2025, 1, 15),
         amount: 1000,
@@ -113,13 +113,13 @@ void main() {
     });
 
     test('振替レコードを追加できる', () async {
-      final record = TransferRecordVo(
+      final record = TransferRecordModel(
         id: RecordIdVo('test-record-id'),
         recordDate: RecordDateVo(DateTime(2025, 1, 15)),
         amount: RecordAmountVo(1000),
         note: RecordNoteVo('テスト振替'),
-        source: PropertyVo.deleted,
-        destination: PropertyVo.deleted,
+        source: PropertyModel.deleted,
+        destination: PropertyModel.deleted,
         hasCheckedOut: false,
       );
 
@@ -143,13 +143,13 @@ void main() {
     });
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
-      final record = TransferRecordVo(
+      final record = TransferRecordModel(
         id: RecordIdVo('test-record-id'),
         recordDate: RecordDateVo(DateTime(2025, 1, 15)),
         amount: RecordAmountVo(1000),
         note: RecordNoteVo('テスト振替'),
-        source: PropertyVo.deleted,
-        destination: PropertyVo.deleted,
+        source: PropertyModel.deleted,
+        destination: PropertyModel.deleted,
         hasCheckedOut: false,
       );
 

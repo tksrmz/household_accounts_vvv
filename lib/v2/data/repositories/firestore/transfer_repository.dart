@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/transfer_record_model.dart';
+import 'package:household_accounts/v2/data/models/transfer_record_model.dart' as data;
 
 import '../../../domain/models/property.dart';
 import '../../../domain/models/transfer_record.dart';
@@ -21,28 +21,28 @@ class FirestoreTransferRepository implements TransferRepository {
   final UserIdVo _uid;
 
   @override
-  Future<Either<Exception, List<TransferRecordVo>>> fetchMonthly(DateTime date) async {
+  Future<Either<Exception, List<TransferRecordModel>>> fetchMonthly(DateTime date) async {
     final result = await _firestoreService.fetchPersonalTransfers(
       _uid,
       date.year,
       date.month,
     );
     return result.map((transferModels) => 
-      transferModels.map((model) => TransferRecordVo(
+      transferModels.map((model) => TransferRecordModel(
         id: RecordIdVo(model.id),
         recordDate: RecordDateVo(model.date),
         amount: RecordAmountVo(model.amount),
         note: RecordNoteVo(model.note),
-        source: PropertyVo.deleted, // Placeholder - would need proper conversion
-        destination: PropertyVo.deleted, // Placeholder - would need proper conversion
+        source: PropertyModel.deleted, // Placeholder - would need proper conversion
+        destination: PropertyModel.deleted, // Placeholder - would need proper conversion
         hasCheckedOut: model.hasCheckedOut,
       )).toList(growable: false)
     );
   }
 
   @override
-  Future<Either<Exception, Unit>> add(TransferRecordVo record) async {
-    final model = TransferRecordModel(
+  Future<Either<Exception, Unit>> add(TransferRecordModel record) async {
+    final model = data.TransferRecordModel(
       id: record.id.value,
       date: record.recordDate.value,
       amount: record.amount.value,

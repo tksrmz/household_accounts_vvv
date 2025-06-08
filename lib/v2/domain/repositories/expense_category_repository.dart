@@ -8,18 +8,18 @@ abstract interface class ExpenseCategoryRepository {
   /// すべての支出カテゴリを取得する
   ///
   /// 返却されるListの順番については保証されない。
-  Future<Either<Exception, List<ExpenseCategoryVo>>> fetchAll();
+  Future<Either<Exception, List<ExpenseCategoryModel>>> fetchAll();
 
   /// 支出カテゴリを追加する
   ///
   /// [category] 追加する支出カテゴリ
-  Future<Either<Exception, Unit>> add(ExpenseCategoryVo category);
+  Future<Either<Exception, Unit>> add(ExpenseCategoryModel category);
 
   /// 支出カテゴリを更新する
   ///
   /// [id] 更新対象のカテゴリID
   /// [category] 更新後の支出カテゴリデータ
-  Future<Either<Exception, Unit>> update(CategoryIdVo id, ExpenseCategoryVo category);
+  Future<Either<Exception, Unit>> update(CategoryIdVo id, ExpenseCategoryModel category);
 
   /// 支出カテゴリを削除する
   ///

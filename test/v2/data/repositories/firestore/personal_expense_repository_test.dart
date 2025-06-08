@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_expense_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/expense_record_model.dart';
 import 'package:household_accounts/v2/domain/models/expense_category.dart';
 import 'package:household_accounts/v2/domain/models/expense_record.dart';
 import 'package:household_accounts/v2/domain/models/property.dart';
@@ -142,13 +141,13 @@ void main() {
     });
 
     test('支出レコードを追加できる', () async {
-      final record = ExpenseRecordVo(
+      final record = ExpenseRecordModel(
         id: RecordIdVo('test-record-id'),
         recordDate: RecordDateVo(DateTime(2025, 1, 15)),
         amount: RecordAmountVo(1000),
         note: RecordNoteVo('テスト支出'),
-        property: PropertyVo.deleted,
-        category: ExpenseCategoryVo.deleted,
+        property: PropertyModel.deleted,
+        category: ExpenseCategoryModel.deleted,
         hasCheckedOut: false,
       );
 
@@ -172,13 +171,13 @@ void main() {
     });
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
-      final record = ExpenseRecordVo(
+      final record = ExpenseRecordModel(
         id: RecordIdVo('test-record-id'),
         recordDate: RecordDateVo(DateTime(2025, 1, 15)),
         amount: RecordAmountVo(1000),
         note: RecordNoteVo('テスト支出'),
-        property: PropertyVo.deleted,
-        category: ExpenseCategoryVo.deleted,
+        property: PropertyModel.deleted,
+        category: ExpenseCategoryModel.deleted,
         hasCheckedOut: false,
       );
 

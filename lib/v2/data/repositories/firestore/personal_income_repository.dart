@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/income_record_model.dart';
+import 'package:household_accounts/v2/data/models/income_record_model.dart' as data;
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 
 import '../../../domain/models/income_record.dart';
@@ -32,8 +32,8 @@ class FirestorePersonalIncomeRepository implements IncomeRepository {
   }
 
   @override
-  Future<Either<Exception, Unit>> add(IncomeRecordVo record) async {
-    final model = IncomeRecordModel(
+  Future<Either<Exception, Unit>> add(IncomeRecordModel record) async {
+    final model = data.IncomeRecordModel(
       id: record.id.value,
       date: record.recordDate.value,
       amount: record.amount.value,

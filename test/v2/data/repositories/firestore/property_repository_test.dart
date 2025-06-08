@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/property_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/property_model.dart';
+import 'package:household_accounts/v2/data/models/property_model.dart' as data;
 import 'package:household_accounts/v2/domain/models/property.dart';
 import 'package:household_accounts/v2/domain/models/vo/property_amount.dart';
 import 'package:household_accounts/v2/domain/models/vo/property_id.dart';
@@ -26,7 +26,7 @@ void main() {
     });
 
     test('資産一覧を取得できる', () async {
-      final mockModel = PropertyModel(
+      final mockModel = data.PropertyModel(
         id: 'test-property-id',
         name: 'テスト資産',
         amount: 100000,
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('資産を追加できる', () async {
-      final property = PropertyVo(
+      final property = PropertyModel(
         id: PropertyIdVo('test-property-id'),
         name: PropertyNameVo('テスト資産'),
         amount: PropertyAmountVo(100000),
@@ -122,7 +122,7 @@ void main() {
     });
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
-      final property = PropertyVo(
+      final property = PropertyModel(
         id: PropertyIdVo('test-property-id'),
         name: PropertyNameVo('テスト資産'),
         amount: PropertyAmountVo(100000),
@@ -149,13 +149,13 @@ void main() {
     final MockFirestoreService mockFirestoreService = MockFirestoreService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
-    tearDown() {
+    tearDown(() {
       reset(mockFirestoreService);
-    }
+    });
 
     test('資産を更新できる', () async {
       const propertyId = PropertyIdVo('test-property-id');
-      final property = PropertyVo(
+      final property = PropertyModel(
         id: propertyId,
         name: PropertyNameVo('更新された資産'),
         amount: PropertyAmountVo(150000),
@@ -184,7 +184,7 @@ void main() {
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       const propertyId = PropertyIdVo('test-property-id');
-      final property = PropertyVo(
+      final property = PropertyModel(
         id: propertyId,
         name: PropertyNameVo('更新された資産'),
         amount: PropertyAmountVo(150000),

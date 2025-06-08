@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/income_category_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/income_category_model.dart';
+import 'package:household_accounts/v2/data/models/income_category_model.dart' as data;
 import 'package:household_accounts/v2/domain/models/income_category.dart';
 import 'package:household_accounts/v2/domain/models/vo/category_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/category_name.dart';
@@ -25,7 +25,7 @@ void main() {
     });
 
     test('収入カテゴリ一覧を取得できる', () async {
-      final mockModel = IncomeCategoryModel(
+      final mockModel = data.IncomeCategoryModel(
         id: 'test-category-id',
         name: 'テストカテゴリ',
         type: 'income',
@@ -94,7 +94,7 @@ void main() {
     });
 
     test('収入カテゴリを追加できる', () async {
-      final category = IncomeCategoryVo(
+      final category = IncomeCategoryModel(
         id: CategoryIdVo('test-category-id'),
         name: CategoryNameVo('テストカテゴリ'),
       );
@@ -119,7 +119,7 @@ void main() {
     });
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
-      final category = IncomeCategoryVo(
+      final category = IncomeCategoryModel(
         id: CategoryIdVo('test-category-id'),
         name: CategoryNameVo('テストカテゴリ'),
       );
@@ -151,7 +151,7 @@ void main() {
 
     test('収入カテゴリを更新できる', () async {
       const categoryId = CategoryIdVo('test-category-id');
-      final category = IncomeCategoryVo(
+      final category = IncomeCategoryModel(
         id: categoryId,
         name: CategoryNameVo('更新されたカテゴリ'),
       );
@@ -179,7 +179,7 @@ void main() {
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       const categoryId = CategoryIdVo('test-category-id');
-      final category = IncomeCategoryVo(
+      final category = IncomeCategoryModel(
         id: categoryId,
         name: CategoryNameVo('更新されたカテゴリ'),
       );

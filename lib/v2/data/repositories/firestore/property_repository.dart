@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/property_model.dart';
+import 'package:household_accounts/v2/data/models/property_model.dart' as data;
 
 import '../../../domain/models/property.dart';
 import '../../../domain/models/vo/property_amount.dart';
@@ -19,10 +19,10 @@ class FirestorePropertyRepository implements PropertyRepository {
   final UserIdVo _uid;
 
   @override
-  Future<Either<Exception, List<PropertyVo>>> fetchAll() async {
+  Future<Either<Exception, List<PropertyModel>>> fetchAll() async {
     final result = await _firestoreService.fetchPersonalProperties(_uid);
     return result.map((propertyModels) => 
-      propertyModels.map((model) => PropertyVo(
+      propertyModels.map((model) => PropertyModel(
         id: PropertyIdVo(model.id),
         name: PropertyNameVo(model.name),
         amount: PropertyAmountVo(model.amount),
@@ -31,8 +31,8 @@ class FirestorePropertyRepository implements PropertyRepository {
   }
 
   @override
-  Future<Either<Exception, Unit>> add(PropertyVo property) async {
-    final model = PropertyModel(
+  Future<Either<Exception, Unit>> add(PropertyModel property) async {
+    final model = data.PropertyModel(
       id: property.id.value,
       name: property.name.value,
       amount: property.amount.value,
@@ -41,8 +41,8 @@ class FirestorePropertyRepository implements PropertyRepository {
   }
 
   @override
-  Future<Either<Exception, Unit>> update(PropertyIdVo id, PropertyVo property) async {
-    final model = PropertyModel(
+  Future<Either<Exception, Unit>> update(PropertyIdVo id, PropertyModel property) async {
+    final model = data.PropertyModel(
       id: property.id.value,
       name: property.name.value,
       amount: property.amount.value,

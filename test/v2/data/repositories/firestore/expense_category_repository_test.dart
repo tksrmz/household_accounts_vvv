@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/expense_category_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/expense_category_model.dart';
+import 'package:household_accounts/v2/data/models/expense_category_model.dart' as data;
 import 'package:household_accounts/v2/domain/models/expense_category.dart';
 import 'package:household_accounts/v2/domain/models/vo/budget_amount.dart';
 import 'package:household_accounts/v2/domain/models/vo/category_id.dart';
@@ -26,7 +26,7 @@ void main() {
     });
 
     test('支出カテゴリ一覧を取得できる', () async {
-      final mockModel = ExpenseCategoryModel(
+      final mockModel = data.ExpenseCategoryModel(
         id: 'test-category-id',
         name: 'テストカテゴリ',
         type: 'expense',
@@ -97,7 +97,7 @@ void main() {
     });
 
     test('支出カテゴリを追加できる', () async {
-      final category = ExpenseCategoryVo(
+      final category = ExpenseCategoryModel(
         id: CategoryIdVo('test-category-id'),
         name: CategoryNameVo('テストカテゴリ'),
         totalBudget: BudgetAmountVo(50000),
@@ -123,7 +123,7 @@ void main() {
     });
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
-      final category = ExpenseCategoryVo(
+      final category = ExpenseCategoryModel(
         id: CategoryIdVo('test-category-id'),
         name: CategoryNameVo('テストカテゴリ'),
         totalBudget: BudgetAmountVo(50000),
@@ -156,7 +156,7 @@ void main() {
 
     test('支出カテゴリを更新できる', () async {
       const categoryId = CategoryIdVo('test-category-id');
-      final category = ExpenseCategoryVo(
+      final category = ExpenseCategoryModel(
         id: categoryId,
         name: CategoryNameVo('更新されたカテゴリ'),
         totalBudget: BudgetAmountVo(75000),
@@ -185,7 +185,7 @@ void main() {
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       const categoryId = CategoryIdVo('test-category-id');
-      final category = ExpenseCategoryVo(
+      final category = ExpenseCategoryModel(
         id: categoryId,
         name: CategoryNameVo('更新されたカテゴリ'),
         totalBudget: BudgetAmountVo(75000),

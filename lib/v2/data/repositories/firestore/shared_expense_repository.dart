@@ -46,7 +46,7 @@ class FirestoreSharedExpenseRepository implements ExpenseRepository {
   }
 
   @override
-  Future<Either<Exception, Unit>> add(ExpenseRecordVo record) async {
+  Future<Either<Exception, Unit>> add(ExpenseRecordModel record) async {
     // TODO: Implement shared expense record addition
     // This would require accessing the shared note reference and adding the record there
     return Left(Exception('Shared expense record addition not yet implemented'));
