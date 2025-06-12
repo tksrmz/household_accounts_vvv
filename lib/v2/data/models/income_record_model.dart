@@ -32,34 +32,12 @@ abstract class IncomeRecordModel with _$IncomeRecordModel {
       throw ArgumentError('IncomeRecordModel requires type "income", but got "$type"');
     }
     // createdAtの型変換処理
-    dynamic createdAtValue = json['createdAt'];
-    DateTime createdAt;
-    if (createdAtValue is Timestamp) {
-      createdAt = createdAtValue.toDate();
-    } else if (createdAtValue is DateTime) {
-      createdAt = createdAtValue;
-    } else if (createdAtValue is String) {
-      createdAt = DateTime.parse(createdAtValue);
-    } else {
-      createdAt = DateTime.now();
-    }
+    Timestamp createdAtTimestamp = json['createdAt'] as Timestamp;
+    DateTime createdAt = createdAtTimestamp.toDate();
 
     // dateの型変換処理
-    dynamic dateValue = json['date'];
-    DateTime date;
-    if (dateValue is Timestamp) {
-      date = dateValue.toDate();
-    } else if (dateValue is DateTime) {
-      date = dateValue;
-    } else if (dateValue is String) {
-      try {
-        date = DateTime.parse(dateValue);
-      } catch (e) {
-        throw ArgumentError('Invalid date format');
-      }
-    } else {
-      throw ArgumentError('Invalid date format');
-    }
+    Timestamp dateTimestamp = json['date'] as Timestamp;
+    DateTime date = dateTimestamp.toDate();
 
     return IncomeRecordModel(
       id: json['id'] as String,

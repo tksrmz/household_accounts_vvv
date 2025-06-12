@@ -62,39 +62,14 @@ void main() {
       expect(model.type, 'transfer');
     });
 
-    test('標準JSONからの変換が正常に動作すること（DateTime使用）', () {
-      final json = {
-        'id': testId,
-        'date': testDate.toIso8601String(),
-        'amount': testAmount,
-        'note': testNote,
-        'hasCheckedOut': testHasCheckedOut,
-        'createdAt': testCreatedAt.toIso8601String(),
-        'fromProperty': testFromProperty,
-        'toProperty': testToProperty,
-        'type': 'transfer',
-      };
-
-      final model = TransferRecordModel.fromFirestoreJson(json);
-
-      expect(model.id, testId);
-      expect(model.date, testDate);
-      expect(model.amount, testAmount);
-      expect(model.note, testNote);
-      expect(model.hasCheckedOut, testHasCheckedOut);
-      expect(model.createdAt, testCreatedAt);
-      expect(model.fromProperty, testFromProperty);
-      expect(model.toProperty, testToProperty);
-      expect(model.type, 'transfer');
-    });
 
     test('hasCheckedOutが未指定の場合デフォルト値trueが設定されること', () {
       final json = {
         'id': testId,
-        'date': testDate,
+        'date': Timestamp.fromDate(testDate),
         'amount': testAmount,
         'note': testNote,
-        'createdAt': testCreatedAt,
+        'createdAt': Timestamp.fromDate(testCreatedAt),
         'fromProperty': testFromProperty,
         'toProperty': testToProperty,
         'type': 'transfer',
@@ -148,22 +123,5 @@ void main() {
       expect(json['type'], 'transfer');
     });
 
-    test('不正なdateフォーマットの場合ArgumentErrorがスローされること', () {
-      final json = {
-        'id': testId,
-        'date': 'invalid-date',
-        'amount': testAmount,
-        'note': testNote,
-        'hasCheckedOut': testHasCheckedOut,
-        'createdAt': testCreatedAt,
-        'fromProperty': testFromProperty,
-        'toProperty': testToProperty,
-      };
-
-      expect(
-        () => TransferRecordModel.fromFirestoreJson(json),
-        throwsA(isA<ArgumentError>()),
-      );
-    });
   });
 }

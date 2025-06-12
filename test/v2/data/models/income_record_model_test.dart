@@ -62,39 +62,14 @@ void main() {
       expect(model.type, 'income');
     });
 
-    test('標準JSONからの変換が正常に動作すること（DateTime使用）', () {
-      final json = {
-        'id': testId,
-        'date': testDate.toIso8601String(),
-        'amount': testAmount,
-        'note': testNote,
-        'hasCheckedOut': testHasCheckedOut,
-        'createdAt': testCreatedAt.toIso8601String(),
-        'property': testProperty,
-        'category': testCategory,
-        'type': 'income',
-      };
-
-      final model = IncomeRecordModel.fromFirestoreJson(json);
-
-      expect(model.id, testId);
-      expect(model.date, testDate);
-      expect(model.amount, testAmount);
-      expect(model.note, testNote);
-      expect(model.hasCheckedOut, testHasCheckedOut);
-      expect(model.createdAt, testCreatedAt);
-      expect(model.property, testProperty);
-      expect(model.category, testCategory);
-      expect(model.type, 'income');
-    });
 
     test('hasCheckedOutが未指定の場合デフォルト値trueが設定されること', () {
       final json = {
         'id': testId,
-        'date': testDate,
+        'date': Timestamp.fromDate(testDate),
         'amount': testAmount,
         'note': testNote,
-        'createdAt': testCreatedAt,
+        'createdAt': Timestamp.fromDate(testCreatedAt),
         'property': testProperty,
         'category': testCategory,
         'type': 'income',
@@ -148,22 +123,5 @@ void main() {
       expect(json['type'], 'income');
     });
 
-    test('不正なdateフォーマットの場合ArgumentErrorがスローされること', () {
-      final json = {
-        'id': testId,
-        'date': 'invalid-date',
-        'amount': testAmount,
-        'note': testNote,
-        'hasCheckedOut': testHasCheckedOut,
-        'createdAt': testCreatedAt,
-        'property': testProperty,
-        'category': testCategory,
-      };
-
-      expect(
-        () => IncomeRecordModel.fromFirestoreJson(json),
-        throwsA(isA<ArgumentError>()),
-      );
-    });
   });
 }
