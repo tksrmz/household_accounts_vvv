@@ -4,6 +4,10 @@ part 'income_category_model.freezed.dart';
 
 @freezed
 abstract class IncomeCategoryModel with _$IncomeCategoryModel {
+  /// IncomeCategoryModelのコンストラクタ
+  /// 
+  /// テストコードでのみ使用すること。
+  /// プロダクションコードでは IncomeCategoryModel.fromJson() を使用する。
   const factory IncomeCategoryModel({
     required String id,
     required String name,
@@ -12,10 +16,15 @@ abstract class IncomeCategoryModel with _$IncomeCategoryModel {
 
   /// FirestoreからのJSON変換
   factory IncomeCategoryModel.fromJson(Map<String, dynamic> json) {
+    // typeの検証
+    final type = json['type'] as String? ?? 'income';
+    if (type != 'income') {
+      throw ArgumentError('IncomeCategoryModel requires type "income", but got "$type"');
+    }
     return IncomeCategoryModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      type: json['type'] as String? ?? 'income',
+      type: type,
     );
   }
 }

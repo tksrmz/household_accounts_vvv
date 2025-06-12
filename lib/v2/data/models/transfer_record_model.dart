@@ -5,6 +5,10 @@ part 'transfer_record_model.freezed.dart';
 
 @freezed
 abstract class TransferRecordModel with _$TransferRecordModel {
+  /// TransferRecordModelのコンストラクタ
+  /// 
+  /// テストコードでのみ使用すること。
+  /// プロダクションコードでは TransferRecordModel.fromFirestoreJson() を使用する。
   const factory TransferRecordModel({
     required String id,
     required DateTime date,
@@ -19,6 +23,11 @@ abstract class TransferRecordModel with _$TransferRecordModel {
 
   /// Firestoreからの標準的なJSON変換 - Timestampの変換を処理
   factory TransferRecordModel.fromFirestoreJson(Map<String, dynamic> json) {
+    // typeの検証
+    final type = json['type'] as String? ?? 'transfer';
+    if (type != 'transfer') {
+      throw ArgumentError('TransferRecordModel requires type "transfer", but got "$type"');
+    }
     // createdAtの型変換処理
     dynamic createdAtValue = json['createdAt'];
     DateTime createdAt;
@@ -58,7 +67,7 @@ abstract class TransferRecordModel with _$TransferRecordModel {
       createdAt: createdAt,
       fromProperty: json['fromProperty'] as Map<String, dynamic>,
       toProperty: json['toProperty'] as Map<String, dynamic>,
-      type: json['type'] as String? ?? 'transfer',
+      type: type,
     );
   }
 }

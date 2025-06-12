@@ -5,6 +5,10 @@ part 'expense_record_model.freezed.dart';
 
 @freezed
 abstract class ExpenseRecordModel with _$ExpenseRecordModel {
+  /// ExpenseRecordModelのコンストラクタ
+  /// 
+  /// テストコードでのみ使用すること。
+  /// プロダクションコードでは ExpenseRecordModel.fromFirestoreJson() を使用する。
   const factory ExpenseRecordModel({
     required String id,
     required DateTime date,
@@ -19,6 +23,11 @@ abstract class ExpenseRecordModel with _$ExpenseRecordModel {
 
   /// Firestoreからの標準的なJSON変換 - Timestampの変換を処理
   factory ExpenseRecordModel.fromFirestoreJson(Map<String, dynamic> json) {
+    // typeの検証
+    final type = json['type'] as String? ?? 'expense';
+    if (type != 'expense') {
+      throw ArgumentError('ExpenseRecordModel requires type "expense", but got "$type"');
+    }
     // createdAtの型変換処理
     dynamic createdAtValue = json['createdAt'];
     DateTime createdAt;
@@ -58,7 +67,7 @@ abstract class ExpenseRecordModel with _$ExpenseRecordModel {
       createdAt: createdAt,
       property: json['property'] as Map<String, dynamic>,
       category: json['category'] as Map<String, dynamic>,
-      type: json['type'] as String? ?? 'expense',
+      type: type,
     );
   }
 }
