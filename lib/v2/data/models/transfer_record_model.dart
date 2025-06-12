@@ -24,7 +24,10 @@ abstract class TransferRecordModel with _$TransferRecordModel {
   /// Firestoreからの標準的なJSON変換 - Timestampの変換を処理
   factory TransferRecordModel.fromFirestoreJson(Map<String, dynamic> json) {
     // typeの検証
-    final type = json['type'] as String? ?? 'transfer';
+    if (!json.containsKey('type')) {
+      throw ArgumentError('TransferRecordModel requires "type" field in JSON');
+    }
+    final type = json['type'] as String;
     if (type != 'transfer') {
       throw ArgumentError('TransferRecordModel requires type "transfer", but got "$type"');
     }

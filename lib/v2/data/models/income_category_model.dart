@@ -17,7 +17,10 @@ abstract class IncomeCategoryModel with _$IncomeCategoryModel {
   /// FirestoreからのJSON変換
   factory IncomeCategoryModel.fromJson(Map<String, dynamic> json) {
     // typeの検証
-    final type = json['type'] as String? ?? 'income';
+    if (!json.containsKey('type')) {
+      throw ArgumentError('IncomeCategoryModel requires "type" field in JSON');
+    }
+    final type = json['type'] as String;
     if (type != 'income') {
       throw ArgumentError('IncomeCategoryModel requires type "income", but got "$type"');
     }

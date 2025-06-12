@@ -97,6 +97,7 @@ void main() {
         'createdAt': testCreatedAt,
         'fromProperty': testFromProperty,
         'toProperty': testToProperty,
+        'type': 'transfer',
       };
 
       final model = TransferRecordModel.fromFirestoreJson(json);
@@ -104,7 +105,7 @@ void main() {
       expect(model.hasCheckedOut, true);
     });
 
-    test('typeが未指定の場合デフォルト値transferが設定されること', () {
+    test('typeフィールドが未指定の場合ArgumentErrorがスローされること', () {
       final json = {
         'id': testId,
         'date': testDate,
@@ -116,9 +117,10 @@ void main() {
         'toProperty': testToProperty,
       };
 
-      final model = TransferRecordModel.fromFirestoreJson(json);
-
-      expect(model.type, 'transfer');
+      expect(
+        () => TransferRecordModel.fromFirestoreJson(json),
+        throwsA(isA<ArgumentError>()),
+      );
     });
 
     test('toFirestoreJsonで正常にFirestore用JSONが作成されること', () {

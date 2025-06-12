@@ -24,7 +24,10 @@ abstract class ExpenseRecordModel with _$ExpenseRecordModel {
   /// Firestoreからの標準的なJSON変換 - Timestampの変換を処理
   factory ExpenseRecordModel.fromFirestoreJson(Map<String, dynamic> json) {
     // typeの検証
-    final type = json['type'] as String? ?? 'expense';
+    if (!json.containsKey('type')) {
+      throw ArgumentError('ExpenseRecordModel requires "type" field in JSON');
+    }
+    final type = json['type'] as String;
     if (type != 'expense') {
       throw ArgumentError('ExpenseRecordModel requires type "expense", but got "$type"');
     }

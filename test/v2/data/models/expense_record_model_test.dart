@@ -97,6 +97,7 @@ void main() {
         'createdAt': testCreatedAt,
         'property': testProperty,
         'category': testCategory,
+        'type': 'expense',
       };
 
       final model = ExpenseRecordModel.fromFirestoreJson(json);
@@ -104,7 +105,7 @@ void main() {
       expect(model.hasCheckedOut, true);
     });
 
-    test('typeが未指定の場合デフォルト値expenseが設定されること', () {
+    test('typeフィールドが未指定の場合ArgumentErrorがスローされること', () {
       final json = {
         'id': testId,
         'date': testDate,
@@ -116,9 +117,10 @@ void main() {
         'category': testCategory,
       };
 
-      final model = ExpenseRecordModel.fromFirestoreJson(json);
-
-      expect(model.type, 'expense');
+      expect(
+        () => ExpenseRecordModel.fromFirestoreJson(json),
+        throwsA(isA<ArgumentError>()),
+      );
     });
 
     test('toFirestoreJsonで正常にFirestore用JSONが作成されること', () {

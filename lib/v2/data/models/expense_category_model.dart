@@ -18,7 +18,10 @@ abstract class ExpenseCategoryModel with _$ExpenseCategoryModel {
   /// FirestoreからのJSON変換
   factory ExpenseCategoryModel.fromJson(Map<String, dynamic> json) {
     // typeの検証
-    final type = json['type'] as String? ?? 'expense';
+    if (!json.containsKey('type')) {
+      throw ArgumentError('ExpenseCategoryModel requires "type" field in JSON');
+    }
+    final type = json['type'] as String;
     if (type != 'expense') {
       throw ArgumentError('ExpenseCategoryModel requires type "expense", but got "$type"');
     }

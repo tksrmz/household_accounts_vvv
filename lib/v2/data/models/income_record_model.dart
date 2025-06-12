@@ -24,7 +24,10 @@ abstract class IncomeRecordModel with _$IncomeRecordModel {
   /// Firestoreからの標準的なJSON変換 - Timestampの変換を処理
   factory IncomeRecordModel.fromFirestoreJson(Map<String, dynamic> json) {
     // typeの検証
-    final type = json['type'] as String? ?? 'income';
+    if (!json.containsKey('type')) {
+      throw ArgumentError('IncomeRecordModel requires "type" field in JSON');
+    }
+    final type = json['type'] as String;
     if (type != 'income') {
       throw ArgumentError('IncomeRecordModel requires type "income", but got "$type"');
     }

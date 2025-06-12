@@ -32,15 +32,16 @@ void main() {
       expect(model.type, testType);
     });
 
-    test('typeが未指定の場合デフォルト値incomeが設定されること', () {
+    test('typeフィールドが未指定の場合ArgumentErrorがスローされること', () {
       final json = {
         'id': testId,
         'name': testName,
       };
 
-      final model = IncomeCategoryModel.fromJson(json);
-
-      expect(model.type, 'income');
+      expect(
+        () => IncomeCategoryModel.fromJson(json),
+        throwsA(isA<ArgumentError>()),
+      );
     });
 
     test('toFirestoreJsonで正常にFirestore用JSONが作成されること', () {
