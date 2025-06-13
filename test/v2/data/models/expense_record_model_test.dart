@@ -49,7 +49,7 @@ void main() {
         'type': 'expense',
       };
 
-      final model = ExpenseRecordModel.fromFirestoreJson(json);
+      final model = ExpenseRecordModel.fromJson(json);
 
       expect(model.id, testId);
       expect(model.date, testDate);
@@ -75,7 +75,7 @@ void main() {
         'type': 'expense',
       };
 
-      final model = ExpenseRecordModel.fromFirestoreJson(json);
+      final model = ExpenseRecordModel.fromJson(json);
 
       expect(model.hasCheckedOut, true);
     });
@@ -93,7 +93,7 @@ void main() {
       };
 
       expect(
-        () => ExpenseRecordModel.fromFirestoreJson(json),
+        () => ExpenseRecordModel.fromJson(json),
         throwsA(isA<ArgumentError>()),
       );
     });

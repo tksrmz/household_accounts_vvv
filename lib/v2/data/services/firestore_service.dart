@@ -140,7 +140,7 @@ class FirestoreService {
           .withConverter(
             fromFirestore: (snapshot, _) =>
                 PrivateProfile.fromJson(snapshot.data()!),
-            toFirestore: (data, _) => data.toJson(),
+            toFirestore: (data, _) => data.toFirestoreJson(),
           )
           .get();
       return Right(documentSnapshot);
@@ -492,7 +492,7 @@ class FirestoreService {
       final expenses = snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id; // ドキュメントIDを追加
-        return ExpenseRecordModel.fromFirestoreJson(data);
+        return ExpenseRecordModel.fromJson(data);
       }).toList(growable: false);
 
       return Right(expenses);
@@ -576,7 +576,7 @@ class FirestoreService {
       final incomes = querySnapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id; // ドキュメントIDを追加
-        return IncomeRecordModel.fromFirestoreJson(data);
+        return IncomeRecordModel.fromJson(data);
       }).toList(growable: false);
 
       return Right(incomes);
@@ -660,7 +660,7 @@ class FirestoreService {
       final transfers = querySnapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id; // ドキュメントIDを追加
-        return TransferRecordModel.fromFirestoreJson(data);
+        return TransferRecordModel.fromJson(data);
       }).toList(growable: false);
 
       return Right(transfers);

@@ -8,7 +8,7 @@ abstract class ExpenseRecordModel with _$ExpenseRecordModel {
   /// ExpenseRecordModelのコンストラクタ
   /// 
   /// テストコードでのみ使用すること。
-  /// プロダクションコードでは ExpenseRecordModel.fromFirestoreJson() を使用する。
+  /// プロダクションコードでは ExpenseRecordModel.fromJson() を使用する。
   const factory ExpenseRecordModel({
     required String id,
     required DateTime date,
@@ -22,7 +22,7 @@ abstract class ExpenseRecordModel with _$ExpenseRecordModel {
   }) = _ExpenseRecordModel;
 
   /// Firestoreからの標準的なJSON変換 - Timestampの変換を処理
-  factory ExpenseRecordModel.fromFirestoreJson(Map<String, dynamic> json) {
+  factory ExpenseRecordModel.fromJson(Map<String, dynamic> json) {
     // typeの検証
     if (!json.containsKey('type')) {
       throw ArgumentError('ExpenseRecordModel requires "type" field in JSON');

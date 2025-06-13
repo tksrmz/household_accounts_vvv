@@ -49,7 +49,7 @@ void main() {
         'type': 'income',
       };
 
-      final model = IncomeRecordModel.fromFirestoreJson(json);
+      final model = IncomeRecordModel.fromJson(json);
 
       expect(model.id, testId);
       expect(model.date, testDate);
@@ -75,7 +75,7 @@ void main() {
         'type': 'income',
       };
 
-      final model = IncomeRecordModel.fromFirestoreJson(json);
+      final model = IncomeRecordModel.fromJson(json);
 
       expect(model.hasCheckedOut, true);
     });
@@ -93,7 +93,7 @@ void main() {
       };
 
       expect(
-        () => IncomeRecordModel.fromFirestoreJson(json),
+        () => IncomeRecordModel.fromJson(json),
         throwsA(isA<ArgumentError>()),
       );
     });

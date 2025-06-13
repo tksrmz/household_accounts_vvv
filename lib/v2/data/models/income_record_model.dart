@@ -8,7 +8,7 @@ abstract class IncomeRecordModel with _$IncomeRecordModel {
   /// IncomeRecordModelのコンストラクタ
   /// 
   /// テストコードでのみ使用すること。
-  /// プロダクションコードでは IncomeRecordModel.fromFirestoreJson() を使用する。
+  /// プロダクションコードでは IncomeRecordModel.fromJson() を使用する。
   const factory IncomeRecordModel({
     required String id,
     required DateTime date,
@@ -22,7 +22,7 @@ abstract class IncomeRecordModel with _$IncomeRecordModel {
   }) = _IncomeRecordModel;
 
   /// Firestoreからの標準的なJSON変換 - Timestampの変換を処理
-  factory IncomeRecordModel.fromFirestoreJson(Map<String, dynamic> json) {
+  factory IncomeRecordModel.fromJson(Map<String, dynamic> json) {
     // typeの検証
     if (!json.containsKey('type')) {
       throw ArgumentError('IncomeRecordModel requires "type" field in JSON');

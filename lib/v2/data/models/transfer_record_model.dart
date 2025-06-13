@@ -8,7 +8,7 @@ abstract class TransferRecordModel with _$TransferRecordModel {
   /// TransferRecordModelのコンストラクタ
   /// 
   /// テストコードでのみ使用すること。
-  /// プロダクションコードでは TransferRecordModel.fromFirestoreJson() を使用する。
+  /// プロダクションコードでは TransferRecordModel.fromJson() を使用する。
   const factory TransferRecordModel({
     required String id,
     required DateTime date,
@@ -22,7 +22,7 @@ abstract class TransferRecordModel with _$TransferRecordModel {
   }) = _TransferRecordModel;
 
   /// Firestoreからの標準的なJSON変換 - Timestampの変換を処理
-  factory TransferRecordModel.fromFirestoreJson(Map<String, dynamic> json) {
+  factory TransferRecordModel.fromJson(Map<String, dynamic> json) {
     // typeの検証
     if (!json.containsKey('type')) {
       throw ArgumentError('TransferRecordModel requires "type" field in JSON');

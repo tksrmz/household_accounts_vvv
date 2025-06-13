@@ -18,7 +18,7 @@ abstract class PrivateProfile with _$PrivateProfile {
 
 extension PrivateProfileFirestore on PrivateProfile {
   /// Firestoreに保存するためのJSONに変換
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toFirestoreJson() {
     return {
       if (sharedNote != null) 'sharedNote': sharedNote,
     };

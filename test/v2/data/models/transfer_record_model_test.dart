@@ -49,7 +49,7 @@ void main() {
         'type': 'transfer',
       };
 
-      final model = TransferRecordModel.fromFirestoreJson(json);
+      final model = TransferRecordModel.fromJson(json);
 
       expect(model.id, testId);
       expect(model.date, testDate);
@@ -75,7 +75,7 @@ void main() {
         'type': 'transfer',
       };
 
-      final model = TransferRecordModel.fromFirestoreJson(json);
+      final model = TransferRecordModel.fromJson(json);
 
       expect(model.hasCheckedOut, true);
     });
@@ -93,7 +93,7 @@ void main() {
       };
 
       expect(
-        () => TransferRecordModel.fromFirestoreJson(json),
+        () => TransferRecordModel.fromJson(json),
         throwsA(isA<ArgumentError>()),
       );
     });
