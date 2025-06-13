@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_income_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/models/income_record_model.dart' as data_model;
 import 'package:household_accounts/v2/domain/models/income_category.dart';
 import 'package:household_accounts/v2/domain/models/income_record.dart';
 import 'package:household_accounts/v2/domain/models/property.dart';
@@ -31,12 +32,21 @@ void main() {
     group('1件取得', () {
       test('指定された月の収入一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        when(mockFirestoreService.fetchPersonalIncomes(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([
-              {'amount': 100}
+              data_model.IncomeRecordModel(
+                id: 'test-id',
+                date: DateTime(2025, 1, 15),
+                amount: 100,
+                note: 'test note',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+              )
             ]));
 
         final target = FirestorePersonalIncomeRepository(
@@ -46,7 +56,7 @@ void main() {
         final result = await target.fetchMonthly(date);
         final incomeList = result.getOrElse(() => []);
 
-        verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        verify(mockFirestoreService.fetchPersonalIncomes(
           userId,
           date.year,
           date.month,
@@ -61,13 +71,31 @@ void main() {
     group('2件取得', () {
       test('指定された月の収入一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        when(mockFirestoreService.fetchPersonalIncomes(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([
-              {'amount': 100},
-              {'amount': 200},
+              data_model.IncomeRecordModel(
+                id: 'test-id-1',
+                date: DateTime(2025, 1, 15),
+                amount: 100,
+                note: 'test note 1',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+              ),
+              data_model.IncomeRecordModel(
+                id: 'test-id-2',
+                date: DateTime(2025, 1, 16),
+                amount: 200,
+                note: 'test note 2',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+              )
             ]));
 
         final target = FirestorePersonalIncomeRepository(
@@ -77,7 +105,7 @@ void main() {
         final result = await target.fetchMonthly(date);
         final incomeList = result.getOrElse(() => []);
 
-        verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        verify(mockFirestoreService.fetchPersonalIncomes(
           userId,
           date.year,
           date.month,
@@ -93,7 +121,7 @@ void main() {
     group('0件取得', () {
       test('指定された月の収入一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        when(mockFirestoreService.fetchPersonalIncomes(
           userId,
           date.year,
           date.month,
@@ -106,7 +134,7 @@ void main() {
         final result = await target.fetchMonthly(date);
         final incomeList = result.getOrElse(() => []);
 
-        verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        verify(mockFirestoreService.fetchPersonalIncomes(
           userId,
           date.year,
           date.month,
@@ -130,12 +158,21 @@ void main() {
       final (:description, :value) = element;
       test(description, () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        when(mockFirestoreService.fetchPersonalIncomes(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([
-              {'amount': value}
+              data_model.IncomeRecordModel(
+                id: 'test-id',
+                date: DateTime(2025, 1, 15),
+                amount: value,
+                note: 'test note',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+              )
             ]));
 
         final target = FirestorePersonalIncomeRepository(
@@ -152,7 +189,7 @@ void main() {
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final date = DateTime(2025, 1);
       final exception = Exception('test error');
-      when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+      when(mockFirestoreService.fetchPersonalIncomes(
         userId,
         date.year,
         date.month,

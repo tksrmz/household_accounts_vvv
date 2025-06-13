@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
-import 'package:household_accounts/v2/data/models/expense_record_model.dart' as data;
+import 'package:household_accounts/v2/data/models/expense_record_model.dart' as data_model;
 
 import '../../../domain/models/expense_record.dart';
 import '../../../domain/models/vo/expense.dart';
@@ -19,21 +19,21 @@ class FirestorePersonalExpenseRepository implements ExpenseRepository {
 
   @override
   Future<Either<Exception, List<ExpenseVo>>> fetchMonthly(DateTime date) async {
-    final result = await _firestoreService.fetchAllPersonalExpensesOf(
+    final result = await _firestoreService.fetchPersonalExpenses(
       _uid,
       date.year,
       date.month,
     );
     final createExpenseVo =
-        (Map<String, dynamic> doc) => ExpenseVo(doc['amount']!);
-    final convertToExpenseVoList = (List<Map<String, dynamic>> expenseList) =>
+        (data_model.ExpenseRecordModel record) => ExpenseVo(record.amount);
+    final convertToExpenseVoList = (List<data_model.ExpenseRecordModel> expenseList) =>
         expenseList.map(createExpenseVo).toList(growable: false);
     return result.map(convertToExpenseVoList);
   }
 
   @override
   Future<Either<Exception, Unit>> add(ExpenseRecordModel record) async {
-    final model = data.ExpenseRecordModel(
+    final model = data_model.ExpenseRecordModel(
       id: record.id.value,
       date: record.recordDate.value,
       amount: record.amount.value,

@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_expense_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/models/expense_record_model.dart' as data_model;
 import 'package:household_accounts/v2/domain/models/expense_category.dart';
 import 'package:household_accounts/v2/domain/models/expense_record.dart';
 import 'package:household_accounts/v2/domain/models/property.dart';
@@ -31,12 +32,21 @@ void main() {
     group('1件取得', () {
       test('指定された月の支出一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchAllPersonalExpensesOf(
+        when(mockFirestoreService.fetchPersonalExpenses(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([
-              {'amount': 100}
+              data_model.ExpenseRecordModel(
+                id: 'test-id',
+                date: DateTime(2025, 1, 15),
+                amount: 100,
+                note: 'test note',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {'ref': '/personalNotes/user1/expenseCategories/cat1'},
+              )
             ]));
 
         final target = FirestorePersonalExpenseRepository(
@@ -46,7 +56,7 @@ void main() {
         final result = await target.fetchMonthly(date);
         final expenseList = result.getOrElse(() => []);
 
-        verify(mockFirestoreService.fetchAllPersonalExpensesOf(
+        verify(mockFirestoreService.fetchPersonalExpenses(
           userId,
           date.year,
           date.month,
@@ -61,7 +71,7 @@ void main() {
     group('0件取得', () {
       test('指定された月の支出一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchAllPersonalExpensesOf(
+        when(mockFirestoreService.fetchPersonalExpenses(
           userId,
           date.year,
           date.month,
@@ -93,12 +103,21 @@ void main() {
       final (:description, :value) = element;
       test(description, () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchAllPersonalExpensesOf(
+        when(mockFirestoreService.fetchPersonalExpenses(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([
-              {'amount': value}
+              data_model.ExpenseRecordModel(
+                id: 'test-id',
+                date: DateTime(2025, 1, 15),
+                amount: value,
+                note: 'test note',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {'ref': '/personalNotes/user1/expenseCategories/cat1'},
+              )
             ]));
 
         final target = FirestorePersonalExpenseRepository(
@@ -115,7 +134,7 @@ void main() {
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final date = DateTime(2025, 1);
       final exception = Exception('test error');
-      when(mockFirestoreService.fetchAllPersonalExpensesOf(
+      when(mockFirestoreService.fetchPersonalExpenses(
         userId,
         date.year,
         date.month,
