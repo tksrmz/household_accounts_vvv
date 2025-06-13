@@ -43,7 +43,7 @@ class FirestoreIncomeCategoryRepository implements IncomeCategoryRepository {
       id: category.id.value,
       name: category.name.value,
     );
-    return _firestoreService.updatePersonalIncomeCategory(_uid, id.value, model);
+    return _firestoreService.updatePersonalIncomeCategory(_uid, model);
   }
 
   @override

@@ -163,7 +163,6 @@ void main() {
 
       when(mockFirestoreService.updatePersonalProperty(
         userId,
-        propertyId.value,
         any,
       )).thenAnswer((_) async => Right(unit));
 
@@ -175,7 +174,6 @@ void main() {
 
       verify(mockFirestoreService.updatePersonalProperty(
         userId,
-        propertyId.value,
         any,
       )).called(1);
 
@@ -193,7 +191,6 @@ void main() {
       final exception = Exception('test error');
       when(mockFirestoreService.updatePersonalProperty(
         userId,
-        propertyId.value,
         any,
       )).thenAnswer((_) async => Left(exception));
 

@@ -47,7 +47,7 @@ class FirestorePropertyRepository implements PropertyRepository {
       name: property.name.value,
       amount: property.amount.value,
     );
-    return _firestoreService.updatePersonalProperty(_uid, id.value, model);
+    return _firestoreService.updatePersonalProperty(_uid, model);
   }
 
   @override

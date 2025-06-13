@@ -275,13 +275,12 @@ class FirestoreService {
   /// [userId]の収入カテゴリを更新する
   Future<Either<Exception, Unit>> updatePersonalIncomeCategory(
     UserIdVo userId,
-    String categoryId,
     IncomeCategoryModel category,
   ) async {
     try {
       await _db
           .collection('/personalNotes/${userId.value}/incomeCategories')
-          .doc(categoryId)
+          .doc(category.id)
           .update(category.toFirestoreJson());
       return Right(unit);
     } on Exception catch (e) {
@@ -347,13 +346,12 @@ class FirestoreService {
   /// [userId]の支出カテゴリを更新する
   Future<Either<Exception, Unit>> updatePersonalExpenseCategory(
     UserIdVo userId,
-    String categoryId,
     ExpenseCategoryModel category,
   ) async {
     try {
       await _db
           .collection('/personalNotes/${userId.value}/expenseCategories')
-          .doc(categoryId)
+          .doc(category.id)
           .update(category.toFirestoreJson());
       return Right(unit);
     } on Exception catch (e) {
@@ -419,13 +417,12 @@ class FirestoreService {
   /// [userId]の資産を更新する
   Future<Either<Exception, Unit>> updatePersonalProperty(
     UserIdVo userId,
-    String propertyId,
     PropertyModel property,
   ) async {
     try {
       await _db
           .collection('/personalNotes/${userId.value}/properties')
-          .doc(propertyId)
+          .doc(property.id)
           .update(property.toFirestoreJson());
       return Right(unit);
     } on Exception catch (e) {

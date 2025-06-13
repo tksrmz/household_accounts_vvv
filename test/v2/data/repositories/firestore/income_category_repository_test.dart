@@ -158,7 +158,6 @@ void main() {
 
       when(mockFirestoreService.updatePersonalIncomeCategory(
         userId,
-        categoryId.value,
         any,
       )).thenAnswer((_) async => Right(unit));
 
@@ -170,7 +169,6 @@ void main() {
 
       verify(mockFirestoreService.updatePersonalIncomeCategory(
         userId,
-        categoryId.value,
         any,
       )).called(1);
 
@@ -187,7 +185,6 @@ void main() {
       final exception = Exception('test error');
       when(mockFirestoreService.updatePersonalIncomeCategory(
         userId,
-        categoryId.value,
         any,
       )).thenAnswer((_) async => Left(exception));
 

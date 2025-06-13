@@ -47,7 +47,7 @@ class FirestoreExpenseCategoryRepository implements ExpenseCategoryRepository {
       name: category.name.value,
       totalBudget: category.totalBudget.value,
     );
-    return _firestoreService.updatePersonalExpenseCategory(_uid, id.value, model);
+    return _firestoreService.updatePersonalExpenseCategory(_uid, model);
   }
 
   @override
