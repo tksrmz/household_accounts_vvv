@@ -123,6 +123,11 @@ household_accounts/
     - Serviceは外部サービス（Firestore等）へのアクセスを抽象化し、データの取得・保存のための低レベルな操作を提供する。
     - 複数のリポジトリから共通して利用され、生のデータ（Map<String, dynamic>など）を返す。
     - 状態を保持せず、純粋なデータアクセス機能のみを提供する。
+    - **Serviceの分割方針**: 関心の分離を実現するため、Firestoreドキュメント/コレクション単位でServiceクラスを分割する。
+      - `profile/` - プロフィール関連（PublicProfileService, PrivateProfileService）
+      - `personal/` - 個人ノート関連（PersonalIncomeCategoryService, PersonalExpenseCategoryService等）
+      - `shared/` - 共有ノート関連（SharedRecordService）
+      - `transaction/` - トランザクション処理（FirestoreTransactionService）
   - 外部サービスから取得したデータを表現する型は、`data/models`に配置する。
     - 外部サービスから取得したデータを表現する型は、`freezed`アノテーションを使用する。
 - プレゼンテーションレイヤーの実装は`presentation`フォルダに配置する。

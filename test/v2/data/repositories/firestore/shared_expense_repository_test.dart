@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/privateProfile.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/shared_expense_repository.dart';
-import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/shared/shared_record_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/profile/private_profile_service.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:mockito/annotations.dart';
@@ -10,7 +11,8 @@ import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 @GenerateNiceMocks([
-  MockSpec<FirestoreService>(),
+  MockSpec<SharedRecordService>(),
+  MockSpec<PrivateProfileService>(),
   MockSpec<DocumentSnapshot<PrivateProfile>>(as: #MockDocumentSnapshot),
   MockSpec<DocumentReference<Map<String, dynamic>>>(as: #MockDocumentReference),
   MockSpec<PrivateProfile>(as: #MockPrivateProfile),
@@ -19,14 +21,16 @@ import 'shared_expense_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
-    final mockFirestoreService = MockFirestoreService();
+    final mockSharedRecordService = MockSharedRecordService();
+    final mockPrivateProfileService = MockPrivateProfileService();
     final mockPrivateProfileDocSnapshot = MockDocumentSnapshot();
     final mockSharedNoteDocRef = MockDocumentReference();
     final mockPrivateProfile = MockPrivateProfile();
     final userId = UserIdVo('sampleUserId');
 
     setUp(() {
-      reset(mockFirestoreService);
+      reset(mockSharedRecordService);
+      reset(mockPrivateProfileService);
       reset(mockPrivateProfileDocSnapshot);
       reset(mockSharedNoteDocRef);
       reset(mockPrivateProfile);
@@ -38,13 +42,13 @@ void main() {
         final date = DateTime(2025, 1);
         final sharedNote = {'ref': mockSharedNoteDocRef};
 
-        when(mockFirestoreService.fetchPrivateProfileOf(userId))
+        when(mockPrivateProfileService.fetchPrivateProfileOf(userId))
             .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())
             .thenReturn(mockPrivateProfile);
         when(mockPrivateProfile.sharedNote).thenReturn(sharedNote);
-        when(mockFirestoreService.fetchMonthlySharedExpensesFrom(
+        when(mockSharedRecordService.fetchMonthlySharedExpensesFrom(
           mockSharedNoteDocRef,
           date.year,
           date.month,
@@ -54,7 +58,8 @@ void main() {
             ]));
 
         final target = FirestoreSharedExpenseRepository(
-          mockFirestoreService,
+          mockSharedRecordService,
+          mockPrivateProfileService,
           userId,
         );
 
@@ -75,12 +80,13 @@ void main() {
         // Arrange
         final date = DateTime(2025, 1);
 
-        when(mockFirestoreService.fetchPrivateProfileOf(userId))
+        when(mockPrivateProfileService.fetchPrivateProfileOf(userId))
             .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(false);
 
         final target = FirestoreSharedExpenseRepository(
-          mockFirestoreService,
+          mockSharedRecordService,
+          mockPrivateProfileService,
           userId,
         );
 
@@ -97,13 +103,14 @@ void main() {
         // Arrange
         final date = DateTime(2025, 1);
 
-        when(mockFirestoreService.fetchPrivateProfileOf(userId))
+        when(mockPrivateProfileService.fetchPrivateProfileOf(userId))
             .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data()).thenReturn(null);
 
         final target = FirestoreSharedExpenseRepository(
-          mockFirestoreService,
+          mockSharedRecordService,
+          mockPrivateProfileService,
           userId,
         );
 
@@ -120,7 +127,7 @@ void main() {
         // Arrange
         final date = DateTime(2025, 1);
 
-        when(mockFirestoreService.fetchPrivateProfileOf(userId))
+        when(mockPrivateProfileService.fetchPrivateProfileOf(userId))
             .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())
@@ -128,7 +135,8 @@ void main() {
         when(mockPrivateProfile.sharedNote).thenReturn(null);
 
         final target = FirestoreSharedExpenseRepository(
-          mockFirestoreService,
+          mockSharedRecordService,
+          mockPrivateProfileService,
           userId,
         );
 
@@ -146,7 +154,7 @@ void main() {
         final date = DateTime(2025, 1);
         final sharedNote = <String, dynamic>{};
 
-        when(mockFirestoreService.fetchPrivateProfileOf(userId))
+        when(mockPrivateProfileService.fetchPrivateProfileOf(userId))
             .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())
@@ -154,7 +162,8 @@ void main() {
         when(mockPrivateProfile.sharedNote).thenReturn(sharedNote);
 
         final target = FirestoreSharedExpenseRepository(
-          mockFirestoreService,
+          mockSharedRecordService,
+          mockPrivateProfileService,
           userId,
         );
 

@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_income_record_service.dart';
 import 'package:household_accounts/v2/data/models/income_record_model.dart' as data_model;
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 
@@ -10,16 +10,16 @@ import '../../../domain/repositories/income_repository.dart';
 
 class FirestorePersonalIncomeRepository implements IncomeRepository {
   const FirestorePersonalIncomeRepository(
-    this._firestoreService,
+    this._personalIncomeRecordService,
     this._uid,
   );
 
-  final FirestoreService _firestoreService;
+  final PersonalIncomeRecordService _personalIncomeRecordService;
   final UserIdVo _uid;
 
   @override
   Future<Either<Exception, List<IncomeVo>>> fetchMonthly(DateTime date) async {
-    final result = await _firestoreService.fetchPersonalIncomes(
+    final result = await _personalIncomeRecordService.fetchPersonalIncomes(
       _uid,
       date.year,
       date.month,
@@ -43,11 +43,11 @@ class FirestorePersonalIncomeRepository implements IncomeRepository {
       property: {'ref': '/personalNotes/${_uid.value}/properties/${record.property.id.value}'},
       category: {'ref': '/personalNotes/${_uid.value}/incomeCategories/${record.category.id.value}'},
     );
-    return _firestoreService.addPersonalIncome(_uid, model);
+    return _personalIncomeRecordService.addPersonalIncome(_uid, model);
   }
 
   @override
   Future<Either<Exception, Unit>> delete(RecordIdVo id) async {
-    return _firestoreService.deletePersonalIncome(_uid, id.value);
+    return _personalIncomeRecordService.deletePersonalIncome(_uid, id.value);
   }
 }

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/income_category_repository.dart';
-import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_income_category_service.dart';
 import 'package:household_accounts/v2/data/models/income_category_model.dart' as data;
 import 'package:household_accounts/v2/domain/models/income_category.dart';
 import 'package:household_accounts/v2/domain/models/vo/category_id.dart';
@@ -11,17 +11,17 @@ import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 @GenerateNiceMocks([
-  MockSpec<FirestoreService>(),
+  MockSpec<PersonalIncomeCategoryService>(),
 ])
 import 'income_category_repository_test.mocks.dart';
 
 void main() {
   group('fetchAll', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalIncomeCategoryService mockService = MockPersonalIncomeCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     test('収入カテゴリ一覧を取得できる', () async {
@@ -31,18 +31,18 @@ void main() {
         type: 'income',
       );
 
-      when(mockFirestoreService.fetchPersonalIncomeCategories(
+      when(mockService.fetchPersonalIncomeCategories(
         userId,
       )).thenAnswer((_) async => Right([mockModel]));
 
       final target = FirestoreIncomeCategoryRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.fetchAll();
       final categoryList = result.getOrElse(() => []);
 
-      verify(mockFirestoreService.fetchPersonalIncomeCategories(
+      verify(mockService.fetchPersonalIncomeCategories(
         userId,
       )).called(1);
 
@@ -53,12 +53,12 @@ void main() {
     });
 
     test('カテゴリが存在しない場合、空のリストを返す', () async {
-      when(mockFirestoreService.fetchPersonalIncomeCategories(
+      when(mockService.fetchPersonalIncomeCategories(
         userId,
       )).thenAnswer((_) async => Right([]));
 
       final target = FirestoreIncomeCategoryRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.fetchAll();
@@ -70,12 +70,12 @@ void main() {
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final exception = Exception('test error');
-      when(mockFirestoreService.fetchPersonalIncomeCategories(
+      when(mockService.fetchPersonalIncomeCategories(
         userId,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestoreIncomeCategoryRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.fetchAll();
@@ -86,11 +86,11 @@ void main() {
   });
 
   group('add', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalIncomeCategoryService mockService = MockPersonalIncomeCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     test('収入カテゴリを追加できる', () async {
@@ -99,18 +99,18 @@ void main() {
         name: CategoryNameVo('テストカテゴリ'),
       );
 
-      when(mockFirestoreService.addPersonalIncomeCategory(
+      when(mockService.addPersonalIncomeCategory(
         userId,
         any,
       )).thenAnswer((_) async => Right(unit));
 
       final target = FirestoreIncomeCategoryRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.add(category);
 
-      verify(mockFirestoreService.addPersonalIncomeCategory(
+      verify(mockService.addPersonalIncomeCategory(
         userId,
         any,
       )).called(1);
@@ -125,13 +125,13 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockFirestoreService.addPersonalIncomeCategory(
+      when(mockService.addPersonalIncomeCategory(
         userId,
         any,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestoreIncomeCategoryRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.add(category);
@@ -142,11 +142,11 @@ void main() {
   });
 
   group('update', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalIncomeCategoryService mockService = MockPersonalIncomeCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     test('収入カテゴリを更新できる', () async {
@@ -156,18 +156,18 @@ void main() {
         name: CategoryNameVo('更新されたカテゴリ'),
       );
 
-      when(mockFirestoreService.updatePersonalIncomeCategory(
+      when(mockService.updatePersonalIncomeCategory(
         userId,
         any,
       )).thenAnswer((_) async => Right(unit));
 
       final target = FirestoreIncomeCategoryRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.update(categoryId, category);
 
-      verify(mockFirestoreService.updatePersonalIncomeCategory(
+      verify(mockService.updatePersonalIncomeCategory(
         userId,
         any,
       )).called(1);
@@ -183,13 +183,13 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockFirestoreService.updatePersonalIncomeCategory(
+      when(mockService.updatePersonalIncomeCategory(
         userId,
         any,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestoreIncomeCategoryRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.update(categoryId, category);
@@ -200,28 +200,28 @@ void main() {
   });
 
   group('delete', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalIncomeCategoryService mockService = MockPersonalIncomeCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     test('収入カテゴリを削除できる', () async {
       const categoryId = CategoryIdVo('test-category-id');
 
-      when(mockFirestoreService.deletePersonalIncomeCategory(
+      when(mockService.deletePersonalIncomeCategory(
         userId,
         categoryId.value,
       )).thenAnswer((_) async => Right(unit));
 
       final target = FirestoreIncomeCategoryRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.delete(categoryId);
 
-      verify(mockFirestoreService.deletePersonalIncomeCategory(
+      verify(mockService.deletePersonalIncomeCategory(
         userId,
         categoryId.value,
       )).called(1);
@@ -233,13 +233,13 @@ void main() {
       const categoryId = CategoryIdVo('test-category-id');
       final exception = Exception('test error');
 
-      when(mockFirestoreService.deletePersonalIncomeCategory(
+      when(mockService.deletePersonalIncomeCategory(
         userId,
         categoryId.value,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestoreIncomeCategoryRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.delete(categoryId);

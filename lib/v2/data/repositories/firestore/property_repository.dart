@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_property_service.dart';
 import 'package:household_accounts/v2/data/models/property_model.dart' as data;
 
 import '../../../domain/models/property.dart';
@@ -11,16 +11,16 @@ import '../../../domain/repositories/property_repository.dart';
 
 class FirestorePropertyRepository implements PropertyRepository {
   const FirestorePropertyRepository(
-    this._firestoreService,
+    this._personalPropertyService,
     this._uid,
   );
 
-  final FirestoreService _firestoreService;
+  final PersonalPropertyService _personalPropertyService;
   final UserIdVo _uid;
 
   @override
   Future<Either<Exception, List<PropertyModel>>> fetchAll() async {
-    final result = await _firestoreService.fetchPersonalProperties(_uid);
+    final result = await _personalPropertyService.fetchPersonalProperties(_uid);
     return result.map((propertyModels) => 
       propertyModels.map((model) => PropertyModel(
         id: PropertyIdVo(model.id),
@@ -37,7 +37,7 @@ class FirestorePropertyRepository implements PropertyRepository {
       name: property.name.value,
       amount: property.amount.value,
     );
-    return _firestoreService.addPersonalProperty(_uid, model);
+    return _personalPropertyService.addPersonalProperty(_uid, model);
   }
 
   @override
@@ -47,11 +47,11 @@ class FirestorePropertyRepository implements PropertyRepository {
       name: property.name.value,
       amount: property.amount.value,
     );
-    return _firestoreService.updatePersonalProperty(_uid, model);
+    return _personalPropertyService.updatePersonalProperty(_uid, model);
   }
 
   @override
   Future<Either<Exception, Unit>> delete(PropertyIdVo id) async {
-    return _firestoreService.deletePersonalProperty(_uid, id.value);
+    return _personalPropertyService.deletePersonalProperty(_uid, id.value);
   }
 }

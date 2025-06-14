@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_transfer_record_service.dart';
 import 'package:household_accounts/v2/data/models/transfer_record_model.dart' as data;
 
 import '../../../domain/models/property.dart';
@@ -13,16 +13,16 @@ import '../../../domain/repositories/transfer_repository.dart';
 
 class FirestoreTransferRepository implements TransferRepository {
   const FirestoreTransferRepository(
-    this._firestoreService,
+    this._personalTransferRecordService,
     this._uid,
   );
 
-  final FirestoreService _firestoreService;
+  final PersonalTransferRecordService _personalTransferRecordService;
   final UserIdVo _uid;
 
   @override
   Future<Either<Exception, List<TransferRecordModel>>> fetchMonthly(DateTime date) async {
-    final result = await _firestoreService.fetchPersonalTransfers(
+    final result = await _personalTransferRecordService.fetchPersonalTransfers(
       _uid,
       date.year,
       date.month,
@@ -52,11 +52,11 @@ class FirestoreTransferRepository implements TransferRepository {
       fromProperty: {'ref': '/personalNotes/${_uid.value}/properties/${record.source.id.value}'},
       toProperty: {'ref': '/personalNotes/${_uid.value}/properties/${record.destination.id.value}'},
     );
-    return _firestoreService.addPersonalTransfer(_uid, model);
+    return _personalTransferRecordService.addPersonalTransfer(_uid, model);
   }
 
   @override
   Future<Either<Exception, Unit>> delete(RecordIdVo id) async {
-    return _firestoreService.deletePersonalTransfer(_uid, id.value);
+    return _personalTransferRecordService.deletePersonalTransfer(_uid, id.value);
   }
 }

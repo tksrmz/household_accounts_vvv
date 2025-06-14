@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/transfer_repository.dart';
-import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_transfer_record_service.dart';
 import 'package:household_accounts/v2/data/models/transfer_record_model.dart' as data;
 import 'package:household_accounts/v2/domain/models/property.dart';
 import 'package:household_accounts/v2/domain/models/transfer_record.dart';
@@ -14,17 +14,17 @@ import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 @GenerateNiceMocks([
-  MockSpec<FirestoreService>(),
+  MockSpec<PersonalTransferRecordService>(),
 ])
 import 'transfer_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalTransferRecordService mockService = MockPersonalTransferRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     test('指定された月の振替一覧を取得できる', () async {
@@ -40,20 +40,20 @@ void main() {
         toProperty: {'ref': '/personalNotes/user123/properties/prop2'},
       );
 
-      when(mockFirestoreService.fetchPersonalTransfers(
+      when(mockService.fetchPersonalTransfers(
         userId,
         date.year,
         date.month,
       )).thenAnswer((_) async => Right([mockModel]));
 
       final target = FirestoreTransferRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.fetchMonthly(date);
       final transferList = result.getOrElse(() => []);
 
-      verify(mockFirestoreService.fetchPersonalTransfers(
+      verify(mockService.fetchPersonalTransfers(
         userId,
         date.year,
         date.month,
@@ -67,14 +67,14 @@ void main() {
 
     test('振替が存在しない場合、空のリストを返す', () async {
       final date = DateTime(2025, 1);
-      when(mockFirestoreService.fetchPersonalTransfers(
+      when(mockService.fetchPersonalTransfers(
         userId,
         date.year,
         date.month,
       )).thenAnswer((_) async => Right([]));
 
       final target = FirestoreTransferRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.fetchMonthly(date);
@@ -87,14 +87,14 @@ void main() {
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final date = DateTime(2025, 1);
       final exception = Exception('test error');
-      when(mockFirestoreService.fetchPersonalTransfers(
+      when(mockService.fetchPersonalTransfers(
         userId,
         date.year,
         date.month,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestoreTransferRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.fetchMonthly(date);
@@ -105,11 +105,11 @@ void main() {
   });
 
   group('add', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalTransferRecordService mockService = MockPersonalTransferRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     test('振替レコードを追加できる', () async {
@@ -123,18 +123,18 @@ void main() {
         hasCheckedOut: false,
       );
 
-      when(mockFirestoreService.addPersonalTransfer(
+      when(mockService.addPersonalTransfer(
         userId,
         any,
       )).thenAnswer((_) async => Right(unit));
 
       final target = FirestoreTransferRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.add(record);
 
-      verify(mockFirestoreService.addPersonalTransfer(
+      verify(mockService.addPersonalTransfer(
         userId,
         any,
       )).called(1);
@@ -154,13 +154,13 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockFirestoreService.addPersonalTransfer(
+      when(mockService.addPersonalTransfer(
         userId,
         any,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestoreTransferRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.add(record);
@@ -171,28 +171,28 @@ void main() {
   });
 
   group('delete', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalTransferRecordService mockService = MockPersonalTransferRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     test('振替レコードを削除できる', () async {
       const recordId = RecordIdVo('test-record-id');
 
-      when(mockFirestoreService.deletePersonalTransfer(
+      when(mockService.deletePersonalTransfer(
         userId,
         recordId.value,
       )).thenAnswer((_) async => Right(unit));
 
       final target = FirestoreTransferRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.delete(recordId);
 
-      verify(mockFirestoreService.deletePersonalTransfer(
+      verify(mockService.deletePersonalTransfer(
         userId,
         recordId.value,
       )).called(1);
@@ -204,13 +204,13 @@ void main() {
       const recordId = RecordIdVo('test-record-id');
       final exception = Exception('test error');
 
-      when(mockFirestoreService.deletePersonalTransfer(
+      when(mockService.deletePersonalTransfer(
         userId,
         recordId.value,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestoreTransferRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.delete(recordId);

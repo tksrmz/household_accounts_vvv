@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_expense_repository.dart';
-import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_record_service.dart';
 import 'package:household_accounts/v2/data/models/expense_record_model.dart' as data_model;
 import 'package:household_accounts/v2/domain/models/expense_category.dart';
 import 'package:household_accounts/v2/domain/models/expense_record.dart';
@@ -16,23 +16,23 @@ import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 @GenerateNiceMocks([
-  MockSpec<FirestoreService>(),
+  MockSpec<PersonalExpenseRecordService>(),
 ])
 import 'personal_expense_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalExpenseRecordService mockService = MockPersonalExpenseRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     group('1件取得', () {
       test('指定された月の支出一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchPersonalExpenses(
+        when(mockService.fetchPersonalExpenses(
           userId,
           date.year,
           date.month,
@@ -50,13 +50,13 @@ void main() {
             ]));
 
         final target = FirestorePersonalExpenseRepository(
-          mockFirestoreService,
+          mockService,
           userId,
         );
         final result = await target.fetchMonthly(date);
         final expenseList = result.getOrElse(() => []);
 
-        verify(mockFirestoreService.fetchPersonalExpenses(
+        verify(mockService.fetchPersonalExpenses(
           userId,
           date.year,
           date.month,
@@ -71,14 +71,14 @@ void main() {
     group('0件取得', () {
       test('指定された月の支出一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchPersonalExpenses(
+        when(mockService.fetchPersonalExpenses(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([]));
 
         final target = FirestorePersonalExpenseRepository(
-          mockFirestoreService,
+          mockService,
           userId,
         );
         final result = await target.fetchMonthly(date);
@@ -103,7 +103,7 @@ void main() {
       final (:description, :value) = element;
       test(description, () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchPersonalExpenses(
+        when(mockService.fetchPersonalExpenses(
           userId,
           date.year,
           date.month,
@@ -121,7 +121,7 @@ void main() {
             ]));
 
         final target = FirestorePersonalExpenseRepository(
-          mockFirestoreService,
+          mockService,
           userId,
         );
         expect(
@@ -134,14 +134,14 @@ void main() {
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final date = DateTime(2025, 1);
       final exception = Exception('test error');
-      when(mockFirestoreService.fetchPersonalExpenses(
+      when(mockService.fetchPersonalExpenses(
         userId,
         date.year,
         date.month,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestorePersonalExpenseRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.fetchMonthly(date);
@@ -152,11 +152,11 @@ void main() {
   });
 
   group('add', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalExpenseRecordService mockService = MockPersonalExpenseRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     test('支出レコードを追加できる', () async {
@@ -170,18 +170,18 @@ void main() {
         hasCheckedOut: false,
       );
 
-      when(mockFirestoreService.addPersonalExpense(
+      when(mockService.addPersonalExpense(
         userId,
         any,
       )).thenAnswer((_) async => Right(unit));
 
       final target = FirestorePersonalExpenseRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.add(record);
 
-      verify(mockFirestoreService.addPersonalExpense(
+      verify(mockService.addPersonalExpense(
         userId,
         any,
       )).called(1);
@@ -201,13 +201,13 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockFirestoreService.addPersonalExpense(
+      when(mockService.addPersonalExpense(
         userId,
         any,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestorePersonalExpenseRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.add(record);
@@ -218,28 +218,28 @@ void main() {
   });
 
   group('delete', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalExpenseRecordService mockService = MockPersonalExpenseRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     test('支出レコードを削除できる', () async {
       const recordId = RecordIdVo('test-record-id');
 
-      when(mockFirestoreService.deletePersonalExpense(
+      when(mockService.deletePersonalExpense(
         userId,
         recordId.value,
       )).thenAnswer((_) async => Right(unit));
 
       final target = FirestorePersonalExpenseRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.delete(recordId);
 
-      verify(mockFirestoreService.deletePersonalExpense(
+      verify(mockService.deletePersonalExpense(
         userId,
         recordId.value,
       )).called(1);
@@ -251,13 +251,13 @@ void main() {
       const recordId = RecordIdVo('test-record-id');
       final exception = Exception('test error');
 
-      when(mockFirestoreService.deletePersonalExpense(
+      when(mockService.deletePersonalExpense(
         userId,
         recordId.value,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestorePersonalExpenseRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.delete(recordId);
