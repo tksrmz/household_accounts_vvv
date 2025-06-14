@@ -16,7 +16,7 @@ class PersonalExpenseRecordService {
   /// [year]のみが指定されている場合、その年のすべての支出を取得します。
   /// [year]と[month]が指定されている場合、その月のすべての支出を取得します。
   /// [year]と[month]と[day]が指定されている場合、その日のすべての支出を取得します。
-  Future<Either<Exception, List<ExpenseRecordModel>>> fetchPersonalExpenses(
+  Future<Either<Exception, List<ExpenseRecordModel>>> fetchByDate(
     UserIdVo userId,
     int year, [
     int? month,
@@ -59,7 +59,7 @@ class PersonalExpenseRecordService {
   }
 
   /// [userId]に支出レコードを追加する
-  Future<Either<Exception, Unit>> addPersonalExpense(
+  Future<Either<Exception, Unit>> add(
     UserIdVo userId,
     ExpenseRecordModel expense,
   ) async {
@@ -75,7 +75,7 @@ class PersonalExpenseRecordService {
   }
 
   /// [userId]の支出レコードを削除する
-  Future<Either<Exception, Unit>> deletePersonalExpense(
+  Future<Either<Exception, Unit>> delete(
     UserIdVo userId,
     String expenseId,
   ) async {

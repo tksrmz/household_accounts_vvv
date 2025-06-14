@@ -14,7 +14,7 @@ class SharedRecordService {
   /// [year]と[month]が指定されている場合、その月のすべての支出を取得します。
   /// [year]と[month]と[day]が指定されている場合、その日のすべての支出を取得します。
   Future<Either<Exception, List<Map<String, dynamic>>>>
-      fetchMonthlySharedExpensesFrom(
+      fetchExpensesByDate(
     DocumentReference<Map<String, dynamic>> sharedNoteDocRef,
     int year, [
     int? month,
@@ -57,7 +57,7 @@ class SharedRecordService {
   /// [year]と[month]が指定されている場合、その月のすべての収入を取得します。
   /// [year]と[month]と[day]が指定されている場合、その日のすべての収入を取得します。
   Future<Either<Exception, List<Map<String, dynamic>>>>
-      fetchMonthlySharedIncomesFrom(
+      fetchIncomesByDate(
     DocumentReference<Map<String, dynamic>> sharedNoteDocRef,
     int year, [
     int? month,

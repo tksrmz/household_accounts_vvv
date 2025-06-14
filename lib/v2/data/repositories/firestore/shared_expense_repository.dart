@@ -29,7 +29,7 @@ class FirestoreSharedExpenseRepository implements ExpenseRepository {
         expenseList.map(createExpenseVo).toList(growable: false);
 
     final createTask = (DocumentReference<SharedNoteRef> ref) => Task(
-          () => _sharedRecordService.fetchMonthlySharedExpensesFrom(
+          () => _sharedRecordService.fetchExpensesByDate(
             ref,
             date.year,
             date.month,

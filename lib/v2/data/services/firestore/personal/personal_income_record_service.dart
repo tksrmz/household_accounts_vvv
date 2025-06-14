@@ -16,7 +16,7 @@ class PersonalIncomeRecordService {
   /// [year]のみが指定されている場合、その年のすべての収入を取得します。
   /// [year]と[month]が指定されている場合、その月のすべての収入を取得します。
   /// [year]と[month]と[day]が指定されている場合、その日のすべての収入を取得します。
-  Future<Either<Exception, List<IncomeRecordModel>>> fetchPersonalIncomes(
+  Future<Either<Exception, List<IncomeRecordModel>>> fetchByDate(
     UserIdVo userId,
     int year, [
     int? month,
@@ -59,7 +59,7 @@ class PersonalIncomeRecordService {
   }
 
   /// [userId]に収入レコードを追加する
-  Future<Either<Exception, Unit>> addPersonalIncome(
+  Future<Either<Exception, Unit>> add(
     UserIdVo userId,
     IncomeRecordModel income,
   ) async {
@@ -75,7 +75,7 @@ class PersonalIncomeRecordService {
   }
 
   /// [userId]の収入レコードを削除する
-  Future<Either<Exception, Unit>> deletePersonalIncome(
+  Future<Either<Exception, Unit>> delete(
     UserIdVo userId,
     String incomeId,
   ) async {

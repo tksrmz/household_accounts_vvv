@@ -19,7 +19,7 @@ class FirestoreIncomeCategoryRepository implements IncomeCategoryRepository {
 
   @override
   Future<Either<Exception, List<IncomeCategoryModel>>> fetchAll() async {
-    final result = await _personalIncomeCategoryService.fetchPersonalIncomeCategories(_uid);
+    final result = await _personalIncomeCategoryService.fetchAll(_uid);
     return result.map((categoryModels) => 
       categoryModels.map((model) => IncomeCategoryModel(
         id: CategoryIdVo(model.id),
@@ -34,7 +34,7 @@ class FirestoreIncomeCategoryRepository implements IncomeCategoryRepository {
       id: category.id.value,
       name: category.name.value,
     );
-    return _personalIncomeCategoryService.addPersonalIncomeCategory(_uid, model);
+    return _personalIncomeCategoryService.add(_uid, model);
   }
 
   @override
@@ -43,11 +43,11 @@ class FirestoreIncomeCategoryRepository implements IncomeCategoryRepository {
       id: category.id.value,
       name: category.name.value,
     );
-    return _personalIncomeCategoryService.updatePersonalIncomeCategory(_uid, model);
+    return _personalIncomeCategoryService.update(_uid, model);
   }
 
   @override
   Future<Either<Exception, Unit>> delete(CategoryIdVo id) async {
-    return _personalIncomeCategoryService.deletePersonalIncomeCategory(_uid, id.value);
+    return _personalIncomeCategoryService.delete(_uid, id.value);
   }
 }

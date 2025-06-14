@@ -11,7 +11,7 @@ class PersonalPropertyService {
   const PersonalPropertyService(this._db);
 
   /// [userId]のすべての資産を取得する
-  Future<Either<Exception, List<PropertyModel>>> fetchPersonalProperties(
+  Future<Either<Exception, List<PropertyModel>>> fetchAll(
       UserIdVo userId) async {
     try {
       final querySnapshot = await _db
@@ -31,7 +31,7 @@ class PersonalPropertyService {
   }
 
   /// [userId]に資産を追加する
-  Future<Either<Exception, Unit>> addPersonalProperty(
+  Future<Either<Exception, Unit>> add(
     UserIdVo userId,
     PropertyModel property,
   ) async {
@@ -47,7 +47,7 @@ class PersonalPropertyService {
   }
 
   /// [userId]の資産を更新する
-  Future<Either<Exception, Unit>> updatePersonalProperty(
+  Future<Either<Exception, Unit>> update(
     UserIdVo userId,
     PropertyModel property,
   ) async {
@@ -63,7 +63,7 @@ class PersonalPropertyService {
   }
 
   /// [userId]の資産を削除する
-  Future<Either<Exception, Unit>> deletePersonalProperty(
+  Future<Either<Exception, Unit>> delete(
     UserIdVo userId,
     String propertyId,
   ) async {

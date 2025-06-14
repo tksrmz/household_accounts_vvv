@@ -16,7 +16,7 @@ class PersonalTransferRecordService {
   /// [year]のみが指定されている場合、その年のすべての振替を取得します。
   /// [year]と[month]が指定されている場合、その月のすべての振替を取得します。
   /// [year]と[month]と[day]が指定されている場合、その日のすべての振替を取得します。
-  Future<Either<Exception, List<TransferRecordModel>>> fetchPersonalTransfers(
+  Future<Either<Exception, List<TransferRecordModel>>> fetchByDate(
     UserIdVo userId,
     int year, [
     int? month,
@@ -59,7 +59,7 @@ class PersonalTransferRecordService {
   }
 
   /// [userId]に振替レコードを追加する
-  Future<Either<Exception, Unit>> addPersonalTransfer(
+  Future<Either<Exception, Unit>> add(
     UserIdVo userId,
     TransferRecordModel transfer,
   ) async {
@@ -75,7 +75,7 @@ class PersonalTransferRecordService {
   }
 
   /// [userId]の振替レコードを削除する
-  Future<Either<Exception, Unit>> deletePersonalTransfer(
+  Future<Either<Exception, Unit>> delete(
     UserIdVo userId,
     String transferId,
   ) async {

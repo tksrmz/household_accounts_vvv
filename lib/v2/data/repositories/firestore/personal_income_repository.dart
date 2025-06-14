@@ -19,7 +19,7 @@ class FirestorePersonalIncomeRepository implements IncomeRepository {
 
   @override
   Future<Either<Exception, List<IncomeVo>>> fetchMonthly(DateTime date) async {
-    final result = await _personalIncomeRecordService.fetchPersonalIncomes(
+    final result = await _personalIncomeRecordService.fetchByDate(
       _uid,
       date.year,
       date.month,
@@ -43,11 +43,11 @@ class FirestorePersonalIncomeRepository implements IncomeRepository {
       property: {'ref': '/personalNotes/${_uid.value}/properties/${record.property.id.value}'},
       category: {'ref': '/personalNotes/${_uid.value}/incomeCategories/${record.category.id.value}'},
     );
-    return _personalIncomeRecordService.addPersonalIncome(_uid, model);
+    return _personalIncomeRecordService.add(_uid, model);
   }
 
   @override
   Future<Either<Exception, Unit>> delete(RecordIdVo id) async {
-    return _personalIncomeRecordService.deletePersonalIncome(_uid, id.value);
+    return _personalIncomeRecordService.delete(_uid, id.value);
   }
 }

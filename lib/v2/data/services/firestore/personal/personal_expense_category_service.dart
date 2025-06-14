@@ -12,7 +12,7 @@ class PersonalExpenseCategoryService {
 
   /// [userId]のすべての支出カテゴリを取得する
   Future<Either<Exception, List<ExpenseCategoryModel>>>
-      fetchPersonalExpenseCategories(UserIdVo userId) async {
+      fetchAll(UserIdVo userId) async {
     try {
       final querySnapshot = await _db
           .collection('/personalNotes/${userId.value}/expenseCategories')
@@ -31,7 +31,7 @@ class PersonalExpenseCategoryService {
   }
 
   /// [userId]に支出カテゴリを追加する
-  Future<Either<Exception, Unit>> addPersonalExpenseCategory(
+  Future<Either<Exception, Unit>> add(
     UserIdVo userId,
     ExpenseCategoryModel category,
   ) async {
@@ -47,7 +47,7 @@ class PersonalExpenseCategoryService {
   }
 
   /// [userId]の支出カテゴリを更新する
-  Future<Either<Exception, Unit>> updatePersonalExpenseCategory(
+  Future<Either<Exception, Unit>> update(
     UserIdVo userId,
     ExpenseCategoryModel category,
   ) async {
@@ -63,7 +63,7 @@ class PersonalExpenseCategoryService {
   }
 
   /// [userId]の支出カテゴリを削除する
-  Future<Either<Exception, Unit>> deletePersonalExpenseCategory(
+  Future<Either<Exception, Unit>> delete(
     UserIdVo userId,
     String categoryId,
   ) async {

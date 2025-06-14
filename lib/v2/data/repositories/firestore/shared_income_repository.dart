@@ -29,7 +29,7 @@ class FirestoreSharedIncomeRepository implements IncomeRepository {
         incomeList.map(createIncomeVo).toList(growable: false);
 
     final createTask = (DocumentReference<SharedNoteRef> ref) => Task(
-          () => _sharedRecordService.fetchMonthlySharedIncomesFrom(
+          () => _sharedRecordService.fetchIncomesByDate(
             ref,
             date.year,
             date.month,

@@ -20,7 +20,7 @@ class FirestorePropertyRepository implements PropertyRepository {
 
   @override
   Future<Either<Exception, List<PropertyModel>>> fetchAll() async {
-    final result = await _personalPropertyService.fetchPersonalProperties(_uid);
+    final result = await _personalPropertyService.fetchAll(_uid);
     return result.map((propertyModels) => 
       propertyModels.map((model) => PropertyModel(
         id: PropertyIdVo(model.id),
@@ -37,7 +37,7 @@ class FirestorePropertyRepository implements PropertyRepository {
       name: property.name.value,
       amount: property.amount.value,
     );
-    return _personalPropertyService.addPersonalProperty(_uid, model);
+    return _personalPropertyService.add(_uid, model);
   }
 
   @override
@@ -47,11 +47,11 @@ class FirestorePropertyRepository implements PropertyRepository {
       name: property.name.value,
       amount: property.amount.value,
     );
-    return _personalPropertyService.updatePersonalProperty(_uid, model);
+    return _personalPropertyService.update(_uid, model);
   }
 
   @override
   Future<Either<Exception, Unit>> delete(PropertyIdVo id) async {
-    return _personalPropertyService.deletePersonalProperty(_uid, id.value);
+    return _personalPropertyService.delete(_uid, id.value);
   }
 }
