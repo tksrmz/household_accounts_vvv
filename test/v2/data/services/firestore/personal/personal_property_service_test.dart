@@ -18,7 +18,7 @@ import 'personal_property_service_test.mocks.dart';
 
 void main() {
   group('PersonalPropertyService', () {
-    group('fetchPersonalProperties', () {
+    group('fetchAll', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockQuerySnapshot = MockQuerySnapshot();
@@ -50,7 +50,7 @@ void main() {
         final target = PersonalPropertyService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalProperties(userId);
+        final result = await target.fetchAll(userId);
 
         // Assert
         verify(mockDb.collection('/personalNotes/${userId.value}/properties'))
@@ -73,19 +73,23 @@ void main() {
         final target = PersonalPropertyService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalProperties(userId);
+        final result = await target.fetchAll(userId);
 
         // Assert
         expect(result.isLeft(), isTrue);
       });
     });
 
-    group('addPersonalProperty', () {
+    group('add', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
       final userId = UserIdVo('testUserId');
-      final property = PropertyModel(id: 'propertyId1', name: 'Test Property', amount: 10000);
+      final property = PropertyModel(
+        id: 'propertyId1',
+        name: 'Test Property',
+        amount: 10000,
+      );
 
       setUp(() {
         when(mockDb.collection('/personalNotes/${userId.value}/properties'))
@@ -106,7 +110,7 @@ void main() {
         final target = PersonalPropertyService(mockDb);
 
         // Act
-        final result = await target.addPersonalProperty(userId, property);
+        final result = await target.add(userId, property);
 
         // Assert
         verify(mockDb.collection('/personalNotes/${userId.value}/properties'))
@@ -123,19 +127,23 @@ void main() {
         final target = PersonalPropertyService(mockDb);
 
         // Act
-        final result = await target.addPersonalProperty(userId, property);
+        final result = await target.add(userId, property);
 
         // Assert
         expect(result.isLeft(), isTrue);
       });
     });
 
-    group('updatePersonalProperty', () {
+    group('update', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
       final userId = UserIdVo('testUserId');
-      final property = PropertyModel(id: 'propertyId1', name: 'Updated Property', amount: 15000);
+      final property = PropertyModel(
+        id: 'propertyId1',
+        name: 'Updated Property',
+        amount: 15000,
+      );
 
       setUp(() {
         when(mockDb.collection('/personalNotes/${userId.value}/properties'))
@@ -156,7 +164,7 @@ void main() {
         final target = PersonalPropertyService(mockDb);
 
         // Act
-        final result = await target.updatePersonalProperty(userId, property);
+        final result = await target.update(userId, property);
 
         // Assert
         verify(mockDb.collection('/personalNotes/${userId.value}/properties'))
@@ -174,14 +182,14 @@ void main() {
         final target = PersonalPropertyService(mockDb);
 
         // Act
-        final result = await target.updatePersonalProperty(userId, property);
+        final result = await target.update(userId, property);
 
         // Assert
         expect(result.isLeft(), isTrue);
       });
     });
 
-    group('deletePersonalProperty', () {
+    group('delete', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
@@ -207,7 +215,7 @@ void main() {
         final target = PersonalPropertyService(mockDb);
 
         // Act
-        final result = await target.deletePersonalProperty(userId, propertyId);
+        final result = await target.delete(userId, propertyId);
 
         // Assert
         verify(mockDb.collection('/personalNotes/${userId.value}/properties'))
@@ -224,7 +232,7 @@ void main() {
         final target = PersonalPropertyService(mockDb);
 
         // Act
-        final result = await target.deletePersonalProperty(userId, propertyId);
+        final result = await target.delete(userId, propertyId);
 
         // Assert
         expect(result.isLeft(), isTrue);

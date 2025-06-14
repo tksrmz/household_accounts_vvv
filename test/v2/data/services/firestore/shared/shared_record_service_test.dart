@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+// ignore: unused_import
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore/shared/shared_record_service.dart';
 import 'package:mockito/annotations.dart';
@@ -17,7 +18,7 @@ import 'shared_record_service_test.mocks.dart';
 
 void main() {
   group('SharedRecordService', () {
-    group('fetchMonthlySharedExpensesFrom', () {
+    group('fetchExpensesByDate', () {
       final mockDb = MockFirebaseFirestore();
       final mockSharedNoteDocRef = MockDocumentReference();
       final mockCollectionReference = MockCollectionReference();
@@ -28,8 +29,13 @@ void main() {
       setUp(() {
         when(mockSharedNoteDocRef.collection('expenses'))
             .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.where(any, isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'), isLessThan: anyNamed('isLessThan')))
-            .thenReturn(mockQuery);
+        when(
+          mockCollectionReference.where(
+            any,
+            isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'),
+            isLessThan: anyNamed('isLessThan'),
+          ),
+        ).thenReturn(mockQuery);
         when(mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
         when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
         when(mockQueryDocumentSnapshot.data()).thenReturn({
@@ -58,13 +64,18 @@ void main() {
         final target = SharedRecordService(mockDb);
 
         // Act
-        final result = await target.fetchMonthlySharedExpensesFrom(
-            mockSharedNoteDocRef, 2025, 5);
+        final result =
+            await target.fetchExpensesByDate(mockSharedNoteDocRef, 2025, 5);
 
         // Assert
         verify(mockSharedNoteDocRef.collection('expenses')).called(1);
-        verify(mockCollectionReference.where(any, isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'), isLessThan: anyNamed('isLessThan')))
-            .called(1);
+        verify(
+          mockCollectionReference.where(
+            any,
+            isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'),
+            isLessThan: anyNamed('isLessThan'),
+          ),
+        ).called(1);
         verify(mockQuery.get()).called(1);
         verify(mockQuerySnapshot.docs).called(1);
         verify(mockQueryDocumentSnapshot.data()).called(1);
@@ -81,8 +92,8 @@ void main() {
         final target = SharedRecordService(mockDb);
 
         // Act
-        final result = await target.fetchMonthlySharedExpensesFrom(
-            mockSharedNoteDocRef, 2025);
+        final result =
+            await target.fetchExpensesByDate(mockSharedNoteDocRef, 2025);
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -93,8 +104,8 @@ void main() {
         final target = SharedRecordService(mockDb);
 
         // Act
-        final result = await target.fetchMonthlySharedExpensesFrom(
-            mockSharedNoteDocRef, 2025, 5, 25);
+        final result =
+            await target.fetchExpensesByDate(mockSharedNoteDocRef, 2025, 5, 25);
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -106,8 +117,8 @@ void main() {
         final target = SharedRecordService(mockDb);
 
         // Act
-        final result = await target.fetchMonthlySharedExpensesFrom(
-            mockSharedNoteDocRef, 2025, 5);
+        final result =
+            await target.fetchExpensesByDate(mockSharedNoteDocRef, 2025, 5);
 
         // Assert
         expect(result.isLeft(), isTrue);
@@ -118,13 +129,19 @@ void main() {
         final target = SharedRecordService(mockDb);
 
         // Act & Assert
-        expect(() => target.fetchMonthlySharedExpensesFrom(
-            mockSharedNoteDocRef, 2025, null, 25),
-            throwsA(isA<AssertionError>()));
+        expect(
+          () => target.fetchExpensesByDate(
+            mockSharedNoteDocRef,
+            2025,
+            null,
+            25,
+          ),
+          throwsA(isA<AssertionError>()),
+        );
       });
     });
 
-    group('fetchMonthlySharedIncomesFrom', () {
+    group('fetchIncomesByDate', () {
       final mockDb = MockFirebaseFirestore();
       final mockSharedNoteDocRef = MockDocumentReference();
       final mockCollectionReference = MockCollectionReference();
@@ -135,8 +152,13 @@ void main() {
       setUp(() {
         when(mockSharedNoteDocRef.collection('incomes'))
             .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.where(any, isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'), isLessThan: anyNamed('isLessThan')))
-            .thenReturn(mockQuery);
+        when(
+          mockCollectionReference.where(
+            any,
+            isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'),
+            isLessThan: anyNamed('isLessThan'),
+          ),
+        ).thenReturn(mockQuery);
         when(mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
         when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
         when(mockQueryDocumentSnapshot.data()).thenReturn({
@@ -165,13 +187,18 @@ void main() {
         final target = SharedRecordService(mockDb);
 
         // Act
-        final result = await target.fetchMonthlySharedIncomesFrom(
-            mockSharedNoteDocRef, 2025, 5);
+        final result =
+            await target.fetchIncomesByDate(mockSharedNoteDocRef, 2025, 5);
 
         // Assert
         verify(mockSharedNoteDocRef.collection('incomes')).called(1);
-        verify(mockCollectionReference.where(any, isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'), isLessThan: anyNamed('isLessThan')))
-            .called(1);
+        verify(
+          mockCollectionReference.where(
+            any,
+            isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'),
+            isLessThan: anyNamed('isLessThan'),
+          ),
+        ).called(1);
         verify(mockQuery.get()).called(1);
         verify(mockQuerySnapshot.docs).called(1);
         verify(mockQueryDocumentSnapshot.data()).called(1);
@@ -188,8 +215,8 @@ void main() {
         final target = SharedRecordService(mockDb);
 
         // Act
-        final result = await target.fetchMonthlySharedIncomesFrom(
-            mockSharedNoteDocRef, 2025);
+        final result =
+            await target.fetchIncomesByDate(mockSharedNoteDocRef, 2025);
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -200,8 +227,8 @@ void main() {
         final target = SharedRecordService(mockDb);
 
         // Act
-        final result = await target.fetchMonthlySharedIncomesFrom(
-            mockSharedNoteDocRef, 2025, 5, 25);
+        final result =
+            await target.fetchIncomesByDate(mockSharedNoteDocRef, 2025, 5, 25);
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -213,8 +240,8 @@ void main() {
         final target = SharedRecordService(mockDb);
 
         // Act
-        final result = await target.fetchMonthlySharedIncomesFrom(
-            mockSharedNoteDocRef, 2025, 5);
+        final result =
+            await target.fetchIncomesByDate(mockSharedNoteDocRef, 2025, 5);
 
         // Assert
         expect(result.isLeft(), isTrue);
@@ -225,9 +252,15 @@ void main() {
         final target = SharedRecordService(mockDb);
 
         // Act & Assert
-        expect(() => target.fetchMonthlySharedIncomesFrom(
-            mockSharedNoteDocRef, 2025, null, 25),
-            throwsA(isA<AssertionError>()));
+        expect(
+          () => target.fetchIncomesByDate(
+            mockSharedNoteDocRef,
+            2025,
+            null,
+            25,
+          ),
+          throwsA(isA<AssertionError>()),
+        );
       });
     });
   });

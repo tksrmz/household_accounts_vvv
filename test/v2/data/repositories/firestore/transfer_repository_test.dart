@@ -1,7 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/transfer_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_transfer_record_service.dart';
-import 'package:household_accounts/v2/data/models/transfer_record_model.dart' as data;
+import 'package:household_accounts/v2/data/models/transfer_record_model.dart'
+    as data;
 import 'package:household_accounts/v2/domain/models/property.dart';
 import 'package:household_accounts/v2/domain/models/transfer_record.dart';
 import 'package:household_accounts/v2/domain/models/vo/record_amount.dart';
@@ -20,7 +21,8 @@ import 'transfer_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
-    final MockPersonalTransferRecordService mockService = MockPersonalTransferRecordService();
+    final MockPersonalTransferRecordService mockService =
+        MockPersonalTransferRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -40,7 +42,7 @@ void main() {
         toProperty: {'ref': '/personalNotes/user123/properties/prop2'},
       );
 
-      when(mockService.fetchPersonalTransfers(
+      when(mockService.fetchByDate(
         userId,
         date.year,
         date.month,
@@ -53,7 +55,7 @@ void main() {
       final result = await target.fetchMonthly(date);
       final transferList = result.getOrElse(() => []);
 
-      verify(mockService.fetchPersonalTransfers(
+      verify(mockService.fetchByDate(
         userId,
         date.year,
         date.month,
@@ -67,7 +69,7 @@ void main() {
 
     test('振替が存在しない場合、空のリストを返す', () async {
       final date = DateTime(2025, 1);
-      when(mockService.fetchPersonalTransfers(
+      when(mockService.fetchByDate(
         userId,
         date.year,
         date.month,
@@ -87,7 +89,7 @@ void main() {
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final date = DateTime(2025, 1);
       final exception = Exception('test error');
-      when(mockService.fetchPersonalTransfers(
+      when(mockService.fetchByDate(
         userId,
         date.year,
         date.month,
@@ -105,7 +107,8 @@ void main() {
   });
 
   group('add', () {
-    final MockPersonalTransferRecordService mockService = MockPersonalTransferRecordService();
+    final MockPersonalTransferRecordService mockService =
+        MockPersonalTransferRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -123,7 +126,7 @@ void main() {
         hasCheckedOut: false,
       );
 
-      when(mockService.addPersonalTransfer(
+      when(mockService.add(
         userId,
         any,
       )).thenAnswer((_) async => Right(unit));
@@ -134,7 +137,7 @@ void main() {
       );
       final result = await target.add(record);
 
-      verify(mockService.addPersonalTransfer(
+      verify(mockService.add(
         userId,
         any,
       )).called(1);
@@ -154,7 +157,7 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockService.addPersonalTransfer(
+      when(mockService.add(
         userId,
         any,
       )).thenAnswer((_) async => Left(exception));
@@ -171,7 +174,8 @@ void main() {
   });
 
   group('delete', () {
-    final MockPersonalTransferRecordService mockService = MockPersonalTransferRecordService();
+    final MockPersonalTransferRecordService mockService =
+        MockPersonalTransferRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -181,7 +185,7 @@ void main() {
     test('振替レコードを削除できる', () async {
       const recordId = RecordIdVo('test-record-id');
 
-      when(mockService.deletePersonalTransfer(
+      when(mockService.delete(
         userId,
         recordId.value,
       )).thenAnswer((_) async => Right(unit));
@@ -192,7 +196,7 @@ void main() {
       );
       final result = await target.delete(recordId);
 
-      verify(mockService.deletePersonalTransfer(
+      verify(mockService.delete(
         userId,
         recordId.value,
       )).called(1);
@@ -204,7 +208,7 @@ void main() {
       const recordId = RecordIdVo('test-record-id');
       final exception = Exception('test error');
 
-      when(mockService.deletePersonalTransfer(
+      when(mockService.delete(
         userId,
         recordId.value,
       )).thenAnswer((_) async => Left(exception));

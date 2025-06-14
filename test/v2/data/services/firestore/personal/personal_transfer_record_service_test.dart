@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+// ignore: unused_import
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/transfer_record_model.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_transfer_record_service.dart';
@@ -19,7 +20,7 @@ import 'personal_transfer_record_service_test.mocks.dart';
 
 void main() {
   group('PersonalTransferRecordService', () {
-    group('fetchPersonalTransfers', () {
+    group('fetchByDate', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockQuery = MockQuery();
@@ -62,7 +63,7 @@ void main() {
         final target = PersonalTransferRecordService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalTransfers(userId, 2025, 5);
+        final result = await target.fetchByDate(userId, 2025, 5);
 
         // Assert
         verify(mockDb.collection('/personalNotes/${userId.value}/transfers'))
@@ -88,7 +89,7 @@ void main() {
         final target = PersonalTransferRecordService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalTransfers(userId, 2025);
+        final result = await target.fetchByDate(userId, 2025);
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -99,7 +100,7 @@ void main() {
         final target = PersonalTransferRecordService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalTransfers(userId, 2025, 5, 25);
+        final result = await target.fetchByDate(userId, 2025, 5, 25);
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -111,7 +112,7 @@ void main() {
         final target = PersonalTransferRecordService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalTransfers(userId, 2025, 5);
+        final result = await target.fetchByDate(userId, 2025, 5);
 
         // Assert
         expect(result.isLeft(), isTrue);
@@ -122,12 +123,14 @@ void main() {
         final target = PersonalTransferRecordService(mockDb);
 
         // Act & Assert
-        expect(() => target.fetchPersonalTransfers(userId, 2025, null, 25),
-            throwsA(isA<AssertionError>()));
+        expect(
+          () => target.fetchByDate(userId, 2025, null, 25),
+          throwsA(isA<AssertionError>()),
+        );
       });
     });
 
-    group('addPersonalTransfer', () {
+    group('add', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
@@ -162,7 +165,7 @@ void main() {
         final target = PersonalTransferRecordService(mockDb);
 
         // Act
-        final result = await target.addPersonalTransfer(userId, transfer);
+        final result = await target.add(userId, transfer);
 
         // Assert
         verify(mockDb.collection('/personalNotes/${userId.value}/transfers'))
@@ -179,14 +182,14 @@ void main() {
         final target = PersonalTransferRecordService(mockDb);
 
         // Act
-        final result = await target.addPersonalTransfer(userId, transfer);
+        final result = await target.add(userId, transfer);
 
         // Assert
         expect(result.isLeft(), isTrue);
       });
     });
 
-    group('deletePersonalTransfer', () {
+    group('delete', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
@@ -212,7 +215,7 @@ void main() {
         final target = PersonalTransferRecordService(mockDb);
 
         // Act
-        final result = await target.deletePersonalTransfer(userId, transferId);
+        final result = await target.delete(userId, transferId);
 
         // Assert
         verify(mockDb.collection('/personalNotes/${userId.value}/transfers'))
@@ -229,7 +232,7 @@ void main() {
         final target = PersonalTransferRecordService(mockDb);
 
         // Act
-        final result = await target.deletePersonalTransfer(userId, transferId);
+        final result = await target.delete(userId, transferId);
 
         // Assert
         expect(result.isLeft(), isTrue);

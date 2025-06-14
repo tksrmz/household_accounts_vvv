@@ -42,13 +42,13 @@ void main() {
         final date = DateTime(2025, 1);
         final sharedNote = {'ref': mockSharedNoteDocRef};
 
-        when(mockPrivateProfileService.fetchPrivateProfileOf(userId))
+        when(mockPrivateProfileService.fetch(userId))
             .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())
             .thenReturn(mockPrivateProfile);
         when(mockPrivateProfile.sharedNote).thenReturn(sharedNote);
-        when(mockSharedRecordService.fetchMonthlySharedExpensesFrom(
+        when(mockSharedRecordService.fetchExpensesByDate(
           mockSharedNoteDocRef,
           date.year,
           date.month,
@@ -80,7 +80,7 @@ void main() {
         // Arrange
         final date = DateTime(2025, 1);
 
-        when(mockPrivateProfileService.fetchPrivateProfileOf(userId))
+        when(mockPrivateProfileService.fetch(userId))
             .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(false);
 
@@ -103,7 +103,7 @@ void main() {
         // Arrange
         final date = DateTime(2025, 1);
 
-        when(mockPrivateProfileService.fetchPrivateProfileOf(userId))
+        when(mockPrivateProfileService.fetch(userId))
             .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data()).thenReturn(null);
@@ -127,7 +127,7 @@ void main() {
         // Arrange
         final date = DateTime(2025, 1);
 
-        when(mockPrivateProfileService.fetchPrivateProfileOf(userId))
+        when(mockPrivateProfileService.fetch(userId))
             .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())
@@ -154,7 +154,7 @@ void main() {
         final date = DateTime(2025, 1);
         final sharedNote = <String, dynamic>{};
 
-        when(mockPrivateProfileService.fetchPrivateProfileOf(userId))
+        when(mockPrivateProfileService.fetch(userId))
             .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data())

@@ -1,7 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_expense_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_record_service.dart';
-import 'package:household_accounts/v2/data/models/expense_record_model.dart' as data_model;
+import 'package:household_accounts/v2/data/models/expense_record_model.dart'
+    as data_model;
 import 'package:household_accounts/v2/domain/models/expense_category.dart';
 import 'package:household_accounts/v2/domain/models/expense_record.dart';
 import 'package:household_accounts/v2/domain/models/property.dart';
@@ -22,7 +23,8 @@ import 'personal_expense_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
-    final MockPersonalExpenseRecordService mockService = MockPersonalExpenseRecordService();
+    final MockPersonalExpenseRecordService mockService =
+        MockPersonalExpenseRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -32,7 +34,7 @@ void main() {
     group('1件取得', () {
       test('指定された月の支出一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockService.fetchPersonalExpenses(
+        when(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
@@ -45,7 +47,9 @@ void main() {
                 hasCheckedOut: false,
                 createdAt: DateTime.now(),
                 property: {'ref': '/personalNotes/user1/properties/prop1'},
-                category: {'ref': '/personalNotes/user1/expenseCategories/cat1'},
+                category: {
+                  'ref': '/personalNotes/user1/expenseCategories/cat1'
+                },
               )
             ]));
 
@@ -56,7 +60,7 @@ void main() {
         final result = await target.fetchMonthly(date);
         final expenseList = result.getOrElse(() => []);
 
-        verify(mockService.fetchPersonalExpenses(
+        verify(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
@@ -71,7 +75,7 @@ void main() {
     group('0件取得', () {
       test('指定された月の支出一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockService.fetchPersonalExpenses(
+        when(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
@@ -103,7 +107,7 @@ void main() {
       final (:description, :value) = element;
       test(description, () async {
         final date = DateTime(2025, 1);
-        when(mockService.fetchPersonalExpenses(
+        when(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
@@ -116,7 +120,9 @@ void main() {
                 hasCheckedOut: false,
                 createdAt: DateTime.now(),
                 property: {'ref': '/personalNotes/user1/properties/prop1'},
-                category: {'ref': '/personalNotes/user1/expenseCategories/cat1'},
+                category: {
+                  'ref': '/personalNotes/user1/expenseCategories/cat1'
+                },
               )
             ]));
 
@@ -134,7 +140,7 @@ void main() {
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final date = DateTime(2025, 1);
       final exception = Exception('test error');
-      when(mockService.fetchPersonalExpenses(
+      when(mockService.fetchByDate(
         userId,
         date.year,
         date.month,
@@ -152,7 +158,8 @@ void main() {
   });
 
   group('add', () {
-    final MockPersonalExpenseRecordService mockService = MockPersonalExpenseRecordService();
+    final MockPersonalExpenseRecordService mockService =
+        MockPersonalExpenseRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -170,7 +177,7 @@ void main() {
         hasCheckedOut: false,
       );
 
-      when(mockService.addPersonalExpense(
+      when(mockService.add(
         userId,
         any,
       )).thenAnswer((_) async => Right(unit));
@@ -181,7 +188,7 @@ void main() {
       );
       final result = await target.add(record);
 
-      verify(mockService.addPersonalExpense(
+      verify(mockService.add(
         userId,
         any,
       )).called(1);
@@ -201,7 +208,7 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockService.addPersonalExpense(
+      when(mockService.add(
         userId,
         any,
       )).thenAnswer((_) async => Left(exception));
@@ -218,7 +225,8 @@ void main() {
   });
 
   group('delete', () {
-    final MockPersonalExpenseRecordService mockService = MockPersonalExpenseRecordService();
+    final MockPersonalExpenseRecordService mockService =
+        MockPersonalExpenseRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -228,7 +236,7 @@ void main() {
     test('支出レコードを削除できる', () async {
       const recordId = RecordIdVo('test-record-id');
 
-      when(mockService.deletePersonalExpense(
+      when(mockService.delete(
         userId,
         recordId.value,
       )).thenAnswer((_) async => Right(unit));
@@ -239,7 +247,7 @@ void main() {
       );
       final result = await target.delete(recordId);
 
-      verify(mockService.deletePersonalExpense(
+      verify(mockService.delete(
         userId,
         recordId.value,
       )).called(1);
@@ -251,7 +259,7 @@ void main() {
       const recordId = RecordIdVo('test-record-id');
       final exception = Exception('test error');
 
-      when(mockService.deletePersonalExpense(
+      when(mockService.delete(
         userId,
         recordId.value,
       )).thenAnswer((_) async => Left(exception));

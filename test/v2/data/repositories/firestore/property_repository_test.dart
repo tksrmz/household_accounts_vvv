@@ -32,7 +32,7 @@ void main() {
         amount: 100000,
       );
 
-      when(mockService.fetchPersonalProperties(
+      when(mockService.fetchAll(
         userId,
       )).thenAnswer((_) async => Right([mockModel]));
 
@@ -43,7 +43,7 @@ void main() {
       final result = await target.fetchAll();
       final propertyList = result.getOrElse(() => []);
 
-      verify(mockService.fetchPersonalProperties(
+      verify(mockService.fetchAll(
         userId,
       )).called(1);
 
@@ -55,7 +55,7 @@ void main() {
     });
 
     test('資産が存在しない場合、空のリストを返す', () async {
-      when(mockService.fetchPersonalProperties(
+      when(mockService.fetchAll(
         userId,
       )).thenAnswer((_) async => Right([]));
 
@@ -72,7 +72,7 @@ void main() {
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final exception = Exception('test error');
-      when(mockService.fetchPersonalProperties(
+      when(mockService.fetchAll(
         userId,
       )).thenAnswer((_) async => Left(exception));
 
@@ -102,7 +102,7 @@ void main() {
         amount: PropertyAmountVo(100000),
       );
 
-      when(mockService.addPersonalProperty(
+      when(mockService.add(
         userId,
         any,
       )).thenAnswer((_) async => Right(unit));
@@ -113,7 +113,7 @@ void main() {
       );
       final result = await target.add(property);
 
-      verify(mockService.addPersonalProperty(
+      verify(mockService.add(
         userId,
         any,
       )).called(1);
@@ -129,7 +129,7 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockService.addPersonalProperty(
+      when(mockService.add(
         userId,
         any,
       )).thenAnswer((_) async => Left(exception));
@@ -161,7 +161,7 @@ void main() {
         amount: PropertyAmountVo(150000),
       );
 
-      when(mockService.updatePersonalProperty(
+      when(mockService.update(
         userId,
         any,
       )).thenAnswer((_) async => Right(unit));
@@ -172,7 +172,7 @@ void main() {
       );
       final result = await target.update(propertyId, property);
 
-      verify(mockService.updatePersonalProperty(
+      verify(mockService.update(
         userId,
         any,
       )).called(1);
@@ -189,7 +189,7 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockService.updatePersonalProperty(
+      when(mockService.update(
         userId,
         any,
       )).thenAnswer((_) async => Left(exception));
@@ -216,7 +216,7 @@ void main() {
     test('資産を削除できる', () async {
       const propertyId = PropertyIdVo('test-property-id');
 
-      when(mockService.deletePersonalProperty(
+      when(mockService.delete(
         userId,
         propertyId.value,
       )).thenAnswer((_) async => Right(unit));
@@ -227,7 +227,7 @@ void main() {
       );
       final result = await target.delete(propertyId);
 
-      verify(mockService.deletePersonalProperty(
+      verify(mockService.delete(
         userId,
         propertyId.value,
       )).called(1);
@@ -239,7 +239,7 @@ void main() {
       const propertyId = PropertyIdVo('test-property-id');
       final exception = Exception('test error');
 
-      when(mockService.deletePersonalProperty(
+      when(mockService.delete(
         userId,
         propertyId.value,
       )).thenAnswer((_) async => Left(exception));

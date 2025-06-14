@@ -39,7 +39,7 @@ class FirestoreSharedExpenseRepository implements ExpenseRepository {
         );
 
     final Task<Either<Exception, List<ExpenseVo>>> task =
-        Task(() => _privateProfileService.fetchPrivateProfileOf(_userId))
+        Task(() => _privateProfileService.fetch(_userId))
             .map(getSharedNoteRef)
             .bind(
               (either) => either.fold((_) => Task.value(Right([])), createTask),
@@ -52,13 +52,17 @@ class FirestoreSharedExpenseRepository implements ExpenseRepository {
   Future<Either<Exception, Unit>> add(ExpenseRecordModel record) async {
     // TODO: Implement shared expense record addition
     // This would require accessing the shared note reference and adding the record there
-    return Left(Exception('Shared expense record addition not yet implemented'));
+    return Left(
+      Exception('Shared expense record addition not yet implemented'),
+    );
   }
 
   @override
   Future<Either<Exception, Unit>> delete(RecordIdVo id) async {
     // TODO: Implement shared expense record deletion
     // This would require accessing the shared note reference and deleting the record
-    return Left(Exception('Shared expense record deletion not yet implemented'));
+    return Left(
+      Exception('Shared expense record deletion not yet implemented'),
+    );
   }
 }

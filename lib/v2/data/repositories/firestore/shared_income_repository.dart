@@ -39,7 +39,7 @@ class FirestoreSharedIncomeRepository implements IncomeRepository {
         );
 
     final Task<Either<Exception, List<IncomeVo>>> task =
-        Task(() => _privateProfileService.fetchPrivateProfileOf(_userId))
+        Task(() => _privateProfileService.fetch(_userId))
             .map(getSharedNoteRef)
             .bind(
               (either) => either.fold((_) => Task.value(Right([])), createTask),

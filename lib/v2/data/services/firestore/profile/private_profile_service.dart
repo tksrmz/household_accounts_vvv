@@ -11,8 +11,7 @@ class PrivateProfileService {
   const PrivateProfileService(this._db);
 
   /// ユーザーのプライベートプロファイルを取得する
-  Future<Either<Exception, DocumentSnapshot<PrivateProfile>>>
-      fetchPrivateProfileOf(
+  Future<Either<Exception, DocumentSnapshot<PrivateProfile>>> fetch(
     UserIdVo userId,
   ) async {
     try {

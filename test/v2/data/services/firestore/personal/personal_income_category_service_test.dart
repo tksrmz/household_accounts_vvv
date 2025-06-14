@@ -18,7 +18,7 @@ import 'personal_income_category_service_test.mocks.dart';
 
 void main() {
   group('PersonalIncomeCategoryService', () {
-    group('fetchPersonalIncomeCategories', () {
+    group('fetchAll', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockQuerySnapshot = MockQuerySnapshot();
@@ -51,7 +51,7 @@ void main() {
         final target = PersonalIncomeCategoryService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalIncomeCategories(userId);
+        final result = await target.fetchAll(userId);
 
         // Assert
         verify(mockDb
@@ -75,20 +75,22 @@ void main() {
         final target = PersonalIncomeCategoryService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalIncomeCategories(userId);
+        final result = await target.fetchAll(userId);
 
         // Assert
         expect(result.isLeft(), isTrue);
       });
     });
 
-    group('addPersonalIncomeCategory', () {
+    group('add', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
       final userId = UserIdVo('testUserId');
-      final category =
-          IncomeCategoryModel(id: 'categoryId1', name: 'Test Category');
+      final category = IncomeCategoryModel(
+        id: 'categoryId1',
+        name: 'Test Category',
+      );
 
       setUp(() {
         when(mockDb
@@ -110,7 +112,7 @@ void main() {
         final target = PersonalIncomeCategoryService(mockDb);
 
         // Act
-        final result = await target.addPersonalIncomeCategory(userId, category);
+        final result = await target.add(userId, category);
 
         // Assert
         verify(mockDb
@@ -128,14 +130,14 @@ void main() {
         final target = PersonalIncomeCategoryService(mockDb);
 
         // Act
-        final result = await target.addPersonalIncomeCategory(userId, category);
+        final result = await target.add(userId, category);
 
         // Assert
         expect(result.isLeft(), isTrue);
       });
     });
 
-    group('updatePersonalIncomeCategory', () {
+    group('update', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
@@ -163,8 +165,7 @@ void main() {
         final target = PersonalIncomeCategoryService(mockDb);
 
         // Act
-        final result =
-            await target.updatePersonalIncomeCategory(userId, category);
+        final result = await target.update(userId, category);
 
         // Assert
         verify(mockDb
@@ -183,15 +184,14 @@ void main() {
         final target = PersonalIncomeCategoryService(mockDb);
 
         // Act
-        final result =
-            await target.updatePersonalIncomeCategory(userId, category);
+        final result = await target.update(userId, category);
 
         // Assert
         expect(result.isLeft(), isTrue);
       });
     });
 
-    group('deletePersonalIncomeCategory', () {
+    group('delete', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
@@ -218,8 +218,7 @@ void main() {
         final target = PersonalIncomeCategoryService(mockDb);
 
         // Act
-        final result =
-            await target.deletePersonalIncomeCategory(userId, categoryId);
+        final result = await target.delete(userId, categoryId);
 
         // Assert
         verify(mockDb
@@ -237,8 +236,7 @@ void main() {
         final target = PersonalIncomeCategoryService(mockDb);
 
         // Act
-        final result =
-            await target.deletePersonalIncomeCategory(userId, categoryId);
+        final result = await target.delete(userId, categoryId);
 
         // Assert
         expect(result.isLeft(), isTrue);

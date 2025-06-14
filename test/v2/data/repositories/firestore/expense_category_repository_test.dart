@@ -33,7 +33,7 @@ void main() {
         totalBudget: 50000,
       );
 
-      when(mockService.fetchPersonalExpenseCategories(
+      when(mockService.fetchAll(
         userId,
       )).thenAnswer((_) async => Right([mockModel]));
 
@@ -44,7 +44,7 @@ void main() {
       final result = await target.fetchAll();
       final categoryList = result.getOrElse(() => []);
 
-      verify(mockService.fetchPersonalExpenseCategories(
+      verify(mockService.fetchAll(
         userId,
       )).called(1);
 
@@ -56,7 +56,7 @@ void main() {
     });
 
     test('カテゴリが存在しない場合、空のリストを返す', () async {
-      when(mockService.fetchPersonalExpenseCategories(
+      when(mockService.fetchAll(
         userId,
       )).thenAnswer((_) async => Right([]));
 
@@ -73,7 +73,7 @@ void main() {
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final exception = Exception('test error');
-      when(mockService.fetchPersonalExpenseCategories(
+      when(mockService.fetchAll(
         userId,
       )).thenAnswer((_) async => Left(exception));
 
@@ -103,7 +103,7 @@ void main() {
         totalBudget: BudgetAmountVo(50000),
       );
 
-      when(mockService.addPersonalExpenseCategory(
+      when(mockService.add(
         userId,
         any,
       )).thenAnswer((_) async => Right(unit));
@@ -114,7 +114,7 @@ void main() {
       );
       final result = await target.add(category);
 
-      verify(mockService.addPersonalExpenseCategory(
+      verify(mockService.add(
         userId,
         any,
       )).called(1);
@@ -130,7 +130,7 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockService.addPersonalExpenseCategory(
+      when(mockService.add(
         userId,
         any,
       )).thenAnswer((_) async => Left(exception));
@@ -162,7 +162,7 @@ void main() {
         totalBudget: BudgetAmountVo(75000),
       );
 
-      when(mockService.updatePersonalExpenseCategory(
+      when(mockService.update(
         userId,
         any,
       )).thenAnswer((_) async => Right(unit));
@@ -173,7 +173,7 @@ void main() {
       );
       final result = await target.update(categoryId, category);
 
-      verify(mockService.updatePersonalExpenseCategory(
+      verify(mockService.update(
         userId,
         any,
       )).called(1);
@@ -190,7 +190,7 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockService.updatePersonalExpenseCategory(
+      when(mockService.update(
         userId,
         any,
       )).thenAnswer((_) async => Left(exception));
@@ -217,7 +217,7 @@ void main() {
     test('支出カテゴリを削除できる', () async {
       const categoryId = CategoryIdVo('test-category-id');
 
-      when(mockService.deletePersonalExpenseCategory(
+      when(mockService.delete(
         userId,
         categoryId.value,
       )).thenAnswer((_) async => Right(unit));
@@ -228,7 +228,7 @@ void main() {
       );
       final result = await target.delete(categoryId);
 
-      verify(mockService.deletePersonalExpenseCategory(
+      verify(mockService.delete(
         userId,
         categoryId.value,
       )).called(1);
@@ -240,7 +240,7 @@ void main() {
       const categoryId = CategoryIdVo('test-category-id');
       final exception = Exception('test error');
 
-      when(mockService.deletePersonalExpenseCategory(
+      when(mockService.delete(
         userId,
         categoryId.value,
       )).thenAnswer((_) async => Left(exception));

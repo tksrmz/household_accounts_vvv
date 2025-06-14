@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+// ignore: unused_import
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/expense_record_model.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_record_service.dart';
@@ -19,7 +20,7 @@ import 'personal_expense_record_service_test.mocks.dart';
 
 void main() {
   group('PersonalExpenseRecordService', () {
-    group('fetchPersonalExpenses', () {
+    group('fetchByDate', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockQuery = MockQuery();
@@ -30,8 +31,11 @@ void main() {
       setUp(() {
         when(mockDb.collection('/personalNotes/${userId.value}/expenses'))
             .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.where(any, isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'), isLessThan: anyNamed('isLessThan')))
-            .thenReturn(mockQuery);
+        when(mockCollectionReference.where(
+          any,
+          isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'),
+          isLessThan: anyNamed('isLessThan'),
+        )).thenReturn(mockQuery);
         when(mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
         when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
         when(mockQueryDocumentSnapshot.id).thenReturn('expenseId1');
@@ -60,12 +64,14 @@ void main() {
         final target = PersonalExpenseRecordService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalExpenses(userId, 2025, 5);
+        final result = await target.fetchByDate(userId, 2025, 5);
 
         // Assert
         verify(mockDb.collection('/personalNotes/${userId.value}/expenses'))
             .called(1);
-        verify(mockCollectionReference.where(any, isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'), isLessThan: anyNamed('isLessThan')))
+        verify(mockCollectionReference.where(any,
+                isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'),
+                isLessThan: anyNamed('isLessThan')))
             .called(1);
         verify(mockQuery.get()).called(1);
         verify(mockQuerySnapshot.docs).called(1);
@@ -84,7 +90,7 @@ void main() {
         final target = PersonalExpenseRecordService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalExpenses(userId, 2025);
+        final result = await target.fetchByDate(userId, 2025);
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -95,7 +101,7 @@ void main() {
         final target = PersonalExpenseRecordService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalExpenses(userId, 2025, 5, 25);
+        final result = await target.fetchByDate(userId, 2025, 5, 25);
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -107,7 +113,7 @@ void main() {
         final target = PersonalExpenseRecordService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalExpenses(userId, 2025, 5);
+        final result = await target.fetchByDate(userId, 2025, 5);
 
         // Assert
         expect(result.isLeft(), isTrue);
@@ -118,12 +124,12 @@ void main() {
         final target = PersonalExpenseRecordService(mockDb);
 
         // Act & Assert
-        expect(() => target.fetchPersonalExpenses(userId, 2025, null, 25),
+        expect(() => target.fetchByDate(userId, 2025, null, 25),
             throwsA(isA<AssertionError>()));
       });
     });
 
-    group('addPersonalExpense', () {
+    group('add', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
@@ -158,7 +164,7 @@ void main() {
         final target = PersonalExpenseRecordService(mockDb);
 
         // Act
-        final result = await target.addPersonalExpense(userId, expense);
+        final result = await target.add(userId, expense);
 
         // Assert
         verify(mockDb.collection('/personalNotes/${userId.value}/expenses'))
@@ -175,14 +181,14 @@ void main() {
         final target = PersonalExpenseRecordService(mockDb);
 
         // Act
-        final result = await target.addPersonalExpense(userId, expense);
+        final result = await target.add(userId, expense);
 
         // Assert
         expect(result.isLeft(), isTrue);
       });
     });
 
-    group('deletePersonalExpense', () {
+    group('delete', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
@@ -208,7 +214,7 @@ void main() {
         final target = PersonalExpenseRecordService(mockDb);
 
         // Act
-        final result = await target.deletePersonalExpense(userId, expenseId);
+        final result = await target.delete(userId, expenseId);
 
         // Assert
         verify(mockDb.collection('/personalNotes/${userId.value}/expenses'))
@@ -225,7 +231,7 @@ void main() {
         final target = PersonalExpenseRecordService(mockDb);
 
         // Act
-        final result = await target.deletePersonalExpense(userId, expenseId);
+        final result = await target.delete(userId, expenseId);
 
         // Assert
         expect(result.isLeft(), isTrue);

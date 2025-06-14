@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+// ignore: unused_import
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/expense_category_model.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_category_service.dart';
@@ -18,7 +19,7 @@ import 'personal_expense_category_service_test.mocks.dart';
 
 void main() {
   group('PersonalExpenseCategoryService', () {
-    group('fetchPersonalExpenseCategories', () {
+    group('fetchAll', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockQuerySnapshot = MockQuerySnapshot();
@@ -52,7 +53,7 @@ void main() {
         final target = PersonalExpenseCategoryService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalExpenseCategories(userId);
+        final result = await target.fetchAll(userId);
 
         // Assert
         verify(mockDb
@@ -76,14 +77,14 @@ void main() {
         final target = PersonalExpenseCategoryService(mockDb);
 
         // Act
-        final result = await target.fetchPersonalExpenseCategories(userId);
+        final result = await target.fetchAll(userId);
 
         // Assert
         expect(result.isLeft(), isTrue);
       });
     });
 
-    group('addPersonalExpenseCategory', () {
+    group('add', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
@@ -111,8 +112,7 @@ void main() {
         final target = PersonalExpenseCategoryService(mockDb);
 
         // Act
-        final result =
-            await target.addPersonalExpenseCategory(userId, category);
+        final result = await target.add(userId, category);
 
         // Assert
         verify(mockDb
@@ -130,15 +130,14 @@ void main() {
         final target = PersonalExpenseCategoryService(mockDb);
 
         // Act
-        final result =
-            await target.addPersonalExpenseCategory(userId, category);
+        final result = await target.add(userId, category);
 
         // Assert
         expect(result.isLeft(), isTrue);
       });
     });
 
-    group('updatePersonalExpenseCategory', () {
+    group('update', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
@@ -166,8 +165,7 @@ void main() {
         final target = PersonalExpenseCategoryService(mockDb);
 
         // Act
-        final result =
-            await target.updatePersonalExpenseCategory(userId, category);
+        final result = await target.update(userId, category);
 
         // Assert
         verify(mockDb
@@ -186,15 +184,14 @@ void main() {
         final target = PersonalExpenseCategoryService(mockDb);
 
         // Act
-        final result =
-            await target.updatePersonalExpenseCategory(userId, category);
+        final result = await target.update(userId, category);
 
         // Assert
         expect(result.isLeft(), isTrue);
       });
     });
 
-    group('deletePersonalExpenseCategory', () {
+    group('delete', () {
       final mockDb = MockFirebaseFirestore();
       final mockCollectionReference = MockCollectionReference();
       final mockDocumentReference = MockDocumentReference();
@@ -221,8 +218,7 @@ void main() {
         final target = PersonalExpenseCategoryService(mockDb);
 
         // Act
-        final result =
-            await target.deletePersonalExpenseCategory(userId, categoryId);
+        final result = await target.delete(userId, categoryId);
 
         // Assert
         verify(mockDb
@@ -240,8 +236,7 @@ void main() {
         final target = PersonalExpenseCategoryService(mockDb);
 
         // Act
-        final result =
-            await target.deletePersonalExpenseCategory(userId, categoryId);
+        final result = await target.delete(userId, categoryId);
 
         // Assert
         expect(result.isLeft(), isTrue);
