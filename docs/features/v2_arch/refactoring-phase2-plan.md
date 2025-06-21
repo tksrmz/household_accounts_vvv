@@ -500,19 +500,19 @@ class FirebasePersonalIncomeRecordRepository implements PersonalIncomeRecordRepo
 
 ### 技術条件
 
-- [ ] レガシーRepository実装8ファイルのV2移行完了
-- [ ] V2データモデル6ファイル作成完了
-- [ ] FirestoreServiceの全機能移植完了
-- [ ] 新規Value Object作成完了
-- [ ] 全移行済みRepositoryのテスト作成完了
-- [ ] 既存機能の動作確認完了
+- [x] レガシーRepository実装8ファイルのV2移行完了
+- [x] V2データモデル6ファイル作成完了
+- [x] FirestoreServiceの全機能移植完了
+- [x] 新規Value Object作成完了
+- [x] 全移行済みRepositoryのテスト作成完了
+- [x] 既存機能の動作確認完了
 
 ### 品質条件
 
-- [ ] V2アーキテクチャパターン100%準拠
-- [ ] Either<Exception, T>エラーハンドリング統一
-- [ ] テストカバレッジ80%以上
-- [ ] パフォーマンス劣化なし
+- [x] V2アーキテクチャパターン100%準拠
+- [x] Either<Exception, T>エラーハンドリング統一
+- [x] テストカバレッジ80%以上
+- [x] パフォーマンス劣化なし
 
 ## 次フェーズへの引き渡し
 
