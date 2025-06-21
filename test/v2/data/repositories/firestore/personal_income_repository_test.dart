@@ -1,45 +1,64 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_income_repository.dart';
-import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_income_record_service.dart';
+import 'package:household_accounts/v2/data/models/income_record_model.dart'
+    as data_model;
+import 'package:household_accounts/v2/domain/models/income_category.dart';
+import 'package:household_accounts/v2/domain/models/income_record.dart';
+import 'package:household_accounts/v2/domain/models/property.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_amount.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_date.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_id.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_note.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 @GenerateNiceMocks([
-  MockSpec<FirestoreService>(),
+  MockSpec<PersonalIncomeRecordService>(),
 ])
 import 'personal_income_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalIncomeRecordService mockService =
+        MockPersonalIncomeRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     group('1件取得', () {
       test('指定された月の収入一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        when(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([
-              {'amount': 100}
+              data_model.IncomeRecordModel(
+                id: 'test-id',
+                date: DateTime(2025, 1, 15),
+                amount: 100,
+                note: 'test note',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+              )
             ]));
 
         final target = FirestorePersonalIncomeRepository(
-          mockFirestoreService,
+          mockService,
           userId,
         );
         final result = await target.fetchMonthly(date);
         final incomeList = result.getOrElse(() => []);
 
-        verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        verify(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
@@ -54,23 +73,41 @@ void main() {
     group('2件取得', () {
       test('指定された月の収入一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        when(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([
-              {'amount': 100},
-              {'amount': 200},
+              data_model.IncomeRecordModel(
+                id: 'test-id-1',
+                date: DateTime(2025, 1, 15),
+                amount: 100,
+                note: 'test note 1',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+              ),
+              data_model.IncomeRecordModel(
+                id: 'test-id-2',
+                date: DateTime(2025, 1, 16),
+                amount: 200,
+                note: 'test note 2',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+              )
             ]));
 
         final target = FirestorePersonalIncomeRepository(
-          mockFirestoreService,
+          mockService,
           userId,
         );
         final result = await target.fetchMonthly(date);
         final incomeList = result.getOrElse(() => []);
 
-        verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        verify(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
@@ -86,20 +123,20 @@ void main() {
     group('0件取得', () {
       test('指定された月の収入一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        when(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([]));
 
         final target = FirestorePersonalIncomeRepository(
-          mockFirestoreService,
+          mockService,
           userId,
         );
         final result = await target.fetchMonthly(date);
         final incomeList = result.getOrElse(() => []);
 
-        verify(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        verify(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
@@ -123,16 +160,25 @@ void main() {
       final (:description, :value) = element;
       test(description, () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+        when(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([
-              {'amount': value}
+              data_model.IncomeRecordModel(
+                id: 'test-id',
+                date: DateTime(2025, 1, 15),
+                amount: value,
+                note: 'test note',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+              )
             ]));
 
         final target = FirestorePersonalIncomeRepository(
-          mockFirestoreService,
+          mockService,
           userId,
         );
         expect(
@@ -145,17 +191,135 @@ void main() {
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final date = DateTime(2025, 1);
       final exception = Exception('test error');
-      when(mockFirestoreService.fetchMonthlyPersonalIncomesOf(
+      when(mockService.fetchByDate(
         userId,
         date.year,
         date.month,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestorePersonalIncomeRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.fetchMonthly(date);
+
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => null), equals(exception));
+    });
+  });
+
+  group('add', () {
+    final MockPersonalIncomeRecordService mockService =
+        MockPersonalIncomeRecordService();
+    const UserIdVo userId = UserIdVo('samplePersonalNoteId');
+
+    tearDown(() {
+      reset(mockService);
+    });
+
+    test('収入レコードを追加できる', () async {
+      final record = IncomeRecordModel(
+        id: RecordIdVo('test-record-id'),
+        recordDate: RecordDateVo(DateTime(2025, 1, 15)),
+        amount: RecordAmountVo(1000),
+        note: RecordNoteVo('テスト収入'),
+        property: PropertyModel.deleted,
+        category: IncomeCategoryModel.deleted,
+        hasCheckedOut: false,
+      );
+
+      when(mockService.add(
+        userId,
+        any,
+      )).thenAnswer((_) async => Right(unit));
+
+      final target = FirestorePersonalIncomeRepository(
+        mockService,
+        userId,
+      );
+      final result = await target.add(record);
+
+      verify(mockService.add(
+        userId,
+        any,
+      )).called(1);
+
+      expect(result.isRight(), isTrue);
+    });
+
+    test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
+      final record = IncomeRecordModel(
+        id: RecordIdVo('test-record-id'),
+        recordDate: RecordDateVo(DateTime(2025, 1, 15)),
+        amount: RecordAmountVo(1000),
+        note: RecordNoteVo('テスト収入'),
+        property: PropertyModel.deleted,
+        category: IncomeCategoryModel.deleted,
+        hasCheckedOut: false,
+      );
+
+      final exception = Exception('test error');
+      when(mockService.add(
+        userId,
+        any,
+      )).thenAnswer((_) async => Left(exception));
+
+      final target = FirestorePersonalIncomeRepository(
+        mockService,
+        userId,
+      );
+      final result = await target.add(record);
+
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => null), equals(exception));
+    });
+  });
+
+  group('delete', () {
+    final MockPersonalIncomeRecordService mockService =
+        MockPersonalIncomeRecordService();
+    const UserIdVo userId = UserIdVo('samplePersonalNoteId');
+
+    tearDown(() {
+      reset(mockService);
+    });
+
+    test('収入レコードを削除できる', () async {
+      const recordId = RecordIdVo('test-record-id');
+
+      when(mockService.delete(
+        userId,
+        recordId.value,
+      )).thenAnswer((_) async => Right(unit));
+
+      final target = FirestorePersonalIncomeRepository(
+        mockService,
+        userId,
+      );
+      final result = await target.delete(recordId);
+
+      verify(mockService.delete(
+        userId,
+        recordId.value,
+      )).called(1);
+
+      expect(result.isRight(), isTrue);
+    });
+
+    test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
+      const recordId = RecordIdVo('test-record-id');
+      final exception = Exception('test error');
+
+      when(mockService.delete(
+        userId,
+        recordId.value,
+      )).thenAnswer((_) async => Left(exception));
+
+      final target = FirestorePersonalIncomeRepository(
+        mockService,
+        userId,
+      );
+      final result = await target.delete(recordId);
 
       expect(result.isLeft(), isTrue);
       expect(result.fold((l) => l, (r) => null), equals(exception));

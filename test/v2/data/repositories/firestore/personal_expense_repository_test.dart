@@ -1,45 +1,66 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/personal_expense_repository.dart';
-import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_record_service.dart';
+import 'package:household_accounts/v2/data/models/expense_record_model.dart'
+    as data_model;
+import 'package:household_accounts/v2/domain/models/expense_category.dart';
+import 'package:household_accounts/v2/domain/models/expense_record.dart';
+import 'package:household_accounts/v2/domain/models/property.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_amount.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_date.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_id.dart';
+import 'package:household_accounts/v2/domain/models/vo/record_note.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 @GenerateNiceMocks([
-  MockSpec<FirestoreService>(),
+  MockSpec<PersonalExpenseRecordService>(),
 ])
 import 'personal_expense_repository_test.mocks.dart';
 
 void main() {
   group('fetchMonthly', () {
-    final MockFirestoreService mockFirestoreService = MockFirestoreService();
+    final MockPersonalExpenseRecordService mockService =
+        MockPersonalExpenseRecordService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
-      reset(mockFirestoreService);
+      reset(mockService);
     });
 
     group('1件取得', () {
       test('指定された月の支出一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchAllPersonalExpensesOf(
+        when(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([
-              {'amount': 100}
+              data_model.ExpenseRecordModel(
+                id: 'test-id',
+                date: DateTime(2025, 1, 15),
+                amount: 100,
+                note: 'test note',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {
+                  'ref': '/personalNotes/user1/expenseCategories/cat1'
+                },
+              )
             ]));
 
         final target = FirestorePersonalExpenseRepository(
-          mockFirestoreService,
+          mockService,
           userId,
         );
         final result = await target.fetchMonthly(date);
         final expenseList = result.getOrElse(() => []);
 
-        verify(mockFirestoreService.fetchAllPersonalExpensesOf(
+        verify(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
@@ -54,14 +75,14 @@ void main() {
     group('0件取得', () {
       test('指定された月の支出一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchAllPersonalExpensesOf(
+        when(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([]));
 
         final target = FirestorePersonalExpenseRepository(
-          mockFirestoreService,
+          mockService,
           userId,
         );
         final result = await target.fetchMonthly(date);
@@ -86,16 +107,27 @@ void main() {
       final (:description, :value) = element;
       test(description, () async {
         final date = DateTime(2025, 1);
-        when(mockFirestoreService.fetchAllPersonalExpensesOf(
+        when(mockService.fetchByDate(
           userId,
           date.year,
           date.month,
         )).thenAnswer((_) async => Right([
-              {'amount': value}
+              data_model.ExpenseRecordModel(
+                id: 'test-id',
+                date: DateTime(2025, 1, 15),
+                amount: value,
+                note: 'test note',
+                hasCheckedOut: false,
+                createdAt: DateTime.now(),
+                property: {'ref': '/personalNotes/user1/properties/prop1'},
+                category: {
+                  'ref': '/personalNotes/user1/expenseCategories/cat1'
+                },
+              )
             ]));
 
         final target = FirestorePersonalExpenseRepository(
-          mockFirestoreService,
+          mockService,
           userId,
         );
         expect(
@@ -108,17 +140,135 @@ void main() {
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final date = DateTime(2025, 1);
       final exception = Exception('test error');
-      when(mockFirestoreService.fetchAllPersonalExpensesOf(
+      when(mockService.fetchByDate(
         userId,
         date.year,
         date.month,
       )).thenAnswer((_) async => Left(exception));
 
       final target = FirestorePersonalExpenseRepository(
-        mockFirestoreService,
+        mockService,
         userId,
       );
       final result = await target.fetchMonthly(date);
+
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => null), equals(exception));
+    });
+  });
+
+  group('add', () {
+    final MockPersonalExpenseRecordService mockService =
+        MockPersonalExpenseRecordService();
+    const UserIdVo userId = UserIdVo('samplePersonalNoteId');
+
+    tearDown(() {
+      reset(mockService);
+    });
+
+    test('支出レコードを追加できる', () async {
+      final record = ExpenseRecordModel(
+        id: RecordIdVo('test-record-id'),
+        recordDate: RecordDateVo(DateTime(2025, 1, 15)),
+        amount: RecordAmountVo(1000),
+        note: RecordNoteVo('テスト支出'),
+        property: PropertyModel.deleted,
+        category: ExpenseCategoryModel.deleted,
+        hasCheckedOut: false,
+      );
+
+      when(mockService.add(
+        userId,
+        any,
+      )).thenAnswer((_) async => Right(unit));
+
+      final target = FirestorePersonalExpenseRepository(
+        mockService,
+        userId,
+      );
+      final result = await target.add(record);
+
+      verify(mockService.add(
+        userId,
+        any,
+      )).called(1);
+
+      expect(result.isRight(), isTrue);
+    });
+
+    test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
+      final record = ExpenseRecordModel(
+        id: RecordIdVo('test-record-id'),
+        recordDate: RecordDateVo(DateTime(2025, 1, 15)),
+        amount: RecordAmountVo(1000),
+        note: RecordNoteVo('テスト支出'),
+        property: PropertyModel.deleted,
+        category: ExpenseCategoryModel.deleted,
+        hasCheckedOut: false,
+      );
+
+      final exception = Exception('test error');
+      when(mockService.add(
+        userId,
+        any,
+      )).thenAnswer((_) async => Left(exception));
+
+      final target = FirestorePersonalExpenseRepository(
+        mockService,
+        userId,
+      );
+      final result = await target.add(record);
+
+      expect(result.isLeft(), isTrue);
+      expect(result.fold((l) => l, (r) => null), equals(exception));
+    });
+  });
+
+  group('delete', () {
+    final MockPersonalExpenseRecordService mockService =
+        MockPersonalExpenseRecordService();
+    const UserIdVo userId = UserIdVo('samplePersonalNoteId');
+
+    tearDown(() {
+      reset(mockService);
+    });
+
+    test('支出レコードを削除できる', () async {
+      const recordId = RecordIdVo('test-record-id');
+
+      when(mockService.delete(
+        userId,
+        recordId.value,
+      )).thenAnswer((_) async => Right(unit));
+
+      final target = FirestorePersonalExpenseRepository(
+        mockService,
+        userId,
+      );
+      final result = await target.delete(recordId);
+
+      verify(mockService.delete(
+        userId,
+        recordId.value,
+      )).called(1);
+
+      expect(result.isRight(), isTrue);
+    });
+
+    test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
+      const recordId = RecordIdVo('test-record-id');
+      final exception = Exception('test error');
+
+      when(mockService.delete(
+        userId,
+        recordId.value,
+      )).thenAnswer((_) async => Left(exception));
+
+      final target = FirestorePersonalExpenseRepository(
+        mockService,
+        userId,
+      );
+      final result = await target.delete(recordId);
 
       expect(result.isLeft(), isTrue);
       expect(result.fold((l) => l, (r) => null), equals(exception));

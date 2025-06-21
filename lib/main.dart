@@ -3,7 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:household_accounts/v2/data/services/firestore_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/profile/public_profile_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/profile/private_profile_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_record_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_income_record_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_income_category_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_category_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_property_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/personal/personal_transfer_record_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/shared/shared_record_service.dart';
+import 'package:household_accounts/v2/data/services/firestore/transaction/firestore_transaction_service.dart';
 import 'package:provider/provider.dart';
 
 import 'feature/auth_gate/index.dart';
@@ -67,8 +76,35 @@ class MyApp extends StatelessWidget {
       Provider<FirebaseFirestore>.value(
         value: FirebaseFirestore.instance,
       ),
-      Provider<FirestoreService>(
-        create: (context) => FirestoreService(context.read()),
+      Provider<PublicProfileService>(
+        create: (context) => PublicProfileService(context.read()),
+      ),
+      Provider<PrivateProfileService>(
+        create: (context) => PrivateProfileService(context.read()),
+      ),
+      Provider<PersonalExpenseRecordService>(
+        create: (context) => PersonalExpenseRecordService(context.read()),
+      ),
+      Provider<PersonalIncomeRecordService>(
+        create: (context) => PersonalIncomeRecordService(context.read()),
+      ),
+      Provider<PersonalIncomeCategoryService>(
+        create: (context) => PersonalIncomeCategoryService(context.read()),
+      ),
+      Provider<PersonalExpenseCategoryService>(
+        create: (context) => PersonalExpenseCategoryService(context.read()),
+      ),
+      Provider<PersonalPropertyService>(
+        create: (context) => PersonalPropertyService(context.read()),
+      ),
+      Provider<PersonalTransferRecordService>(
+        create: (context) => PersonalTransferRecordService(context.read()),
+      ),
+      Provider<SharedRecordService>(
+        create: (context) => SharedRecordService(context.read()),
+      ),
+      Provider<FirestoreTransactionService>(
+        create: (context) => FirestoreTransactionService(context.read()),
       ),
       Provider<PublicProfileRepository>(
         create: (context) => FirestorePublicProfileRepository(context.read()),
@@ -87,22 +123,34 @@ class MyApp extends StatelessWidget {
           ),
           ProxyProvider2<SelectedNoteState, UserAuth, IncomeRepository>(
             update: (context, selectedNote, user, __) {
-              final firestoreService = context.read<FirestoreService>();
               final userId = user.uid;
 
               return selectedNote.isPersonal
-                  ? FirestorePersonalIncomeRepository(firestoreService, userId)
-                  : FirestoreSharedIncomeRepository(firestoreService, userId);
+                  ? FirestorePersonalIncomeRepository(
+                      context.read<PersonalIncomeRecordService>(),
+                      userId,
+                    )
+                  : FirestoreSharedIncomeRepository(
+                      context.read<SharedRecordService>(),
+                      context.read<PrivateProfileService>(),
+                      userId,
+                    );
             },
           ),
           ProxyProvider2<SelectedNoteState, UserAuth, ExpenseRepository>(
             update: (context, selectedNote, user, __) {
-              final firestoreService = context.read<FirestoreService>();
               final userId = user.uid;
 
               return selectedNote.isPersonal
-                  ? FirestorePersonalExpenseRepository(firestoreService, userId)
-                  : FirestoreSharedExpenseRepository(firestoreService, userId);
+                  ? FirestorePersonalExpenseRepository(
+                      context.read<PersonalExpenseRecordService>(),
+                      userId,
+                    )
+                  : FirestoreSharedExpenseRepository(
+                      context.read<SharedRecordService>(),
+                      context.read<PrivateProfileService>(),
+                      userId,
+                    );
             },
           ),
         ];
