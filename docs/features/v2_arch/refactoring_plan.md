@@ -50,11 +50,11 @@
 
 **タスクグループ2A: Repository実装移行** (Phase 1完了後)
 
-- [ ] Task 2.1: `lib/data/firebase/*_repository.dart` → `lib/v2/data/repositories/`
+- [x] Task 2.1: `lib/data/firebase/*_repository.dart` → `lib/v2/data/repositories/`
   - Either<Exception, T>パターン適用
   - FirestoreServiceレイヤー分離
-- [ ] Task 2.2: Firebaseモデル → V2 Serviceパターン変換
-- [ ] Task 2.3: Repository interface調整 (必要に応じて)
+- [x] Task 2.2: Firebaseモデル → V2 Serviceパターン変換
+- [x] Task 2.3: Repository interface調整 (必要に応じて)
 
 **依存関係**: Phase 1完了必須
 **推定工数**: 4-5日  
