@@ -45,9 +45,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# API KEY
-/lib/firebase_options.dart
-
 # Ignore golden files
 test/**/golden/**/*.*
 test/**/goldens/**/*.*
@@ -58,7 +55,6 @@ test/**/failures/**/*.*
 **.g.dart
 
 # Firebase configuration files
-**/google-services.json
 **/GoogleService-Info.plist
 **/firebase_app_id_file.json
 

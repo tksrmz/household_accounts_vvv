@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "302610041376",
+    "project_id": "household-accounts-1129d",
+    "storage_bucket": "household-accounts-1129d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:302610041376:android:c03b950d46eef57b858a45",
+        "android_client_info": {
+          "package_name": "io.github.nitomath.household_accounts"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV8AK_qUoaiGIiFFlbnB1yXYBdW4mAcUs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
