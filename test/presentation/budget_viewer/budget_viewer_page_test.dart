@@ -24,21 +24,18 @@ import 'budget_viewer_page_test.mocks.dart';
 // bikini（カスタム期間切替）機能の実装前に、後方互換（AC-008）を検証できるようにするため作成した。
 // 詳細: docs/features/002-bikini/spec/design.md セクション1・3
 void main() {
-  // `_PageContentsState._setFuture()` は `sl<RetrieveBudgetStateUseCase>()`（get_it）を
-  // 直接呼び出す実装になっており、Widgetのコンストラクタでは注入できない
-  // （design.mdの構造的制約2はまだ未実装のため）。
-  // そのためテストでは `sl` に対してフェイクのUseCaseを登録し、
-  // テストごとに登録解除することでテスト間の独立性を保つ。
+  // UseCaseは `BudgetViewerPage(useCase: mockUseCase, now: ...)` で直接注入する
+  // （design.mdの構造的制約2: get_it直呼びをコンストラクタ注入に変更したため、
+  // `RetrieveBudgetStateUseCase` のsl登録は不要になった）。
   //
-  // `selectExpenseRecordRepository`/`selectExpenseCategoryRepository` も内部で
-  // `sl<...>()` を呼び出すため（値自体はフェイクUseCaseが使わないダミー）、
-  // GetItの解決エラーを避けるためにこれらもフェイクとして登録する。
+  // `selectExpenseRecordRepository`/`selectExpenseCategoryRepository` は内部で
+  // `sl<...>()` を呼び出すため（値自体はモックUseCaseが使わないダミー解決用）、
+  // GetItの解決エラーを避けるためにこれらをフェイクとして登録する。
   final mockUseCase = MockRetrieveBudgetStateUseCase();
   final mockExpenseRecordRepository = MockPersonalExpenseRecordRepository();
   final mockExpenseCategoryRepository = MockPersonalExpenseCategoryRepository();
 
   void registerFakes() {
-    sl.registerFactory<RetrieveBudgetStateUseCase>(() => mockUseCase);
     sl.registerFactory<PersonalExpenseRecordRepository>(
       () => mockExpenseRecordRepository,
     );
@@ -48,9 +45,6 @@ void main() {
   }
 
   void unregisterFakes() {
-    if (sl.isRegistered<RetrieveBudgetStateUseCase>()) {
-      sl.unregister<RetrieveBudgetStateUseCase>();
-    }
     if (sl.isRegistered<PersonalExpenseRecordRepository>()) {
       sl.unregister<PersonalExpenseRecordRepository>();
     }
@@ -80,7 +74,10 @@ void main() {
             create: (_) => const UserInfo(uid: 'testUserId'),
           ),
         ],
-        child: const BudgetViewerPage(),
+        child: BudgetViewerPage(
+          useCase: mockUseCase,
+          now: () => DateTime(2026, 7, 1),
+        ),
       );
 
   testGoldens(
