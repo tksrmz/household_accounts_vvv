@@ -3,6 +3,13 @@
 対象: [requirements.md](./requirements.md) セクション10の技術的未知（TQ-001, TQ-002）
 調査日: 2026-07-06（調査はサブエージェント2体に委譲して並列実施）
 
+> **追記（2026-07-07・人間判断による方針転換）**: 本レポートの「発見された追加制約」3・4を受けて、**期間の共通抽象（`AggregationPeriod`）・期間VO（`CalendarMonthPeriod`/`CustomCyclePeriod`）・v2 `fetchMonthly` の一般化は採用しない**ことが決定された。本機能はレガシー予算タブの拡張で完結し、レガシー経路（`RetrieveBudgetStateUseCase` → `RecordRepository.retrieveRecordsOf(repoId, begin, end)`）が既に begin/end 指定を持つため、期間を多態的に扱うコードが実装経路に存在しないことが理由。これにより TQ-001 の推奨設計（VO・抽象・Repository/Service のシグネチャ変更）は**採用されない**が、以下は引き続き有効な調査結果として設計フェーズで参照する:
+>
+> - 半開区間（begin 以上・end 未満）による境界表現と、端末ローカル時刻での一貫性（タイムゾーン変換不要）の確認結果
+> - `CustomCyclePeriod.containing()` / `shift()` 相当の月度計算ロジック（今日が属する月度の判定、前後移動、うるう年・月日数差の扱い）— VOではなく単体テスト可能な純粋ロジックとして1箇所に集約する形で流用する
+> - 既存コードの棚卸し結果（レガシー側の begin/end 先行実装、`assert(begin.isBefore(end))` の誓約パターン）
+> - TQ-002 の結論（レガシー拡張＋`SegmentedButton`＋期間ナビゲーションWidget新設）は変更なし。むしろ v2 側の変更が消えたことで選択肢Aの優位性が強まった
+
 ## サマリー
 
 - **TQ-001（期間抽象）**: 共通抽象は `abstract interface class AggregationPeriod`（`begin`含む / `end`含まないの半開区間のみを公開）とし、`CalendarMonthPeriod`（暦月）と `CustomCyclePeriod`（月度）を独立した `@freezed` クラスとして `implements` させる設計を推奨。Service層は既に内部で begin/end 半開区間クエリ（`isGreaterThanOrEqualTo`/`isLessThan`）を組み立てており、一般化は外部APIの置き換えに等しい。タイムゾーンはアプリ全体が端末ローカル時刻で一貫しており、特別な変換は不要。
@@ -254,4 +261,5 @@ design / implement フェーズに影響する事項:
 
 ## 変更履歴
 
+- 2026-07-07: 冒頭に方針転換の追記を追加（共通抽象・期間VO・v2一般化を不採用とする人間判断。requirements.md セクション8と同期）
 - 2026-07-06: 初版作成（TQ-001/TQ-002の並列調査結果を統合）
