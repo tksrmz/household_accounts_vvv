@@ -65,7 +65,13 @@ Future<void> createExpenseRecord(
   required String propertyName,
   required String note,
 }) async {
-  await tester.tap(find.text('入力'));
+  // AppBarのタイトルと入力タブのボトムナビゲーションラベルがどちらも"入力"であるため、
+  // 既に入力タブを表示中は単純な find.text('入力') だと2件ヒットしてタップが曖昧になる。
+  // ボトムナビゲーションバー配下に絞って一意に特定する。
+  await tester.tap(find.descendant(
+    of: find.byType(BottomNavigationBar),
+    matching: find.text('入力'),
+  ));
   await tester.pumpAndSettle();
 
   await tester.tap(find.text('支出'));
