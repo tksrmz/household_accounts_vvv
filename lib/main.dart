@@ -52,8 +52,10 @@ Future<void> initializeFirebaseApp() async {
     await firebaseAuthInstance.signOut();
 
     // initialize Firestore emulator
+    // ポートはhousehold_accounts_firebaseリポジトリのfirebase.json（8081）と
+    // 一致させる必要がある（8080はローカルで他サービスと衝突するため8081を使用）
     final firestoreInstance = FirebaseFirestore.instance;
-    firestoreInstance.useFirestoreEmulator('localhost', 8080);
+    firestoreInstance.useFirestoreEmulator('localhost', 8081);
     firestoreInstance.settings = const Settings(
       persistenceEnabled: false,
     );

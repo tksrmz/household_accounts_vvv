@@ -145,7 +145,7 @@ For detailed database schema and constraints, see @docs/firestore_schema.md and 
 
 ### Development Environment
 
-- Uses Firebase emulators in debug mode (Auth: localhost:9099, Firestore: localhost:8080)
+- Uses Firebase emulators in debug mode (Auth: localhost:9099, Firestore: localhost:8081)
 - Auto-connects to emulators when `kDebugMode` is true
 - Persistence disabled for emulator usage
 
