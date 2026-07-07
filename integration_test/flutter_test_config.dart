@@ -9,9 +9,11 @@ import 'package:integration_test/integration_test.dart';
 
 /// setUpとtearDownはすべてのIntegrationTestで必要になるため、ここにまとめておく
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
-  setUp(() {
+  setUp(() async {
     IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-    initializeFirebaseApp();
+    // awaitしないとFirebase初期化とテスト本体のpumpWidgetが競合し、
+    // [core/no-app] No Firebase App '[DEFAULT]' has been created で失敗する
+    await initializeFirebaseApp();
     initializeServiceLocator();
   });
 

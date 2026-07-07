@@ -38,10 +38,17 @@
 cd /path/to/household_accounts_firebase
 # Firebase local emulatorの起動と受け入れテストの実行
 firebase emulators:exec \
+--project household-accounts-1129d \
 --only auth,firestore,functions \
 --import /path/to/household_accounts/integration_test/saved-data \
 /path/to/household_accounts/integration_test/run.sh
 ```
+
+`--project`の指定は必須である。`household_accouts_firebase`の`.firebaserc`には`default`エイリアスが存在しないため、
+`--project`を省略すると`firebase emulators:exec`は`demo-no-project`という別プロジェクトIDでCloud Functionsエミュレータを起動してしまう。
+一方、アプリ（`lib/firebase_options.dart`）は常に`household-accounts-1129d`でFirestoreエミュレータに接続するため、
+両者のプロジェクトIDが食い違うと、サインアップ時に`onCreateUser`トリガーが作成するドキュメント（`privateProfiles`等）が
+アプリから見えなくなり、ダッシュボードがローディング状態のまま止まってしまう。
 
 毎回このコマンドを打たなくていいように、`.vscode/tasks.json`に`integration test`というタスクを定義しています。
 VSCodeの場合、このタスクを実行すれば上記のコマンドが走ります。
