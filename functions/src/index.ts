@@ -3,10 +3,10 @@
 import * as functions from "firebase-functions/v1";
 
 // The Firebase Admin SDK to access Firestore.
-import * as admin from "firebase-admin";
-import { FieldValue } from "firebase-admin/firestore";
+import { initializeApp } from "firebase-admin/app";
+import { FieldValue, getFirestore } from "firebase-admin/firestore";
 
-admin.initializeApp();
+initializeApp();
 
 // =============================================================================
 // =============================================================================
@@ -24,7 +24,7 @@ export const onCreateUser = functions
     functions.logger.info(`User ID is ${user.uid}`);
 
     // Database instance
-    const db = admin.firestore();
+    const db = getFirestore();
 
     const batch = db.batch();
 
