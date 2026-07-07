@@ -24,6 +24,8 @@
 			"command": "firebase",
 			"args": [
 				"emulators:exec",
+				"--project",
+				"household-accounts-1129d",
 				"--only",
 				"auth,firestore,functions",
 				"--import=${workspaceFolder}/integration_test/saved-data",
@@ -46,6 +48,8 @@
 			"command": "firebase",
 			"args": [
 				"emulators:start",
+				"--project",
+				"household-accounts-1129d",
 				"--only",
 				"auth,firestore,functions",
 				"--import=${workspaceFolder}/integration_test/saved-data",
