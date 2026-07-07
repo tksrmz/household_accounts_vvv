@@ -22,12 +22,14 @@ import 'util/sign_up.dart';
 /// 混同しないよう2のべき乗（1000・2000・4000・8000）にしてある。
 ///
 /// 期待される集計結果:
-/// - 暦月表示（今月1日〜来月1日未満）に含まれるのは「end前日(15日)」
-///   「end当日(16日)」の2件 → 合計 4000+8000=12000円
 /// - 月度表示（begin〜end）に含まれるのは「begin当日」「end前日(15日)」
-///   の2件 → 合計 2000+4000=6000円
+///   の2件 → 合計 2000+4000=6000円（実行日によらず一定）
 /// - 「begin前日」「end当日」はどちらの表示にも含まれない
 ///   （AC-002: 境界外レコードの除外）
+/// - 暦月表示（今月1日〜来月1日未満）に含まれるレコードは実行日に依存する。
+///   今日が月の前半（1〜15日）なら月度のend側2件（4000+8000=12000円）、
+///   後半（16日〜末日）なら月度は翌月度になりbegin側2件（1000+2000=3000円）
+///   が今月に属するため、期待値はseedしたレコードの日付から動的に算出する
 Future<void> budgetFeature() async {
   testWidgets(
     'ユーザーは予算タブで月度（16日〜翌月15日）のカテゴリ別支出を確認できるので、給与サイクルに合わせて予算を管理できる',
@@ -53,51 +55,41 @@ Future<void> budgetFeature() async {
       await createProperty(tester, name: propertyName, amount: 100000);
 
       // 境界日レコードを投入する
-      // (前月度に属する: 月度・暦月どちらの集計にも含まれない)
-      await createExpenseRecord(
-        tester,
-        date: beginPrevDay,
-        amount: 1000,
-        categoryName: categoryName,
-        propertyName: propertyName,
-        note: '月度begin前日(前月度)',
-      );
-      // (月度の開始日: 月度の集計に含まれる。暦月には含まれない)
-      await createExpenseRecord(
-        tester,
-        date: beginDay,
-        amount: 2000,
-        categoryName: categoryName,
-        propertyName: propertyName,
-        note: '月度begin当日',
-      );
-      // (月度の終了前日=15日: 月度・暦月どちらの集計にも含まれる)
-      await createExpenseRecord(
-        tester,
-        date: endPrevDay,
-        amount: 4000,
-        categoryName: categoryName,
-        propertyName: propertyName,
-        note: '月度end前日(15日)',
-      );
-      // (月度の終了日=次月度の開始日: 月度の集計には含まれない。暦月には含まれる)
-      await createExpenseRecord(
-        tester,
-        date: endDay,
-        amount: 8000,
-        categoryName: categoryName,
-        propertyName: propertyName,
-        note: '月度end当日(翌月度)',
-      );
+      // - begin前日: 前月度に属する。月度の集計に含まれない
+      // - begin当日: 月度の集計に含まれる
+      // - end前日(15日): 月度の集計に含まれる
+      // - end当日(=次月度の開始日): 月度の集計に含まれない
+      final boundaryRecords = [
+        (date: beginPrevDay, amount: 1000, note: '月度begin前日(前月度)'),
+        (date: beginDay, amount: 2000, note: '月度begin当日'),
+        (date: endPrevDay, amount: 4000, note: '月度end前日(15日)'),
+        (date: endDay, amount: 8000, note: '月度end当日(翌月度)'),
+      ];
+      for (final record in boundaryRecords) {
+        await createExpenseRecord(
+          tester,
+          date: record.date,
+          amount: record.amount,
+          categoryName: categoryName,
+          propertyName: propertyName,
+          note: record.note,
+        );
+      }
 
       // 予算タブへ移動する
       await tester.tap(find.text('予算'));
       await tester.pumpAndSettle();
 
-      // AC-008: 暦月表示（デフォルト）では、今月に属する2件
-      // (15日・16日、合計4000+8000=12000円)のみが集計される
+      // AC-008: 暦月表示（デフォルト）では、今月に属するレコードのみが
+      // 集計される。どのレコードが今月に属するかは実行日に依存するため
+      // （今日が前半ならend側の12000円、後半ならbegin側の3000円）、
+      // 期待値はseedしたレコードの日付から動的に算出する
+      final calendarMonthTotal = boundaryRecords
+          .where(
+              (r) => r.date.year == today.year && r.date.month == today.month)
+          .fold<int>(0, (total, r) => total + r.amount);
       expect(find.text('$categoryName'), findsOneWidget);
-      expect(find.text('12000 / 30000円'), findsOneWidget);
+      expect(find.text('$calendarMonthTotal / 30000円'), findsOneWidget);
 
       // 「月度」に切替える
       await tester.tap(find.text('月度'));
