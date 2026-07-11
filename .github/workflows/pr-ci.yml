@@ -28,12 +28,14 @@ jobs:
           channel: stable
           cache: true
 
-      # build_runnerによる生成前にチェックすることで、コミット済みファイルのみが対象になる
-      - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed .
-
       - name: Install dependencies
         run: flutter pub get
+
+      # pub get後: dart formatは.dart_tool/package_config.jsonの言語バージョンで
+      # スタイル(short/tall)を決めるため、これが無いと判定がローカルとズレる。
+      # build_runner前: 生成ファイルがまだ存在せず、コミット済みファイルのみが対象になる。
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
