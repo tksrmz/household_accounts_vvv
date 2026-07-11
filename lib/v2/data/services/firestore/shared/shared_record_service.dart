@@ -3,9 +3,7 @@ import 'package:dartz/dartz.dart';
 
 /// 共有ノートのレコードに関するFirestore操作を提供するサービス
 class SharedRecordService {
-  final FirebaseFirestore _db;
-
-  const SharedRecordService(this._db);
+  const SharedRecordService();
 
   /// 共有ノートの指定された月のすべての支出を取得する。
   ///
@@ -13,8 +11,7 @@ class SharedRecordService {
   /// [year]のみが指定されている場合、その年のすべての支出を取得します。
   /// [year]と[month]が指定されている場合、その月のすべての支出を取得します。
   /// [year]と[month]と[day]が指定されている場合、その日のすべての支出を取得します。
-  Future<Either<Exception, List<Map<String, dynamic>>>>
-      fetchExpensesByDate(
+  Future<Either<Exception, List<Map<String, dynamic>>>> fetchExpensesByDate(
     DocumentReference<Map<String, dynamic>> sharedNoteDocRef,
     int year, [
     int? month,
@@ -56,8 +53,7 @@ class SharedRecordService {
   /// [year]のみが指定されている場合、その年のすべての収入を取得します。
   /// [year]と[month]が指定されている場合、その月のすべての収入を取得します。
   /// [year]と[month]と[day]が指定されている場合、その日のすべての収入を取得します。
-  Future<Either<Exception, List<Map<String, dynamic>>>>
-      fetchIncomesByDate(
+  Future<Either<Exception, List<Map<String, dynamic>>>> fetchIncomesByDate(
     DocumentReference<Map<String, dynamic>> sharedNoteDocRef,
     int year, [
     int? month,

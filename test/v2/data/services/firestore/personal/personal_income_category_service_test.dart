@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/income_category_model.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_income_category_service.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
