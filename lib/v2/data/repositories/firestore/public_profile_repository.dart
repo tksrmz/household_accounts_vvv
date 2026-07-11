@@ -13,11 +13,14 @@ class FirestorePublicProfileRepository implements PublicProfileRepository {
   @override
   Future<Either<Exception, UserNameVo>> fetchUserName(UserIdVo userId) async {
     final result = await _publicProfileService.fetchPublicProfileOf(userId);
-    return result.map((profileData) => UserNameVo(profileData['name']! as String));
+    return result
+        .map((profileData) => UserNameVo(profileData['name']! as String));
   }
 
   @override
-  Future<Either<Exception, Unit>> updateUserName(UserIdVo userId, UserNameVo userName) async {
-    return await _publicProfileService.updatePublicProfileNameOf(userId, userName);
+  Future<Either<Exception, Unit>> updateUserName(
+      UserIdVo userId, UserNameVo userName) async {
+    return await _publicProfileService.updatePublicProfileNameOf(
+        userId, userName);
   }
 }

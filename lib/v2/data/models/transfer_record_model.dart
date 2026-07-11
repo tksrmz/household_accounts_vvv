@@ -6,7 +6,7 @@ part 'transfer_record_model.freezed.dart';
 @freezed
 abstract class TransferRecordModel with _$TransferRecordModel {
   /// TransferRecordModelのコンストラクタ
-  /// 
+  ///
   /// テストコードでのみ使用すること。
   /// プロダクションコードでは TransferRecordModel.fromJson() を使用する。
   const factory TransferRecordModel({
@@ -29,7 +29,8 @@ abstract class TransferRecordModel with _$TransferRecordModel {
     }
     final type = json['type'] as String;
     if (type != 'transfer') {
-      throw ArgumentError('TransferRecordModel requires type "transfer", but got "$type"');
+      throw ArgumentError(
+          'TransferRecordModel requires type "transfer", but got "$type"');
     }
     // createdAtの型変換処理
     Timestamp createdAtTimestamp = json['createdAt'] as Timestamp;

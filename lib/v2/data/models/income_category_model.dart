@@ -5,7 +5,7 @@ part 'income_category_model.freezed.dart';
 @freezed
 abstract class IncomeCategoryModel with _$IncomeCategoryModel {
   /// IncomeCategoryModelのコンストラクタ
-  /// 
+  ///
   /// テストコードでのみ使用すること。
   /// プロダクションコードでは IncomeCategoryModel.fromJson() を使用する。
   const factory IncomeCategoryModel({
@@ -22,7 +22,8 @@ abstract class IncomeCategoryModel with _$IncomeCategoryModel {
     }
     final type = json['type'] as String;
     if (type != 'income') {
-      throw ArgumentError('IncomeCategoryModel requires type "income", but got "$type"');
+      throw ArgumentError(
+          'IncomeCategoryModel requires type "income", but got "$type"');
     }
     return IncomeCategoryModel(
       id: json['id'] as String,

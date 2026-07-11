@@ -11,8 +11,8 @@ class PersonalExpenseCategoryService {
   const PersonalExpenseCategoryService(this._db);
 
   /// [userId]のすべての支出カテゴリを取得する
-  Future<Either<Exception, List<ExpenseCategoryModel>>>
-      fetchAll(UserIdVo userId) async {
+  Future<Either<Exception, List<ExpenseCategoryModel>>> fetchAll(
+      UserIdVo userId) async {
     try {
       final querySnapshot = await _db
           .collection('/personalNotes/${userId.value}/expenseCategories')

@@ -18,7 +18,8 @@ import 'property_repository_test.mocks.dart';
 
 void main() {
   group('fetchAll', () {
-    final MockPersonalPropertyService mockService = MockPersonalPropertyService();
+    final MockPersonalPropertyService mockService =
+        MockPersonalPropertyService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -88,7 +89,8 @@ void main() {
   });
 
   group('add', () {
-    final MockPersonalPropertyService mockService = MockPersonalPropertyService();
+    final MockPersonalPropertyService mockService =
+        MockPersonalPropertyService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -146,7 +148,8 @@ void main() {
   });
 
   group('update', () {
-    final MockPersonalPropertyService mockService = MockPersonalPropertyService();
+    final MockPersonalPropertyService mockService =
+        MockPersonalPropertyService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -206,7 +209,8 @@ void main() {
   });
 
   group('delete', () {
-    final MockPersonalPropertyService mockService = MockPersonalPropertyService();
+    final MockPersonalPropertyService mockService =
+        MockPersonalPropertyService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {

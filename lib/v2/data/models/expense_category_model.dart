@@ -5,7 +5,7 @@ part 'expense_category_model.freezed.dart';
 @freezed
 abstract class ExpenseCategoryModel with _$ExpenseCategoryModel {
   /// ExpenseCategoryModelのコンストラクタ
-  /// 
+  ///
   /// テストコードでのみ使用すること。
   /// プロダクションコードでは ExpenseCategoryModel.fromJson() を使用する。
   const factory ExpenseCategoryModel({
@@ -23,7 +23,8 @@ abstract class ExpenseCategoryModel with _$ExpenseCategoryModel {
     }
     final type = json['type'] as String;
     if (type != 'expense') {
-      throw ArgumentError('ExpenseCategoryModel requires type "expense", but got "$type"');
+      throw ArgumentError(
+          'ExpenseCategoryModel requires type "expense", but got "$type"');
     }
     return ExpenseCategoryModel(
       id: json['id'] as String,

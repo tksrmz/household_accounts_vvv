@@ -112,5 +112,3 @@ class _SettingsContent extends StatelessWidget {
     );
   }
 }
-
-

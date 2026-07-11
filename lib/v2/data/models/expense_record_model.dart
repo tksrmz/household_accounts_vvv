@@ -6,7 +6,7 @@ part 'expense_record_model.freezed.dart';
 @freezed
 abstract class ExpenseRecordModel with _$ExpenseRecordModel {
   /// ExpenseRecordModelのコンストラクタ
-  /// 
+  ///
   /// テストコードでのみ使用すること。
   /// プロダクションコードでは ExpenseRecordModel.fromJson() を使用する。
   const factory ExpenseRecordModel({
@@ -29,7 +29,8 @@ abstract class ExpenseRecordModel with _$ExpenseRecordModel {
     }
     final type = json['type'] as String;
     if (type != 'expense') {
-      throw ArgumentError('ExpenseRecordModel requires type "expense", but got "$type"');
+      throw ArgumentError(
+          'ExpenseRecordModel requires type "expense", but got "$type"');
     }
     // createdAtの型変換処理
     Timestamp createdAtTimestamp = json['createdAt'] as Timestamp;

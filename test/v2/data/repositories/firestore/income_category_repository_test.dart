@@ -1,7 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/income_category_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_income_category_service.dart';
-import 'package:household_accounts/v2/data/models/income_category_model.dart' as data;
+import 'package:household_accounts/v2/data/models/income_category_model.dart'
+    as data;
 import 'package:household_accounts/v2/domain/models/income_category.dart';
 import 'package:household_accounts/v2/domain/models/vo/category_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/category_name.dart';
@@ -17,7 +18,8 @@ import 'income_category_repository_test.mocks.dart';
 
 void main() {
   group('fetchAll', () {
-    final MockPersonalIncomeCategoryService mockService = MockPersonalIncomeCategoryService();
+    final MockPersonalIncomeCategoryService mockService =
+        MockPersonalIncomeCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -86,7 +88,8 @@ void main() {
   });
 
   group('add', () {
-    final MockPersonalIncomeCategoryService mockService = MockPersonalIncomeCategoryService();
+    final MockPersonalIncomeCategoryService mockService =
+        MockPersonalIncomeCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -142,7 +145,8 @@ void main() {
   });
 
   group('update', () {
-    final MockPersonalIncomeCategoryService mockService = MockPersonalIncomeCategoryService();
+    final MockPersonalIncomeCategoryService mockService =
+        MockPersonalIncomeCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -200,7 +204,8 @@ void main() {
   });
 
   group('delete', () {
-    final MockPersonalIncomeCategoryService mockService = MockPersonalIncomeCategoryService();
+    final MockPersonalIncomeCategoryService mockService =
+        MockPersonalIncomeCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {

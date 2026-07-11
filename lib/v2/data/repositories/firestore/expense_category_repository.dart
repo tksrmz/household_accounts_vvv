@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_category_service.dart';
-import 'package:household_accounts/v2/data/models/expense_category_model.dart' as data;
+import 'package:household_accounts/v2/data/models/expense_category_model.dart'
+    as data;
 
 import '../../../domain/models/expense_category.dart';
 import '../../../domain/models/vo/budget_amount.dart';
@@ -21,13 +22,13 @@ class FirestoreExpenseCategoryRepository implements ExpenseCategoryRepository {
   @override
   Future<Either<Exception, List<ExpenseCategoryModel>>> fetchAll() async {
     final result = await _personalExpenseCategoryService.fetchAll(_uid);
-    return result.map((categoryModels) => 
-      categoryModels.map((model) => ExpenseCategoryModel(
-        id: CategoryIdVo(model.id),
-        name: CategoryNameVo(model.name),
-        totalBudget: BudgetAmountVo(model.totalBudget),
-      )).toList(growable: false)
-    );
+    return result.map((categoryModels) => categoryModels
+        .map((model) => ExpenseCategoryModel(
+              id: CategoryIdVo(model.id),
+              name: CategoryNameVo(model.name),
+              totalBudget: BudgetAmountVo(model.totalBudget),
+            ))
+        .toList(growable: false));
   }
 
   @override
@@ -41,7 +42,8 @@ class FirestoreExpenseCategoryRepository implements ExpenseCategoryRepository {
   }
 
   @override
-  Future<Either<Exception, Unit>> update(CategoryIdVo id, ExpenseCategoryModel category) async {
+  Future<Either<Exception, Unit>> update(
+      CategoryIdVo id, ExpenseCategoryModel category) async {
     final model = data.ExpenseCategoryModel(
       id: category.id.value,
       name: category.name.value,

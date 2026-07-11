@@ -8,5 +8,6 @@ abstract interface class PublicProfileRepository {
   Future<Either<Exception, UserNameVo>> fetchUserName(UserIdVo userId);
 
   /// 指定されたユーザーIDに紐づくユーザー名を更新する
-  Future<Either<Exception, Unit>> updateUserName(UserIdVo userId, UserNameVo userName);
+  Future<Either<Exception, Unit>> updateUserName(
+      UserIdVo userId, UserNameVo userName);
 }
