@@ -34,12 +34,12 @@ void _initSharedCategoryRepository(GetIt sl) {
 
 void _initSharedRecordRepository(GetIt sl) {
   sl.registerFactory<SharedIncomeRecordRepository>(
-        () => FirebaseSharedIncomeRecordRepository(),
+    () => FirebaseSharedIncomeRecordRepository(),
   );
   sl.registerFactory<SharedExpenseRecordRepository>(
-        () => FirebaseSharedExpenseRecordRepository(),
+    () => FirebaseSharedExpenseRecordRepository(),
   );
   sl.registerFactory<SharedTransferRecordRepository>(
-        () => FirebaseSharedTransferRecordRepository(),
+    () => FirebaseSharedTransferRecordRepository(),
   );
 }

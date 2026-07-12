@@ -83,7 +83,8 @@ void main() {
 
       test('初期化失敗時はエラー状態であること', () async {
         when(mockPublicProfileRepository.fetchUserName(any)).thenAnswer(
-          (_) async => Left<Exception, UserNameVo>(Exception('fetchUserNameエラー')),
+          (_) async =>
+              Left<Exception, UserNameVo>(Exception('fetchUserNameエラー')),
         );
 
         final target = await build();
@@ -99,8 +100,8 @@ void main() {
       const newUserName = UserNameVo("newUserName");
 
       setUp(() {
-        when(mockPublicProfileRepository.fetchUserName(userId))
-            .thenAnswer((_) async => Right<Exception, UserNameVo>(currentUserName));
+        when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
+            (_) async => Right<Exception, UserNameVo>(currentUserName));
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))
             .thenAnswer((_) async => Right<Exception, Unit>(unit));
       });
@@ -138,7 +139,8 @@ void main() {
 
         // モックの設定
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .thenAnswer((_) async => Left<Exception, Unit>(Exception('保存に失敗しました')));
+            .thenAnswer(
+                (_) async => Left<Exception, Unit>(Exception('保存に失敗しました')));
 
         await target.save(newUserName.value);
 
@@ -156,7 +158,8 @@ void main() {
 
         // モックの設定
         when(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .thenAnswer((_) async => Left<Exception, Unit>(Exception('保存に失敗しました')));
+            .thenAnswer(
+                (_) async => Left<Exception, Unit>(Exception('保存に失敗しました')));
 
         await target.save(newUserName.value);
         target.save.resetError();
@@ -188,7 +191,8 @@ void main() {
 
       test('検証エラーになったあと、有効なユーザー名を保存できる', () async {
         final validUserNameVo = UserNameVo("validUsername");
-        when(mockPublicProfileRepository.updateUserName(userId, validUserNameVo))
+        when(mockPublicProfileRepository.updateUserName(
+                userId, validUserNameVo))
             .thenAnswer((_) async => Right<Exception, Unit>(unit));
 
         final target = await build();

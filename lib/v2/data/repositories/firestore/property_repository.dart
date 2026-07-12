@@ -21,13 +21,13 @@ class FirestorePropertyRepository implements PropertyRepository {
   @override
   Future<Either<Exception, List<PropertyModel>>> fetchAll() async {
     final result = await _personalPropertyService.fetchAll(_uid);
-    return result.map((propertyModels) => 
-      propertyModels.map((model) => PropertyModel(
-        id: PropertyIdVo(model.id),
-        name: PropertyNameVo(model.name),
-        amount: PropertyAmountVo(model.amount),
-      )).toList(growable: false)
-    );
+    return result.map((propertyModels) => propertyModels
+        .map((model) => PropertyModel(
+              id: PropertyIdVo(model.id),
+              name: PropertyNameVo(model.name),
+              amount: PropertyAmountVo(model.amount),
+            ))
+        .toList(growable: false));
   }
 
   @override
@@ -41,7 +41,8 @@ class FirestorePropertyRepository implements PropertyRepository {
   }
 
   @override
-  Future<Either<Exception, Unit>> update(PropertyIdVo id, PropertyModel property) async {
+  Future<Either<Exception, Unit>> update(
+      PropertyIdVo id, PropertyModel property) async {
     final model = data.PropertyModel(
       id: property.id.value,
       name: property.name.value,

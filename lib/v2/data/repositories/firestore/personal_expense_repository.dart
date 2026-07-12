@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_record_service.dart';
-import 'package:household_accounts/v2/data/models/expense_record_model.dart' as data_model;
+import 'package:household_accounts/v2/data/models/expense_record_model.dart'
+    as data_model;
 
 import '../../../domain/models/expense_record.dart';
 import '../../../domain/models/vo/expense.dart';
@@ -26,8 +27,9 @@ class FirestorePersonalExpenseRepository implements ExpenseRepository {
     );
     final createExpenseVo =
         (data_model.ExpenseRecordModel record) => ExpenseVo(record.amount);
-    final convertToExpenseVoList = (List<data_model.ExpenseRecordModel> expenseList) =>
-        expenseList.map(createExpenseVo).toList(growable: false);
+    final convertToExpenseVoList =
+        (List<data_model.ExpenseRecordModel> expenseList) =>
+            expenseList.map(createExpenseVo).toList(growable: false);
     return result.map(convertToExpenseVoList);
   }
 
@@ -40,8 +42,14 @@ class FirestorePersonalExpenseRepository implements ExpenseRepository {
       note: record.note.value,
       hasCheckedOut: record.hasCheckedOut,
       createdAt: DateTime.now(),
-      property: {'ref': '/personalNotes/${_uid.value}/properties/${record.property.id.value}'},
-      category: {'ref': '/personalNotes/${_uid.value}/expenseCategories/${record.category.id.value}'},
+      property: {
+        'ref':
+            '/personalNotes/${_uid.value}/properties/${record.property.id.value}'
+      },
+      category: {
+        'ref':
+            '/personalNotes/${_uid.value}/expenseCategories/${record.category.id.value}'
+      },
     );
     return _personalExpenseRecordService.add(_uid, model);
   }

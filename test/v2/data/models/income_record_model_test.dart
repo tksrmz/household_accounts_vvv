@@ -62,7 +62,6 @@ void main() {
       expect(model.type, 'income');
     });
 
-
     test('hasCheckedOutが未指定の場合デフォルト値trueが設定されること', () {
       final json = {
         'id': testId,
@@ -122,6 +121,5 @@ void main() {
       expect(json['category'], testCategory);
       expect(json['type'], 'income');
     });
-
   });
 }

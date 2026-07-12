@@ -6,7 +6,7 @@ part 'income_record_model.freezed.dart';
 @freezed
 abstract class IncomeRecordModel with _$IncomeRecordModel {
   /// IncomeRecordModelのコンストラクタ
-  /// 
+  ///
   /// テストコードでのみ使用すること。
   /// プロダクションコードでは IncomeRecordModel.fromJson() を使用する。
   const factory IncomeRecordModel({
@@ -29,7 +29,8 @@ abstract class IncomeRecordModel with _$IncomeRecordModel {
     }
     final type = json['type'] as String;
     if (type != 'income') {
-      throw ArgumentError('IncomeRecordModel requires type "income", but got "$type"');
+      throw ArgumentError(
+          'IncomeRecordModel requires type "income", but got "$type"');
     }
     // createdAtの型変換処理
     Timestamp createdAtTimestamp = json['createdAt'] as Timestamp;

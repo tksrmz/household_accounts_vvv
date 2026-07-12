@@ -62,7 +62,6 @@ void main() {
       expect(model.type, 'transfer');
     });
 
-
     test('hasCheckedOutが未指定の場合デフォルト値trueが設定されること', () {
       final json = {
         'id': testId,
@@ -122,6 +121,5 @@ void main() {
       expect(json['toProperty'], testToProperty);
       expect(json['type'], 'transfer');
     });
-
   });
 }

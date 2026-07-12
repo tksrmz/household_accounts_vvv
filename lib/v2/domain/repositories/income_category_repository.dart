@@ -19,7 +19,8 @@ abstract interface class IncomeCategoryRepository {
   ///
   /// [id] 更新対象のカテゴリID
   /// [category] 更新後の収入カテゴリデータ
-  Future<Either<Exception, Unit>> update(CategoryIdVo id, IncomeCategoryModel category);
+  Future<Either<Exception, Unit>> update(
+      CategoryIdVo id, IncomeCategoryModel category);
 
   /// 収入カテゴリを削除する
   ///

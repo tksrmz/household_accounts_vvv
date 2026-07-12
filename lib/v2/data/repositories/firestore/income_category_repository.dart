@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_income_category_service.dart';
-import 'package:household_accounts/v2/data/models/income_category_model.dart' as data;
+import 'package:household_accounts/v2/data/models/income_category_model.dart'
+    as data;
 
 import '../../../domain/models/income_category.dart';
 import '../../../domain/models/vo/category_id.dart';
@@ -20,12 +21,12 @@ class FirestoreIncomeCategoryRepository implements IncomeCategoryRepository {
   @override
   Future<Either<Exception, List<IncomeCategoryModel>>> fetchAll() async {
     final result = await _personalIncomeCategoryService.fetchAll(_uid);
-    return result.map((categoryModels) => 
-      categoryModels.map((model) => IncomeCategoryModel(
-        id: CategoryIdVo(model.id),
-        name: CategoryNameVo(model.name),
-      )).toList(growable: false)
-    );
+    return result.map((categoryModels) => categoryModels
+        .map((model) => IncomeCategoryModel(
+              id: CategoryIdVo(model.id),
+              name: CategoryNameVo(model.name),
+            ))
+        .toList(growable: false));
   }
 
   @override
@@ -38,7 +39,8 @@ class FirestoreIncomeCategoryRepository implements IncomeCategoryRepository {
   }
 
   @override
-  Future<Either<Exception, Unit>> update(CategoryIdVo id, IncomeCategoryModel category) async {
+  Future<Either<Exception, Unit>> update(
+      CategoryIdVo id, IncomeCategoryModel category) async {
     final model = data.IncomeCategoryModel(
       id: category.id.value,
       name: category.name.value,

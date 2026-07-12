@@ -1,7 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/repositories/firestore/expense_category_repository.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_category_service.dart';
-import 'package:household_accounts/v2/data/models/expense_category_model.dart' as data;
+import 'package:household_accounts/v2/data/models/expense_category_model.dart'
+    as data;
 import 'package:household_accounts/v2/domain/models/expense_category.dart';
 import 'package:household_accounts/v2/domain/models/vo/budget_amount.dart';
 import 'package:household_accounts/v2/domain/models/vo/category_id.dart';
@@ -18,7 +19,8 @@ import 'expense_category_repository_test.mocks.dart';
 
 void main() {
   group('fetchAll', () {
-    final MockPersonalExpenseCategoryService mockService = MockPersonalExpenseCategoryService();
+    final MockPersonalExpenseCategoryService mockService =
+        MockPersonalExpenseCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -89,7 +91,8 @@ void main() {
   });
 
   group('add', () {
-    final MockPersonalExpenseCategoryService mockService = MockPersonalExpenseCategoryService();
+    final MockPersonalExpenseCategoryService mockService =
+        MockPersonalExpenseCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -147,7 +150,8 @@ void main() {
   });
 
   group('update', () {
-    final MockPersonalExpenseCategoryService mockService = MockPersonalExpenseCategoryService();
+    final MockPersonalExpenseCategoryService mockService =
+        MockPersonalExpenseCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {
@@ -207,7 +211,8 @@ void main() {
   });
 
   group('delete', () {
-    final MockPersonalExpenseCategoryService mockService = MockPersonalExpenseCategoryService();
+    final MockPersonalExpenseCategoryService mockService =
+        MockPersonalExpenseCategoryService();
     const UserIdVo userId = UserIdVo('samplePersonalNoteId');
 
     tearDown(() {

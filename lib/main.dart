@@ -103,7 +103,7 @@ class MyApp extends StatelessWidget {
         create: (context) => PersonalTransferRecordService(context.read()),
       ),
       Provider<SharedRecordService>(
-        create: (context) => SharedRecordService(context.read()),
+        create: (context) => const SharedRecordService(),
       ),
       Provider<FirestoreTransactionService>(
         create: (context) => FirestoreTransactionService(context.read()),

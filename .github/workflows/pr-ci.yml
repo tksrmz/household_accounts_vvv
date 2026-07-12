@@ -1,0 +1,52 @@
+name: PR CI
+
+on:
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: pr-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.4'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # pub get後: dart formatは.dart_tool/package_config.jsonの言語バージョンで
+      # スタイル(short/tall)を決めるため、これが無いと判定がローカルとズレる。
+      # build_runner前: 生成ファイルがまだ存在せず、コミット済みファイルのみが対象になる。
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - uses: gradle/actions/setup-gradle@v5
+
+      - name: Build profile APK
+        run: flutter build apk --profile

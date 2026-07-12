@@ -61,7 +61,7 @@ void main() {
 
       test('年月を指定して共有支出レコードを取得できる', () async {
         // Arrange
-        final target = SharedRecordService(mockDb);
+        final target = const SharedRecordService();
 
         // Act
         final result =
@@ -89,7 +89,7 @@ void main() {
 
       test('年のみを指定して共有支出レコードを取得できる', () async {
         // Arrange
-        final target = SharedRecordService(mockDb);
+        final target = const SharedRecordService();
 
         // Act
         final result =
@@ -101,7 +101,7 @@ void main() {
 
       test('日付を指定して共有支出レコードを取得できる', () async {
         // Arrange
-        final target = SharedRecordService(mockDb);
+        final target = const SharedRecordService();
 
         // Act
         final result =
@@ -114,7 +114,7 @@ void main() {
       test('例外が発生した場合、Leftを返す', () async {
         // Arrange
         when(mockQuery.get()).thenThrow(Exception('test error'));
-        final target = SharedRecordService(mockDb);
+        final target = const SharedRecordService();
 
         // Act
         final result =
@@ -126,7 +126,7 @@ void main() {
 
       test('月がnullで日が指定された場合、アサーションエラーが発生する', () async {
         // Arrange
-        final target = SharedRecordService(mockDb);
+        final target = const SharedRecordService();
 
         // Act & Assert
         expect(
@@ -184,7 +184,7 @@ void main() {
 
       test('年月を指定して共有収入レコードを取得できる', () async {
         // Arrange
-        final target = SharedRecordService(mockDb);
+        final target = const SharedRecordService();
 
         // Act
         final result =
@@ -212,7 +212,7 @@ void main() {
 
       test('年のみを指定して共有収入レコードを取得できる', () async {
         // Arrange
-        final target = SharedRecordService(mockDb);
+        final target = const SharedRecordService();
 
         // Act
         final result =
@@ -224,7 +224,7 @@ void main() {
 
       test('日付を指定して共有収入レコードを取得できる', () async {
         // Arrange
-        final target = SharedRecordService(mockDb);
+        final target = const SharedRecordService();
 
         // Act
         final result =
@@ -237,7 +237,7 @@ void main() {
       test('例外が発生した場合、Leftを返す', () async {
         // Arrange
         when(mockQuery.get()).thenThrow(Exception('test error'));
-        final target = SharedRecordService(mockDb);
+        final target = const SharedRecordService();
 
         // Act
         final result =
@@ -249,7 +249,7 @@ void main() {
 
       test('月がnullで日が指定された場合、アサーションエラーが発生する', () async {
         // Arrange
-        final target = SharedRecordService(mockDb);
+        final target = const SharedRecordService();
 
         // Act & Assert
         expect(

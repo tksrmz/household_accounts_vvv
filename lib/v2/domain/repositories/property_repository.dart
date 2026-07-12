@@ -19,7 +19,8 @@ abstract interface class PropertyRepository {
   ///
   /// [id] 更新対象の資産ID
   /// [property] 更新後の資産データ
-  Future<Either<Exception, Unit>> update(PropertyIdVo id, PropertyModel property);
+  Future<Either<Exception, Unit>> update(
+      PropertyIdVo id, PropertyModel property);
 
   /// 資産を削除する
   ///

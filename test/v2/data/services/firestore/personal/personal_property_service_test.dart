@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dartz/dartz.dart';
 import 'package:household_accounts/v2/data/models/property_model.dart';
 import 'package:household_accounts/v2/data/services/firestore/personal/personal_property_service.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';

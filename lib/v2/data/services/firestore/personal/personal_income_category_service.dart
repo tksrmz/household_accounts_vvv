@@ -11,8 +11,8 @@ class PersonalIncomeCategoryService {
   const PersonalIncomeCategoryService(this._db);
 
   /// [userId]のすべての収入カテゴリを取得する
-  Future<Either<Exception, List<IncomeCategoryModel>>>
-      fetchAll(UserIdVo userId) async {
+  Future<Either<Exception, List<IncomeCategoryModel>>> fetchAll(
+      UserIdVo userId) async {
     try {
       final querySnapshot = await _db
           .collection('/personalNotes/${userId.value}/incomeCategories')
