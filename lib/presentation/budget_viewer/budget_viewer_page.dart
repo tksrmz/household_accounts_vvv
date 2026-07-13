@@ -22,12 +22,11 @@ enum PeriodMode { calendar, customCycle }
 
 class BudgetViewerPage extends StatelessWidget {
   const BudgetViewerPage({
-    Key? key,
+    super.key,
     DateTime Function() now = DateTime.now,
     RetrieveBudgetStateUseCase? useCase,
   })  : _now = now,
-        _useCase = useCase,
-        super(key: key);
+        _useCase = useCase;
 
   /// 現在時刻の供給源。
   ///
@@ -58,11 +57,9 @@ class _PageContents extends StatefulWidget {
     required SelectedNote singleOrPair,
     required DateTime Function() now,
     required RetrieveBudgetStateUseCase useCase,
-    Key? key,
   })  : _singleOrPair = singleOrPair,
         _now = now,
-        _useCase = useCase,
-        super(key: key);
+        _useCase = useCase;
 
   final SelectedNote _singleOrPair;
   final DateTime Function() _now;
@@ -245,12 +242,10 @@ class _PeriodNavigationWidget extends StatelessWidget {
     required VoidCallback onPreviousPressed,
     required VoidCallback onNextPressed,
     required bool disableNextButton,
-    Key? key,
   })  : _label = label,
         _onPreviousPressed = onPreviousPressed,
         _onNextPressed = onNextPressed,
-        _disableNextButton = disableNextButton,
-        super(key: key);
+        _disableNextButton = disableNextButton;
 
   final String _label;
   final VoidCallback _onPreviousPressed;
@@ -278,10 +273,8 @@ class _PeriodNavigationWidget extends StatelessWidget {
 
 class _BudgetListItem extends StatelessWidget {
   const _BudgetListItem({
-    Key? key,
     required BudgetState budgetState,
-  })  : _budgetState = budgetState,
-        super(key: key);
+  }) : _budgetState = budgetState;
 
   final BudgetState _budgetState;
 

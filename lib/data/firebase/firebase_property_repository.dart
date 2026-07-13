@@ -38,13 +38,13 @@ class FirebaseSharedPropertyRepository extends _FirebasePropertyRepository
         );
 }
 
-final _fromFirestore = (
+PropertyModel _fromFirestore(
   DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
 ) =>
     PropertyModel.fromJson(snapshot.toJsonWithId());
 
-final _toFirestore = (
+Json _toFirestore(
   PropertyModel value,
   SetOptions? _,
 ) =>
@@ -81,7 +81,7 @@ class _FirebasePropertyRepository implements Repository<Property> {
       _collectionReferenceBuilder(repoId),
       'name',
     );
-    final toProperties = (List<PropertyModel> list) =>
+    List<Property> toProperties(List<PropertyModel> list) =>
         list.map<Property>((item) => item.toEntity()).toList();
     return exceptionOrModelList.map(toProperties);
   }
@@ -93,7 +93,7 @@ class _FirebasePropertyRepository implements Repository<Property> {
   }) async {
     final docRef = _collectionReferenceBuilder(repoId).doc(id);
     final exceptionOrModel = await _firebase.retrieve(docRef);
-    final toProperty = (PropertyModel model) => model.toEntity();
+    Property toProperty(PropertyModel model) => model.toEntity();
     return exceptionOrModel.map(toProperty);
   }
 

@@ -21,7 +21,7 @@ class UpdatePropertyInteractor implements UpdatePropertyUseCase {
       ),
     );
 
-    final update = (Property value) => repository.update(
+    Future<ExceptionOr<Unit>> update(Property value) => repository.update(
           repoId: input.uid,
           newValue: value,
         );

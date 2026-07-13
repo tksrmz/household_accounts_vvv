@@ -12,7 +12,7 @@ import '../util/model/user_info.dart';
 import '../util/use_case_wrapper/fetch_records.dart';
 
 class CalendarRecordViewPage extends StatefulWidget {
-  const CalendarRecordViewPage({Key? key}) : super(key: key);
+  const CalendarRecordViewPage({super.key});
 
   @override
   State<CalendarRecordViewPage> createState() => _CalendarRecordViewPageState();
@@ -33,8 +33,8 @@ class _CalendarRecordViewPageState extends State<CalendarRecordViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    final increment = () => _updateMonthBy(1);
-    final decrement = () => _updateMonthBy(-1);
+    void increment() => _updateMonthBy(1);
+    void decrement() => _updateMonthBy(-1);
 
     return ListView(
       children: [
@@ -56,10 +56,11 @@ class _CalendarRecordViewPageState extends State<CalendarRecordViewPage> {
 
   void _updateMonthBy(int delta) {
     final newDate = addMonths(_year, _month, delta);
-    final update = () {
+    void update() {
       _year = newDate.year;
       _month = newDate.month;
-    };
+    }
+
     setState(update);
   }
 }
@@ -72,14 +73,12 @@ class _DateLabelWidget extends StatelessWidget {
     required VoidCallback onRightArrowPressed,
     bool disableLeftArrow = false,
     bool disableRightArrow = false,
-    Key? key,
   })  : _year = year,
         _month = month,
         _onLeftArrowPressed = onLeftArrowPressed,
         _onRightArrowPressed = onRightArrowPressed,
         _disableLeftArrow = disableLeftArrow,
-        _disableRightArrow = disableRightArrow,
-        super(key: key);
+        _disableRightArrow = disableRightArrow;
 
   final int _year;
   final int _month;
@@ -112,11 +111,9 @@ class _CalendarRecordView extends StatefulWidget {
     required int year,
     required int month,
     required SelectedNote singleOrPair,
-    Key? key,
   })  : _year = year,
         _month = month,
-        _singleOrPair = singleOrPair,
-        super(key: key);
+        _singleOrPair = singleOrPair;
 
   final int _year;
   final int _month;
@@ -168,7 +165,7 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
     int day,
     _DailyRecordSummary summary,
   ) {
-    final onTap = () async {
+    Future<void> onTap() async {
       final sop = context.read<SelectedNoteState>().value;
       final repoId = context.read<UserInfo>().repoId(sop);
       await Navigator.push(
@@ -186,7 +183,8 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
       setState(() {
         _setSummaryFutureState();
       });
-    };
+    }
+
     return _CalendarDay(
       day: day,
       income: summary["income"]![day - 1],
@@ -201,11 +199,11 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
     final month = widget._month;
     final sop = widget._singleOrPair;
     final daysInMonth = DateUtils.getDaysInMonth(year, month);
-    final List<int> Function(ExceptionOr<List<RecordBase>>) action =
-        (result) => result.fold<List<int>>(
-              (_) => List.filled(daysInMonth, 0),
-              (records) => _summarize(daysInMonth, records),
-            );
+    List<int> action(ExceptionOr<List<RecordBase>> result) =>
+        result.fold<List<int>>(
+          (_) => List.filled(daysInMonth, 0),
+          (records) => _summarize(daysInMonth, records),
+        );
     final repoId = context.read<UserInfo>().repoId(sop);
     _summaryFuture = Future.wait<List<int>>(
       [
@@ -252,13 +250,11 @@ class _CalendarDay extends StatelessWidget {
     required int expense,
     required int transfer,
     required VoidCallback onTap,
-    Key? key,
   })  : _day = day,
         _income = income,
         _expense = expense,
         _transfer = transfer,
-        _onTap = onTap,
-        super(key: key);
+        _onTap = onTap;
 
   final int _day;
   final int _income;
@@ -300,11 +296,9 @@ class _Calendar extends StatelessWidget {
     required int year,
     required int month,
     required Widget Function(int, int, int) dayWidgetBuilder,
-    Key? key,
   })  : _year = year,
         _month = month,
-        _dayWidgetBuilder = dayWidgetBuilder,
-        super(key: key);
+        _dayWidgetBuilder = dayWidgetBuilder;
 
   final int _year;
   final int _month;
@@ -312,7 +306,7 @@ class _Calendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TableRow Function(List<int>) weekWidgetBuilder = (week) => TableRow(
+    TableRow weekWidgetBuilder(List<int> week) => TableRow(
           children: week
               .map<Widget>(
                 (day) => day == 0
@@ -346,14 +340,14 @@ class _Calendar extends StatelessWidget {
 
   List<List<int>> _createCalendar(int year, int month) {
     final calendar = [List<int>.filled(DateTime.daysPerWeek, 0)];
-    final fillCalendar = (int day) {
+    void fillCalendar(int day) {
       var weekday = DateTime(year, month, day).weekday;
       // DateTime.weekday is 1-origin, so subtracting one is needed to use it as an index of a list.
       calendar.last[weekday - 1] = day;
       if (weekday == DateTime.sunday) {
         calendar.add(List<int>.filled(DateTime.daysPerWeek, 0));
       }
-    };
+    }
 
     final days = List.generate(
       DateUtils.getDaysInMonth(year, month),

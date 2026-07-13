@@ -17,12 +17,14 @@ class PropertyModel implements DataModel<Property> {
   final String name;
   final int amount;
 
+  @override
   Property toEntity() => Property(
         id,
         name,
         amount,
       );
 
+  @override
   Json toJson() => {
         'name': name,
         'amount': amount,

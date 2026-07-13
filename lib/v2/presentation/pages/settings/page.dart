@@ -5,7 +5,7 @@ import 'view_model.dart';
 import 'widgets/user_name_card.dart';
 
 class SettingsPage extends StatelessWidget {
-  SettingsPage({
+  const SettingsPage({
     super.key,
     required SettingsViewModel viewModel,
   }) : _viewModel = viewModel;

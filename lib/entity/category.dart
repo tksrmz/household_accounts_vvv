@@ -36,11 +36,9 @@ abstract class CategoryBase extends Identifiable {
 /// as [CategoryBase] has all of them that this class requires.
 class IncomeCategory extends CategoryBase {
   const IncomeCategory({
-    required String id,
-    required String name,
+    required super.id,
+    required super.name,
   }) : super(
-          id: id,
-          name: name,
           type: CategoryType.income,
         );
 
@@ -55,7 +53,7 @@ class IncomeCategory extends CategoryBase {
 }
 
 const deletedIncomeCategory =
-    const IncomeCategory(id: 'deleted-income-category', name: '削除済み');
+    IncomeCategory(id: 'deleted-income-category', name: '削除済み');
 
 /// Category for expense records.
 ///
@@ -67,13 +65,11 @@ class ExpenseCategory extends CategoryBase {
   int get totalBudget => _budget.value;
 
   ExpenseCategory({
-    required String id,
-    required String name,
+    required super.id,
+    required super.name,
     required int totalBudget,
   })  : _budget = BudgetAmount(totalBudget),
         super(
-          id: id,
-          name: name,
           type: CategoryType.expense,
         );
 

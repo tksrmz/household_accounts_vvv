@@ -88,7 +88,7 @@ Future<void> budgetFeature() async {
           .where(
               (r) => r.date.year == today.year && r.date.month == today.month)
           .fold<int>(0, (total, r) => total + r.amount);
-      expect(find.text('$categoryName'), findsOneWidget);
+      expect(find.text(categoryName), findsOneWidget);
       expect(find.text('$calendarMonthTotal / 30000円'), findsOneWidget);
 
       // 「月度」に切替える

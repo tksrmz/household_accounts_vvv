@@ -22,7 +22,7 @@ void main() {
   final mockAuthRepository = MockAuthRepository();
   const userId = UserIdVo('testUserId');
   const userName = UserNameVo('TestUser');
-  final build = () async {
+  Future<SettingsViewModel> build() async {
     final vm = SettingsViewModel(
       publicProfileRepository: mockPublicProfileRepository,
       authRepository: mockAuthRepository,
@@ -30,7 +30,7 @@ void main() {
     // 初期化完了を待つ
     await Future.delayed(Duration(milliseconds: 100));
     return vm;
-  };
+  }
 
   setUp(() {
     when(mockAuthRepository.getCurrentUser()).thenReturn(UserAuth(uid: userId));

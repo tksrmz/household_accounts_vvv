@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
-import 'package:household_accounts/v2/data/models/privateProfile.dart';
+import 'package:household_accounts/v2/data/models/private_profile.dart';
 
 import '../../../../domain/models/vo/user_id.dart';
 

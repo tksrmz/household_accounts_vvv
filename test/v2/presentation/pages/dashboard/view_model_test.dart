@@ -28,7 +28,7 @@ void main() {
   const userId = UserIdVo('testUserId');
   const userName = UserNameVo('TestUser');
 
-  final build = () async {
+  Future<DashboardViewModel> build() async {
     final vm = DashboardViewModel(
       incomeRepository: mockIncomeRepository,
       expenseRepository: mockExpenseRepository,
@@ -39,7 +39,7 @@ void main() {
     // 初期化完了を待つ
     await Future.delayed(Duration(milliseconds: 100));
     return vm;
-  };
+  }
 
   setUp(() {
     when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
@@ -107,7 +107,7 @@ void main() {
     });
 
     group('データ集約', () {
-      [
+      for (var testData in [
         (
           description: 'incomeとexpenseがともに0円のとき',
           incomeAnswer: <IncomeVo>[],
@@ -135,7 +135,7 @@ void main() {
           expectedExpense: 70,
           expectedUserName: 'testUserId',
         ),
-      ].forEach((testData) {
+      ]) {
         test(testData.description, () async {
           when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
             (_) async => Right(testData.incomeAnswer),
@@ -156,7 +156,7 @@ void main() {
           expect(target.value.expense.value, testData.expectedExpense);
           expect(target.value.userName.value, testData.expectedUserName);
         });
-      });
+      }
     });
 
     group('エラーハンドリング', () {

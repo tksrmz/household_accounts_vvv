@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'privateProfile.freezed.dart';
+part 'private_profile.freezed.dart';
 
 @freezed
 abstract class PrivateProfile with _$PrivateProfile {

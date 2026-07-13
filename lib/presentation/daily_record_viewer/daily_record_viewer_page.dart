@@ -19,13 +19,12 @@ class DailyRecordMinute extends StatelessWidget {
     required int day,
     required SelectedNote sop,
     required String repoId,
-    Key? key,
+    super.key,
   })  : _year = year,
         _month = month,
         _day = day,
         _sop = sop,
-        _repoId = repoId,
-        super(key: key);
+        _repoId = repoId;
 
   final int _year;
   final int _month;
@@ -57,13 +56,11 @@ class _DailyRecordMinuteBody extends StatefulWidget {
     required int day,
     required SelectedNote sop,
     required String repoId,
-    Key? key,
   })  : _year = year,
         _month = month,
         _day = day,
         _sop = sop,
-        _repoId = repoId,
-        super(key: key);
+        _repoId = repoId;
 
   final int _year;
   final int _month;
@@ -104,7 +101,7 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
                     Expanded(
                       child: Text(item.leadingText),
                     ),
-                    Text('${item.amountText}'),
+                    Text(item.amountText),
                     DeleteIconButton(
                       onPressed: () async {
                         await item.delete(
@@ -228,7 +225,7 @@ class _ViewModelItemExpense extends _ViewModelItem {
   final ExpenseRecord entity;
 
   @override
-  String get amountText => '${Formatter.simpleCurrency(entity.amount)}';
+  String get amountText => Formatter.simpleCurrency(entity.amount);
 
   @override
   String get leadingText => '${entity.category.name}@${entity.note}';
@@ -256,7 +253,7 @@ class _ViewModelItemTransfer extends _ViewModelItem {
   final TransferRecord entity;
 
   @override
-  String get amountText => '${Formatter.simpleCurrency(entity.amount)}';
+  String get amountText => Formatter.simpleCurrency(entity.amount);
 
   @override
   String get leadingText => '${entity.source.name}→${entity.destination.name}';

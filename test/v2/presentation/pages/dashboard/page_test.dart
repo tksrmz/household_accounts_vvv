@@ -41,7 +41,7 @@ void main() {
   final mockExpenseRepository = MockExpenseRepository();
   final mockPublicProfileRepository = MockPublicProfileRepository();
 
-  final targetBuilder = () => MultiProvider(
+  MultiProvider targetBuilder() => MultiProvider(
         providers: [
           ChangeNotifierProvider<SelectedNoteState>(
             create: (_) => SelectedNoteState(),

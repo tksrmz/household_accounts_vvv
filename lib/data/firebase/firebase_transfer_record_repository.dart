@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
 import '../../entity/record.dart';
@@ -164,7 +165,7 @@ class _TransferRecordRepository {
     required String repoId,
     required String id,
   }) async {
-    TransactionHandler handler = (Transaction transaction) async {
+    Future<void> handler(Transaction transaction) async {
       final recordDocument = _builder(repoId).doc(id);
       // Get the document
       DocumentSnapshot<TransferRecordModel> snapshot =
@@ -190,12 +191,13 @@ class _TransferRecordRepository {
       }
       transaction.delete(recordDocument);
       return;
-    };
+    }
+
     try {
       await FirebaseFirestore.instance.runTransaction(handler);
       return Right(unit);
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('$e');
       return Left(e);
     }
   }
@@ -206,7 +208,7 @@ class _TransferRecordRepository {
   }) async {
     final ownerDocument = _builder(repoId).parent!;
     final propertyCollection =
-        ownerDocument.collection(FIREBASE_COLLECTION_PROPERTIES);
+        ownerDocument.collection(firebaseCollectionProperties);
     final batch = FirebaseFirestore.instance.batch();
     if (value.hasCheckedOut) {
       batch
@@ -235,7 +237,7 @@ class _TransferRecordRepository {
       await batch.commit();
       return Right(unit);
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('$e');
       return Left(e);
     }
   }
@@ -257,26 +259,28 @@ class _TransferRecordRepository {
           .where('date', isLessThan: end)
           .get();
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('$e');
       return Left(e);
     }
 
-    final toModel = (QueryDocumentSnapshot<TransferRecordModel> snapshot) =>
+    TransferRecordModel toModel(
+            QueryDocumentSnapshot<TransferRecordModel> snapshot) =>
         snapshot.data();
     final models = querySnapshot.docs.map(toModel);
-    final toEntityAsync = (TransferRecordModel model) => model.toEntityAsync();
+    Future<TransferRecord> toEntityAsync(TransferRecordModel model) =>
+        model.toEntityAsync();
     final entityList = await Future.wait(models.map(toEntityAsync));
     return Right(entityList);
   }
 }
 
-final _fromFirestore = (
+TransferRecordModel _fromFirestore(
   DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
 ) =>
     TransferRecordModel.fromJson(snapshot.toJsonWithId());
 
-final _toFirestore = (
+Json _toFirestore(
   TransferRecordModel value,
   SetOptions? _,
 ) =>

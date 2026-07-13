@@ -21,7 +21,7 @@ import '../util/repository_selector.dart';
 import 'property_viewer_state.dart';
 
 class PropertyListBody extends StatelessWidget {
-  const PropertyListBody({Key? key}) : super(key: key);
+  const PropertyListBody({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class PropertyListBody extends StatelessWidget {
 }
 
 class _PageContents extends StatelessWidget {
-  const _PageContents({Key? key}) : super(key: key);
+  const _PageContents();
 
   @override
   Widget build(BuildContext context) {
@@ -74,9 +74,7 @@ class _PropertyListView extends StatelessWidget {
 
   const _PropertyListView({
     required UnmodifiableListView<Property> properties,
-    Key? key,
-  })  : _properties = properties,
-        super(key: key);
+  }) : _properties = properties;
 
   @override
   Widget build(BuildContext context) {
@@ -94,9 +92,7 @@ class _PropertyListItem extends StatelessWidget {
 
   const _PropertyListItem({
     required Property property,
-    Key? key,
-  })  : _property = property,
-        super(key: key);
+  }) : _property = property;
 
   @override
   Widget build(BuildContext context) {
@@ -162,28 +158,29 @@ class _PropertyListItem extends StatelessWidget {
 class _EditPropertyButton extends StatelessWidget {
   final Property _property;
 
-  const _EditPropertyButton({required Property property, Key? key})
-      : _property = property,
-        super(key: key);
+  const _EditPropertyButton({required Property property})
+      : _property = property;
 
   @override
   Widget build(BuildContext context) {
-    final buildPropertyEditorPage =
-        (BuildContext anotherContext) => PropertyEditorPage(
-              title: '編集',
-              initialName: _property.name,
-              initialAmount: _property.amount,
-              onSubmit: (name, amount) async {
-                await _updateProperty(
-                  propertyId: _property.id,
-                  name: name,
-                  amount: amount,
-                  sop: context.read<SelectedNoteState>().value,
-                  uinfo: context.read<UserInfo>(),
-                );
-                Navigator.pop(anotherContext);
-              },
+    PropertyEditorPage buildPropertyEditorPage(BuildContext anotherContext) =>
+        PropertyEditorPage(
+          title: '編集',
+          initialName: _property.name,
+          initialAmount: _property.amount,
+          onSubmit: (name, amount) async {
+            await _updateProperty(
+              propertyId: _property.id,
+              name: name,
+              amount: amount,
+              sop: context.read<SelectedNoteState>().value,
+              uinfo: context.read<UserInfo>(),
             );
+            if (anotherContext.mounted) {
+              Navigator.pop(anotherContext);
+            }
+          },
+        );
 
     return IconButton(
       onPressed: () async {
@@ -193,7 +190,9 @@ class _EditPropertyButton extends StatelessWidget {
             builder: buildPropertyEditorPage,
           ),
         );
-        _reloadState(context);
+        if (context.mounted) {
+          _reloadState(context);
+        }
       },
       icon: const Icon(Icons.edit),
     );
@@ -219,25 +218,27 @@ class _EditPropertyButton extends StatelessWidget {
 }
 
 class _AddPropertyButton extends StatelessWidget {
-  const _AddPropertyButton({Key? key}) : super(key: key);
+  const _AddPropertyButton();
 
-  static const String ADD_PROPERTY_TITLE = '資産の追加';
+  static const String addPropertyTitle = '資産の追加';
 
   @override
   Widget build(BuildContext context) {
-    final buildPropertyEditorPage =
-        (BuildContext anotherContext) => PropertyEditorPage(
-              title: ADD_PROPERTY_TITLE,
-              onSubmit: (name, amount) async {
-                await _addProperty(
-                  name: name,
-                  amount: amount,
-                  sop: context.read<SelectedNoteState>().value,
-                  uinfo: context.read<UserInfo>(),
-                );
-                Navigator.pop(anotherContext);
-              },
+    PropertyEditorPage buildPropertyEditorPage(BuildContext anotherContext) =>
+        PropertyEditorPage(
+          title: addPropertyTitle,
+          onSubmit: (name, amount) async {
+            await _addProperty(
+              name: name,
+              amount: amount,
+              sop: context.read<SelectedNoteState>().value,
+              uinfo: context.read<UserInfo>(),
             );
+            if (anotherContext.mounted) {
+              Navigator.pop(anotherContext);
+            }
+          },
+        );
 
     return OutlinedButton(
       onPressed: () async {
@@ -247,13 +248,15 @@ class _AddPropertyButton extends StatelessWidget {
             builder: buildPropertyEditorPage,
           ),
         );
-        _reloadState(context);
+        if (context.mounted) {
+          _reloadState(context);
+        }
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.add_circle_outline),
-          const Text(ADD_PROPERTY_TITLE),
+          const Text(addPropertyTitle),
         ],
       ),
     );

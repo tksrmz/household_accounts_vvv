@@ -8,8 +8,8 @@ class MainPageDrawer extends StatelessWidget {
   const MainPageDrawer({
     required this.mode,
     this.setter,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final SelectedNote mode;
   final void Function(SelectedNote)? setter;
@@ -64,7 +64,7 @@ class MainPageDrawer extends StatelessWidget {
   }
 
   String _getHeaderTitle() {
-    final modeText;
+    final String modeText;
 
     switch (mode) {
       case SelectedNote.personal:

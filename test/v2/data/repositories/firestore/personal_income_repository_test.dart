@@ -147,7 +147,7 @@ void main() {
       });
     });
 
-    <({String description, dynamic value})>[
+    for (var element in <({String description, dynamic value})>[
       (
         description: 'amountが数値以外のとき、TypeErrorが発生する',
         value: '100',
@@ -156,7 +156,7 @@ void main() {
         description: 'amountがnullのとき、TypeErrorが発生する',
         value: null,
       ),
-    ].forEach((element) {
+    ]) {
       final (:description, :value) = element;
       test(description, () async {
         final date = DateTime(2025, 1);
@@ -186,7 +186,7 @@ void main() {
           throwsA(isA<TypeError>()),
         );
       });
-    });
+    }
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final date = DateTime(2025, 1);

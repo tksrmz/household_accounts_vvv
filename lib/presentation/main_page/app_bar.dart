@@ -6,7 +6,7 @@ import '../../util/service_locator/main.dart';
 class MainPageAppBar extends AppBar {
   MainPageAppBar({
     required String title,
-    Key? key,
+    super.key,
   }) : super(
           title: Text(title),
           actions: [
@@ -18,6 +18,5 @@ class MainPageAppBar extends AppBar {
               },
             ),
           ],
-          key: key,
         );
 }

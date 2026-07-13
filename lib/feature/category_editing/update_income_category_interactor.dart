@@ -22,7 +22,7 @@ class UpdateIncomeCategoryInteractor implements UpdateIncomeCategoryUseCase {
       ),
     );
 
-    final update = (IncomeCategory value) => repository.update(
+    Future<ExceptionOr<Unit>> update(IncomeCategory value) => repository.update(
           repoId: input.uid,
           newValue: value,
         );

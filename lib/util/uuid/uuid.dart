@@ -2,7 +2,7 @@ import 'package:uuid/uuid.dart' as pkg;
 
 class UUID {
   static String generate([int version = 1]) {
-    const uuid = const pkg.Uuid();
+    const uuid = pkg.Uuid();
     if (version == 1) {
       return uuid.v1();
     }

@@ -9,20 +9,25 @@ import 'property_model.dart';
 import 'util/document_snapshot.dart';
 import 'util/get_entity.dart';
 
-final FromFirestore<IncomeCategoryModel> _incomeCategoryModelFromFirestore =
-    (snapshot, _) => IncomeCategoryModel.fromJson(snapshot.toJsonWithId());
-final ToFirestore<IncomeCategoryModel> _incomeCategoryModelToFirestore =
-    (model, _) => model.toJson();
+IncomeCategoryModel _incomeCategoryModelFromFirestore(
+        DocumentSnapshot<Json> snapshot, SnapshotOptions? _) =>
+    IncomeCategoryModel.fromJson(snapshot.toJsonWithId());
+Json _incomeCategoryModelToFirestore(
+        IncomeCategoryModel model, SetOptions? _) =>
+    model.toJson();
 
-final FromFirestore<ExpenseCategoryModel> _expenseCategoryModelFromFirestore =
-    (snapshot, _) => ExpenseCategoryModel.fromJson(snapshot.toJsonWithId());
-final ToFirestore<ExpenseCategoryModel> _expenseCategoryModelToFirestore =
-    (model, _) => model.toJson();
+ExpenseCategoryModel _expenseCategoryModelFromFirestore(
+        DocumentSnapshot<Json> snapshot, SnapshotOptions? _) =>
+    ExpenseCategoryModel.fromJson(snapshot.toJsonWithId());
+Json _expenseCategoryModelToFirestore(
+        ExpenseCategoryModel model, SetOptions? _) =>
+    model.toJson();
 
-final FromFirestore<PropertyModel> _propertyModelFromFirestore =
-    (snapshot, _) => PropertyModel.fromJson(snapshot.toJsonWithId());
-final ToFirestore<PropertyModel> _propertyModelToFirestore =
-    (propertyModel, _) => propertyModel.toJson();
+PropertyModel _propertyModelFromFirestore(
+        DocumentSnapshot<Json> snapshot, SnapshotOptions? _) =>
+    PropertyModel.fromJson(snapshot.toJsonWithId());
+Json _propertyModelToFirestore(PropertyModel propertyModel, SetOptions? _) =>
+    propertyModel.toJson();
 
 DocumentReference<IncomeCategoryModel> _createIncomeCategoryDocumentReference({
   required String categoryId,
@@ -110,7 +115,7 @@ class IncomeRecordModel extends RecordBaseModel {
         ),
         super.fromEntity(record);
 
-  IncomeRecordModel.fromJson(Json json)
+  IncomeRecordModel.fromJson(super.json)
       : categoryRef =
             (json['category']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _incomeCategoryModelFromFirestore,
@@ -121,7 +126,7 @@ class IncomeRecordModel extends RecordBaseModel {
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
-        super.fromJson(json);
+        super.fromJson();
 
   final DocumentReference<IncomeCategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
@@ -180,7 +185,7 @@ class ExpenseRecordModel extends RecordBaseModel {
         ),
         super.fromEntity(record);
 
-  ExpenseRecordModel.fromJson(Json json)
+  ExpenseRecordModel.fromJson(super.json)
       : categoryRef =
             (json['category']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _expenseCategoryModelFromFirestore,
@@ -191,7 +196,7 @@ class ExpenseRecordModel extends RecordBaseModel {
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
-        super.fromJson(json);
+        super.fromJson();
 
   final DocumentReference<ExpenseCategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
@@ -249,7 +254,7 @@ class TransferRecordModel extends RecordBaseModel {
         ),
         super.fromEntity(record);
 
-  TransferRecordModel.fromJson(Json json)
+  TransferRecordModel.fromJson(super.json)
       : fromPropertyRef =
             (json['fromProperty']!['ref'] as DocumentReference).withConverter(
           fromFirestore: _propertyModelFromFirestore,
@@ -260,7 +265,7 @@ class TransferRecordModel extends RecordBaseModel {
           fromFirestore: _propertyModelFromFirestore,
           toFirestore: _propertyModelToFirestore,
         ),
-        super.fromJson(json);
+        super.fromJson();
 
   final DocumentReference<PropertyModel> fromPropertyRef;
   final DocumentReference<PropertyModel> toPropertyRef;
@@ -283,6 +288,7 @@ class TransferRecordModel extends RecordBaseModel {
     );
   }
 
+  @override
   Json toJson() => super.toJson()
     ..addAll(
       {
