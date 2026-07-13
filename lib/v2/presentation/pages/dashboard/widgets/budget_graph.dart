@@ -14,7 +14,7 @@ import '../../../../domain/usecases/budget_graph_data_list.dart';
 class BudgetGraph extends StatelessWidget {
   final BudgetGraphDataList _list;
 
-  BudgetGraph({
+  const BudgetGraph({
     required BudgetGraphDataList list,
     super.key,
   }) : _list = list;
@@ -57,7 +57,7 @@ class _BudgetGraphDataForPlot {
   /// [BudgetGraphData]からデータをまとめる
   _BudgetGraphDataForPlot.from(
     BudgetGraphData data,
-    Color this._color,
+    this._color,
   )   : _name = data.name,
         _spent = data.spent;
 

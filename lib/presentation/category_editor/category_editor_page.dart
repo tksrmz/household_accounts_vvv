@@ -16,14 +16,13 @@ class CategoryEditorPage extends StatelessWidget {
     int? initialBudget,
     CategoryType initialType = CategoryType.income,
     bool canChangeType = true,
-    Key? key,
+    super.key,
   })  : _title = title,
         _onSubmit = onSubmit,
         _initialName = initialName,
         _initialBudget = initialBudget,
         _initialType = initialType,
-        _canChangeType = canChangeType,
-        super(key: key);
+        _canChangeType = canChangeType;
 
   final String _title;
   final CategoryEditorOnSubmit _onSubmit;
@@ -51,7 +50,6 @@ class CategoryEditorPage extends StatelessWidget {
 
 class _PageBody extends StatefulWidget {
   const _PageBody({
-    Key? key,
     required CategoryEditorOnSubmit onSubmit,
     CategoryType initialType = CategoryType.income,
     String? initialName,
@@ -61,8 +59,7 @@ class _PageBody extends StatefulWidget {
         _initialType = initialType,
         _initialName = initialName,
         _initialBudget = initialBudget,
-        _canChangeType = canChangeType,
-        super(key: key);
+        _canChangeType = canChangeType;
 
   final CategoryEditorOnSubmit _onSubmit;
   final String? _initialName;
@@ -79,7 +76,7 @@ class _PageBodyState extends State<_PageBody> {
   late final TextEditingController _budgetController;
 
   // state
-  List<bool> _categorySelection = [
+  final List<bool> _categorySelection = [
     false,
     false,
   ];
@@ -128,16 +125,16 @@ class _PageBodyState extends State<_PageBody> {
       LayoutBuilder(
         builder: (context, constraints) => Center(
           child: ToggleButtons(
-            children: const [
-              Text('収入'),
-              Text('支出'),
-            ],
             isSelected: _categorySelection,
             constraints: BoxConstraints(
               minWidth: constraints.maxWidth / _categorySelection.length - 10,
               minHeight: 48.0,
             ),
             onPressed: toggleButtonsOnPressed,
+            children: const [
+              Text('収入'),
+              Text('支出'),
+            ],
           ),
         ),
       ),

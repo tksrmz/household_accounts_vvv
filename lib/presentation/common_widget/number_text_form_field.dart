@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 
 class NumberTextFormField extends TextFormField {
   NumberTextFormField({
-    Key? key,
-    InputDecoration? decoration,
-    String? initialValue,
-    FormFieldSetter<String>? onSaved,
+    super.key,
+    super.decoration = null,
+    super.initialValue,
+    super.onSaved,
   }) : super(
-          key: key,
-          decoration: decoration,
-          initialValue: initialValue,
-          onSaved: onSaved,
           keyboardType: TextInputType.number,
           validator: (String? value) {
             if (value == null) {

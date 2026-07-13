@@ -13,7 +13,7 @@ class SettingsViewModel with ChangeNotifier {
     required AuthRepository authRepository,
   })  : _publicProfileRepository = publicProfileRepository,
         _authRepository = authRepository {
-    init = AsyncCommand(this._init)..call(_authRepository.getCurrentUser().uid);
+    init = AsyncCommand(_init)..call(_authRepository.getCurrentUser().uid);
   }
 
   /// 初期化コマンド
@@ -46,7 +46,7 @@ class SettingsViewModel with ChangeNotifier {
       (exception) => throw exception,
       (userName) => _userNameBeforeEdit = userName,
     );
-    save = AsyncCommand((newUserName) => this._save(userId, newUserName));
+    save = AsyncCommand((newUserName) => _save(userId, newUserName));
   }
 
   void startEditing() {

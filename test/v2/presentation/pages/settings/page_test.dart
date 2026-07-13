@@ -25,7 +25,7 @@ void main() {
   const userId = UserIdVo('testUserId');
   final mockPublicProfileRepository = MockPublicProfileRepository();
   final mockAuthRepository = MockAuthRepository();
-  final buildTarget = (WidgetTester tester) async {
+  Future<void> buildTarget(WidgetTester tester) async {
     // golden file size is 320 * 600
     final newSize = Size(320, 600) * tester.view.devicePixelRatio;
     tester.view.physicalSize = newSize;
@@ -42,7 +42,7 @@ void main() {
         ),
       ),
     );
-  };
+  }
 
   tearDown(() {
     // モックのクリーンアップ
@@ -57,8 +57,8 @@ void main() {
     });
 
     group('画面全体', () {
-      final getFileName =
-          (WidgetTester tester) => 'goldens/${tester.testDescription}.png';
+      String getFileName(WidgetTester tester) =>
+          'goldens/${tester.testDescription}.png';
 
       testWidgets(
         '画面を開くとローディング画面が表示されること',
@@ -113,7 +113,7 @@ void main() {
 
     group('ユーザー名編集', () {
       const userName = UserNameVo('testUserName');
-      final getFileName = (WidgetTester tester) =>
+      String getFileName(WidgetTester tester) =>
           'goldens/name-editing/${tester.testDescription}.png';
 
       setUp(() {

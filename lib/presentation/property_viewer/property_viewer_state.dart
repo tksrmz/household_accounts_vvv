@@ -28,7 +28,7 @@ class PropertyListState with ChangeNotifier {
     required SelectedNote singleOrPair,
     required UserInfo userInfo,
   }) async {
-    print('$PropertyListState#$fetch(${singleOrPair.name}, $userInfo)');
+    debugPrint('$PropertyListState#$fetch(${singleOrPair.name}, $userInfo)');
     _isLoading = true;
     _failure = null;
     notifyListeners();
@@ -42,12 +42,13 @@ class PropertyListState with ChangeNotifier {
     );
     failureOrProperties.fold(
       (failure) {
-        print('$PropertyListState#$fetch: retrieve use case failed. $_failure');
+        debugPrint(
+            '$PropertyListState#$fetch: retrieve use case failed. $_failure');
         _failure = failure;
         _properties = [];
       },
       (props) {
-        print('$PropertyListState#$fetch: retrieve use case succeeded.');
+        debugPrint('$PropertyListState#$fetch: retrieve use case succeeded.');
         _properties = props;
       },
     );

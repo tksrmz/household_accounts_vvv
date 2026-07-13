@@ -22,7 +22,7 @@ import '../util/repository_selector.dart';
 import 'category_viewer_state.dart';
 
 class CategoryListPage extends StatelessWidget {
-  const CategoryListPage({Key? key}) : super(key: key);
+  const CategoryListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +56,7 @@ class CategoryListPage extends StatelessWidget {
 }
 
 class _PageContent extends StatelessWidget {
-  const _PageContent({Key? key}) : super(key: key);
+  const _PageContent();
 
   @override
   Widget build(BuildContext context) {
@@ -85,11 +85,16 @@ class _PageContent extends StatelessWidget {
                   title: 'カテゴリの追加',
                   onSubmit: (name, budget, type) async {
                     await _submit(name, budget, type, uinfo, sop);
-                    Navigator.pop(context);
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
                   },
                 ),
               ),
             );
+            if (!context.mounted) {
+              return;
+            }
             _reloadIncomeCategoryState(context);
             _reloadExpenseCategoryState(context);
           },
@@ -136,7 +141,7 @@ class _PageContent extends StatelessWidget {
 }
 
 class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({Key? key, required this.text}) : super(key: key);
+  const _SectionTitle({required this.text});
 
   final String text;
 
@@ -152,7 +157,7 @@ class _SectionTitle extends StatelessWidget {
 }
 
 class _IncomeCategoryList extends StatelessWidget {
-  const _IncomeCategoryList({Key? key}) : super(key: key);
+  const _IncomeCategoryList();
 
   @override
   Widget build(BuildContext context) {
@@ -184,10 +189,8 @@ class _IncomeCategoryListItem extends StatelessWidget {
   final IncomeCategory _incomeCategory;
 
   const _IncomeCategoryListItem({
-    Key? key,
     required IncomeCategory incomeCategory,
-  })  : _incomeCategory = incomeCategory,
-        super(key: key);
+  }) : _incomeCategory = incomeCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +232,7 @@ class _IncomeCategoryListItem extends StatelessWidget {
 }
 
 class _ExpenseCategoryList extends StatelessWidget {
-  const _ExpenseCategoryList({Key? key}) : super(key: key);
+  const _ExpenseCategoryList();
 
   @override
   Widget build(BuildContext context) {
@@ -261,10 +264,8 @@ class _ExpenseCategoryListItem extends StatelessWidget {
   final ExpenseCategory _expenseCategory;
 
   const _ExpenseCategoryListItem({
-    Key? key,
     required ExpenseCategory expenseCategory,
-  })  : _expenseCategory = expenseCategory,
-        super(key: key);
+  }) : _expenseCategory = expenseCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -309,10 +310,8 @@ class _ExpenseCategoryListItem extends StatelessWidget {
 
 class _EditCategoryButton extends StatelessWidget {
   const _EditCategoryButton({
-    Key? key,
     required CategoryBase originalData,
-  })  : _originalData = originalData,
-        super(key: key);
+  }) : _originalData = originalData;
 
   final CategoryBase _originalData;
 
@@ -343,11 +342,16 @@ class _EditCategoryButton extends StatelessWidget {
               canChangeType: false,
               onSubmit: (name, budget, type) async {
                 await _update(name, budget, type, uinfo, sop);
-                Navigator.pop(context);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
               },
             ),
           ),
         );
+        if (!context.mounted) {
+          return;
+        }
         _reloadIncomeCategoryState(context);
         _reloadExpenseCategoryState(context);
       },

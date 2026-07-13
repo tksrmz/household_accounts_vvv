@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
 import '../../entity/record.dart';
@@ -154,7 +155,7 @@ class _ExpenseRecordRepository {
     required String repoId,
     required String id,
   }) async {
-    TransactionHandler handler = (Transaction transaction) async {
+    Future<void> handler(Transaction transaction) async {
       final recordDocument = _builder(repoId).doc(id);
       // Get the document
       DocumentSnapshot<ExpenseRecordModel> snapshot =
@@ -175,12 +176,13 @@ class _ExpenseRecordRepository {
       }
       transaction.delete(recordDocument);
       return;
-    };
+    }
+
     try {
       await FirebaseFirestore.instance.runTransaction(handler);
       return Right(unit);
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('$e');
       return Left(e);
     }
   }
@@ -191,9 +193,9 @@ class _ExpenseRecordRepository {
   }) async {
     final ownerDocument = _builder(repoId).parent!;
     final propertyCollection =
-        ownerDocument.collection(FIREBASE_COLLECTION_PROPERTIES);
+        ownerDocument.collection(firebaseCollectionProperties);
     final categoryCollection =
-        ownerDocument.collection(FIREBASE_COLLECTION_EXPENSE_CATEGORIES);
+        ownerDocument.collection(firebaseCollectionExpenseCategories);
     final batch = FirebaseFirestore.instance.batch();
     if (value.hasCheckedOut) {
       batch.update(
@@ -216,7 +218,7 @@ class _ExpenseRecordRepository {
       await batch.commit();
       return Right(unit);
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('$e');
       return Left(e);
     }
   }
@@ -238,26 +240,28 @@ class _ExpenseRecordRepository {
           .where('date', isLessThan: end)
           .get();
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('$e');
       return Left(e);
     }
 
-    final toModel =
-        (QueryDocumentSnapshot<ExpenseRecordModel> snapshot) => snapshot.data();
+    ExpenseRecordModel toModel(
+            QueryDocumentSnapshot<ExpenseRecordModel> snapshot) =>
+        snapshot.data();
     final models = querySnapshot.docs.map(toModel);
-    final toEntityAsync = (ExpenseRecordModel model) => model.toEntityAsync();
+    Future<ExpenseRecord> toEntityAsync(ExpenseRecordModel model) =>
+        model.toEntityAsync();
     final entityList = await Future.wait(models.map(toEntityAsync));
     return Right(entityList);
   }
 }
 
-final _fromFirestore = (
+ExpenseRecordModel _fromFirestore(
   DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
 ) =>
     ExpenseRecordModel.fromJson(snapshot.toJsonWithId());
 
-final _toFirestore = (
+Json _toFirestore(
   ExpenseRecordModel value,
   SetOptions? _,
 ) =>

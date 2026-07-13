@@ -11,9 +11,9 @@ void testGoldens(
   FutureOr<void> Function(WidgetTester)? expectFn,
   bool skip = false,
 }) {
-  _GoldenTestWidth.values.forEach((width) {
+  for (var width in _GoldenTestWidth.values) {
     testWidgets(
-      '[golden] ${description} (width: ${width.value})',
+      '[golden] $description (width: ${width.value})',
       (tester) async {
         // Setup mocks before building the widget
         mockFn?.call();
@@ -21,8 +21,8 @@ void testGoldens(
         final widget = builder();
         await tester.pumpWidget(
           _GoldenWrapper(
-            child: widget,
             width: width,
+            child: widget,
           ),
         );
 
@@ -37,7 +37,7 @@ void testGoldens(
       tags: ['golden'],
       skip: skip,
     );
-  });
+  }
 }
 
 class _GoldenWrapper extends StatelessWidget {
@@ -68,7 +68,7 @@ class _GoldenWrapper extends StatelessWidget {
 }
 
 class GoldenPageWrapper extends StatelessWidget {
-  const GoldenPageWrapper({required this.child});
+  const GoldenPageWrapper({super.key, required this.child});
 
   final Widget child;
 

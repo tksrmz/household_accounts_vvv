@@ -5,7 +5,7 @@ import 'property.dart';
 enum RecordType { income, expense, transfer }
 
 extension RecordTypeParsing on RecordType {
-  String toShortString() => this.toString().split('.').last;
+  String toShortString() => toString().split('.').last;
 }
 
 abstract class RecordBase extends Identifiable {
@@ -30,7 +30,7 @@ abstract class RecordBase extends Identifiable {
     required this.note,
     required this.hasCheckedOut,
     required this.type,
-  })  : this.amount = _assertAmount(amount),
+  })  : amount = _assertAmount(amount),
         super(id);
 
   @override
@@ -57,20 +57,15 @@ abstract class RecordBase extends Identifiable {
 
 class IncomeRecord extends RecordBase {
   IncomeRecord({
-    required String id,
-    required DateTime recordDate,
-    required int amount,
-    required String note,
+    required super.id,
+    required super.recordDate,
+    required super.amount,
+    required super.note,
     required this.category,
     required this.property,
-    required bool hasCheckedOut,
+    required super.hasCheckedOut,
   }) : super(
-          id: id,
-          recordDate: recordDate,
-          amount: amount,
-          note: note,
           type: RecordType.income,
-          hasCheckedOut: hasCheckedOut,
         );
 
   final IncomeCategory category;
@@ -86,20 +81,15 @@ class IncomeRecord extends RecordBase {
 
 class ExpenseRecord extends RecordBase {
   ExpenseRecord({
-    required String id,
-    required DateTime recordDate,
-    required int amount,
-    required String note,
+    required super.id,
+    required super.recordDate,
+    required super.amount,
+    required super.note,
     required this.category,
     required this.property,
-    required bool hasCheckedOut,
+    required super.hasCheckedOut,
   }) : super(
-          id: id,
-          recordDate: recordDate,
-          amount: amount,
-          note: note,
           type: RecordType.expense,
-          hasCheckedOut: hasCheckedOut,
         );
 
   final ExpenseCategory category;
@@ -115,20 +105,15 @@ class ExpenseRecord extends RecordBase {
 
 class TransferRecord extends RecordBase {
   TransferRecord({
-    required String id,
-    required DateTime recordDate,
-    required int amount,
-    required String note,
+    required super.id,
+    required super.recordDate,
+    required super.amount,
+    required super.note,
     required this.source,
     required this.destination,
-    required bool hasCheckedOut,
+    required super.hasCheckedOut,
   }) : super(
-          id: id,
-          recordDate: recordDate,
-          amount: amount,
-          note: note,
           type: RecordType.transfer,
-          hasCheckedOut: hasCheckedOut,
         );
 
   /// A property that [amount] will be subtracted from.

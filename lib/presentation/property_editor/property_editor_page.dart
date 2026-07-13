@@ -11,12 +11,11 @@ class PropertyEditorPage extends StatelessWidget {
     required PropertyEditorOnSubmit onSubmit,
     String? initialName,
     int? initialAmount,
-    Key? key,
+    super.key,
   })  : _title = title,
         _onSubmit = onSubmit,
         _initialName = initialName,
-        _initialAmount = initialAmount,
-        super(key: key);
+        _initialAmount = initialAmount;
 
   final String _title;
   final PropertyEditorOnSubmit _onSubmit;
@@ -43,11 +42,9 @@ class _PageBody extends StatefulWidget {
     required PropertyEditorOnSubmit onSubmit,
     required String? initialName,
     required int? initialAmount,
-    Key? key,
   })  : _onSubmit = onSubmit,
         _initialName = initialName,
-        _initialAmount = initialAmount,
-        super(key: key);
+        _initialAmount = initialAmount;
 
   final PropertyEditorOnSubmit _onSubmit;
   final String? _initialName;
@@ -99,10 +96,10 @@ class _PageBodyState extends State<_PageBody> {
         ),
         ElevatedButton(
           onPressed: () {
-            this.widget._onSubmit(
-                  _nameController.text,
-                  int.parse(_amountController.text),
-                );
+            widget._onSubmit(
+              _nameController.text,
+              int.parse(_amountController.text),
+            );
           },
           child: const Text('保存'),
         ),

@@ -15,11 +15,13 @@ class IncomeCategoryModel implements DataModel<IncomeCategory> {
   final String id;
   final String name;
 
+  @override
   IncomeCategory toEntity() => IncomeCategory(
         id: id,
         name: name,
       );
 
+  @override
   Json toJson() => {
         'name': name,
         'type': 'income',
@@ -41,9 +43,11 @@ class ExpenseCategoryModel implements DataModel<ExpenseCategory> {
   final String name;
   final int totalBudget;
 
+  @override
   ExpenseCategory toEntity() =>
       ExpenseCategory(id: id, name: name, totalBudget: totalBudget);
 
+  @override
   Json toJson() => {
         'name': name,
         'type': 'expense',

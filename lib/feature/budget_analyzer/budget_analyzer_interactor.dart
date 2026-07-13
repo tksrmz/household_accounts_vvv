@@ -39,12 +39,12 @@ class RetrieveBudgetStateInteractor extends RetrieveBudgetStateUseCase {
     final categoryIdToSpentAmount = <String, int>{
       for (var v in categories) v.id: 0
     };
-    records.forEach((record) {
+    for (var record in records) {
       final current = categoryIdToSpentAmount[record.category.id];
-      assert(current != null, '${record.category.id}');
+      assert(current != null, record.category.id);
       final updated = current! + record.amount;
       categoryIdToSpentAmount[record.category.id] = updated;
-    });
+    }
 
     final List<BudgetState> states = List.of(
       categories.map(

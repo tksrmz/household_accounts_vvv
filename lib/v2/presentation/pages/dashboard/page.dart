@@ -7,7 +7,7 @@ import '../../widgets/error_message.dart';
 import 'widgets/summary_panel.dart';
 
 class DashboardPage extends StatelessWidget {
-  DashboardPage({
+  const DashboardPage({
     super.key,
     required DashboardViewModel viewModel,
   }) : _viewModel = viewModel;

@@ -15,18 +15,18 @@ class UserInfo {
   bool get hasPair => pairId != null;
 
   String repoId(SelectedNote value) {
-    print('$UserInfo#$repoId($value)');
+    debugPrint('$UserInfo#$repoId($value)');
 
     final String id;
     switch (value) {
       case SelectedNote.personal:
-        print('$UserInfo#$repoId: return uid $uid');
+        debugPrint('$UserInfo#$repoId: return uid $uid');
         id = uid;
         break;
 
       case SelectedNote.shared:
-        assert(this.hasPair, 'PairId has required, but it is null!');
-        print('$UserInfo#$repoId: return pairId ${pairId!}');
+        assert(hasPair, 'PairId has required, but it is null!');
+        debugPrint('$UserInfo#$repoId: return pairId ${pairId!}');
         id = pairId!;
         break;
     }

@@ -8,14 +8,13 @@ typedef LoadingWidgetBuilder = Widget Function(BuildContext);
 
 class FutureBuilderHelper<T> extends StatelessWidget {
   const FutureBuilderHelper({
-    Key? key,
+    super.key,
     required this.snapshot,
     required this.onSuccess,
     ErrorWidgetBuilder? onError,
     LoadingWidgetBuilder? onLoading,
-  })  : this.onError = onError ?? defaultOnError,
-        this.onLoading = onLoading ?? defaultOnLoading,
-        super(key: key);
+  })  : onError = onError ?? defaultOnError,
+        onLoading = onLoading ?? defaultOnLoading;
 
   final SuccessWidgetBuilder<T> onSuccess;
   final ErrorWidgetBuilder onError;

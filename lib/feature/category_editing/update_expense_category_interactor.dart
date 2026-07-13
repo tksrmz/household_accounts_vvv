@@ -23,7 +23,8 @@ class UpdateExpenseCategoryInteractor implements UpdateExpenseCategoryUseCase {
       ),
     );
 
-    final update = (ExpenseCategory value) => repository.update(
+    Future<ExceptionOr<Unit>> update(ExpenseCategory value) =>
+        repository.update(
           repoId: input.uid,
           newValue: value,
         );

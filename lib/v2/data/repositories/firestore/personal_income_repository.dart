@@ -25,11 +25,11 @@ class FirestorePersonalIncomeRepository implements IncomeRepository {
       date.year,
       date.month,
     );
-    final createIncomeVo =
-        (data_model.IncomeRecordModel record) => IncomeVo(record.amount);
-    final convertToIncomeVoList =
-        (List<data_model.IncomeRecordModel> incomeList) =>
-            incomeList.map(createIncomeVo).toList(growable: false);
+    IncomeVo createIncomeVo(data_model.IncomeRecordModel record) =>
+        IncomeVo(record.amount);
+    List<IncomeVo> convertToIncomeVoList(
+            List<data_model.IncomeRecordModel> incomeList) =>
+        incomeList.map(createIncomeVo).toList(growable: false);
     return result.map(convertToIncomeVoList);
   }
 

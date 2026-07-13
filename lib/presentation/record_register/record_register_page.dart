@@ -18,7 +18,7 @@ import '../util/model/user_info.dart';
 import '../util/repository_selector.dart';
 
 class RecordInputPage extends StatelessWidget {
-  const RecordInputPage({Key? key}) : super(key: key);
+  const RecordInputPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +31,7 @@ class RecordInputPage extends StatelessWidget {
 class _PageContents extends StatefulWidget {
   const _PageContents({
     required SelectedNote singleOrPair,
-    Key? key,
-  })  : _singleOrPair = singleOrPair,
-        super(key: key);
+  }) : _singleOrPair = singleOrPair;
 
   final SelectedNote _singleOrPair;
 
@@ -106,14 +104,14 @@ class _PageContentsState extends State<_PageContents> {
   void _setRecordDateState(DateTime value) {
     setState(() {
       _recordDate = value;
-      print('record date: $_recordDate');
+      debugPrint('record date: $_recordDate');
     });
   }
 
   void _setAmountState(String value) {
     setState(() {
       _amount = value;
-      print('amount: $_amount');
+      debugPrint('amount: $_amount');
     });
   }
 
@@ -121,35 +119,35 @@ class _PageContentsState extends State<_PageContents> {
     setState(() {
       _recordType = value;
       _setDropDownValueNull();
-      print('record type: $_recordType');
+      debugPrint('record type: $_recordType');
     });
   }
 
   void _setCategoryState(CategoryBase? value) {
     setState(() {
       _category = value;
-      print('category name: $_category');
+      debugPrint('category name: $_category');
     });
   }
 
   void _setSrcPropertyState(Property? value) {
     setState(() {
       _srcProperty = value;
-      print('source property: $_srcProperty');
+      debugPrint('source property: $_srcProperty');
     });
   }
 
   void _setDestPropertyState(Property? value) {
     setState(() {
       _destProperty = value;
-      print('destination property: $_destProperty');
+      debugPrint('destination property: $_destProperty');
     });
   }
 
   void _setNoteState(String value) {
     setState(() {
       _note = value;
-      print('note: $_note');
+      debugPrint('note: $_note');
     });
   }
 
@@ -269,14 +267,14 @@ class _PageContentsState extends State<_PageContents> {
           ),
           _SubmitButton(
             onPressed: () {
-              print('Current state');
-              print('amount: $_amount');
-              print('record date: $_recordDate');
-              print('category type: $_recordType');
-              print('category name: $_category');
-              print('source property: $_srcProperty');
-              print('destination property: $_destProperty');
-              print('note: $_note');
+              debugPrint('Current state');
+              debugPrint('amount: $_amount');
+              debugPrint('record date: $_recordDate');
+              debugPrint('category type: $_recordType');
+              debugPrint('category name: $_category');
+              debugPrint('source property: $_srcProperty');
+              debugPrint('destination property: $_destProperty');
+              debugPrint('note: $_note');
 
               if (!_formKey.currentState!.validate()) {
                 // Tell the user that the input data is invalid.
@@ -358,10 +356,8 @@ class _RecordDatePicker extends StatelessWidget {
   const _RecordDatePicker({
     required DateTime value,
     required void Function(DateTime) recordDateUpdater,
-    Key? key,
   })  : _selectedDate = value,
-        _updateRecordDate = recordDateUpdater,
-        super(key: key);
+        _updateRecordDate = recordDateUpdater;
 
   @override
   Widget build(BuildContext context) {
@@ -399,11 +395,9 @@ class _RecordDatePicker extends StatelessWidget {
 class _AmountTextField extends StatelessWidget {
   final FormFieldSetter<String>? _onSaved;
 
-  _AmountTextField({
+  const _AmountTextField({
     FormFieldSetter<String>? onSaved,
-    Key? key,
-  })  : _onSaved = onSaved,
-        super(key: key);
+  }) : _onSaved = onSaved;
 
   @override
   Widget build(BuildContext context) {
@@ -427,11 +421,9 @@ class _RecordTypeSelector extends StatelessWidget {
     VoidCallback? incomeButtonOnPressed,
     VoidCallback? expenseButtonOnPressed,
     VoidCallback? transferButtonOnPressed,
-    Key? key,
   })  : _incomeButtonOnPressed = incomeButtonOnPressed,
         _expenseButtonOnPressed = expenseButtonOnPressed,
-        _transferButtonOnPressed = transferButtonOnPressed,
-        super(key: key);
+        _transferButtonOnPressed = transferButtonOnPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -467,7 +459,6 @@ class _CategoryDropDownMenu extends StatelessWidget {
   final ValueChanged<CategoryBase?>? _onChanged;
 
   const _CategoryDropDownMenu({
-    Key? key,
     required Future<ExceptionOr<List<CategoryBase>>> categories,
     CategoryBase? value,
     required CategoryType categoryType,
@@ -475,8 +466,7 @@ class _CategoryDropDownMenu extends StatelessWidget {
   })  : _categories = categories,
         _value = value,
         _displayedType = categoryType,
-        _onChanged = onChanged,
-        super(key: key);
+        _onChanged = onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -551,14 +541,12 @@ class _PropertyDropDownMenu extends StatelessWidget {
   final ValueChanged<Property?>? _onChanged;
 
   const _PropertyDropDownMenu({
-    Key? key,
     required Future<ExceptionOr<List<Property>>> properties,
     Property? value,
     required ValueChanged<Property?>? onChanged,
   })  : _properties = properties,
         _value = value,
-        _onChanged = onChanged,
-        super(key: key);
+        _onChanged = onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -631,9 +619,7 @@ class _NoteTextField extends StatelessWidget {
 
   const _NoteTextField({
     FormFieldSetter<String>? onSaved,
-    Key? key,
-  })  : _onSaved = onSaved,
-        super(key: key);
+  }) : _onSaved = onSaved;
 
   @override
   Widget build(BuildContext context) {
@@ -660,9 +646,7 @@ class _SubmitButton extends StatelessWidget {
 
   const _SubmitButton({
     VoidCallback? onPressed,
-    Key? key,
-  })  : _onPressed = onPressed,
-        super(key: key);
+  }) : _onPressed = onPressed;
 
   @override
   Widget build(BuildContext context) {

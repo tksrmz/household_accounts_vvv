@@ -25,11 +25,11 @@ class FirestorePersonalExpenseRepository implements ExpenseRepository {
       date.year,
       date.month,
     );
-    final createExpenseVo =
-        (data_model.ExpenseRecordModel record) => ExpenseVo(record.amount);
-    final convertToExpenseVoList =
-        (List<data_model.ExpenseRecordModel> expenseList) =>
-            expenseList.map(createExpenseVo).toList(growable: false);
+    ExpenseVo createExpenseVo(data_model.ExpenseRecordModel record) =>
+        ExpenseVo(record.amount);
+    List<ExpenseVo> convertToExpenseVoList(
+            List<data_model.ExpenseRecordModel> expenseList) =>
+        expenseList.map(createExpenseVo).toList(growable: false);
     return result.map(convertToExpenseVoList);
   }
 

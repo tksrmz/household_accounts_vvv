@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../models/privateProfile.dart';
+import '../../models/private_profile.dart';
 
 typedef SharedNoteRef = Map<String, dynamic>;
 

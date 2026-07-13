@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../util/type/exception.dart';
 import '../../util/type/exception_or.dart';
@@ -19,7 +20,7 @@ class FirebaseRepositoryBasicOperation<M extends DataModel> {
     try {
       await ref.set(value);
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('$e');
       return Left(e);
     }
 
@@ -31,7 +32,7 @@ class FirebaseRepositoryBasicOperation<M extends DataModel> {
     try {
       snapshot = await ref.get();
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('$e');
       return Left(e);
     }
 
@@ -56,12 +57,11 @@ class FirebaseRepositoryBasicOperation<M extends DataModel> {
           ? (await ref.get())
           : (await ref.orderBy(sortKey).get());
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('$e');
       return Left(e);
     }
 
-    final snapshotToData =
-        (QueryDocumentSnapshot<M> snapshot) => snapshot.data();
+    M snapshotToData(QueryDocumentSnapshot<M> snapshot) => snapshot.data();
     return Right(snapshot.docs.map(snapshotToData).toList());
   }
 
@@ -69,7 +69,7 @@ class FirebaseRepositoryBasicOperation<M extends DataModel> {
     try {
       await ref.update(value.toJson());
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('$e');
       return Left(e);
     }
 
@@ -80,7 +80,7 @@ class FirebaseRepositoryBasicOperation<M extends DataModel> {
     try {
       await ref.delete();
     } on FirebaseException catch (e) {
-      print(e);
+      debugPrint('$e');
       return Left(e);
     }
 

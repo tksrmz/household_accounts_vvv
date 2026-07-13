@@ -9,6 +9,6 @@ abstract class BudgetNameVo with _$BudgetNameVo {
   static const maxLength = 20;
 
   @Assert('value.length > 0', '予算名は1文字以上である必要があります')
-  @Assert('value.length <= ${maxLength}', '予算名は20文字以下である必要があります')
+  @Assert('value.length <= $maxLength', '予算名は20文字以下である必要があります')
   const factory BudgetNameVo(String value) = _BudgetNameVo;
 }

@@ -40,13 +40,13 @@ class FirebaseSharedExpenseCategoryRepository
         );
 }
 
-final _fromFirestore = (
+ExpenseCategoryModel _fromFirestore(
   DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
 ) =>
     ExpenseCategoryModel.fromJson(snapshot.toJsonWithId());
 
-final _toFirestore = (
+Json _toFirestore(
   ExpenseCategoryModel value,
   SetOptions? _,
 ) =>
@@ -85,7 +85,7 @@ class _FirebaseExpenseCategoryRepository
       _collectionReferenceBuilder(repoId),
       'name',
     );
-    final toCategories = (List<ExpenseCategoryModel> list) =>
+    List<ExpenseCategory> toCategories(List<ExpenseCategoryModel> list) =>
         list.map<ExpenseCategory>((item) => item.toEntity()).toList();
     return exceptionOrModelList.map(toCategories);
   }
@@ -97,7 +97,7 @@ class _FirebaseExpenseCategoryRepository
   }) async {
     final docRef = _collectionReferenceBuilder(repoId).doc(id);
     final exceptionOrModel = await _firebase.retrieve(docRef);
-    final toEntity = (ExpenseCategoryModel model) => model.toEntity();
+    ExpenseCategory toEntity(ExpenseCategoryModel model) => model.toEntity();
     return exceptionOrModel.map(toEntity);
   }
 

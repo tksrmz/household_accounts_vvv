@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 class FailureDisplayWidget extends StatelessWidget {
   final Exception _failure;
 
-  const FailureDisplayWidget({required Exception failure, Key? key})
-      : _failure = failure,
-        super(key: key);
+  const FailureDisplayWidget({required Exception failure, super.key})
+      : _failure = failure;
 
   @override
   Widget build(BuildContext context) {

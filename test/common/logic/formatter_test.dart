@@ -1,7 +1,7 @@
 import 'package:household_accounts/common/logic/formatter.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   group('date', () {
     test('should be ok with a date', () {
       final date = DateTime(2021, 1, 1);

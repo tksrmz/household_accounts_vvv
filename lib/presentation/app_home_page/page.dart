@@ -8,7 +8,7 @@ import '../main_page/page.dart';
 import '../util/model/user_info.dart';
 
 class MyAppHome extends StatefulWidget {
-  const MyAppHome({Key? key}) : super(key: key);
+  const MyAppHome({super.key});
 
   @override
   State<MyAppHome> createState() => _MyAppHomeState();
@@ -23,7 +23,7 @@ class _MyAppHomeState extends State<MyAppHome> {
     super.initState();
     _privateProfileStream = FirebaseFirestore.instance
         .doc(
-          '/$FIREBASE_COLLECTION_PRIVATE_PROFILES/${context.read<UserAuth>().uid.value}',
+          '/$firebaseCollectionPrivateProfiles/${context.read<UserAuth>().uid.value}',
         )
         .snapshots();
   }

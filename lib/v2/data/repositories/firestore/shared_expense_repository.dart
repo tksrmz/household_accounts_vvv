@@ -23,12 +23,15 @@ class FirestoreSharedExpenseRepository implements ExpenseRepository {
 
   @override
   Future<Either<Exception, List<ExpenseVo>>> fetchMonthly(DateTime date) async {
-    final createExpenseVo =
-        (Map<String, dynamic> doc) => ExpenseVo(doc['amount']!);
-    final convertToExpenseVoList = (List<Map<String, dynamic>> expenseList) =>
+    ExpenseVo createExpenseVo(Map<String, dynamic> doc) =>
+        ExpenseVo(doc['amount']!);
+    List<ExpenseVo> convertToExpenseVoList(
+            List<Map<String, dynamic>> expenseList) =>
         expenseList.map(createExpenseVo).toList(growable: false);
 
-    final createTask = (DocumentReference<SharedNoteRef> ref) => Task(
+    Task<Either<Exception, List<ExpenseVo>>> createTask(
+            DocumentReference<SharedNoteRef> ref) =>
+        Task(
           () => _sharedRecordService.fetchExpensesByDate(
             ref,
             date.year,

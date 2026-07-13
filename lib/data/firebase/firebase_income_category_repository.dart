@@ -40,13 +40,13 @@ class FirebaseSharedIncomeCategoryRepository
         );
 }
 
-final _fromFirestore = (
+IncomeCategoryModel _fromFirestore(
   DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
 ) =>
     IncomeCategoryModel.fromJson(snapshot.toJsonWithId());
 
-final _toFirestore = (
+Json _toFirestore(
   IncomeCategoryModel value,
   SetOptions? _,
 ) =>
@@ -84,7 +84,7 @@ class _FirebaseIncomeCategoryRepository implements Repository<IncomeCategory> {
       _collectionReferenceBuilder(repoId),
       'name',
     );
-    final toCategories = (List<IncomeCategoryModel> list) =>
+    List<IncomeCategory> toCategories(List<IncomeCategoryModel> list) =>
         list.map<IncomeCategory>((item) => item.toEntity()).toList();
     return models.map(toCategories);
   }
@@ -96,7 +96,7 @@ class _FirebaseIncomeCategoryRepository implements Repository<IncomeCategory> {
   }) async {
     final docRef = _collectionReferenceBuilder(repoId).doc(id);
     final exceptionOrModel = await _firebase.retrieve(docRef);
-    final toCategory = (IncomeCategoryModel model) => model.toEntity();
+    IncomeCategory toCategory(IncomeCategoryModel model) => model.toEntity();
     return exceptionOrModel.map(toCategory);
   }
 

@@ -7,8 +7,8 @@ class PropertyNameTextField extends StatelessWidget {
     this.controller,
     this.autofocus = false,
     this.textInputAction,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final TextEditingController? controller;
   final bool autofocus;

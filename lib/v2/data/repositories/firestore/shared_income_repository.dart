@@ -23,12 +23,15 @@ class FirestoreSharedIncomeRepository implements IncomeRepository {
 
   @override
   Future<Either<Exception, List<IncomeVo>>> fetchMonthly(DateTime date) async {
-    final createIncomeVo =
-        (Map<String, dynamic> doc) => IncomeVo(doc['amount']!);
-    final convertToIncomeVoList = (List<Map<String, dynamic>> incomeList) =>
+    IncomeVo createIncomeVo(Map<String, dynamic> doc) =>
+        IncomeVo(doc['amount']!);
+    List<IncomeVo> convertToIncomeVoList(
+            List<Map<String, dynamic>> incomeList) =>
         incomeList.map(createIncomeVo).toList(growable: false);
 
-    final createTask = (DocumentReference<SharedNoteRef> ref) => Task(
+    Task<Either<Exception, List<IncomeVo>>> createTask(
+            DocumentReference<SharedNoteRef> ref) =>
+        Task(
           () => _sharedRecordService.fetchIncomesByDate(
             ref,
             date.year,
