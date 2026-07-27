@@ -32,15 +32,15 @@ dependencies:
   dartz: ^0.10.1
 
   # Object equality
-  equatable: ^2.0.0
+  equatable: ^2.1.0
 
   # UUID generation
-  uuid: ^4.0.0
+  uuid: ^4.6.0
   firebase_core: ^4.0.0
-  cloud_firestore: ^6.0.0
+  cloud_firestore: ^6.7.1
   firebase_auth: ^6.0.0
   get_it: ^8.0.0
-  firebase_ui_auth: ^3.0.0
+  firebase_ui_auth: ^3.1.0
   freezed_annotation: ^3.0.0
   fl_chart: ^0.70.0
   logging: ^1.3.0
