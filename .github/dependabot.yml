@@ -1,0 +1,47 @@
+version: 2
+
+updates:
+  # GitHub Actions のバージョン追従
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    commit-message:
+      prefix: "ci"
+    groups:
+      # minor/patch はまとめて1PR。major はグループに入らず個別PRになる
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Flutter / Dart パッケージのバージョン追従
+  - package-ecosystem: "pub"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    commit-message:
+      prefix: "chore"
+    # アプリ（publish_to: none）なので制約の下限を引き上げる。
+    # pubspec.yaml の ^x.y.z が実バージョンに追従し、差分が読みやすくなる
+    versioning-strategy: "increase"
+    # 2026-07 以降 version updates には既定で3日の cooldown が入る。
+    # major は破壊的変更の初期不具合を避けるため更に長めに待つ
+    cooldown:
+      default-days: 3
+      semver-major-days: 7
+    groups:
+      pub-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
