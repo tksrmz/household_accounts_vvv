@@ -46,7 +46,7 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6.2.0
 
       - name: Build profile APK
         run: flutter build apk --profile
