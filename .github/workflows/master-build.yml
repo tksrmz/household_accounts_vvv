@@ -3,6 +3,17 @@ name: Master Android Build
 on:
   push:
     branches: [master]
+    paths:
+      # Android Production Buildに使用するソースファイル等
+      - 'lib/**'
+      - 'android/**'
+      - 'fonts/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'build.yaml'
+      # このCI自体
+      - '.github/actions/build-release-appbundle/**'
+      - '.github/workflows/master-build.yml'
 
 concurrency:
   group: master-android-build
