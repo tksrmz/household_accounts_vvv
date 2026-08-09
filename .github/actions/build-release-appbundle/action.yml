@@ -1,0 +1,64 @@
+name: Build release app bundle
+description: Set up the Android toolchain, sign the app, and build a release AAB
+
+inputs:
+  keystore-base64:
+    description: Base64-encoded Android signing keystore
+    required: true
+  keystore-password:
+    description: Android signing keystore password
+    required: true
+  key-password:
+    description: Android signing key password
+    required: true
+  key-alias:
+    description: Android signing key alias
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Java
+      uses: actions/setup-java@v5
+      with:
+        distribution: temurin
+        java-version: '21'
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.44.4'
+        channel: stable
+        cache: true
+
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@v6.2.0
+
+    - name: Set up signing
+      shell: bash
+      env:
+        KEYSTORE_BASE64: ${{ inputs.keystore-base64 }}
+        KEYSTORE_PASSWORD: ${{ inputs.keystore-password }}
+        KEY_PASSWORD: ${{ inputs.key-password }}
+        KEY_ALIAS: ${{ inputs.key-alias }}
+      run: |
+        set -euo pipefail
+        echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload-keystore.jks"
+        cat > android/key.properties <<EOF
+        storePassword=$KEYSTORE_PASSWORD
+        keyPassword=$KEY_PASSWORD
+        keyAlias=$KEY_ALIAS
+        storeFile=$RUNNER_TEMP/upload-keystore.jks
+        EOF
+
+    - name: Install dependencies
+      shell: bash
+      run: flutter pub get
+
+    - name: Generate code
+      shell: bash
+      run: dart run build_runner build
+
+    - name: Build release app bundle
+      shell: bash
+      run: flutter build appbundle --release --no-pub
