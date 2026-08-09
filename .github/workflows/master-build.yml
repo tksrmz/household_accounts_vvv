@@ -1,0 +1,26 @@
+name: Master Android Build
+
+on:
+  push:
+    branches: [master]
+
+concurrency:
+  group: master-android-build
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build signed release app bundle
+        uses: ./.github/actions/build-release-appbundle
+        with:
+          keystore-base64: ${{ secrets.KEYSTORE_BASE64 }}
+          keystore-password: ${{ secrets.KEYSTORE_PASSWORD }}
+          key-password: ${{ secrets.KEY_PASSWORD }}
+          key-alias: ${{ secrets.KEY_ALIAS }}
