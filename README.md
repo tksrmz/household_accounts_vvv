@@ -32,8 +32,7 @@ npm test
 
 補足:
 
-- `npm test` は `--experimental-vm-modules` 付きでjestを起動する(依存の `jose` がESM専用のため。
-  恒久対応としてvitest移行を [#24](https://github.com/tksrmz/household_accouts_firebase/issues/24) で検討中)
+- テストランナーにはESMをネイティブに扱えるVitestを使用する。
 - 環境変数 `HOUSEHOLD_ACCOUNTS_DEV_SERVICE_ACCOUNT_KEY` にサービスアカウントキーのパスを
   設定すると、ADCの代わりにそちらが使われる(上書き用・通常は不要)
 
