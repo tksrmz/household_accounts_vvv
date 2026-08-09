@@ -1,6 +1,6 @@
 "use strict";
 
-const {devEngines, engines} = require("../package.json");
+const { devEngines, engines } = require("../package.json");
 
 const requiredVersion = engines?.node;
 const requiredMajorMatch = /^(\d+)(?:\.x)?$/.exec(requiredVersion ?? "");
