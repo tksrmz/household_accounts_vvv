@@ -1,55 +1,44 @@
+const js = require("@eslint/js");
+const { defineConfig, globalIgnores } = require("eslint/config");
+const globals = require("globals");
 const tsPlugin = require("@typescript-eslint/eslint-plugin");
-const tsParser = require("@typescript-eslint/parser");
 
-module.exports = [
+const commonJsFiles = ["**/*.{js,cjs,cts}"];
+const jsFiles = ["**/*.{js,cjs,mjs}"];
+const tsFiles = ["**/*.{ts,cts,mts}"];
+const sourceFiles = [...jsFiles, ...tsFiles];
+
+module.exports = defineConfig([
+  globalIgnores(["lib/**"]),
   {
-    ignores: ["lib/**", "node_modules/**"],
+    name: "functions/recommended",
+    files: sourceFiles,
+    extends: [js.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2022,
+      globals: globals.nodeBuiltin,
+    },
   },
   {
-    files: ["**/*.ts"],
+    name: "functions/typescript",
+    files: tsFiles,
+    extends: [tsPlugin.configs["flat/recommended"]],
     languageOptions: {
-      parser: tsParser,
       ecmaVersion: 2022,
       sourceType: "module",
-      globals: {
-        process: "readonly",
-        console: "readonly",
-        module: "readonly",
-        require: "readonly",
-        __dirname: "readonly",
-        __filename: "readonly",
-      },
-    },
-    plugins: {
-      "@typescript-eslint": tsPlugin,
-    },
-    rules: {
-      ...tsPlugin.configs.recommended.rules,
-      "quotes": ["error", "double"],
-      "indent": ["error", 2],
-      "object-curly-spacing": ["error", "always"],
-      "max-len": ["error", {
-        code: 80,
-        ignoreComments: true,
-        ignoreStrings: true,
-        ignoreTemplateLiterals: true,
-      }],
     },
   },
   {
-    files: ["**/*.js"],
+    name: "functions/commonjs",
+    files: commonJsFiles,
     languageOptions: {
-      ecmaVersion: 2022,
+      globals: globals.node,
       sourceType: "commonjs",
-      globals: {
-        process: "readonly",
-        console: "readonly",
-        module: "readonly",
-        require: "readonly",
-        __dirname: "readonly",
-        __filename: "readonly",
-      },
     },
+  },
+  {
+    name: "functions/style",
+    files: sourceFiles,
     rules: {
       "quotes": ["error", "double"],
       "indent": ["error", 2],
@@ -62,4 +51,4 @@ module.exports = [
       }],
     },
   },
-];
+]);
