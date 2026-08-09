@@ -10,6 +10,8 @@ functions のテストは **onlineモード**で動く。実際に dev プロジ
 
 ### 前提(初回のみ)
 
+Node.js 22.12.0以上22系未満を使用する。
+
 認証は **ADC (Application Default Credentials)** を標準とする。
 サービスアカウントキーのファイルは使わない(常置される無期限キーを廃止するため)。
 
