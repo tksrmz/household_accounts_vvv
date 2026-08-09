@@ -61,4 +61,4 @@ runs:
 
     - name: Build release app bundle
       shell: bash
-      run: flutter build appbundle --release --no-pub
+      run: flutter build appbundle --release
