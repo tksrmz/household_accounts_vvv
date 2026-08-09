@@ -1,6 +1,5 @@
 const tsPlugin = require("@typescript-eslint/eslint-plugin");
 const tsParser = require("@typescript-eslint/parser");
-const importPlugin = require("eslint-plugin-import");
 
 module.exports = [
   {
@@ -23,7 +22,6 @@ module.exports = [
     },
     plugins: {
       "@typescript-eslint": tsPlugin,
-      "import": importPlugin,
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
@@ -36,7 +34,6 @@ module.exports = [
         ignoreStrings: true,
         ignoreTemplateLiterals: true,
       }],
-      "import/no-unresolved": "off",
     },
   },
   {
