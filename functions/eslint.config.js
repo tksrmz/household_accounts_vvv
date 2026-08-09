@@ -3,7 +3,8 @@ const { defineConfig, globalIgnores } = require("eslint/config");
 const globals = require("globals");
 const tsPlugin = require("@typescript-eslint/eslint-plugin");
 
-const jsFiles = ["**/*.{js,cjs,mjs}"];
+const commonJsFiles = ["**/*.{js,cjs}"];
+const jsFiles = [...commonJsFiles, "**/*.mjs"];
 const tsFiles = ["**/*.{ts,cts,mts}"];
 const sourceFiles = [...jsFiles, ...tsFiles];
 
@@ -15,6 +16,13 @@ module.exports = defineConfig([
     extends: [js.configs.recommended],
     languageOptions: {
       globals: globals.node,
+    },
+  },
+  {
+    name: "functions/commonjs",
+    files: commonJsFiles,
+    languageOptions: {
+      sourceType: "commonjs",
     },
   },
   {
