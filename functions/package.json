@@ -1,14 +1,21 @@
 {
   "name": "functions",
   "scripts": {
+    "check:node": "node scripts/check-node-version.cjs",
+    "prelint": "npm run check:node",
     "lint": "eslint .",
+    "prelint-fix": "npm run check:node",
     "lint-fix": "eslint . --fix",
+    "prebuild": "npm run check:node",
     "build": "tsc",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
+    "predeploy": "npm run check:node",
     "deploy": "firebase deploy --only functions",
+    "prelogs": "npm run check:node",
     "logs": "firebase functions:log",
+    "pretest": "npm run check:node",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "engines": {
