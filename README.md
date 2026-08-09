@@ -10,6 +10,8 @@ functions のテストは **onlineモード**で動く。実際に dev プロジ
 
 ### 前提(初回のみ)
 
+Node.js 22.12.0以上23未満を使用する。
+
 認証は **ADC (Application Default Credentials)** を標準とする。
 サービスアカウントキーのファイルは使わない(常置される無期限キーを廃止するため)。
 
@@ -32,8 +34,7 @@ npm test
 
 補足:
 
-- `npm test` は `--experimental-vm-modules` 付きでjestを起動する(依存の `jose` がESM専用のため。
-  恒久対応としてvitest移行を [#24](https://github.com/tksrmz/household_accouts_firebase/issues/24) で検討中)
+- テストランナーにはESMをネイティブに扱えるVitestを使用する。
 - 環境変数 `HOUSEHOLD_ACCOUNTS_DEV_SERVICE_ACCOUNT_KEY` にサービスアカウントキーのパスを
   設定すると、ADCの代わりにそちらが使われる(上書き用・通常は不要)
 

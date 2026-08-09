@@ -1,7 +1,7 @@
 {
   "include": [
     ".eslintrc.js",
-    "jest.config.js",
+    "vitest.config.mts",
     "test/**/*.ts"
   ]
 }

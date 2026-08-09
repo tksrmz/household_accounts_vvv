@@ -8,7 +8,14 @@ const test = tests({
 
 import * as admin from "firebase-admin/firestore";
 import * as myFunctions from "../src/index";
-import { describe, expect, afterAll, it, afterEach } from "@jest/globals";
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vitest";
 
 describe("Cloud Functions", () => {
   afterAll(() => {
@@ -17,20 +24,21 @@ describe("Cloud Functions", () => {
 
   describe("onCreateUser", () => {
     const testUid = "testUserId";
-
-    afterEach(() => {
-      // Delete all documents in the test Firestore
-      const collections = [
-        "publicProfiles",
-        "personalNotes",
-        "privateProfiles",
-      ];
-      collections.forEach(async (collection) => {
-        await admin.getFirestore()
+    const collections = [
+      "publicProfiles",
+      "personalNotes",
+      "privateProfiles",
+    ];
+    const deleteTestDocuments = async () => {
+      await Promise.all(collections.map((collection) =>
+        admin.getFirestore()
           .doc(`${collection}/${testUid}`)
-          .delete();
-      });
-    });
+          .delete()
+      ));
+    };
+
+    beforeEach(deleteTestDocuments);
+    afterEach(deleteTestDocuments);
 
     it("should create publicProfiles, personalNotes, and privateProfiles documents",
       async () => {
