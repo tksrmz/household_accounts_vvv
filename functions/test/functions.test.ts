@@ -1,5 +1,5 @@
 // Initialize Firebase Functions Test SDK
-import * as tests from "firebase-functions-test";
+import tests from "firebase-functions-test";
 const test = tests({
   databaseURL: "https://household-accounts-dev-15106.firebaseio.com",
   storageBucket: "household-accounts-dev-15106.firebasestorage.app",
