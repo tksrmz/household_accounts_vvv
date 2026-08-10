@@ -43,7 +43,8 @@ class PropertyListState with ChangeNotifier {
     failureOrProperties.fold(
       (failure) {
         debugPrint(
-            '$PropertyListState#$fetch: retrieve use case failed. $_failure');
+          '$PropertyListState#$fetch: retrieve use case failed. $_failure',
+        );
         _failure = failure;
         _properties = [];
       },

@@ -30,7 +30,8 @@ abstract class TransferRecordModel with _$TransferRecordModel {
     final type = json['type'] as String;
     if (type != 'transfer') {
       throw ArgumentError(
-          'TransferRecordModel requires type "transfer", but got "$type"');
+        'TransferRecordModel requires type "transfer", but got "$type"',
+      );
     }
     // createdAtの型変換処理
     Timestamp createdAtTimestamp = json['createdAt'] as Timestamp;

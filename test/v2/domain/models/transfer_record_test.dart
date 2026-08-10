@@ -89,8 +89,10 @@ void main() {
         hasCheckedOut: false,
       );
 
-      expect(transferRecord.source.id.value,
-          isNot(equals(transferRecord.destination.id.value)));
+      expect(
+        transferRecord.source.id.value,
+        isNot(equals(transferRecord.destination.id.value)),
+      );
     });
   });
 }

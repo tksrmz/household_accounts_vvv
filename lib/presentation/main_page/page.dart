@@ -22,14 +22,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final _titles = [
-    'ダッシュボード',
-    '入力',
-    'カレンダー',
-    '資産',
-    'カテゴリ',
-    '予算',
-  ];
+  final _titles = ['ダッシュボード', '入力', 'カレンダー', '資産', 'カテゴリ', '予算'];
   int _index = 0;
 
   @override
@@ -58,9 +51,7 @@ class _MainPageState extends State<MainPage> {
     ];
 
     return Scaffold(
-      appBar: MainPageAppBar(
-        title: _titles[_index],
-      ),
+      appBar: MainPageAppBar(title: _titles[_index]),
       drawer: MainPageDrawer(
         mode: context.watch<SelectedNoteState>().value,
         setter: context.read<UserInfo>().hasPair
@@ -70,22 +61,13 @@ class _MainPageState extends State<MainPage> {
       body: bodies[_index],
       bottomNavigationBar: BottomNavigationBar(
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.sunny),
-            label: 'ダッシュボード',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.cloud),
-            label: '入力',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.sunny), label: 'ダッシュボード'),
+          BottomNavigationBarItem(icon: Icon(Icons.cloud), label: '入力'),
           BottomNavigationBarItem(
             icon: Icon(Icons.beach_access),
             label: 'カレンダー',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.access_alarm),
-            label: '資産',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.access_alarm), label: '資産'),
           BottomNavigationBarItem(
             icon: Icon(Icons.accessibility),
             label: 'カテゴリ',

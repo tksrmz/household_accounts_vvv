@@ -123,16 +123,16 @@ BudgetGraph Function() _getBuilder(
   List<({String name, int spent, int budget})> data,
 ) {
   return () => BudgetGraph(
-        list: BudgetGraphDataList(
-          data
-              .map(
-                (e) => BudgetGraphData(
-                  name: BudgetNameVo(e.name),
-                  spent: BudgetSpentVo(e.spent),
-                  budget: BudgetAmountVo(e.budget),
-                ),
-              )
-              .toList(),
-        ),
-      );
+    list: BudgetGraphDataList(
+      data
+          .map(
+            (e) => BudgetGraphData(
+              name: BudgetNameVo(e.name),
+              spent: BudgetSpentVo(e.spent),
+              budget: BudgetAmountVo(e.budget),
+            ),
+          )
+          .toList(),
+    ),
+  );
 }

@@ -28,8 +28,8 @@ class FirestorePersonalIncomeRepository implements IncomeRepository {
     IncomeVo createIncomeVo(data_model.IncomeRecordModel record) =>
         IncomeVo(record.amount);
     List<IncomeVo> convertToIncomeVoList(
-            List<data_model.IncomeRecordModel> incomeList) =>
-        incomeList.map(createIncomeVo).toList(growable: false);
+      List<data_model.IncomeRecordModel> incomeList,
+    ) => incomeList.map(createIncomeVo).toList(growable: false);
     return result.map(convertToIncomeVoList);
   }
 
@@ -44,11 +44,11 @@ class FirestorePersonalIncomeRepository implements IncomeRepository {
       createdAt: DateTime.now(),
       property: {
         'ref':
-            '/personalNotes/${_uid.value}/properties/${record.property.id.value}'
+            '/personalNotes/${_uid.value}/properties/${record.property.id.value}',
       },
       category: {
         'ref':
-            '/personalNotes/${_uid.value}/incomeCategories/${record.category.id.value}'
+            '/personalNotes/${_uid.value}/incomeCategories/${record.category.id.value}',
       },
     );
     return _personalIncomeRecordService.add(_uid, model);

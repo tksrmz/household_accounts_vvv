@@ -39,9 +39,7 @@ void main() async {
 }
 
 Future<void> initializeFirebaseApp() async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // デバッグモードのときのみFirebaseエミュレータに接続
   if (kDebugMode) {
@@ -56,9 +54,7 @@ Future<void> initializeFirebaseApp() async {
     // 一致させる必要がある（8080はローカルで他サービスと衝突するため8081を使用）
     final firestoreInstance = FirebaseFirestore.instance;
     firestoreInstance.useFirestoreEmulator('localhost', 8081);
-    firestoreInstance.settings = const Settings(
-      persistenceEnabled: false,
-    );
+    firestoreInstance.settings = const Settings(persistenceEnabled: false);
   }
 }
 
@@ -69,15 +65,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // UserAuthに依存しないProvider
     final providersNotDependOnUserAuth = [
-      ChangeNotifierProvider(
-        create: (_) => SelectedNoteState(),
-      ),
-      Provider<AuthRepository>(
-        create: (_) => FirebaseAuthRepository(),
-      ),
-      Provider<FirebaseFirestore>.value(
-        value: FirebaseFirestore.instance,
-      ),
+      ChangeNotifierProvider(create: (_) => SelectedNoteState()),
+      Provider<AuthRepository>(create: (_) => FirebaseAuthRepository()),
+      Provider<FirebaseFirestore>.value(value: FirebaseFirestore.instance),
       Provider<PublicProfileService>(
         create: (context) => PublicProfileService(context.read()),
       ),
@@ -124,7 +114,7 @@ class MyApp extends StatelessWidget {
             value: context.read<AuthRepository>().authStateChanges(),
           ),
           ProxyProvider2<SelectedNoteState, UserAuth, IncomeRepository>(
-            update: (context, selectedNote, user, __) {
+            update: (context, selectedNote, user, _) {
               final userId = user.uid;
 
               return selectedNote.isPersonal
@@ -140,7 +130,7 @@ class MyApp extends StatelessWidget {
             },
           ),
           ProxyProvider2<SelectedNoteState, UserAuth, ExpenseRepository>(
-            update: (context, selectedNote, user, __) {
+            update: (context, selectedNote, user, _) {
               final userId = user.uid;
 
               return selectedNote.isPersonal
@@ -161,9 +151,7 @@ class MyApp extends StatelessWidget {
           providers: providersDependOnUserAuth,
           child: MaterialApp(
             title: 'Household Accounts',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-            ),
+            theme: ThemeData(primarySwatch: Colors.blue),
             home: AuthGate(),
           ),
         );

@@ -19,12 +19,7 @@ void testGoldens(
         mockFn?.call();
 
         final widget = builder();
-        await tester.pumpWidget(
-          _GoldenWrapper(
-            width: width,
-            child: widget,
-          ),
-        );
+        await tester.pumpWidget(_GoldenWrapper(width: width, child: widget));
 
         // Additional expectations after the widget is built
         await expectFn?.call(tester);
@@ -56,10 +51,7 @@ class _GoldenWrapper extends StatelessWidget {
         body: RepaintBoundary(
           child: SizedBox(
             width: width.value,
-            child: Container(
-              color: const Color(0xFFFFFFFF),
-              child: child,
-            ),
+            child: Container(color: const Color(0xFFFFFFFF), child: child),
           ),
         ),
       ),
@@ -75,9 +67,7 @@ class GoldenPageWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'NotoSansJP',
-      ),
+      theme: ThemeData(fontFamily: 'NotoSansJP'),
       home: child,
     );
   }

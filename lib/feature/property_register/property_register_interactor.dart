@@ -10,15 +10,8 @@ class AddPropertyInteractor implements AddPropertyUseCase {
   Future<ExceptionOr<Unit>> call(AddPropertyInput input) {
     final repository = input.repository;
 
-    final property = Property(
-      UUID.generate(),
-      input.name,
-      input.amount,
-    );
+    final property = Property(UUID.generate(), input.name, input.amount);
 
-    return repository.register(
-      repoId: input.uid,
-      value: property,
-    );
+    return repository.register(repoId: input.uid, value: property);
   }
 }

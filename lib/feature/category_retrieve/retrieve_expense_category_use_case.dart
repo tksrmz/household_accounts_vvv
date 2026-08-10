@@ -2,8 +2,8 @@ import '../../entity/category.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 
-typedef RetrieveExpenseCategoryUseCase
-    = UseCase<RetrieveExpenseCategoryInput, List<ExpenseCategory>>;
+typedef RetrieveExpenseCategoryUseCase =
+    UseCase<RetrieveExpenseCategoryInput, List<ExpenseCategory>>;
 
 class RetrieveExpenseCategoryInput {
   /// User ID or pair ID.

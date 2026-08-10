@@ -12,17 +12,20 @@ class PersonalExpenseCategoryService {
 
   /// [userId]のすべての支出カテゴリを取得する
   Future<Either<Exception, List<ExpenseCategoryModel>>> fetchAll(
-      UserIdVo userId) async {
+    UserIdVo userId,
+  ) async {
     try {
       final querySnapshot = await _db
           .collection('/personalNotes/${userId.value}/expenseCategories')
           .get();
 
-      final categories = querySnapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id; // ドキュメントIDを追加
-        return ExpenseCategoryModel.fromJson(data);
-      }).toList(growable: false);
+      final categories = querySnapshot.docs
+          .map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id; // ドキュメントIDを追加
+            return ExpenseCategoryModel.fromJson(data);
+          })
+          .toList(growable: false);
 
       return Right(categories);
     } on Exception catch (e) {

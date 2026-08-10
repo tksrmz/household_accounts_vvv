@@ -13,8 +13,8 @@ class FutureBuilderHelper<T> extends StatelessWidget {
     required this.onSuccess,
     ErrorWidgetBuilder? onError,
     LoadingWidgetBuilder? onLoading,
-  })  : onError = onError ?? defaultOnError,
-        onLoading = onLoading ?? defaultOnLoading;
+  }) : onError = onError ?? defaultOnError,
+       onLoading = onLoading ?? defaultOnLoading;
 
   final SuccessWidgetBuilder<T> onSuccess;
   final ErrorWidgetBuilder onError;
@@ -38,13 +38,9 @@ class FutureBuilderHelper<T> extends StatelessWidget {
 }
 
 Widget defaultOnError(BuildContext context, Object error) {
-  return Center(
-    child: Text(error.toString()),
-  );
+  return Center(child: Text(error.toString()));
 }
 
 Widget defaultOnLoading(BuildContext context) {
-  return Center(
-    child: LoadingWidget(),
-  );
+  return Center(child: LoadingWidget());
 }

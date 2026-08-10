@@ -20,7 +20,9 @@ abstract interface class ExpenseCategoryRepository {
   /// [id] 更新対象のカテゴリID
   /// [category] 更新後の支出カテゴリデータ
   Future<Either<Exception, Unit>> update(
-      CategoryIdVo id, ExpenseCategoryModel category);
+    CategoryIdVo id,
+    ExpenseCategoryModel category,
+  );
 
   /// 支出カテゴリを削除する
   ///

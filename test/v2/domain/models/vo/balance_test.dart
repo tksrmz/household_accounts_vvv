@@ -11,10 +11,12 @@ void main() {
     (2, 3, -1), // balance is negative
   ]) {
     final (income, expense, expected) = values;
-    test('Constructor returns normally (Income: $income, Expense: $expense)',
-        () {
-      final actual = BalanceVo(IncomeVo(income), ExpenseVo(expense));
-      expect(actual.value, equals(expected));
-    });
+    test(
+      'Constructor returns normally (Income: $income, Expense: $expense)',
+      () {
+        final actual = BalanceVo(IncomeVo(income), ExpenseVo(expense));
+        expect(actual.value, equals(expected));
+      },
+    );
   }
 }

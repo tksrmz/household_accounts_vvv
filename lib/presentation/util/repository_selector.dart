@@ -78,7 +78,8 @@ RecordRepository<IncomeRecord> selectIncomeRecordRepository(
   switch (value) {
     case SelectedNote.personal:
       debugPrint(
-          'selectIncomeRecordRepository: Select personal income record.');
+        'selectIncomeRecordRepository: Select personal income record.',
+      );
       repository = sl<PersonalIncomeRecordRepository>();
       break;
 
@@ -100,13 +101,15 @@ RecordRepository<ExpenseRecord> selectExpenseRecordRepository(
   switch (value) {
     case SelectedNote.personal:
       debugPrint(
-          'selectExpenseRecordRepository: Select personal expense record.');
+        'selectExpenseRecordRepository: Select personal expense record.',
+      );
       repository = sl<PersonalExpenseRecordRepository>();
       break;
 
     case SelectedNote.shared:
       debugPrint(
-          'selectExpenseRecordRepository: Select shared  expense record.');
+        'selectExpenseRecordRepository: Select shared  expense record.',
+      );
       repository = sl<SharedExpenseRecordRepository>();
       break;
   }
@@ -123,13 +126,15 @@ RecordRepository<TransferRecord> selectTransferRecordRepository(
   switch (value) {
     case SelectedNote.personal:
       debugPrint(
-          'selectTransferRecordRepository: Select personal transfer record.');
+        'selectTransferRecordRepository: Select personal transfer record.',
+      );
       repository = sl<PersonalTransferRecordRepository>();
       break;
 
     case SelectedNote.shared:
       debugPrint(
-          'selectTransferRecordRepository: Select shared  transfer record.');
+        'selectTransferRecordRepository: Select shared  transfer record.',
+      );
       repository = sl<SharedTransferRecordRepository>();
       break;
   }

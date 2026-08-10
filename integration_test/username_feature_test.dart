@@ -50,8 +50,9 @@ Future<void> userNameFeature() async {
     await tester.pumpAndSettle();
 
     // Tap the username field to start editing
-    await tester
-        .tap(find.text(FirebaseAuth.instance.currentUser!.uid.substring(0, 5)));
+    await tester.tap(
+      find.text(FirebaseAuth.instance.currentUser!.uid.substring(0, 5)),
+    );
     await tester.pumpAndSettle();
 
     // Enter new username

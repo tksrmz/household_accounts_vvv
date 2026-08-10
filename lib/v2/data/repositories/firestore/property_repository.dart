@@ -10,10 +10,7 @@ import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/repositories/property_repository.dart';
 
 class FirestorePropertyRepository implements PropertyRepository {
-  const FirestorePropertyRepository(
-    this._personalPropertyService,
-    this._uid,
-  );
+  const FirestorePropertyRepository(this._personalPropertyService, this._uid);
 
   final PersonalPropertyService _personalPropertyService;
   final UserIdVo _uid;
@@ -21,13 +18,17 @@ class FirestorePropertyRepository implements PropertyRepository {
   @override
   Future<Either<Exception, List<PropertyModel>>> fetchAll() async {
     final result = await _personalPropertyService.fetchAll(_uid);
-    return result.map((propertyModels) => propertyModels
-        .map((model) => PropertyModel(
+    return result.map(
+      (propertyModels) => propertyModels
+          .map(
+            (model) => PropertyModel(
               id: PropertyIdVo(model.id),
               name: PropertyNameVo(model.name),
               amount: PropertyAmountVo(model.amount),
-            ))
-        .toList(growable: false));
+            ),
+          )
+          .toList(growable: false),
+    );
   }
 
   @override
@@ -42,7 +43,9 @@ class FirestorePropertyRepository implements PropertyRepository {
 
   @override
   Future<Either<Exception, Unit>> update(
-      PropertyIdVo id, PropertyModel property) async {
+    PropertyIdVo id,
+    PropertyModel property,
+  ) async {
     final model = data.PropertyModel(
       id: property.id.value,
       name: property.name.value,

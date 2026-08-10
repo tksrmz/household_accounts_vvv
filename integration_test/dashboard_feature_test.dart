@@ -44,8 +44,9 @@ Future<void> dashboardFeature() async {
     // expect(find.byType(BudgetGraph), findsOneWidget);
   });
 
-  testWidgets('ペアリング済みユーザーはふたりの家計簿の情報をダッシュボード画面で確認できるので、共有家計の全体像を把握できる',
-      (tester) async {
+  testWidgets('ペアリング済みユーザーはふたりの家計簿の情報をダッシュボード画面で確認できるので、共有家計の全体像を把握できる', (
+    tester,
+  ) async {
     await tester.pumpWidget(const MyApp());
     await signInApp(tester, pairUser);
 

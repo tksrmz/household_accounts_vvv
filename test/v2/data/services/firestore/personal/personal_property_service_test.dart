@@ -25,16 +25,17 @@ void main() {
       final userId = UserIdVo('testUserId');
 
       setUp(() {
-        when(mockDb.collection('/personalNotes/${userId.value}/properties'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.get())
-            .thenAnswer((_) async => mockQuerySnapshot);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/properties'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.get(),
+        ).thenAnswer((_) async => mockQuerySnapshot);
         when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
         when(mockQueryDocumentSnapshot.id).thenReturn('propertyId1');
-        when(mockQueryDocumentSnapshot.data()).thenReturn({
-          'name': 'Test Property',
-          'amount': 10000,
-        });
+        when(
+          mockQueryDocumentSnapshot.data(),
+        ).thenReturn({'name': 'Test Property', 'amount': 10000});
       });
 
       tearDown(() {
@@ -52,8 +53,9 @@ void main() {
         final result = await target.fetchAll(userId);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/properties'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/properties'),
+        ).called(1);
         verify(mockCollectionReference.get()).called(1);
         verify(mockQuerySnapshot.docs).called(1);
         verify(mockQueryDocumentSnapshot.data()).called(1);
@@ -91,10 +93,12 @@ void main() {
       );
 
       setUp(() {
-        when(mockDb.collection('/personalNotes/${userId.value}/properties'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.doc(property.id))
-            .thenReturn(mockDocumentReference);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/properties'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.doc(property.id),
+        ).thenReturn(mockDocumentReference);
         when(mockDocumentReference.set(any)).thenAnswer((_) async => {});
       });
 
@@ -112,8 +116,9 @@ void main() {
         final result = await target.add(userId, property);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/properties'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/properties'),
+        ).called(1);
         verify(mockCollectionReference.doc(property.id)).called(1);
         verify(mockDocumentReference.set(any)).called(1);
 
@@ -145,10 +150,12 @@ void main() {
       );
 
       setUp(() {
-        when(mockDb.collection('/personalNotes/${userId.value}/properties'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.doc(property.id))
-            .thenReturn(mockDocumentReference);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/properties'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.doc(property.id),
+        ).thenReturn(mockDocumentReference);
         when(mockDocumentReference.update(any)).thenAnswer((_) async => {});
       });
 
@@ -166,8 +173,9 @@ void main() {
         final result = await target.update(userId, property);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/properties'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/properties'),
+        ).called(1);
         verify(mockCollectionReference.doc(property.id)).called(1);
         verify(mockDocumentReference.update(any)).called(1);
 
@@ -176,8 +184,9 @@ void main() {
 
       test('例外が発生した場合、Leftを返す', () async {
         // Arrange
-        when(mockDocumentReference.update(any))
-            .thenThrow(Exception('test error'));
+        when(
+          mockDocumentReference.update(any),
+        ).thenThrow(Exception('test error'));
         final target = PersonalPropertyService(mockDb);
 
         // Act
@@ -196,10 +205,12 @@ void main() {
       final propertyId = 'propertyId1';
 
       setUp(() {
-        when(mockDb.collection('/personalNotes/${userId.value}/properties'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.doc(propertyId))
-            .thenReturn(mockDocumentReference);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/properties'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.doc(propertyId),
+        ).thenReturn(mockDocumentReference);
         when(mockDocumentReference.delete()).thenAnswer((_) async => {});
       });
 
@@ -217,8 +228,9 @@ void main() {
         final result = await target.delete(userId, propertyId);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/properties'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/properties'),
+        ).called(1);
         verify(mockCollectionReference.doc(propertyId)).called(1);
         verify(mockDocumentReference.delete()).called(1);
 

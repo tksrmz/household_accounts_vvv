@@ -5,7 +5,7 @@ class FailureDisplayWidget extends StatelessWidget {
   final Exception _failure;
 
   const FailureDisplayWidget({required Exception failure, super.key})
-      : _failure = failure;
+    : _failure = failure;
 
   @override
   Widget build(BuildContext context) {

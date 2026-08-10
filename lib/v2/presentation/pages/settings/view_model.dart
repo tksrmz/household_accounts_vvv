@@ -11,8 +11,8 @@ class SettingsViewModel with ChangeNotifier {
   SettingsViewModel({
     required PublicProfileRepository publicProfileRepository,
     required AuthRepository authRepository,
-  })  : _publicProfileRepository = publicProfileRepository,
-        _authRepository = authRepository {
+  }) : _publicProfileRepository = publicProfileRepository,
+       _authRepository = authRepository {
     init = AsyncCommand(_init)..call(_authRepository.getCurrentUser().uid);
   }
 

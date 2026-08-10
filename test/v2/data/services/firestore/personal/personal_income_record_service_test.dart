@@ -27,8 +27,9 @@ void main() {
       final userId = UserIdVo('testUserId');
 
       setUp(() {
-        when(mockDb.collection('/personalNotes/${userId.value}/incomes'))
-            .thenReturn(mockCollectionReference);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/incomes'),
+        ).thenReturn(mockCollectionReference);
         when(
           mockCollectionReference.where(
             any,
@@ -67,8 +68,9 @@ void main() {
         final result = await target.fetchByDate(userId, 2025, 5);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/incomes'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/incomes'),
+        ).called(1);
         verify(
           mockCollectionReference.where(
             any,
@@ -127,8 +129,10 @@ void main() {
         final target = PersonalIncomeRecordService(mockDb);
 
         // Act & Assert
-        expect(() => target.fetchByDate(userId, 2025, null, 25),
-            throwsA(isA<AssertionError>()));
+        expect(
+          () => target.fetchByDate(userId, 2025, null, 25),
+          throwsA(isA<AssertionError>()),
+        );
       });
     });
 
@@ -149,10 +153,12 @@ void main() {
       );
 
       setUp(() {
-        when(mockDb.collection('/personalNotes/${userId.value}/incomes'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.doc(income.id))
-            .thenReturn(mockDocumentReference);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/incomes'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.doc(income.id),
+        ).thenReturn(mockDocumentReference);
         when(mockDocumentReference.set(any)).thenAnswer((_) async => {});
       });
 
@@ -170,8 +176,9 @@ void main() {
         final result = await target.add(userId, income);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/incomes'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/incomes'),
+        ).called(1);
         verify(mockCollectionReference.doc(income.id)).called(1);
         verify(mockDocumentReference.set(any)).called(1);
 
@@ -199,10 +206,12 @@ void main() {
       final incomeId = 'incomeId1';
 
       setUp(() {
-        when(mockDb.collection('/personalNotes/${userId.value}/incomes'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.doc(incomeId))
-            .thenReturn(mockDocumentReference);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/incomes'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.doc(incomeId),
+        ).thenReturn(mockDocumentReference);
         when(mockDocumentReference.delete()).thenAnswer((_) async => {});
       });
 
@@ -220,8 +229,9 @@ void main() {
         final result = await target.delete(userId, incomeId);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/incomes'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/incomes'),
+        ).called(1);
         verify(mockCollectionReference.doc(incomeId)).called(1);
         verify(mockDocumentReference.delete()).called(1);
 

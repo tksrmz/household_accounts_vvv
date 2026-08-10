@@ -4,8 +4,8 @@ import '../../entity/category.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 
-typedef DeleteExpenseCategoryUseCase
-    = UseCase<DeleteExpenseCategoryInput, Unit>;
+typedef DeleteExpenseCategoryUseCase =
+    UseCase<DeleteExpenseCategoryInput, Unit>;
 
 class DeleteExpenseCategoryInput {
   /// User ID or pair ID.

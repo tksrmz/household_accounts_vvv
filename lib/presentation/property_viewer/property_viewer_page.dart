@@ -28,11 +28,10 @@ class PropertyListBody extends StatelessWidget {
     return ChangeNotifierProxyProvider<SelectedNoteState, PropertyListState>(
       create: (context) => PropertyListState(),
       update: (context, singleOrPair, state) {
-        return state!
-          ..fetch(
-            singleOrPair: singleOrPair.value,
-            userInfo: context.read<UserInfo>(),
-          );
+        return state!..fetch(
+          singleOrPair: singleOrPair.value,
+          userInfo: context.read<UserInfo>(),
+        );
       },
       child: _PageContents(),
     );
@@ -47,22 +46,16 @@ class _PageContents extends StatelessWidget {
     final state = context.watch<PropertyListState>();
 
     if (state.hasFailure) {
-      return Center(
-        child: FailureDisplayWidget(failure: state.failure!),
-      );
+      return Center(child: FailureDisplayWidget(failure: state.failure!));
     }
 
     if (state.isLoading) {
-      return Center(
-        child: LoadingWidget(),
-      );
+      return Center(child: LoadingWidget());
     }
 
     return Column(
       children: [
-        Expanded(
-          child: _PropertyListView(properties: state.properties),
-        ),
+        Expanded(child: _PropertyListView(properties: state.properties)),
         _AddPropertyButton(),
       ],
     );
@@ -72,9 +65,8 @@ class _PageContents extends StatelessWidget {
 class _PropertyListView extends StatelessWidget {
   final UnmodifiableListView<Property> _properties;
 
-  const _PropertyListView({
-    required UnmodifiableListView<Property> properties,
-  }) : _properties = properties;
+  const _PropertyListView({required UnmodifiableListView<Property> properties})
+    : _properties = properties;
 
   @override
   Widget build(BuildContext context) {
@@ -90,9 +82,7 @@ class _PropertyListView extends StatelessWidget {
 class _PropertyListItem extends StatelessWidget {
   final Property _property;
 
-  const _PropertyListItem({
-    required Property property,
-  }) : _property = property;
+  const _PropertyListItem({required Property property}) : _property = property;
 
   @override
   Widget build(BuildContext context) {
@@ -102,23 +92,18 @@ class _PropertyListItem extends StatelessWidget {
         _propertyInfo(),
         Spacer(),
         _EditPropertyButton(property: _property),
-        DeleteIconButton(
-          onPressed: () => _deleteProperty(context),
-        ),
+        DeleteIconButton(onPressed: () => _deleteProperty(context)),
       ],
     );
   }
 
   Widget _propertyInfo() => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            _property.name,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Text(Formatter.simpleCurrency(_property.amount)),
-        ],
-      );
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(_property.name, style: TextStyle(fontWeight: FontWeight.bold)),
+      Text(Formatter.simpleCurrency(_property.amount)),
+    ],
+  );
 
   Future<void> _deleteProperty(BuildContext context) async {
     final input = _generateInput(context);
@@ -159,7 +144,7 @@ class _EditPropertyButton extends StatelessWidget {
   final Property _property;
 
   const _EditPropertyButton({required Property property})
-      : _property = property;
+    : _property = property;
 
   @override
   Widget build(BuildContext context) {
@@ -186,9 +171,7 @@ class _EditPropertyButton extends StatelessWidget {
       onPressed: () async {
         await Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: buildPropertyEditorPage,
-          ),
+          MaterialPageRoute(builder: buildPropertyEditorPage),
         );
         if (context.mounted) {
           _reloadState(context);
@@ -244,9 +227,7 @@ class _AddPropertyButton extends StatelessWidget {
       onPressed: () async {
         await Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: buildPropertyEditorPage,
-          ),
+          MaterialPageRoute(builder: buildPropertyEditorPage),
         );
         if (context.mounted) {
           _reloadState(context);
@@ -281,6 +262,6 @@ class _AddPropertyButton extends StatelessWidget {
 
 Future<void> _reloadState(BuildContext context) =>
     context.read<PropertyListState>().fetch(
-          singleOrPair: context.read<SelectedNoteState>().value,
-          userInfo: context.read<UserInfo>(),
-        );
+      singleOrPair: context.read<SelectedNoteState>().value,
+      userInfo: context.read<UserInfo>(),
+    );

@@ -4,8 +4,8 @@ import '../../entity/record.dart';
 import '../../util/type/use_case.dart';
 import '../repository/record_repository.dart';
 
-typedef DeleteRecordUseCase<T extends RecordBase>
-    = UseCase<DeleteRecordInput<T>, Unit>;
+typedef DeleteRecordUseCase<T extends RecordBase> =
+    UseCase<DeleteRecordInput<T>, Unit>;
 
 class DeleteRecordInput<T extends RecordBase> {
   /// User ID or pair ID.

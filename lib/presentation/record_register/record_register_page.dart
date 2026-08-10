@@ -29,9 +29,8 @@ class RecordInputPage extends StatelessWidget {
 }
 
 class _PageContents extends StatefulWidget {
-  const _PageContents({
-    required SelectedNote singleOrPair,
-  }) : _singleOrPair = singleOrPair;
+  const _PageContents({required SelectedNote singleOrPair})
+    : _singleOrPair = singleOrPair;
 
   final SelectedNote _singleOrPair;
 
@@ -278,19 +277,15 @@ class _PageContentsState extends State<_PageContents> {
 
               if (!_formKey.currentState!.validate()) {
                 // Tell the user that the input data is invalid.
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('入力が正しくありません'),
-                  ),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: const Text('入力が正しくありません')));
                 return;
               }
               if (_srcProperty == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('資産を選択してください'),
-                  ),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: const Text('資産を選択してください')));
                 return;
               }
               switch (_recordType) {
@@ -298,9 +293,7 @@ class _PageContentsState extends State<_PageContents> {
                 case RecordType.expense:
                   if (_category == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('カテゴリを選択してください'),
-                      ),
+                      SnackBar(content: const Text('カテゴリを選択してください')),
                     );
                     return;
                   }
@@ -309,9 +302,7 @@ class _PageContentsState extends State<_PageContents> {
                 case RecordType.transfer:
                   if (_destProperty == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('転送先資産を選択してください'),
-                      ),
+                      SnackBar(content: const Text('転送先資産を選択してください')),
                     );
                     return;
                   }
@@ -336,11 +327,9 @@ class _PageContentsState extends State<_PageContents> {
               _formKey.currentState!.reset();
 
               // Tell the user that the record has been created
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('レコードを登録しました'),
-                ),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: const Text('レコードを登録しました')));
             },
           ),
         ],
@@ -356,8 +345,8 @@ class _RecordDatePicker extends StatelessWidget {
   const _RecordDatePicker({
     required DateTime value,
     required void Function(DateTime) recordDateUpdater,
-  })  : _selectedDate = value,
-        _updateRecordDate = recordDateUpdater;
+  }) : _selectedDate = value,
+       _updateRecordDate = recordDateUpdater;
 
   @override
   Widget build(BuildContext context) {
@@ -377,9 +366,7 @@ class _RecordDatePicker extends StatelessWidget {
               firstDate: _selectedDate.subtract(
                 const Duration(days: daysInYear),
               ),
-              lastDate: _selectedDate.add(
-                const Duration(days: daysInYear),
-              ),
+              lastDate: _selectedDate.add(const Duration(days: daysInYear)),
             );
             if (pickedDate != null) {
               _updateRecordDate(pickedDate);
@@ -395,9 +382,8 @@ class _RecordDatePicker extends StatelessWidget {
 class _AmountTextField extends StatelessWidget {
   final FormFieldSetter<String>? _onSaved;
 
-  const _AmountTextField({
-    FormFieldSetter<String>? onSaved,
-  }) : _onSaved = onSaved;
+  const _AmountTextField({FormFieldSetter<String>? onSaved})
+    : _onSaved = onSaved;
 
   @override
   Widget build(BuildContext context) {
@@ -421,9 +407,9 @@ class _RecordTypeSelector extends StatelessWidget {
     VoidCallback? incomeButtonOnPressed,
     VoidCallback? expenseButtonOnPressed,
     VoidCallback? transferButtonOnPressed,
-  })  : _incomeButtonOnPressed = incomeButtonOnPressed,
-        _expenseButtonOnPressed = expenseButtonOnPressed,
-        _transferButtonOnPressed = transferButtonOnPressed;
+  }) : _incomeButtonOnPressed = incomeButtonOnPressed,
+       _expenseButtonOnPressed = expenseButtonOnPressed,
+       _transferButtonOnPressed = transferButtonOnPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -463,10 +449,10 @@ class _CategoryDropDownMenu extends StatelessWidget {
     CategoryBase? value,
     required CategoryType categoryType,
     required ValueChanged<CategoryBase?>? onChanged,
-  })  : _categories = categories,
-        _value = value,
-        _displayedType = categoryType,
-        _onChanged = onChanged;
+  }) : _categories = categories,
+       _value = value,
+       _displayedType = categoryType,
+       _onChanged = onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -523,10 +509,7 @@ class _CategoryDropDownMenu extends StatelessWidget {
           icon: const Icon(Icons.arrow_downward),
           elevation: 16,
           style: const TextStyle(color: Colors.deepPurple),
-          underline: Container(
-            height: 2,
-            color: Colors.deepPurpleAccent,
-          ),
+          underline: Container(height: 2, color: Colors.deepPurpleAccent),
           items: items,
           onChanged: _onChanged,
         );
@@ -544,9 +527,9 @@ class _PropertyDropDownMenu extends StatelessWidget {
     required Future<ExceptionOr<List<Property>>> properties,
     Property? value,
     required ValueChanged<Property?>? onChanged,
-  })  : _properties = properties,
-        _value = value,
-        _onChanged = onChanged;
+  }) : _properties = properties,
+       _value = value,
+       _onChanged = onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -602,10 +585,7 @@ class _PropertyDropDownMenu extends StatelessWidget {
           icon: const Icon(Icons.arrow_downward),
           elevation: 16,
           style: const TextStyle(color: Colors.deepPurple),
-          underline: Container(
-            height: 2,
-            color: Colors.deepPurpleAccent,
-          ),
+          underline: Container(height: 2, color: Colors.deepPurpleAccent),
           items: items,
           onChanged: _onChanged,
         );
@@ -617,42 +597,36 @@ class _PropertyDropDownMenu extends StatelessWidget {
 class _NoteTextField extends StatelessWidget {
   final FormFieldSetter<String>? _onSaved;
 
-  const _NoteTextField({
-    FormFieldSetter<String>? onSaved,
-  }) : _onSaved = onSaved;
+  const _NoteTextField({FormFieldSetter<String>? onSaved}) : _onSaved = onSaved;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-        decoration: InputDecoration(
-          labelText: 'ノート',
-          border: OutlineInputBorder(),
-        ),
-        initialValue: '',
-        keyboardType: TextInputType.text,
-        onSaved: _onSaved,
-        validator: (String? value) {
-          if (value == null) {
-            return 'ノートを入力してください';
-          }
+      decoration: InputDecoration(
+        labelText: 'ノート',
+        border: OutlineInputBorder(),
+      ),
+      initialValue: '',
+      keyboardType: TextInputType.text,
+      onSaved: _onSaved,
+      validator: (String? value) {
+        if (value == null) {
+          return 'ノートを入力してください';
+        }
 
-          return null;
-        });
+        return null;
+      },
+    );
   }
 }
 
 class _SubmitButton extends StatelessWidget {
   final VoidCallback? _onPressed;
 
-  const _SubmitButton({
-    VoidCallback? onPressed,
-  }) : _onPressed = onPressed;
+  const _SubmitButton({VoidCallback? onPressed}) : _onPressed = onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: _onPressed,
-      child: const Text('登録'),
-    );
+    return ElevatedButton(onPressed: _onPressed, child: const Text('登録'));
   }
 }

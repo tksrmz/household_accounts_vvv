@@ -69,60 +69,66 @@ Future<void> propertyFeature() async {
     expect(find.text('¥120,000'), findsNothing);
   });
 
-  testWidgets('ペアリング済みユーザーはふたりの家計簿で資産を管理できるので、共有資産状況を正確に把握できる', (tester) async {
-    await tester.pumpWidget(const MyApp());
-    await signUpApp(tester);
+  testWidgets(
+    'ペアリング済みユーザーはふたりの家計簿で資産を管理できるので、共有資産状況を正確に把握できる',
+    (tester) async {
+      await tester.pumpWidget(const MyApp());
+      await signUpApp(tester);
 
-    // Wait for loading to finish
-    await tester.pumpAndSettle();
+      // Wait for loading to finish
+      await tester.pumpAndSettle();
 
-    // Open the navigation menu to switch to shared account
-    await tester.tap(find.byIcon(Icons.menu));
-    await tester.pumpAndSettle();
+      // Open the navigation menu to switch to shared account
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pumpAndSettle();
 
-    // Switch to shared household account
-    await tester.tap(find.text('ふたりの家計簿を見る'));
-    await tester.pumpAndSettle();
+      // Switch to shared household account
+      await tester.tap(find.text('ふたりの家計簿を見る'));
+      await tester.pumpAndSettle();
 
-    // Navigate to property screen using bottom navigation bar
-    await tester.tap(find.text('資産'));
-    await tester.pumpAndSettle();
+      // Navigate to property screen using bottom navigation bar
+      await tester.tap(find.text('資産'));
+      await tester.pumpAndSettle();
 
-    // Add new shared property
-    await tester.tap(find.text('資産の追加'));
-    await tester.pumpAndSettle();
+      // Add new shared property
+      await tester.tap(find.text('資産の追加'));
+      await tester.pumpAndSettle();
 
-    // Enter shared property details
-    await tester.enterText(find.widgetWithText(TextField, '資産名'), '共同口座');
-    await tester.enterText(find.widgetWithText(TextField, '資産額'), '200000');
-    await tester.tap(find.text('保存'));
-    await tester.pumpAndSettle();
+      // Enter shared property details
+      await tester.enterText(find.widgetWithText(TextField, '資産名'), '共同口座');
+      await tester.enterText(find.widgetWithText(TextField, '資産額'), '200000');
+      await tester.tap(find.text('保存'));
+      await tester.pumpAndSettle();
 
-    // Verify shared property is created
-    expect(find.text('共同口座'), findsOneWidget);
-    expect(find.text('¥200,000'), findsOneWidget);
+      // Verify shared property is created
+      expect(find.text('共同口座'), findsOneWidget);
+      expect(find.text('¥200,000'), findsOneWidget);
 
-    // Edit shared property
-    await tester.tap(find.widgetWithIcon(IconButton, Icons.edit).first);
-    await tester.pumpAndSettle();
-    await tester.enterText(
-        find.widgetWithText(TextField, '資産名'), '共同口座（住宅ローン）');
-    await tester.enterText(find.widgetWithText(TextField, '資産額'), '250000');
-    await tester.tap(find.text('保存'));
-    await tester.pumpAndSettle();
+      // Edit shared property
+      await tester.tap(find.widgetWithIcon(IconButton, Icons.edit).first);
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.widgetWithText(TextField, '資産名'),
+        '共同口座（住宅ローン）',
+      );
+      await tester.enterText(find.widgetWithText(TextField, '資産額'), '250000');
+      await tester.tap(find.text('保存'));
+      await tester.pumpAndSettle();
 
-    // Verify shared property is updated
-    expect(find.text('共同口座（住宅ローン）'), findsOneWidget);
-    expect(find.text('¥250,000'), findsOneWidget);
-    expect(find.text('共同口座'), findsNothing);
-    expect(find.text('¥200,000'), findsNothing);
+      // Verify shared property is updated
+      expect(find.text('共同口座（住宅ローン）'), findsOneWidget);
+      expect(find.text('¥250,000'), findsOneWidget);
+      expect(find.text('共同口座'), findsNothing);
+      expect(find.text('¥200,000'), findsNothing);
 
-    // Delete shared property
-    await tester.tap(find.widgetWithIcon(IconButton, Icons.delete).first);
-    await tester.pumpAndSettle();
+      // Delete shared property
+      await tester.tap(find.widgetWithIcon(IconButton, Icons.delete).first);
+      await tester.pumpAndSettle();
 
-    // Verify shared property is deleted
-    expect(find.text('共同口座（住宅ローン）'), findsNothing);
-    expect(find.text('¥250,000'), findsNothing);
-  }, skip: true /* skip as paring feature is not implemented yet */);
+      // Verify shared property is deleted
+      expect(find.text('共同口座（住宅ローン）'), findsNothing);
+      expect(find.text('¥250,000'), findsNothing);
+    },
+    skip: true /* skip as paring feature is not implemented yet */,
+  );
 }

@@ -97,24 +97,17 @@ void main() {
   Widget targetBuilder({
     DateTime Function() now = _defaultNow,
     SelectedNote selectedNote = SelectedNote.personal,
-  }) =>
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider<SelectedNoteState>(
-            create: (_) => SelectedNoteState()..select(selectedNote),
-          ),
-          Provider<UserInfo>(
-            create: (_) => const UserInfo(
-              uid: 'testUserId',
-              pairId: 'testPairId',
-            ),
-          ),
-        ],
-        child: BudgetViewerPage(
-          useCase: mockUseCase,
-          now: now,
-        ),
-      );
+  }) => MultiProvider(
+    providers: [
+      ChangeNotifierProvider<SelectedNoteState>(
+        create: (_) => SelectedNoteState()..select(selectedNote),
+      ),
+      Provider<UserInfo>(
+        create: (_) => const UserInfo(uid: 'testUserId', pairId: 'testPairId'),
+      ),
+    ],
+    child: BudgetViewerPage(useCase: mockUseCase, now: now),
+  );
 
   testGoldens(
     '複数カテゴリ（支出0円のカテゴリを含む）を取得できるとき、カテゴリ名と支出額 / 予算額の一覧が表示されること',
@@ -147,45 +140,35 @@ void main() {
     },
   );
 
-  testWidgets(
-    'カテゴリが0件のとき、エラーにならず空の一覧が表示されること',
-    (tester) async {
-      when(mockUseCase.call(any)).thenAnswer(
-        (_) async => Right(
-          RetrieveBudgetStateOutput(
-            begin: DateTime(2026, 7),
-            end: DateTime(2026, 8),
-            states: const [],
-          ),
+  testWidgets('カテゴリが0件のとき、エラーにならず空の一覧が表示されること', (tester) async {
+    when(mockUseCase.call(any)).thenAnswer(
+      (_) async => Right(
+        RetrieveBudgetStateOutput(
+          begin: DateTime(2026, 7),
+          end: DateTime(2026, 8),
+          states: const [],
         ),
-      );
+      ),
+    );
 
-      await tester.pumpWidget(
-        GoldenPageWrapper(child: targetBuilder()),
-      );
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(GoldenPageWrapper(child: targetBuilder()));
+    await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.byType(ListView), findsOneWidget);
-      expect(find.text('エラーが発生しました'), findsNothing);
-    },
-  );
+    expect(tester.takeException(), isNull);
+    expect(find.byType(ListView), findsOneWidget);
+    expect(find.text('エラーが発生しました'), findsNothing);
+  });
 
-  testWidgets(
-    'データ取得が失敗（Left）のとき、エラー表示になること',
-    (tester) async {
-      when(mockUseCase.call(any)).thenAnswer(
-        (_) async => Left(Exception('取得に失敗しました')),
-      );
+  testWidgets('データ取得が失敗（Left）のとき、エラー表示になること', (tester) async {
+    when(
+      mockUseCase.call(any),
+    ).thenAnswer((_) async => Left(Exception('取得に失敗しました')));
 
-      await tester.pumpWidget(
-        GoldenPageWrapper(child: targetBuilder()),
-      );
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(GoldenPageWrapper(child: targetBuilder()));
+    await tester.pumpAndSettle();
 
-      expect(find.textContaining('取得に失敗しました'), findsOneWidget);
-    },
-  );
+    expect(find.textContaining('取得に失敗しました'), findsOneWidget);
+  });
 
   /// [mockUseCase] が常に正常系（カテゴリ1件）の結果を返すよう設定する。
   ///
@@ -193,21 +176,19 @@ void main() {
   /// 検証が主目的であり、集計結果自体の内容は問わないため、
   /// 呼び出しごとに同じ正常系レスポンスを返す軽量なスタブで十分である。
   void stubUseCaseWithSingleCategory() {
-    when(mockUseCase.call(any)).thenAnswer(
-      (invocation) async {
-        final input =
-            invocation.positionalArguments.first as RetrieveBudgetStateInput;
-        return Right(
-          RetrieveBudgetStateOutput(
-            begin: input.begin,
-            end: input.end,
-            states: [
-              BudgetState(name: '食費', totalAmount: 30000, spentAmount: 12000),
-            ],
-          ),
-        );
-      },
-    );
+    when(mockUseCase.call(any)).thenAnswer((invocation) async {
+      final input =
+          invocation.positionalArguments.first as RetrieveBudgetStateInput;
+      return Right(
+        RetrieveBudgetStateOutput(
+          begin: input.begin,
+          end: input.end,
+          states: [
+            BudgetState(name: '食費', totalAmount: 30000, spentAmount: 12000),
+          ],
+        ),
+      );
+    });
   }
 
   Future<void> switchToCustomCycle(WidgetTester tester) async {
@@ -237,31 +218,29 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets(
-    'AC-006: 今日が2026/7/5（月前半）のとき、月度に切り替えると2026年7月度のラベルが表示されること',
-    (tester) async {
-      stubUseCaseWithSingleCategory();
+  testWidgets('AC-006: 今日が2026/7/5（月前半）のとき、月度に切り替えると2026年7月度のラベルが表示されること', (
+    tester,
+  ) async {
+    stubUseCaseWithSingleCategory();
 
-      await pumpTarget(tester, now: () => DateTime(2026, 7, 5));
+    await pumpTarget(tester, now: () => DateTime(2026, 7, 5));
 
-      await switchToCustomCycle(tester);
+    await switchToCustomCycle(tester);
 
-      expect(find.text('2026年7月度（6/16〜7/15）'), findsOneWidget);
-    },
-  );
+    expect(find.text('2026年7月度（6/16〜7/15）'), findsOneWidget);
+  });
 
-  testWidgets(
-    'AC-007: 今日が2026/7/20（月後半）のとき、月度に切り替えると2026年8月度のラベルが表示されること',
-    (tester) async {
-      stubUseCaseWithSingleCategory();
+  testWidgets('AC-007: 今日が2026/7/20（月後半）のとき、月度に切り替えると2026年8月度のラベルが表示されること', (
+    tester,
+  ) async {
+    stubUseCaseWithSingleCategory();
 
-      await pumpTarget(tester, now: () => DateTime(2026, 7, 20));
+    await pumpTarget(tester, now: () => DateTime(2026, 7, 20));
 
-      await switchToCustomCycle(tester);
+    await switchToCustomCycle(tester);
 
-      expect(find.text('2026年8月度（7/16〜8/15）'), findsOneWidget);
-    },
-  );
+    expect(find.text('2026年8月度（7/16〜8/15）'), findsOneWidget);
+  });
 
   testWidgets(
     'AC-001/002: 今日が2026/7/10のとき、月度に切り替えるとbegin=6/16・end=7/16でUseCaseが呼び出されること',
@@ -279,95 +258,92 @@ void main() {
     },
   );
 
-  testWidgets(
-    'AC-009: 月度モードで左矢印をタップすると、1つ前の月度のラベルになりUseCaseが再呼び出しされること',
-    (tester) async {
-      stubUseCaseWithSingleCategory();
+  testWidgets('AC-009: 月度モードで左矢印をタップすると、1つ前の月度のラベルになりUseCaseが再呼び出しされること', (
+    tester,
+  ) async {
+    stubUseCaseWithSingleCategory();
 
-      await pumpTarget(tester, now: () => DateTime(2026, 7, 10));
-      await switchToCustomCycle(tester);
+    await pumpTarget(tester, now: () => DateTime(2026, 7, 10));
+    await switchToCustomCycle(tester);
 
-      expect(find.text('2026年7月度（6/16〜7/15）'), findsOneWidget);
+    expect(find.text('2026年7月度（6/16〜7/15）'), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.arrow_left));
-      await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.arrow_left));
+    await tester.pumpAndSettle();
 
-      expect(find.text('2026年6月度（5/16〜6/15）'), findsOneWidget);
+    expect(find.text('2026年6月度（5/16〜6/15）'), findsOneWidget);
 
-      final captured = verify(mockUseCase.call(captureAny)).captured;
-      final input = captured.last as RetrieveBudgetStateInput;
-      expect(input.begin, DateTime(2026, 5, 16));
-      expect(input.end, DateTime(2026, 6, 16));
-    },
-  );
+    final captured = verify(mockUseCase.call(captureAny)).captured;
+    final input = captured.last as RetrieveBudgetStateInput;
+    expect(input.begin, DateTime(2026, 5, 16));
+    expect(input.end, DateTime(2026, 6, 16));
+  });
 
-  testWidgets(
-    'AC-010: 今日が属する月度を表示中のとき右矢印が無効であり、前へ移動後は有効になり元の月度へ戻れること',
-    (tester) async {
-      stubUseCaseWithSingleCategory();
+  testWidgets('AC-010: 今日が属する月度を表示中のとき右矢印が無効であり、前へ移動後は有効になり元の月度へ戻れること', (
+    tester,
+  ) async {
+    stubUseCaseWithSingleCategory();
 
-      await pumpTarget(tester, now: () => DateTime(2026, 7, 10));
-      await switchToCustomCycle(tester);
+    await pumpTarget(tester, now: () => DateTime(2026, 7, 10));
+    await switchToCustomCycle(tester);
 
-      // 今日が属する月度（7月度）表示中は右矢印が無効であること。
-      final nextButtonWhenCurrent = tester.widget<IconButton>(
-        find.ancestor(
-          of: find.byIcon(Icons.arrow_right),
-          matching: find.byType(IconButton),
+    // 今日が属する月度（7月度）表示中は右矢印が無効であること。
+    final nextButtonWhenCurrent = tester.widget<IconButton>(
+      find.ancestor(
+        of: find.byIcon(Icons.arrow_right),
+        matching: find.byType(IconButton),
+      ),
+    );
+    expect(nextButtonWhenCurrent.onPressed, isNull);
+
+    // タップしても無効なため表示は変化しないこと。
+    await tester.tap(find.byIcon(Icons.arrow_right));
+    await tester.pumpAndSettle();
+    expect(find.text('2026年7月度（6/16〜7/15）'), findsOneWidget);
+
+    // 前の月度へ移動すると右矢印が有効になること。
+    await tester.tap(find.byIcon(Icons.arrow_left));
+    await tester.pumpAndSettle();
+    expect(find.text('2026年6月度（5/16〜6/15）'), findsOneWidget);
+
+    final nextButtonWhenPrevious = tester.widget<IconButton>(
+      find.ancestor(
+        of: find.byIcon(Icons.arrow_right),
+        matching: find.byType(IconButton),
+      ),
+    );
+    expect(nextButtonWhenPrevious.onPressed, isNotNull);
+
+    // タップで元の月度（7月度）に戻れること。
+    await tester.tap(find.byIcon(Icons.arrow_right));
+    await tester.pumpAndSettle();
+    expect(find.text('2026年7月度（6/16〜7/15）'), findsOneWidget);
+  });
+
+  testWidgets('AC-003/005: 月度モードで支出0円のカテゴリを含む結果が返るとき、0円カテゴリも一覧表示されること', (
+    tester,
+  ) async {
+    when(mockUseCase.call(any)).thenAnswer(
+      (_) async => Right(
+        RetrieveBudgetStateOutput(
+          begin: DateTime(2026, 6, 16),
+          end: DateTime(2026, 7, 16),
+          states: [
+            BudgetState(name: '食費', totalAmount: 30000, spentAmount: 12000),
+            BudgetState(name: '趣味', totalAmount: 10000, spentAmount: 0),
+          ],
         ),
-      );
-      expect(nextButtonWhenCurrent.onPressed, isNull);
+      ),
+    );
 
-      // タップしても無効なため表示は変化しないこと。
-      await tester.tap(find.byIcon(Icons.arrow_right));
-      await tester.pumpAndSettle();
-      expect(find.text('2026年7月度（6/16〜7/15）'), findsOneWidget);
+    await pumpTarget(tester, now: () => DateTime(2026, 7, 10));
+    await switchToCustomCycle(tester);
 
-      // 前の月度へ移動すると右矢印が有効になること。
-      await tester.tap(find.byIcon(Icons.arrow_left));
-      await tester.pumpAndSettle();
-      expect(find.text('2026年6月度（5/16〜6/15）'), findsOneWidget);
-
-      final nextButtonWhenPrevious = tester.widget<IconButton>(
-        find.ancestor(
-          of: find.byIcon(Icons.arrow_right),
-          matching: find.byType(IconButton),
-        ),
-      );
-      expect(nextButtonWhenPrevious.onPressed, isNotNull);
-
-      // タップで元の月度（7月度）に戻れること。
-      await tester.tap(find.byIcon(Icons.arrow_right));
-      await tester.pumpAndSettle();
-      expect(find.text('2026年7月度（6/16〜7/15）'), findsOneWidget);
-    },
-  );
-
-  testWidgets(
-    'AC-003/005: 月度モードで支出0円のカテゴリを含む結果が返るとき、0円カテゴリも一覧表示されること',
-    (tester) async {
-      when(mockUseCase.call(any)).thenAnswer(
-        (_) async => Right(
-          RetrieveBudgetStateOutput(
-            begin: DateTime(2026, 6, 16),
-            end: DateTime(2026, 7, 16),
-            states: [
-              BudgetState(name: '食費', totalAmount: 30000, spentAmount: 12000),
-              BudgetState(name: '趣味', totalAmount: 10000, spentAmount: 0),
-            ],
-          ),
-        ),
-      );
-
-      await pumpTarget(tester, now: () => DateTime(2026, 7, 10));
-      await switchToCustomCycle(tester);
-
-      expect(find.text('食費'), findsOneWidget);
-      expect(find.text('12000 / 30000円'), findsOneWidget);
-      expect(find.text('趣味'), findsOneWidget);
-      expect(find.text('0 / 10000円'), findsOneWidget);
-    },
-  );
+    expect(find.text('食費'), findsOneWidget);
+    expect(find.text('12000 / 30000円'), findsOneWidget);
+    expect(find.text('趣味'), findsOneWidget);
+    expect(find.text('0 / 10000円'), findsOneWidget);
+  });
 
   testWidgets(
     'AC-012: SelectedNoteStateが共有ノートのとき、月度モードでもUseCaseのuidに共有ノートのIDが渡されること',
@@ -389,21 +365,18 @@ void main() {
     },
   );
 
-  testWidgets(
-    '月度モードから暦月に切り替えると、今日基準の当月（暦月）でUseCaseが呼び出されること',
-    (tester) async {
-      stubUseCaseWithSingleCategory();
+  testWidgets('月度モードから暦月に切り替えると、今日基準の当月（暦月）でUseCaseが呼び出されること', (tester) async {
+    stubUseCaseWithSingleCategory();
 
-      await pumpTarget(tester, now: () => DateTime(2026, 7, 10));
-      await switchToCustomCycle(tester);
+    await pumpTarget(tester, now: () => DateTime(2026, 7, 10));
+    await switchToCustomCycle(tester);
 
-      await tester.tap(find.text('暦月'));
-      await tester.pumpAndSettle();
+    await tester.tap(find.text('暦月'));
+    await tester.pumpAndSettle();
 
-      final captured = verify(mockUseCase.call(captureAny)).captured;
-      final input = captured.last as RetrieveBudgetStateInput;
-      expect(input.begin, DateTime(2026, 7));
-      expect(input.end, DateTime(2026, 8));
-    },
-  );
+    final captured = verify(mockUseCase.call(captureAny)).captured;
+    final input = captured.last as RetrieveBudgetStateInput;
+    expect(input.begin, DateTime(2026, 7));
+    expect(input.end, DateTime(2026, 8));
+  });
 }

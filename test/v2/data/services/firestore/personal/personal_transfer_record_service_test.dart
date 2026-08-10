@@ -29,12 +29,16 @@ void main() {
       final userId = UserIdVo('testUserId');
 
       setUp(() {
-        when(mockDb.collection('/personalNotes/${userId.value}/transfers'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.where(any,
-                isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'),
-                isLessThan: anyNamed('isLessThan')))
-            .thenReturn(mockQuery);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/transfers'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.where(
+            any,
+            isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'),
+            isLessThan: anyNamed('isLessThan'),
+          ),
+        ).thenReturn(mockQuery);
         when(mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
         when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
         when(mockQueryDocumentSnapshot.id).thenReturn('transferId1');
@@ -66,12 +70,16 @@ void main() {
         final result = await target.fetchByDate(userId, 2025, 5);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/transfers'))
-            .called(1);
-        verify(mockCollectionReference.where(any,
-                isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'),
-                isLessThan: anyNamed('isLessThan')))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/transfers'),
+        ).called(1);
+        verify(
+          mockCollectionReference.where(
+            any,
+            isGreaterThanOrEqualTo: anyNamed('isGreaterThanOrEqualTo'),
+            isLessThan: anyNamed('isLessThan'),
+          ),
+        ).called(1);
         verify(mockQuery.get()).called(1);
         verify(mockQuerySnapshot.docs).called(1);
         verify(mockQueryDocumentSnapshot.data()).called(1);
@@ -147,10 +155,12 @@ void main() {
       );
 
       setUp(() {
-        when(mockDb.collection('/personalNotes/${userId.value}/transfers'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.doc(transfer.id))
-            .thenReturn(mockDocumentReference);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/transfers'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.doc(transfer.id),
+        ).thenReturn(mockDocumentReference);
         when(mockDocumentReference.set(any)).thenAnswer((_) async => {});
       });
 
@@ -168,8 +178,9 @@ void main() {
         final result = await target.add(userId, transfer);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/transfers'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/transfers'),
+        ).called(1);
         verify(mockCollectionReference.doc(transfer.id)).called(1);
         verify(mockDocumentReference.set(any)).called(1);
 
@@ -197,10 +208,12 @@ void main() {
       final transferId = 'transferId1';
 
       setUp(() {
-        when(mockDb.collection('/personalNotes/${userId.value}/transfers'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.doc(transferId))
-            .thenReturn(mockDocumentReference);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/transfers'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.doc(transferId),
+        ).thenReturn(mockDocumentReference);
         when(mockDocumentReference.delete()).thenAnswer((_) async => {});
       });
 
@@ -218,8 +231,9 @@ void main() {
         final result = await target.delete(userId, transferId);
 
         // Assert
-        verify(mockDb.collection('/personalNotes/${userId.value}/transfers'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/transfers'),
+        ).called(1);
         verify(mockCollectionReference.doc(transferId)).called(1);
         verify(mockDocumentReference.delete()).called(1);
 

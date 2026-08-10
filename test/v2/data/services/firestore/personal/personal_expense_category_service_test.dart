@@ -27,11 +27,12 @@ void main() {
       final userId = UserIdVo('testUserId');
 
       setUp(() {
-        when(mockDb
-                .collection('/personalNotes/${userId.value}/expenseCategories'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.get())
-            .thenAnswer((_) async => mockQuerySnapshot);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/expenseCategories'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.get(),
+        ).thenAnswer((_) async => mockQuerySnapshot);
         when(mockQuerySnapshot.docs).thenReturn([mockQueryDocumentSnapshot]);
         when(mockQueryDocumentSnapshot.id).thenReturn('categoryId1');
         when(mockQueryDocumentSnapshot.data()).thenReturn({
@@ -56,9 +57,9 @@ void main() {
         final result = await target.fetchAll(userId);
 
         // Assert
-        verify(mockDb
-                .collection('/personalNotes/${userId.value}/expenseCategories'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/expenseCategories'),
+        ).called(1);
         verify(mockCollectionReference.get()).called(1);
         verify(mockQuerySnapshot.docs).called(1);
         verify(mockQueryDocumentSnapshot.data()).called(1);
@@ -90,14 +91,18 @@ void main() {
       final mockDocumentReference = MockDocumentReference();
       final userId = UserIdVo('testUserId');
       final category = ExpenseCategoryModel(
-          id: 'categoryId1', name: 'Test Category', totalBudget: 50000);
+        id: 'categoryId1',
+        name: 'Test Category',
+        totalBudget: 50000,
+      );
 
       setUp(() {
-        when(mockDb
-                .collection('/personalNotes/${userId.value}/expenseCategories'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.doc(category.id))
-            .thenReturn(mockDocumentReference);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/expenseCategories'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.doc(category.id),
+        ).thenReturn(mockDocumentReference);
         when(mockDocumentReference.set(any)).thenAnswer((_) async => {});
       });
 
@@ -115,9 +120,9 @@ void main() {
         final result = await target.add(userId, category);
 
         // Assert
-        verify(mockDb
-                .collection('/personalNotes/${userId.value}/expenseCategories'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/expenseCategories'),
+        ).called(1);
         verify(mockCollectionReference.doc(category.id)).called(1);
         verify(mockDocumentReference.set(any)).called(1);
 
@@ -143,14 +148,18 @@ void main() {
       final mockDocumentReference = MockDocumentReference();
       final userId = UserIdVo('testUserId');
       final category = ExpenseCategoryModel(
-          id: 'categoryId1', name: 'Updated Category', totalBudget: 75000);
+        id: 'categoryId1',
+        name: 'Updated Category',
+        totalBudget: 75000,
+      );
 
       setUp(() {
-        when(mockDb
-                .collection('/personalNotes/${userId.value}/expenseCategories'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.doc(category.id))
-            .thenReturn(mockDocumentReference);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/expenseCategories'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.doc(category.id),
+        ).thenReturn(mockDocumentReference);
         when(mockDocumentReference.update(any)).thenAnswer((_) async => {});
       });
 
@@ -168,9 +177,9 @@ void main() {
         final result = await target.update(userId, category);
 
         // Assert
-        verify(mockDb
-                .collection('/personalNotes/${userId.value}/expenseCategories'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/expenseCategories'),
+        ).called(1);
         verify(mockCollectionReference.doc(category.id)).called(1);
         verify(mockDocumentReference.update(any)).called(1);
 
@@ -179,8 +188,9 @@ void main() {
 
       test('例外が発生した場合、Leftを返す', () async {
         // Arrange
-        when(mockDocumentReference.update(any))
-            .thenThrow(Exception('test error'));
+        when(
+          mockDocumentReference.update(any),
+        ).thenThrow(Exception('test error'));
         final target = PersonalExpenseCategoryService(mockDb);
 
         // Act
@@ -199,11 +209,12 @@ void main() {
       final categoryId = 'categoryId1';
 
       setUp(() {
-        when(mockDb
-                .collection('/personalNotes/${userId.value}/expenseCategories'))
-            .thenReturn(mockCollectionReference);
-        when(mockCollectionReference.doc(categoryId))
-            .thenReturn(mockDocumentReference);
+        when(
+          mockDb.collection('/personalNotes/${userId.value}/expenseCategories'),
+        ).thenReturn(mockCollectionReference);
+        when(
+          mockCollectionReference.doc(categoryId),
+        ).thenReturn(mockDocumentReference);
         when(mockDocumentReference.delete()).thenAnswer((_) async => {});
       });
 
@@ -221,9 +232,9 @@ void main() {
         final result = await target.delete(userId, categoryId);
 
         // Assert
-        verify(mockDb
-                .collection('/personalNotes/${userId.value}/expenseCategories'))
-            .called(1);
+        verify(
+          mockDb.collection('/personalNotes/${userId.value}/expenseCategories'),
+        ).called(1);
         verify(mockCollectionReference.doc(categoryId)).called(1);
         verify(mockDocumentReference.delete()).called(1);
 

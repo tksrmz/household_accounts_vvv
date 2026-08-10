@@ -30,7 +30,8 @@ class IncomeCategoryListState with ChangeNotifier {
     required UserInfo userInfo,
   }) async {
     debugPrint(
-        '$IncomeCategoryListState#$fetch(${singleOrPair.name}, $userInfo)');
+      '$IncomeCategoryListState#$fetch(${singleOrPair.name}, $userInfo)',
+    );
     _isLoading = true;
     _failure = null;
     notifyListeners();
@@ -45,13 +46,15 @@ class IncomeCategoryListState with ChangeNotifier {
     failureOrCategories.fold(
       (failure) {
         debugPrint(
-            '$IncomeCategoryListState#$fetch: retrieve use case failed. $_failure');
+          '$IncomeCategoryListState#$fetch: retrieve use case failed. $_failure',
+        );
         _failure = failure;
         _categories = [];
       },
       (categories) {
         debugPrint(
-            '$IncomeCategoryListState#$fetch: retrieve use case succeeded.');
+          '$IncomeCategoryListState#$fetch: retrieve use case succeeded.',
+        );
         _categories = categories;
       },
     );
@@ -80,7 +83,8 @@ class ExpenseCategoryListState with ChangeNotifier {
     required UserInfo userInfo,
   }) async {
     debugPrint(
-        '$ExpenseCategoryListState#$fetch(${singleOrPair.name}, $userInfo)');
+      '$ExpenseCategoryListState#$fetch(${singleOrPair.name}, $userInfo)',
+    );
     _isLoading = true;
     _failure = null;
     notifyListeners();
@@ -95,13 +99,15 @@ class ExpenseCategoryListState with ChangeNotifier {
     failureOrCategories.fold(
       (failure) {
         debugPrint(
-            '$ExpenseCategoryListState#$fetch: retrieve use case failed. $_failure');
+          '$ExpenseCategoryListState#$fetch: retrieve use case failed. $_failure',
+        );
         _failure = failure;
         _categories = [];
       },
       (categories) {
         debugPrint(
-            '$ExpenseCategoryListState#$fetch: retrieve use case succeeded.');
+          '$ExpenseCategoryListState#$fetch: retrieve use case succeeded.',
+        );
         _categories = categories;
       },
     );

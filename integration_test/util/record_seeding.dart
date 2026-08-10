@@ -68,10 +68,12 @@ Future<void> createExpenseRecord(
   // AppBarのタイトルと入力タブのボトムナビゲーションラベルがどちらも"入力"であるため、
   // 既に入力タブを表示中は単純な find.text('入力') だと2件ヒットしてタップが曖昧になる。
   // ボトムナビゲーションバー配下に絞って一意に特定する。
-  await tester.tap(find.descendant(
-    of: find.byType(BottomNavigationBar),
-    matching: find.text('入力'),
-  ));
+  await tester.tap(
+    find.descendant(
+      of: find.byType(BottomNavigationBar),
+      matching: find.text('入力'),
+    ),
+  );
   await tester.pumpAndSettle();
 
   await tester.tap(find.text('支出'));
@@ -111,7 +113,8 @@ Future<void> _pickRecordDate(WidgetTester tester, DateTime date) async {
     await tester.pumpAndSettle();
   }
 
-  final mmddyyyy = '${date.month.toString().padLeft(2, '0')}/'
+  final mmddyyyy =
+      '${date.month.toString().padLeft(2, '0')}/'
       '${date.day.toString().padLeft(2, '0')}/'
       '${date.year.toString().padLeft(4, '0')}';
 
@@ -124,9 +127,8 @@ Future<void> _pickRecordDate(WidgetTester tester, DateTime date) async {
   await tester.enterText(dateInputField, mmddyyyy);
   await tester.pumpAndSettle();
 
-  await tester.tap(find.descendant(
-    of: find.byType(Dialog),
-    matching: find.text('OK'),
-  ));
+  await tester.tap(
+    find.descendant(of: find.byType(Dialog), matching: find.text('OK')),
+  );
   await tester.pumpAndSettle();
 }

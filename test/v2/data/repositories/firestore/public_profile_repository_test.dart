@@ -7,9 +7,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
-@GenerateNiceMocks([
-  MockSpec<PublicProfileService>(),
-])
+@GenerateNiceMocks([MockSpec<PublicProfileService>()])
 import 'public_profile_repository_test.mocks.dart';
 
 void main() {
@@ -22,10 +20,11 @@ void main() {
     });
 
     test('ユーザー名を取得できる', () async {
-      when(mockService.fetchPublicProfileOf(userId))
-          .thenAnswer((_) async => Right<Exception, Map<String, dynamic>>({
-                'name': 'XxXSampleNameXxX',
-              }));
+      when(mockService.fetchPublicProfileOf(userId)).thenAnswer(
+        (_) async => Right<Exception, Map<String, dynamic>>({
+          'name': 'XxXSampleNameXxX',
+        }),
+      );
 
       final sut = FirestorePublicProfileRepository(mockService);
       final result = await sut.fetchUserName(userId);
@@ -39,8 +38,10 @@ void main() {
     });
 
     test('取得に失敗した場合、Leftを返す', () async {
-      when(mockService.fetchPublicProfileOf(userId)).thenAnswer((_) async =>
-          Left<Exception, Map<String, dynamic>>(Exception('取得に失敗しました')));
+      when(mockService.fetchPublicProfileOf(userId)).thenAnswer(
+        (_) async =>
+            Left<Exception, Map<String, dynamic>>(Exception('取得に失敗しました')),
+      );
 
       final sut = FirestorePublicProfileRepository(mockService);
       final result = await sut.fetchUserName(userId);
@@ -62,8 +63,9 @@ void main() {
     });
 
     test('ユーザー名を更新できる', () async {
-      when(mockService.updatePublicProfileNameOf(userId, userName))
-          .thenAnswer((_) async => Right<Exception, Unit>(unit));
+      when(
+        mockService.updatePublicProfileNameOf(userId, userName),
+      ).thenAnswer((_) async => Right<Exception, Unit>(unit));
 
       final sut = FirestorePublicProfileRepository(mockService);
       final result = await sut.updateUserName(userId, userName);
@@ -75,8 +77,9 @@ void main() {
     });
 
     test('更新に失敗した場合、Leftを返す', () async {
-      when(mockService.updatePublicProfileNameOf(userId, userName)).thenAnswer(
-          (_) async => Left<Exception, Unit>(Exception('更新に失敗しました')));
+      when(
+        mockService.updatePublicProfileNameOf(userId, userName),
+      ).thenAnswer((_) async => Left<Exception, Unit>(Exception('更新に失敗しました')));
 
       final sut = FirestorePublicProfileRepository(mockService);
       final result = await sut.updateUserName(userId, userName);

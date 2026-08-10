@@ -28,8 +28,8 @@ class FirestorePersonalExpenseRepository implements ExpenseRepository {
     ExpenseVo createExpenseVo(data_model.ExpenseRecordModel record) =>
         ExpenseVo(record.amount);
     List<ExpenseVo> convertToExpenseVoList(
-            List<data_model.ExpenseRecordModel> expenseList) =>
-        expenseList.map(createExpenseVo).toList(growable: false);
+      List<data_model.ExpenseRecordModel> expenseList,
+    ) => expenseList.map(createExpenseVo).toList(growable: false);
     return result.map(convertToExpenseVoList);
   }
 
@@ -44,11 +44,11 @@ class FirestorePersonalExpenseRepository implements ExpenseRepository {
       createdAt: DateTime.now(),
       property: {
         'ref':
-            '/personalNotes/${_uid.value}/properties/${record.property.id.value}'
+            '/personalNotes/${_uid.value}/properties/${record.property.id.value}',
       },
       category: {
         'ref':
-            '/personalNotes/${_uid.value}/expenseCategories/${record.category.id.value}'
+            '/personalNotes/${_uid.value}/expenseCategories/${record.category.id.value}',
       },
     );
     return _personalExpenseRecordService.add(_uid, model);

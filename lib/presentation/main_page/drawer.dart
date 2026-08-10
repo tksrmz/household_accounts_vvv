@@ -5,11 +5,7 @@ import '../../v2/presentation/pages/settings/view_model.dart';
 import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 
 class MainPageDrawer extends StatelessWidget {
-  const MainPageDrawer({
-    required this.mode,
-    this.setter,
-    super.key,
-  });
+  const MainPageDrawer({required this.mode, this.setter, super.key});
 
   final SelectedNote mode;
   final void Function(SelectedNote)? setter;
@@ -21,9 +17,7 @@ class MainPageDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
+            decoration: BoxDecoration(color: Colors.blue),
             child: Row(
               children: [
                 Padding(
@@ -32,10 +26,7 @@ class MainPageDrawer extends StatelessWidget {
                 ),
                 Text(
                   _getHeaderTitle(),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 24),
                 ),
               ],
             ),
@@ -116,17 +107,11 @@ class MainPageDrawer extends StatelessWidget {
 
     switch (mode) {
       case SelectedNote.personal:
-        icon = const Icon(
-          Icons.person,
-          color: Colors.white,
-        );
+        icon = const Icon(Icons.person, color: Colors.white);
         break;
 
       case SelectedNote.shared:
-        icon = const Icon(
-          Icons.group,
-          color: Colors.white,
-        );
+        icon = const Icon(Icons.group, color: Colors.white);
         break;
     }
 

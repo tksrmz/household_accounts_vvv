@@ -12,8 +12,8 @@ class UserNameVo with _$UserNameVo {
   static const empty = UserNameVo._empty();
 
   const UserNameVo(this.value)
-      : assert(value.length > 0, 'ユーザー名は1文字以上である必要があります'),
-        assert(value.length <= maxLength, 'ユーザー名は20文字以下である必要があります');
+    : assert(value.length > 0, 'ユーザー名は1文字以上である必要があります'),
+      assert(value.length <= maxLength, 'ユーザー名は20文字以下である必要があります');
 
   const UserNameVo._empty() : value = '';
 

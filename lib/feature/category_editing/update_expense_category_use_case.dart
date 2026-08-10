@@ -4,8 +4,8 @@ import '../../entity/category.dart';
 import '../../util/type/repository.dart';
 import '../../util/type/use_case.dart';
 
-typedef UpdateExpenseCategoryUseCase
-    = UseCase<UpdateExpenseCategoryInput, Unit>;
+typedef UpdateExpenseCategoryUseCase =
+    UseCase<UpdateExpenseCategoryInput, Unit>;
 
 class UpdateExpenseCategoryInput {
   /// User ID or Pair ID.

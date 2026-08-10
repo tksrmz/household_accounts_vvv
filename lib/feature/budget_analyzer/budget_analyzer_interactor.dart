@@ -15,10 +15,10 @@ class RetrieveBudgetStateInteractor extends RetrieveBudgetStateUseCase {
 
     final ExceptionOr<List<RecordBase>> failureOrRecords =
         await recordRepository.retrieveRecordsOf(
-      repoId: input.uid,
-      begin: input.begin,
-      end: input.end,
-    );
+          repoId: input.uid,
+          begin: input.begin,
+          end: input.end,
+        );
     if (failureOrRecords.isLeft()) {
       return failureOrRecords as ExceptionOr<RetrieveBudgetStateOutput>;
     }
@@ -37,7 +37,7 @@ class RetrieveBudgetStateInteractor extends RetrieveBudgetStateUseCase {
         (failureOrCategories as Right).value;
 
     final categoryIdToSpentAmount = <String, int>{
-      for (var v in categories) v.id: 0
+      for (var v in categories) v.id: 0,
     };
     for (var record in records) {
       final current = categoryIdToSpentAmount[record.category.id];

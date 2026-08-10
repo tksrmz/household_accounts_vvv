@@ -12,7 +12,8 @@ class PublicProfileService {
 
   /// [userId]の公開プロフィールを取得する
   Future<Either<Exception, Map<String, dynamic>>> fetchPublicProfileOf(
-      UserIdVo userId) async {
+    UserIdVo userId,
+  ) async {
     try {
       final documentReference = _db.doc('/publicProfiles/${userId.value}');
       final documentSnapshot = await documentReference.get();

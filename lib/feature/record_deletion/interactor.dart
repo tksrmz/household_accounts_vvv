@@ -8,8 +8,5 @@ class DeleteRecordInteractor<T extends RecordBase>
     implements DeleteRecordUseCase<T> {
   @override
   Future<ExceptionOr<Unit>> call(DeleteRecordInput<T> input) =>
-      input.repository.deleteById(
-        repoId: input.uid,
-        id: input.record.id,
-      );
+      input.repository.deleteById(repoId: input.uid, id: input.record.id);
 }

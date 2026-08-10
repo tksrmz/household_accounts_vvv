@@ -16,9 +16,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
-@GenerateNiceMocks([
-  MockSpec<PersonalIncomeRecordService>(),
-])
+@GenerateNiceMocks([MockSpec<PersonalIncomeRecordService>()])
 import 'personal_income_repository_test.mocks.dart';
 
 void main() {
@@ -34,35 +32,28 @@ void main() {
     group('1件取得', () {
       test('指定された月の収入一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockService.fetchByDate(
-          userId,
-          date.year,
-          date.month,
-        )).thenAnswer((_) async => Right([
-              data_model.IncomeRecordModel(
-                id: 'test-id',
-                date: DateTime(2025, 1, 15),
-                amount: 100,
-                note: 'test note',
-                hasCheckedOut: false,
-                createdAt: DateTime.now(),
-                property: {'ref': '/personalNotes/user1/properties/prop1'},
-                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
-              )
-            ]));
-
-        final target = FirestorePersonalIncomeRepository(
-          mockService,
-          userId,
+        when(mockService.fetchByDate(userId, date.year, date.month)).thenAnswer(
+          (_) async => Right([
+            data_model.IncomeRecordModel(
+              id: 'test-id',
+              date: DateTime(2025, 1, 15),
+              amount: 100,
+              note: 'test note',
+              hasCheckedOut: false,
+              createdAt: DateTime.now(),
+              property: {'ref': '/personalNotes/user1/properties/prop1'},
+              category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+            ),
+          ]),
         );
+
+        final target = FirestorePersonalIncomeRepository(mockService, userId);
         final result = await target.fetchMonthly(date);
         final incomeList = result.getOrElse(() => []);
 
-        verify(mockService.fetchByDate(
-          userId,
-          date.year,
-          date.month,
-        )).called(1);
+        verify(
+          mockService.fetchByDate(userId, date.year, date.month),
+        ).called(1);
 
         expect(result.isRight(), isTrue);
         expect(incomeList, hasLength(1));
@@ -73,45 +64,38 @@ void main() {
     group('2件取得', () {
       test('指定された月の収入一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockService.fetchByDate(
-          userId,
-          date.year,
-          date.month,
-        )).thenAnswer((_) async => Right([
-              data_model.IncomeRecordModel(
-                id: 'test-id-1',
-                date: DateTime(2025, 1, 15),
-                amount: 100,
-                note: 'test note 1',
-                hasCheckedOut: false,
-                createdAt: DateTime.now(),
-                property: {'ref': '/personalNotes/user1/properties/prop1'},
-                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
-              ),
-              data_model.IncomeRecordModel(
-                id: 'test-id-2',
-                date: DateTime(2025, 1, 16),
-                amount: 200,
-                note: 'test note 2',
-                hasCheckedOut: false,
-                createdAt: DateTime.now(),
-                property: {'ref': '/personalNotes/user1/properties/prop1'},
-                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
-              )
-            ]));
-
-        final target = FirestorePersonalIncomeRepository(
-          mockService,
-          userId,
+        when(mockService.fetchByDate(userId, date.year, date.month)).thenAnswer(
+          (_) async => Right([
+            data_model.IncomeRecordModel(
+              id: 'test-id-1',
+              date: DateTime(2025, 1, 15),
+              amount: 100,
+              note: 'test note 1',
+              hasCheckedOut: false,
+              createdAt: DateTime.now(),
+              property: {'ref': '/personalNotes/user1/properties/prop1'},
+              category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+            ),
+            data_model.IncomeRecordModel(
+              id: 'test-id-2',
+              date: DateTime(2025, 1, 16),
+              amount: 200,
+              note: 'test note 2',
+              hasCheckedOut: false,
+              createdAt: DateTime.now(),
+              property: {'ref': '/personalNotes/user1/properties/prop1'},
+              category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+            ),
+          ]),
         );
+
+        final target = FirestorePersonalIncomeRepository(mockService, userId);
         final result = await target.fetchMonthly(date);
         final incomeList = result.getOrElse(() => []);
 
-        verify(mockService.fetchByDate(
-          userId,
-          date.year,
-          date.month,
-        )).called(1);
+        verify(
+          mockService.fetchByDate(userId, date.year, date.month),
+        ).called(1);
 
         expect(result.isRight(), isTrue);
         expect(incomeList, hasLength(2));
@@ -123,24 +107,17 @@ void main() {
     group('0件取得', () {
       test('指定された月の収入一覧を取得できる', () async {
         final date = DateTime(2025, 1);
-        when(mockService.fetchByDate(
-          userId,
-          date.year,
-          date.month,
-        )).thenAnswer((_) async => Right([]));
+        when(
+          mockService.fetchByDate(userId, date.year, date.month),
+        ).thenAnswer((_) async => Right([]));
 
-        final target = FirestorePersonalIncomeRepository(
-          mockService,
-          userId,
-        );
+        final target = FirestorePersonalIncomeRepository(mockService, userId);
         final result = await target.fetchMonthly(date);
         final incomeList = result.getOrElse(() => []);
 
-        verify(mockService.fetchByDate(
-          userId,
-          date.year,
-          date.month,
-        )).called(1);
+        verify(
+          mockService.fetchByDate(userId, date.year, date.month),
+        ).called(1);
 
         expect(result.isRight(), isTrue);
         expect(incomeList, hasLength(0));
@@ -148,39 +125,28 @@ void main() {
     });
 
     for (var element in <({String description, dynamic value})>[
-      (
-        description: 'amountが数値以外のとき、TypeErrorが発生する',
-        value: '100',
-      ),
-      (
-        description: 'amountがnullのとき、TypeErrorが発生する',
-        value: null,
-      ),
+      (description: 'amountが数値以外のとき、TypeErrorが発生する', value: '100'),
+      (description: 'amountがnullのとき、TypeErrorが発生する', value: null),
     ]) {
       final (:description, :value) = element;
       test(description, () async {
         final date = DateTime(2025, 1);
-        when(mockService.fetchByDate(
-          userId,
-          date.year,
-          date.month,
-        )).thenAnswer((_) async => Right([
-              data_model.IncomeRecordModel(
-                id: 'test-id',
-                date: DateTime(2025, 1, 15),
-                amount: value,
-                note: 'test note',
-                hasCheckedOut: false,
-                createdAt: DateTime.now(),
-                property: {'ref': '/personalNotes/user1/properties/prop1'},
-                category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
-              )
-            ]));
-
-        final target = FirestorePersonalIncomeRepository(
-          mockService,
-          userId,
+        when(mockService.fetchByDate(userId, date.year, date.month)).thenAnswer(
+          (_) async => Right([
+            data_model.IncomeRecordModel(
+              id: 'test-id',
+              date: DateTime(2025, 1, 15),
+              amount: value,
+              note: 'test note',
+              hasCheckedOut: false,
+              createdAt: DateTime.now(),
+              property: {'ref': '/personalNotes/user1/properties/prop1'},
+              category: {'ref': '/personalNotes/user1/incomeCategories/cat1'},
+            ),
+          ]),
         );
+
+        final target = FirestorePersonalIncomeRepository(mockService, userId);
         expect(
           () async => await target.fetchMonthly(date),
           throwsA(isA<TypeError>()),
@@ -191,16 +157,11 @@ void main() {
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final date = DateTime(2025, 1);
       final exception = Exception('test error');
-      when(mockService.fetchByDate(
-        userId,
-        date.year,
-        date.month,
-      )).thenAnswer((_) async => Left(exception));
+      when(
+        mockService.fetchByDate(userId, date.year, date.month),
+      ).thenAnswer((_) async => Left(exception));
 
-      final target = FirestorePersonalIncomeRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePersonalIncomeRepository(mockService, userId);
       final result = await target.fetchMonthly(date);
 
       expect(result.isLeft(), isTrue);
@@ -228,21 +189,12 @@ void main() {
         hasCheckedOut: false,
       );
 
-      when(mockService.add(
-        userId,
-        any,
-      )).thenAnswer((_) async => Right(unit));
+      when(mockService.add(userId, any)).thenAnswer((_) async => Right(unit));
 
-      final target = FirestorePersonalIncomeRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePersonalIncomeRepository(mockService, userId);
       final result = await target.add(record);
 
-      verify(mockService.add(
-        userId,
-        any,
-      )).called(1);
+      verify(mockService.add(userId, any)).called(1);
 
       expect(result.isRight(), isTrue);
     });
@@ -259,15 +211,11 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockService.add(
-        userId,
-        any,
-      )).thenAnswer((_) async => Left(exception));
+      when(
+        mockService.add(userId, any),
+      ).thenAnswer((_) async => Left(exception));
 
-      final target = FirestorePersonalIncomeRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePersonalIncomeRepository(mockService, userId);
       final result = await target.add(record);
 
       expect(result.isLeft(), isTrue);
@@ -287,21 +235,14 @@ void main() {
     test('収入レコードを削除できる', () async {
       const recordId = RecordIdVo('test-record-id');
 
-      when(mockService.delete(
-        userId,
-        recordId.value,
-      )).thenAnswer((_) async => Right(unit));
+      when(
+        mockService.delete(userId, recordId.value),
+      ).thenAnswer((_) async => Right(unit));
 
-      final target = FirestorePersonalIncomeRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePersonalIncomeRepository(mockService, userId);
       final result = await target.delete(recordId);
 
-      verify(mockService.delete(
-        userId,
-        recordId.value,
-      )).called(1);
+      verify(mockService.delete(userId, recordId.value)).called(1);
 
       expect(result.isRight(), isTrue);
     });
@@ -310,15 +251,11 @@ void main() {
       const recordId = RecordIdVo('test-record-id');
       final exception = Exception('test error');
 
-      when(mockService.delete(
-        userId,
-        recordId.value,
-      )).thenAnswer((_) async => Left(exception));
+      when(
+        mockService.delete(userId, recordId.value),
+      ).thenAnswer((_) async => Left(exception));
 
-      final target = FirestorePersonalIncomeRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePersonalIncomeRepository(mockService, userId);
       final result = await target.delete(recordId);
 
       expect(result.isLeft(), isTrue);

@@ -19,15 +19,11 @@ abstract class CategoryBase extends Identifiable {
     required String id,
     required this.name,
     required this.type,
-  })  : assert(name.length <= maxNameLength, 'Too long name.'),
-        super(id);
+  }) : assert(name.length <= maxNameLength, 'Too long name.'),
+       super(id);
 
   @override
-  List<Object> get props => [
-        ...super.props,
-        name,
-        type,
-      ];
+  List<Object> get props => [...super.props, name, type];
 }
 
 /// Category for income records.
@@ -35,25 +31,17 @@ abstract class CategoryBase extends Identifiable {
 /// No additional properties or methods are needed on this class
 /// as [CategoryBase] has all of them that this class requires.
 class IncomeCategory extends CategoryBase {
-  const IncomeCategory({
-    required super.id,
-    required super.name,
-  }) : super(
-          type: CategoryType.income,
-        );
+  const IncomeCategory({required super.id, required super.name})
+    : super(type: CategoryType.income);
 
-  IncomeCategory copyWith({
-    String? id,
-    String? name,
-  }) =>
-      IncomeCategory(
-        id: id ?? this.id,
-        name: name ?? this.name,
-      );
+  IncomeCategory copyWith({String? id, String? name}) =>
+      IncomeCategory(id: id ?? this.id, name: name ?? this.name);
 }
 
-const deletedIncomeCategory =
-    IncomeCategory(id: 'deleted-income-category', name: '削除済み');
+const deletedIncomeCategory = IncomeCategory(
+  id: 'deleted-income-category',
+  name: '削除済み',
+);
 
 /// Category for expense records.
 ///
@@ -68,16 +56,10 @@ class ExpenseCategory extends CategoryBase {
     required super.id,
     required super.name,
     required int totalBudget,
-  })  : _budget = BudgetAmount(totalBudget),
-        super(
-          type: CategoryType.expense,
-        );
+  }) : _budget = BudgetAmount(totalBudget),
+       super(type: CategoryType.expense);
 
-  ExpenseCategory copyWith({
-    String? id,
-    String? name,
-    int? totalBudget,
-  }) =>
+  ExpenseCategory copyWith({String? id, String? name, int? totalBudget}) =>
       ExpenseCategory(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -85,10 +67,7 @@ class ExpenseCategory extends CategoryBase {
       );
 
   @override
-  List<Object> get props => [
-        ...super.props,
-        _budget.value,
-      ];
+  List<Object> get props => [...super.props, _budget.value];
 }
 
 final deletedExpenseCategory = ExpenseCategory(

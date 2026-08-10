@@ -31,22 +31,22 @@ class CategoryListPage extends StatelessWidget {
         ChangeNotifierProxyProvider<SelectedNoteState, IncomeCategoryListState>(
           create: (context) => IncomeCategoryListState(),
           update: (context, singleOrPair, state) {
-            return state!
-              ..fetch(
-                singleOrPair: singleOrPair.value,
-                userInfo: context.read<UserInfo>(),
-              );
+            return state!..fetch(
+              singleOrPair: singleOrPair.value,
+              userInfo: context.read<UserInfo>(),
+            );
           },
         ),
-        ChangeNotifierProxyProvider<SelectedNoteState,
-            ExpenseCategoryListState>(
+        ChangeNotifierProxyProvider<
+          SelectedNoteState,
+          ExpenseCategoryListState
+        >(
           create: (context) => ExpenseCategoryListState(),
           update: (context, singleOrPair, state) {
-            return state!
-              ..fetch(
-                singleOrPair: singleOrPair.value,
-                userInfo: context.read<UserInfo>(),
-              );
+            return state!..fetch(
+              singleOrPair: singleOrPair.value,
+              userInfo: context.read<UserInfo>(),
+            );
           },
         ),
       ],
@@ -175,11 +175,7 @@ class _IncomeCategoryList extends StatelessWidget {
         ? const Text('収入カテゴリがありません。新規追加してください')
         : Column(
             children: state.categories
-                .map(
-                  (e) => _IncomeCategoryListItem(
-                    incomeCategory: e,
-                  ),
-                )
+                .map((e) => _IncomeCategoryListItem(incomeCategory: e))
                 .toList(growable: false),
           );
   }
@@ -188,9 +184,8 @@ class _IncomeCategoryList extends StatelessWidget {
 class _IncomeCategoryListItem extends StatelessWidget {
   final IncomeCategory _incomeCategory;
 
-  const _IncomeCategoryListItem({
-    required IncomeCategory incomeCategory,
-  }) : _incomeCategory = incomeCategory;
+  const _IncomeCategoryListItem({required IncomeCategory incomeCategory})
+    : _incomeCategory = incomeCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -200,9 +195,7 @@ class _IncomeCategoryListItem extends StatelessWidget {
         Text(_incomeCategory.name),
         Spacer(),
         _EditCategoryButton(originalData: _incomeCategory),
-        DeleteIconButton(
-          onPressed: () => _deleteIncomeCategory(context),
-        ),
+        DeleteIconButton(onPressed: () => _deleteIncomeCategory(context)),
       ],
     );
   }
@@ -212,11 +205,8 @@ class _IncomeCategoryListItem extends StatelessWidget {
     final delete = sl<DeleteIncomeCategoryUseCase>();
     final result = await delete(input);
     result.fold(
-      (exception) => _showExceptionDialog(
-        context,
-        '収入カテゴリの削除に失敗しました',
-        exception,
-      ),
+      (exception) =>
+          _showExceptionDialog(context, '収入カテゴリの削除に失敗しました', exception),
       (_) => _reloadIncomeCategoryState(context),
     );
   }
@@ -250,11 +240,7 @@ class _ExpenseCategoryList extends StatelessWidget {
         ? const Text('支出カテゴリがありません。新規追加してください')
         : Column(
             children: state.categories
-                .map(
-                  (e) => _ExpenseCategoryListItem(
-                    expenseCategory: e,
-                  ),
-                )
+                .map((e) => _ExpenseCategoryListItem(expenseCategory: e))
                 .toList(growable: false),
           );
   }
@@ -263,9 +249,8 @@ class _ExpenseCategoryList extends StatelessWidget {
 class _ExpenseCategoryListItem extends StatelessWidget {
   final ExpenseCategory _expenseCategory;
 
-  const _ExpenseCategoryListItem({
-    required ExpenseCategory expenseCategory,
-  }) : _expenseCategory = expenseCategory;
+  const _ExpenseCategoryListItem({required ExpenseCategory expenseCategory})
+    : _expenseCategory = expenseCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -277,9 +262,7 @@ class _ExpenseCategoryListItem extends StatelessWidget {
         ),
         Spacer(),
         _EditCategoryButton(originalData: _expenseCategory),
-        DeleteIconButton(
-          onPressed: () => _deleteExpenseCategory(context),
-        ),
+        DeleteIconButton(onPressed: () => _deleteExpenseCategory(context)),
       ],
     );
   }
@@ -289,11 +272,8 @@ class _ExpenseCategoryListItem extends StatelessWidget {
     final delete = sl<DeleteExpenseCategoryUseCase>();
     final result = await delete(input);
     result.fold(
-      (exception) => _showExceptionDialog(
-        context,
-        '支出カテゴリの削除に失敗しました',
-        exception,
-      ),
+      (exception) =>
+          _showExceptionDialog(context, '支出カテゴリの削除に失敗しました', exception),
       (_) => _reloadExpenseCategoryState(context),
     );
   }
@@ -309,9 +289,8 @@ class _ExpenseCategoryListItem extends StatelessWidget {
 }
 
 class _EditCategoryButton extends StatelessWidget {
-  const _EditCategoryButton({
-    required CategoryBase originalData,
-  }) : _originalData = originalData;
+  const _EditCategoryButton({required CategoryBase originalData})
+    : _originalData = originalData;
 
   final CategoryBase _originalData;
 
@@ -393,31 +372,30 @@ class _EditCategoryButton extends StatelessWidget {
 
 Future<void> _reloadIncomeCategoryState(BuildContext context) =>
     context.read<IncomeCategoryListState>().fetch(
-          singleOrPair: context.read<SelectedNoteState>().value,
-          userInfo: context.read<UserInfo>(),
-        );
+      singleOrPair: context.read<SelectedNoteState>().value,
+      userInfo: context.read<UserInfo>(),
+    );
 
 Future<void> _reloadExpenseCategoryState(BuildContext context) =>
     context.read<ExpenseCategoryListState>().fetch(
-          singleOrPair: context.read<SelectedNoteState>().value,
-          userInfo: context.read<UserInfo>(),
-        );
+      singleOrPair: context.read<SelectedNoteState>().value,
+      userInfo: context.read<UserInfo>(),
+    );
 
 Future<void> _showExceptionDialog(
   BuildContext context,
   String title,
   Exception exception,
-) =>
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text('$exception'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
+) => showDialog<void>(
+  context: context,
+  builder: (context) => AlertDialog(
+    title: Text(title),
+    content: Text('$exception'),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('OK'),
       ),
-    );
+    ],
+  ),
+);

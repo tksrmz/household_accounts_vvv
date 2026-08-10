@@ -42,24 +42,22 @@ void main() {
   final mockPublicProfileRepository = MockPublicProfileRepository();
 
   MultiProvider targetBuilder() => MultiProvider(
-        providers: [
-          ChangeNotifierProvider<SelectedNoteState>(
-            create: (_) => SelectedNoteState(),
-          ),
-          Provider<UserAuth>(
-            create: (_) => UserAuth(uid: userId),
-          )
-        ],
-        child: DashboardPage(
-          viewModel: DashboardViewModel(
-            incomeRepository: mockIncomeRepository,
-            expenseRepository: mockExpenseRepository,
-            publicProfileRepository: mockPublicProfileRepository,
-            date: DateTime(2025, 1),
-            userId: userId,
-          ),
-        ),
-      );
+    providers: [
+      ChangeNotifierProvider<SelectedNoteState>(
+        create: (_) => SelectedNoteState(),
+      ),
+      Provider<UserAuth>(create: (_) => UserAuth(uid: userId)),
+    ],
+    child: DashboardPage(
+      viewModel: DashboardViewModel(
+        incomeRepository: mockIncomeRepository,
+        expenseRepository: mockExpenseRepository,
+        publicProfileRepository: mockPublicProfileRepository,
+        date: DateTime(2025, 1),
+        userId: userId,
+      ),
+    ),
+  );
 
   tearDown(() {
     // モックのクリーンアップ
@@ -74,11 +72,14 @@ void main() {
     mockFn: () {
       // 初期化が完了しないようにFutureを返す
       when(mockIncomeRepository.fetchMonthly(any)).thenAnswer(
-          (_) => Completer<Either<Exception, List<IncomeVo>>>().future);
+        (_) => Completer<Either<Exception, List<IncomeVo>>>().future,
+      );
       when(mockExpenseRepository.fetchMonthly(any)).thenAnswer(
-          (_) => Completer<Either<Exception, List<ExpenseVo>>>().future);
-      when(mockPublicProfileRepository.fetchUserName(any))
-          .thenAnswer((_) => Completer<Either<Exception, UserNameVo>>().future);
+        (_) => Completer<Either<Exception, List<ExpenseVo>>>().future,
+      );
+      when(
+        mockPublicProfileRepository.fetchUserName(any),
+      ).thenAnswer((_) => Completer<Either<Exception, UserNameVo>>().future);
     },
     builder: targetBuilder,
   );
@@ -87,12 +88,15 @@ void main() {
     '初期化が正常に完了するとダッシュボードコンテンツが表示される',
     goldenFileName: 'dashboard_page_complete',
     mockFn: () {
-      when(mockIncomeRepository.fetchMonthly(any))
-          .thenAnswer((_) async => Right([IncomeVo(99)]));
-      when(mockExpenseRepository.fetchMonthly(any))
-          .thenAnswer((_) async => Right([ExpenseVo(200)]));
-      when(mockPublicProfileRepository.fetchUserName(any))
-          .thenAnswer((_) async => Right(UserNameVo('testUserName')));
+      when(
+        mockIncomeRepository.fetchMonthly(any),
+      ).thenAnswer((_) async => Right([IncomeVo(99)]));
+      when(
+        mockExpenseRepository.fetchMonthly(any),
+      ).thenAnswer((_) async => Right([ExpenseVo(200)]));
+      when(
+        mockPublicProfileRepository.fetchUserName(any),
+      ).thenAnswer((_) async => Right(UserNameVo('testUserName')));
     },
     builder: targetBuilder,
     expectFn: (tester) async {
@@ -108,8 +112,9 @@ void main() {
     '初期化に失敗するとエラーメッセージが表示される',
     goldenFileName: 'dashboard_page_error',
     mockFn: () {
-      when(mockIncomeRepository.fetchMonthly(any))
-          .thenAnswer((_) async => Left(Exception('fetchMonthlyエラー')));
+      when(
+        mockIncomeRepository.fetchMonthly(any),
+      ).thenAnswer((_) async => Left(Exception('fetchMonthlyエラー')));
     },
     builder: targetBuilder,
     expectFn: (tester) async {

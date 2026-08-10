@@ -4,10 +4,8 @@ import '../../../../domain/models/vo/user_name.dart';
 import '../view_model.dart';
 
 class UserNameCard extends StatefulWidget {
-  const UserNameCard({
-    super.key,
-    required SettingsViewModel viewModel,
-  }) : _viewModel = viewModel;
+  const UserNameCard({super.key, required SettingsViewModel viewModel})
+    : _viewModel = viewModel;
 
   final SettingsViewModel _viewModel;
 
@@ -45,10 +43,7 @@ class _UserNameCardState extends State<UserNameCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'ユーザー名',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('ユーザー名', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
             _UserNameCardTextField(
               controller: _controller,
@@ -79,8 +74,8 @@ class _UserNameCardSaveButton extends StatelessWidget {
   const _UserNameCardSaveButton({
     required bool enabled,
     required void Function() onSave,
-  })  : _enabled = enabled,
-        _onSave = onSave;
+  }) : _enabled = enabled,
+       _onSave = onSave;
 
   final bool _enabled;
   final void Function() _onSave;
@@ -104,9 +99,9 @@ class _UserNameCardTextField extends StatelessWidget {
     required TextEditingController controller,
     required bool hasValidationError,
     required FocusNode focusNode,
-  })  : _controller = controller,
-        _hasValidationError = hasValidationError,
-        _focusNode = focusNode;
+  }) : _controller = controller,
+       _hasValidationError = hasValidationError,
+       _focusNode = focusNode;
 
   final TextEditingController _controller;
   final bool _hasValidationError;

@@ -14,10 +14,8 @@ import '../../../../domain/usecases/budget_graph_data_list.dart';
 class BudgetGraph extends StatelessWidget {
   final BudgetGraphDataList _list;
 
-  const BudgetGraph({
-    required BudgetGraphDataList list,
-    super.key,
-  }) : _list = list;
+  const BudgetGraph({required BudgetGraphDataList list, super.key})
+    : _list = list;
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +29,7 @@ class BudgetGraph extends StatelessWidget {
       child: Column(
         spacing: 4,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _Title(),
-          _PlotArea(_list),
-        ],
+        children: [_Title(), _PlotArea(_list)],
       ),
     );
   }
@@ -45,27 +40,22 @@ class _Title extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      '予算',
-      style: TextTheme.of(context).titleMedium,
-    );
+    return Text('予算', style: TextTheme.of(context).titleMedium);
   }
 }
 
 /// [_BudgetGraphDataListForPlot]の要素
 class _BudgetGraphDataForPlot {
   /// [BudgetGraphData]からデータをまとめる
-  _BudgetGraphDataForPlot.from(
-    BudgetGraphData data,
-    this._color,
-  )   : _name = data.name,
-        _spent = data.spent;
+  _BudgetGraphDataForPlot.from(BudgetGraphData data, this._color)
+    : _name = data.name,
+      _spent = data.spent;
 
   /// その他用のコンストラクタ
   _BudgetGraphDataForPlot.etc(BudgetSpentVo spent)
-      : _name = const BudgetNameVo('その他'),
-        _spent = spent,
-        _color = Color(0xFF4DC4FF);
+    : _name = const BudgetNameVo('その他'),
+      _spent = spent,
+      _color = Color(0xFF4DC4FF);
 
   /// 表示名
   final BudgetNameVo _name;
@@ -78,41 +68,29 @@ class _BudgetGraphDataForPlot {
 
   /// 凡例用のデータに変換する
   _LegendData _toLegendData() {
-    return _LegendData(
-      name: _name.value,
-      spent: _spent.value,
-      color: _color,
-    );
+    return _LegendData(name: _name.value, spent: _spent.value, color: _color);
   }
 }
 
 /// グラフ表示用にまとめられたデータのリスト
 class _BudgetGraphDataListForPlot {
   _BudgetGraphDataListForPlot.from(BudgetGraphDataList list)
-      : _data = [],
-        _totalBudget = list.totalBudget,
-        _isNotBudgetConfigured = list.isNotBudgetConfigured {
-    const colors = [
-      Color(0xFFFF0000),
-      Color(0xFF005AFF),
-      Color(0xFFFFF100),
-    ];
+    : _data = [],
+      _totalBudget = list.totalBudget,
+      _isNotBudgetConfigured = list.isNotBudgetConfigured {
+    const colors = [Color(0xFFFF0000), Color(0xFF005AFF), Color(0xFFFFF100)];
     final savedDataCount = colors.length;
 
     final source = list.sortBySpentRatio().toListWhereBudgetIsSpent();
 
     var index = 0;
     source.list.take(savedDataCount).forEach((item) {
-      _data.add(
-        _BudgetGraphDataForPlot.from(
-          item,
-          colors[index++],
-        ),
-      );
+      _data.add(_BudgetGraphDataForPlot.from(item, colors[index++]));
     });
 
-    final toBeSummarized =
-        BudgetGraphDataList(source.list.skip(savedDataCount).toList());
+    final toBeSummarized = BudgetGraphDataList(
+      source.list.skip(savedDataCount).toList(),
+    );
     if (toBeSummarized.isBudgetConfigured) {
       _data.add(
         _BudgetGraphDataForPlot.etc(
@@ -128,9 +106,8 @@ class _BudgetGraphDataListForPlot {
   final BudgetAmountVo _totalBudget;
 
   /// 合計使用額
-  BudgetSpentVo get _totalSpent => BudgetSpentVo.sum(
-        _data.map((item) => item._spent).toList(),
-      );
+  BudgetSpentVo get _totalSpent =>
+      BudgetSpentVo.sum(_data.map((item) => item._spent).toList());
 
   /// 残高（合計予算から合計使用額を引いたもの）
   int get _balance => _totalBudget.value - _totalSpent.value;
@@ -149,11 +126,7 @@ class _BudgetGraphDataListForPlot {
 
   /// 凡例用のリストに変換する
   UnmodifiableListView<_LegendData> _toLegendDataList() {
-    return UnmodifiableListView(
-      _data.map(
-        (item) => item._toLegendData(),
-      ),
-    );
+    return UnmodifiableListView(_data.map((item) => item._toLegendData()));
   }
 
   /// fl_chartのPieChartで表示するためのデータに変換する
@@ -172,36 +145,34 @@ class _BudgetGraphDataListForPlot {
         ? dummyValue
         : max(alternativeValueForNegativeBalance, _balance.toDouble());
 
-    final result = _data
-        .map(
-          (item) => PieChartSectionData(
-            value: item._spent.toDouble,
-            color: item._color,
-            radius: radius,
-            showTitle: false,
-          ),
-        )
-        .toList()
-      ..add(
-        PieChartSectionData(
-          value: emptySectionValue,
-          color: emptySpaceColor,
-          radius: radius,
-          showTitle: false,
-        ),
-      );
+    final result =
+        _data
+            .map(
+              (item) => PieChartSectionData(
+                value: item._spent.toDouble,
+                color: item._color,
+                radius: radius,
+                showTitle: false,
+              ),
+            )
+            .toList()
+          ..add(
+            PieChartSectionData(
+              value: emptySectionValue,
+              color: emptySpaceColor,
+              radius: radius,
+              showTitle: false,
+            ),
+          );
     return UnmodifiableListView(result);
   }
 }
 
 class _LegendData {
-  _LegendData({
-    required String name,
-    required int spent,
-    required Color color,
-  })  : _name = name,
-        _spent = spent,
-        _color = color;
+  _LegendData({required String name, required int spent, required Color color})
+    : _name = name,
+      _spent = spent,
+      _color = color;
 
   /// 予算の名前
   final String _name;
@@ -231,15 +202,8 @@ class _Legend extends StatelessWidget {
           color: _data._color,
         ),
         // 予算名が長い場合は省略する
-        Flexible(
-          child: Text(
-            _data._name,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Text(
-          Formatter.simpleCurrency(_data._spent),
-        ),
+        Flexible(child: Text(_data._name, overflow: TextOverflow.ellipsis)),
+        Text(Formatter.simpleCurrency(_data._spent)),
       ],
     );
   }
@@ -264,9 +228,9 @@ class _TextAtCenterOfGraph extends StatelessWidget {
     required String name,
     required int value,
     TextStyle? style,
-  })  : _name = name,
-        _value = value,
-        _style = style;
+  }) : _name = name,
+       _value = value,
+       _style = style;
 
   final String _name;
   final int _value;
@@ -277,14 +241,8 @@ class _TextAtCenterOfGraph extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          _name,
-          style: _style,
-        ),
-        Text(
-          Formatter.simpleCurrency(_value),
-          style: _style,
-        ),
+        Text(_name, style: _style),
+        Text(Formatter.simpleCurrency(_value), style: _style),
       ],
     );
   }
@@ -292,7 +250,7 @@ class _TextAtCenterOfGraph extends StatelessWidget {
 
 class _PlotArea extends StatelessWidget {
   _PlotArea(BudgetGraphDataList list)
-      : _listForPlot = _BudgetGraphDataListForPlot.from(list);
+    : _listForPlot = _BudgetGraphDataListForPlot.from(list);
 
   final _BudgetGraphDataListForPlot _listForPlot;
 
@@ -313,10 +271,7 @@ class _PlotArea extends StatelessWidget {
         spacing: 12,
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _GraphArea(_listForPlot),
-          legendArea,
-        ],
+        children: [_GraphArea(_listForPlot), legendArea],
       ),
     );
   }
@@ -383,12 +338,8 @@ class _PieChart extends StatelessWidget {
           centerSpaceRadius: innerCircleRadius,
           sectionsSpace: 0,
           startDegreeOffset: 270,
-          pieTouchData: PieTouchData(
-            enabled: false,
-          ),
-          borderData: FlBorderData(
-            show: false,
-          ),
+          pieTouchData: PieTouchData(enabled: false),
+          borderData: FlBorderData(show: false),
         ),
       ),
     );

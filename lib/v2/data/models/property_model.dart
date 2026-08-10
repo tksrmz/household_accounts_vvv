@@ -24,9 +24,6 @@ extension PropertyModelFirestore on PropertyModel {
   /// Firestoreに保存するためのJSONに変換
   /// idは除外（FirestoreのドキュメントIDとして使用されるため）
   Map<String, dynamic> toFirestoreJson() {
-    return {
-      'name': name,
-      'amount': amount,
-    };
+    return {'name': name, 'amount': amount};
   }
 }

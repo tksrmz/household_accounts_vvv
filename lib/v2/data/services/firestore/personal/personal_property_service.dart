@@ -12,17 +12,20 @@ class PersonalPropertyService {
 
   /// [userId]のすべての資産を取得する
   Future<Either<Exception, List<PropertyModel>>> fetchAll(
-      UserIdVo userId) async {
+    UserIdVo userId,
+  ) async {
     try {
       final querySnapshot = await _db
           .collection('/personalNotes/${userId.value}/properties')
           .get();
 
-      final properties = querySnapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id; // ドキュメントIDを追加
-        return PropertyModel.fromJson(data);
-      }).toList(growable: false);
+      final properties = querySnapshot.docs
+          .map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id; // ドキュメントIDを追加
+            return PropertyModel.fromJson(data);
+          })
+          .toList(growable: false);
 
       return Right(properties);
     } on Exception catch (e) {

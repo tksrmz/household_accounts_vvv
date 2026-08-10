@@ -25,8 +25,8 @@ class BudgetViewerPage extends StatelessWidget {
     super.key,
     DateTime Function() now = DateTime.now,
     RetrieveBudgetStateUseCase? useCase,
-  })  : _now = now,
-        _useCase = useCase;
+  }) : _now = now,
+       _useCase = useCase;
 
   /// 現在時刻の供給源。
   ///
@@ -57,9 +57,9 @@ class _PageContents extends StatefulWidget {
     required SelectedNote singleOrPair,
     required DateTime Function() now,
     required RetrieveBudgetStateUseCase useCase,
-  })  : _singleOrPair = singleOrPair,
-        _now = now,
-        _useCase = useCase;
+  }) : _singleOrPair = singleOrPair,
+       _now = now,
+       _useCase = useCase;
 
   final SelectedNote _singleOrPair;
   final DateTime Function() _now;
@@ -158,10 +158,7 @@ class _PageContentsState extends State<_PageContents> {
           child: SegmentedButton<PeriodMode>(
             segments: const [
               ButtonSegment(value: PeriodMode.calendar, label: Text('暦月')),
-              ButtonSegment(
-                value: PeriodMode.customCycle,
-                label: Text('月度'),
-              ),
+              ButtonSegment(value: PeriodMode.customCycle, label: Text('月度')),
             ],
             selected: {_mode},
             onSelectionChanged: (selected) => _switchMode(selected.first),
@@ -181,37 +178,30 @@ class _PageContentsState extends State<_PageContents> {
               final hasConnected =
                   snapshot.connectionState == ConnectionState.done;
               if (hasConnected && snapshot.hasError) {
-                return const Center(
-                  child: Text('エラーが発生しました'),
-                );
+                return const Center(child: Text('エラーが発生しました'));
               }
 
               if (hasConnected && snapshot.hasData) {
                 return snapshot.data!.fold(
-                  (failure) => Center(
-                    child: Text(failure.toString()),
-                  ),
+                  (failure) => Center(child: Text(failure.toString())),
                   (output) {
                     return ListView.separated(
-                        padding: const EdgeInsets.all(8),
-                        itemCount: output.states.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return _BudgetListItem(
-                            budgetState: output.states[index],
-                          );
-                        },
-                        separatorBuilder: (BuildContext context, int index) {
-                          return const Divider(
-                            color: Colors.black,
-                          );
-                        });
+                      padding: const EdgeInsets.all(8),
+                      itemCount: output.states.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return _BudgetListItem(
+                          budgetState: output.states[index],
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return const Divider(color: Colors.black);
+                      },
+                    );
                   },
                 );
               }
 
-              return const Center(
-                child: LoadingWidget(),
-              );
+              return const Center(child: LoadingWidget());
             },
           ),
         ),
@@ -242,10 +232,10 @@ class _PeriodNavigationWidget extends StatelessWidget {
     required VoidCallback onPreviousPressed,
     required VoidCallback onNextPressed,
     required bool disableNextButton,
-  })  : _label = label,
-        _onPreviousPressed = onPreviousPressed,
-        _onNextPressed = onNextPressed,
-        _disableNextButton = disableNextButton;
+  }) : _label = label,
+       _onPreviousPressed = onPreviousPressed,
+       _onNextPressed = onNextPressed,
+       _disableNextButton = disableNextButton;
 
   final String _label;
   final VoidCallback _onPreviousPressed;
@@ -272,9 +262,8 @@ class _PeriodNavigationWidget extends StatelessWidget {
 }
 
 class _BudgetListItem extends StatelessWidget {
-  const _BudgetListItem({
-    required BudgetState budgetState,
-  }) : _budgetState = budgetState;
+  const _BudgetListItem({required BudgetState budgetState})
+    : _budgetState = budgetState;
 
   final BudgetState _budgetState;
 
@@ -301,9 +290,7 @@ class _BudgetListItem extends StatelessWidget {
                 1.0, // avoiding scaleX from being larger than 1.0
                 _budgetState.spentAmount / _budgetState.totalAmount,
               ),
-              child: Container(
-                color: Theme.of(context).primaryColor,
-              ),
+              child: Container(color: Theme.of(context).primaryColor),
             ),
           ),
         ),

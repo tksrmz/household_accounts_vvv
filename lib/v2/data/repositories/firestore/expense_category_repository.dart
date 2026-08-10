@@ -22,13 +22,17 @@ class FirestoreExpenseCategoryRepository implements ExpenseCategoryRepository {
   @override
   Future<Either<Exception, List<ExpenseCategoryModel>>> fetchAll() async {
     final result = await _personalExpenseCategoryService.fetchAll(_uid);
-    return result.map((categoryModels) => categoryModels
-        .map((model) => ExpenseCategoryModel(
+    return result.map(
+      (categoryModels) => categoryModels
+          .map(
+            (model) => ExpenseCategoryModel(
               id: CategoryIdVo(model.id),
               name: CategoryNameVo(model.name),
               totalBudget: BudgetAmountVo(model.totalBudget),
-            ))
-        .toList(growable: false));
+            ),
+          )
+          .toList(growable: false),
+    );
   }
 
   @override
@@ -43,7 +47,9 @@ class FirestoreExpenseCategoryRepository implements ExpenseCategoryRepository {
 
   @override
   Future<Either<Exception, Unit>> update(
-      CategoryIdVo id, ExpenseCategoryModel category) async {
+    CategoryIdVo id,
+    ExpenseCategoryModel category,
+  ) async {
     final model = data.ExpenseCategoryModel(
       id: category.id.value,
       name: category.name.value,

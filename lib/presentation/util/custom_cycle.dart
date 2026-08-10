@@ -14,8 +14,8 @@ class CustomCycle {
   /// month方向への繰り上げ・繰り下げは `DateTime` の自動正規化に委ねるため、
   /// 通常の年月値であればこの誓約は常に成立する。
   CustomCycle(int year, int month)
-      : begin = DateTime(year, month - 1, 16),
-        end = DateTime(year, month, 16) {
+    : begin = DateTime(year, month - 1, 16),
+      end = DateTime(year, month, 16) {
     assert(begin.isBefore(end), 'beginはendより前である必要があります');
   }
 

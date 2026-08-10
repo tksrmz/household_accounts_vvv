@@ -23,14 +23,17 @@ class FirestoreTransferRepository implements TransferRepository {
 
   @override
   Future<Either<Exception, List<TransferRecordModel>>> fetchMonthly(
-      DateTime date) async {
+    DateTime date,
+  ) async {
     final result = await _personalTransferRecordService.fetchByDate(
       _uid,
       date.year,
       date.month,
     );
-    return result.map((transferModels) => transferModels
-        .map((model) => TransferRecordModel(
+    return result.map(
+      (transferModels) => transferModels
+          .map(
+            (model) => TransferRecordModel(
               id: RecordIdVo(model.id),
               recordDate: RecordDateVo(model.date),
               amount: RecordAmountVo(model.amount),
@@ -40,8 +43,10 @@ class FirestoreTransferRepository implements TransferRepository {
               destination: PropertyModel
                   .deleted, // Placeholder - would need proper conversion
               hasCheckedOut: model.hasCheckedOut,
-            ))
-        .toList(growable: false));
+            ),
+          )
+          .toList(growable: false),
+    );
   }
 
   @override
@@ -55,11 +60,11 @@ class FirestoreTransferRepository implements TransferRepository {
       createdAt: DateTime.now(),
       fromProperty: {
         'ref':
-            '/personalNotes/${_uid.value}/properties/${record.source.id.value}'
+            '/personalNotes/${_uid.value}/properties/${record.source.id.value}',
       },
       toProperty: {
         'ref':
-            '/personalNotes/${_uid.value}/properties/${record.destination.id.value}'
+            '/personalNotes/${_uid.value}/properties/${record.destination.id.value}',
       },
     );
     return _personalTransferRecordService.add(_uid, model);
