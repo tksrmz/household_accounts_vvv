@@ -33,24 +33,22 @@ class PersonalTransferRecordService {
     final lastDay = day != null
         ? firstDay.add(Duration(days: 1)) // 日指定の場合は次の日
         : month != null
-            ? DateTime(year, month + 1, 1) // 月指定の場合は次の月の1日
-            : DateTime(year + 1, 1, 1); // 年指定の場合は次の年の1日
+        ? DateTime(year, month + 1, 1) // 月指定の場合は次の月の1日
+        : DateTime(year + 1, 1, 1); // 年指定の場合は次の年の1日
 
     try {
       final querySnapshot = await _db
           .collection('/personalNotes/${userId.value}/transfers')
-          .where(
-            'date',
-            isGreaterThanOrEqualTo: firstDay,
-            isLessThan: lastDay,
-          )
+          .where('date', isGreaterThanOrEqualTo: firstDay, isLessThan: lastDay)
           .get();
 
-      final transfers = querySnapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id; // ドキュメントIDを追加
-        return TransferRecordModel.fromJson(data);
-      }).toList(growable: false);
+      final transfers = querySnapshot.docs
+          .map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id; // ドキュメントIDを追加
+            return TransferRecordModel.fromJson(data);
+          })
+          .toList(growable: false);
 
       return Right(transfers);
     } on Exception catch (e) {

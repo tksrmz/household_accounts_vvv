@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PropertyAmountTextField extends StatelessWidget {
-  const PropertyAmountTextField({
-    TextEditingController? controller,
-    super.key,
-  }) : _controller = controller;
+  const PropertyAmountTextField({TextEditingController? controller, super.key})
+    : _controller = controller;
 
   final TextEditingController? _controller;
 

@@ -13,7 +13,8 @@ typedef SharedNoteRef = Map<String, dynamic>;
 /// [PrivateProfile.sharedNote.ref]が[DocumentReference]でない場合、
 /// それぞれ[Exception]を返す。
 Either<Exception, DocumentReference<SharedNoteRef>> getSharedNoteRef(
-    Either<Exception, DocumentSnapshot<PrivateProfile>> either) {
+  Either<Exception, DocumentSnapshot<PrivateProfile>> either,
+) {
   return either
       .filter(
         (r) => r.exists && r.data() != null,

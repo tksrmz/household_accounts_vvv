@@ -30,7 +30,8 @@ abstract class IncomeRecordModel with _$IncomeRecordModel {
     final type = json['type'] as String;
     if (type != 'income') {
       throw ArgumentError(
-          'IncomeRecordModel requires type "income", but got "$type"');
+        'IncomeRecordModel requires type "income", but got "$type"',
+      );
     }
     // createdAtの型変換処理
     Timestamp createdAtTimestamp = json['createdAt'] as Timestamp;

@@ -17,31 +17,26 @@ class FirebasePersonalExpenseRecordRepository
   final _ExpenseRecordRepository _repository;
 
   FirebasePersonalExpenseRecordRepository()
-      : _repository = _ExpenseRecordRepository(
-          (String uid) => FirebaseFirestore.instance
-              .collection(getPersonalExpenseRecordCollectionPath(uid))
-              .withConverter(
-                fromFirestore: _fromFirestore,
-                toFirestore: _toFirestore,
-              ),
-        );
+    : _repository = _ExpenseRecordRepository(
+        (String uid) => FirebaseFirestore.instance
+            .collection(getPersonalExpenseRecordCollectionPath(uid))
+            .withConverter(
+              fromFirestore: _fromFirestore,
+              toFirestore: _toFirestore,
+            ),
+      );
 
   @override
   Future<ExceptionOr<Unit>> deleteById({
     required String repoId,
     required String id,
-  }) =>
-      _repository.deleteById(
-        repoId: repoId,
-        id: id,
-      );
+  }) => _repository.deleteById(repoId: repoId, id: id);
 
   @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required ExpenseRecord value,
-  }) =>
-      _repository.register(repoId: repoId, value: value);
+  }) => _repository.register(repoId: repoId, value: value);
 
   @override
   Future<ExceptionOr<List<ExpenseRecord>>> retrieveAll({
@@ -64,16 +59,13 @@ class FirebasePersonalExpenseRecordRepository
     required String repoId,
     required DateTime begin,
     required DateTime end,
-  }) =>
-      _repository.retrieveRecordsOf(
-        repoId: repoId,
-        begin: begin,
-        end: end,
-      );
+  }) => _repository.retrieveRecordsOf(repoId: repoId, begin: begin, end: end);
 
   @override
-  Future<ExceptionOr<Unit>> update(
-      {required String repoId, required ExpenseRecord newValue}) {
+  Future<ExceptionOr<Unit>> update({
+    required String repoId,
+    required ExpenseRecord newValue,
+  }) {
     // TODO: implement update
     throw UnimplementedError();
   }
@@ -84,31 +76,26 @@ class FirebaseSharedExpenseRecordRepository
   final _ExpenseRecordRepository _repository;
 
   FirebaseSharedExpenseRecordRepository()
-      : _repository = _ExpenseRecordRepository(
-          (String uid) => FirebaseFirestore.instance
-              .collection(getSharedExpenseRecordCollectionPath(uid))
-              .withConverter(
-                fromFirestore: _fromFirestore,
-                toFirestore: _toFirestore,
-              ),
-        );
+    : _repository = _ExpenseRecordRepository(
+        (String uid) => FirebaseFirestore.instance
+            .collection(getSharedExpenseRecordCollectionPath(uid))
+            .withConverter(
+              fromFirestore: _fromFirestore,
+              toFirestore: _toFirestore,
+            ),
+      );
 
   @override
   Future<ExceptionOr<Unit>> deleteById({
     required String repoId,
     required String id,
-  }) =>
-      _repository.deleteById(
-        repoId: repoId,
-        id: id,
-      );
+  }) => _repository.deleteById(repoId: repoId, id: id);
 
   @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required ExpenseRecord value,
-  }) =>
-      _repository.register(repoId: repoId, value: value);
+  }) => _repository.register(repoId: repoId, value: value);
 
   @override
   Future<ExceptionOr<List<ExpenseRecord>>> retrieveAll({
@@ -131,16 +118,13 @@ class FirebaseSharedExpenseRecordRepository
     required String repoId,
     required DateTime begin,
     required DateTime end,
-  }) =>
-      _repository.retrieveRecordsOf(
-        repoId: repoId,
-        begin: begin,
-        end: end,
-      );
+  }) => _repository.retrieveRecordsOf(repoId: repoId, begin: begin, end: end);
 
   @override
-  Future<ExceptionOr<Unit>> update(
-      {required String repoId, required ExpenseRecord newValue}) {
+  Future<ExceptionOr<Unit>> update({
+    required String repoId,
+    required ExpenseRecord newValue,
+  }) {
     // TODO: implement update
     throw UnimplementedError();
   }
@@ -158,8 +142,9 @@ class _ExpenseRecordRepository {
     Future<void> handler(Transaction transaction) async {
       final recordDocument = _builder(repoId).doc(id);
       // Get the document
-      DocumentSnapshot<ExpenseRecordModel> snapshot =
-          await transaction.get(recordDocument);
+      DocumentSnapshot<ExpenseRecordModel> snapshot = await transaction.get(
+        recordDocument,
+      );
 
       if (!snapshot.exists) {
         return;
@@ -167,12 +152,9 @@ class _ExpenseRecordRepository {
 
       ExpenseRecordModel model = snapshot.data()!;
       if (model.hasCheckedOut) {
-        transaction.update(
-          model.propertyRef,
-          {
-            'amount': FieldValue.increment(model.amount),
-          },
-        );
+        transaction.update(model.propertyRef, {
+          'amount': FieldValue.increment(model.amount),
+        });
       }
       transaction.delete(recordDocument);
       return;
@@ -192,18 +174,17 @@ class _ExpenseRecordRepository {
     required ExpenseRecord value,
   }) async {
     final ownerDocument = _builder(repoId).parent!;
-    final propertyCollection =
-        ownerDocument.collection(firebaseCollectionProperties);
-    final categoryCollection =
-        ownerDocument.collection(firebaseCollectionExpenseCategories);
+    final propertyCollection = ownerDocument.collection(
+      firebaseCollectionProperties,
+    );
+    final categoryCollection = ownerDocument.collection(
+      firebaseCollectionExpenseCategories,
+    );
     final batch = FirebaseFirestore.instance.batch();
     if (value.hasCheckedOut) {
-      batch.update(
-        propertyCollection.doc(value.property.id),
-        {
-          'amount': FieldValue.increment(-value.amount),
-        },
-      );
+      batch.update(propertyCollection.doc(value.property.id), {
+        'amount': FieldValue.increment(-value.amount),
+      });
     }
     batch.set(
       _builder(repoId).doc(value.id),
@@ -245,8 +226,8 @@ class _ExpenseRecordRepository {
     }
 
     ExpenseRecordModel toModel(
-            QueryDocumentSnapshot<ExpenseRecordModel> snapshot) =>
-        snapshot.data();
+      QueryDocumentSnapshot<ExpenseRecordModel> snapshot,
+    ) => snapshot.data();
     final models = querySnapshot.docs.map(toModel);
     Future<ExpenseRecord> toEntityAsync(ExpenseRecordModel model) =>
         model.toEntityAsync();
@@ -258,11 +239,6 @@ class _ExpenseRecordRepository {
 ExpenseRecordModel _fromFirestore(
   DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
-) =>
-    ExpenseRecordModel.fromJson(snapshot.toJsonWithId());
+) => ExpenseRecordModel.fromJson(snapshot.toJsonWithId());
 
-Json _toFirestore(
-  ExpenseRecordModel value,
-  SetOptions? _,
-) =>
-    value.toJson();
+Json _toFirestore(ExpenseRecordModel value, SetOptions? _) => value.toJson();

@@ -4,9 +4,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
-@GenerateNiceMocks([
-  MockSpec<FirebaseFirestore>(),
-])
+@GenerateNiceMocks([MockSpec<FirebaseFirestore>()])
 import 'firestore_transaction_service_test.mocks.dart';
 
 void main() {

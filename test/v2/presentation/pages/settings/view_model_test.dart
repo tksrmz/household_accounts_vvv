@@ -34,8 +34,9 @@ void main() {
 
   setUp(() {
     when(mockAuthRepository.getCurrentUser()).thenReturn(UserAuth(uid: userId));
-    when(mockPublicProfileRepository.fetchUserName(userId))
-        .thenAnswer((_) async => Right<Exception, UserNameVo>(userName));
+    when(
+      mockPublicProfileRepository.fetchUserName(userId),
+    ).thenAnswer((_) async => Right<Exception, UserNameVo>(userName));
   });
 
   tearDown(() {
@@ -101,9 +102,11 @@ void main() {
 
       setUp(() {
         when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
-            (_) async => Right<Exception, UserNameVo>(currentUserName));
-        when(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .thenAnswer((_) async => Right<Exception, Unit>(unit));
+          (_) async => Right<Exception, UserNameVo>(currentUserName),
+        );
+        when(
+          mockPublicProfileRepository.updateUserName(userId, newUserName),
+        ).thenAnswer((_) async => Right<Exception, Unit>(unit));
       });
 
       test('初期化後はサーバから取得したユーザー名が表示される', () async {
@@ -126,8 +129,9 @@ void main() {
 
         await target.save(newUserName.value);
 
-        verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .called(1);
+        verify(
+          mockPublicProfileRepository.updateUserName(userId, newUserName),
+        ).called(1);
         expect(target.userName, newUserName.value);
         expect(target.isEditing, isFalse);
       });
@@ -138,14 +142,17 @@ void main() {
         target.startEditing();
 
         // モックの設定
-        when(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .thenAnswer(
-                (_) async => Left<Exception, Unit>(Exception('保存に失敗しました')));
+        when(
+          mockPublicProfileRepository.updateUserName(userId, newUserName),
+        ).thenAnswer(
+          (_) async => Left<Exception, Unit>(Exception('保存に失敗しました')),
+        );
 
         await target.save(newUserName.value);
 
-        verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .called(1);
+        verify(
+          mockPublicProfileRepository.updateUserName(userId, newUserName),
+        ).called(1);
         expect(target.save.canExecute, isTrue);
         expect(target.userName, currentUserName.value);
         expect(target.save.hasError, isTrue);
@@ -157,15 +164,18 @@ void main() {
         target.startEditing();
 
         // モックの設定
-        when(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .thenAnswer(
-                (_) async => Left<Exception, Unit>(Exception('保存に失敗しました')));
+        when(
+          mockPublicProfileRepository.updateUserName(userId, newUserName),
+        ).thenAnswer(
+          (_) async => Left<Exception, Unit>(Exception('保存に失敗しました')),
+        );
 
         await target.save(newUserName.value);
         target.save.resetError();
 
-        verify(mockPublicProfileRepository.updateUserName(userId, newUserName))
-            .called(1);
+        verify(
+          mockPublicProfileRepository.updateUserName(userId, newUserName),
+        ).called(1);
         expect(target.save.canExecute, isTrue);
         expect(target.userName, currentUserName.value);
         expect(target.save.hasError, isFalse);
@@ -191,9 +201,9 @@ void main() {
 
       test('検証エラーになったあと、有効なユーザー名を保存できる', () async {
         final validUserNameVo = UserNameVo("validUsername");
-        when(mockPublicProfileRepository.updateUserName(
-                userId, validUserNameVo))
-            .thenAnswer((_) async => Right<Exception, Unit>(unit));
+        when(
+          mockPublicProfileRepository.updateUserName(userId, validUserNameVo),
+        ).thenAnswer((_) async => Right<Exception, Unit>(unit));
 
         final target = await build();
         target.startEditing();

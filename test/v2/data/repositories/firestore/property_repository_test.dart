@@ -11,9 +11,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
-@GenerateNiceMocks([
-  MockSpec<PersonalPropertyService>(),
-])
+@GenerateNiceMocks([MockSpec<PersonalPropertyService>()])
 import 'property_repository_test.mocks.dart';
 
 void main() {
@@ -33,20 +31,15 @@ void main() {
         amount: 100000,
       );
 
-      when(mockService.fetchAll(
-        userId,
-      )).thenAnswer((_) async => Right([mockModel]));
+      when(
+        mockService.fetchAll(userId),
+      ).thenAnswer((_) async => Right([mockModel]));
 
-      final target = FirestorePropertyRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePropertyRepository(mockService, userId);
       final result = await target.fetchAll();
       final propertyList = result.getOrElse(() => []);
 
-      verify(mockService.fetchAll(
-        userId,
-      )).called(1);
+      verify(mockService.fetchAll(userId)).called(1);
 
       expect(result.isRight(), isTrue);
       expect(propertyList, hasLength(1));
@@ -56,14 +49,9 @@ void main() {
     });
 
     test('資産が存在しない場合、空のリストを返す', () async {
-      when(mockService.fetchAll(
-        userId,
-      )).thenAnswer((_) async => Right([]));
+      when(mockService.fetchAll(userId)).thenAnswer((_) async => Right([]));
 
-      final target = FirestorePropertyRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePropertyRepository(mockService, userId);
       final result = await target.fetchAll();
       final propertyList = result.getOrElse(() => []);
 
@@ -73,14 +61,11 @@ void main() {
 
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final exception = Exception('test error');
-      when(mockService.fetchAll(
-        userId,
-      )).thenAnswer((_) async => Left(exception));
+      when(
+        mockService.fetchAll(userId),
+      ).thenAnswer((_) async => Left(exception));
 
-      final target = FirestorePropertyRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePropertyRepository(mockService, userId);
       final result = await target.fetchAll();
 
       expect(result.isLeft(), isTrue);
@@ -104,21 +89,12 @@ void main() {
         amount: PropertyAmountVo(100000),
       );
 
-      when(mockService.add(
-        userId,
-        any,
-      )).thenAnswer((_) async => Right(unit));
+      when(mockService.add(userId, any)).thenAnswer((_) async => Right(unit));
 
-      final target = FirestorePropertyRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePropertyRepository(mockService, userId);
       final result = await target.add(property);
 
-      verify(mockService.add(
-        userId,
-        any,
-      )).called(1);
+      verify(mockService.add(userId, any)).called(1);
 
       expect(result.isRight(), isTrue);
     });
@@ -131,15 +107,11 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockService.add(
-        userId,
-        any,
-      )).thenAnswer((_) async => Left(exception));
+      when(
+        mockService.add(userId, any),
+      ).thenAnswer((_) async => Left(exception));
 
-      final target = FirestorePropertyRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePropertyRepository(mockService, userId);
       final result = await target.add(property);
 
       expect(result.isLeft(), isTrue);
@@ -164,21 +136,14 @@ void main() {
         amount: PropertyAmountVo(150000),
       );
 
-      when(mockService.update(
-        userId,
-        any,
-      )).thenAnswer((_) async => Right(unit));
+      when(
+        mockService.update(userId, any),
+      ).thenAnswer((_) async => Right(unit));
 
-      final target = FirestorePropertyRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePropertyRepository(mockService, userId);
       final result = await target.update(propertyId, property);
 
-      verify(mockService.update(
-        userId,
-        any,
-      )).called(1);
+      verify(mockService.update(userId, any)).called(1);
 
       expect(result.isRight(), isTrue);
     });
@@ -192,15 +157,11 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockService.update(
-        userId,
-        any,
-      )).thenAnswer((_) async => Left(exception));
+      when(
+        mockService.update(userId, any),
+      ).thenAnswer((_) async => Left(exception));
 
-      final target = FirestorePropertyRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePropertyRepository(mockService, userId);
       final result = await target.update(propertyId, property);
 
       expect(result.isLeft(), isTrue);
@@ -220,21 +181,14 @@ void main() {
     test('資産を削除できる', () async {
       const propertyId = PropertyIdVo('test-property-id');
 
-      when(mockService.delete(
-        userId,
-        propertyId.value,
-      )).thenAnswer((_) async => Right(unit));
+      when(
+        mockService.delete(userId, propertyId.value),
+      ).thenAnswer((_) async => Right(unit));
 
-      final target = FirestorePropertyRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePropertyRepository(mockService, userId);
       final result = await target.delete(propertyId);
 
-      verify(mockService.delete(
-        userId,
-        propertyId.value,
-      )).called(1);
+      verify(mockService.delete(userId, propertyId.value)).called(1);
 
       expect(result.isRight(), isTrue);
     });
@@ -243,15 +197,11 @@ void main() {
       const propertyId = PropertyIdVo('test-property-id');
       final exception = Exception('test error');
 
-      when(mockService.delete(
-        userId,
-        propertyId.value,
-      )).thenAnswer((_) async => Left(exception));
+      when(
+        mockService.delete(userId, propertyId.value),
+      ).thenAnswer((_) async => Left(exception));
 
-      final target = FirestorePropertyRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestorePropertyRepository(mockService, userId);
       final result = await target.delete(propertyId);
 
       expect(result.isLeft(), isTrue);

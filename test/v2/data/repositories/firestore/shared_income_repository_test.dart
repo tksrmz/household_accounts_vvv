@@ -42,20 +42,26 @@ void main() {
         final date = DateTime(2025, 1);
         final sharedNote = {'ref': mockSharedNoteDocRef};
 
-        when(mockPrivateProfileService.fetch(userId))
-            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
+        when(
+          mockPrivateProfileService.fetch(userId),
+        ).thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
-        when(mockPrivateProfileDocSnapshot.data())
-            .thenReturn(mockPrivateProfile);
+        when(
+          mockPrivateProfileDocSnapshot.data(),
+        ).thenReturn(mockPrivateProfile);
         when(mockPrivateProfile.sharedNote).thenReturn(sharedNote);
-        when(mockSharedRecordService.fetchIncomesByDate(
-          mockSharedNoteDocRef,
-          date.year,
-          date.month,
-        )).thenAnswer((_) async => Right([
-              {'amount': 100},
-              {'amount': 200},
-            ]));
+        when(
+          mockSharedRecordService.fetchIncomesByDate(
+            mockSharedNoteDocRef,
+            date.year,
+            date.month,
+          ),
+        ).thenAnswer(
+          (_) async => Right([
+            {'amount': 100},
+            {'amount': 200},
+          ]),
+        );
 
         final target = FirestoreSharedIncomeRepository(
           mockSharedRecordService,
@@ -80,8 +86,9 @@ void main() {
         // Arrange
         final date = DateTime(2025, 1);
 
-        when(mockPrivateProfileService.fetch(userId))
-            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
+        when(
+          mockPrivateProfileService.fetch(userId),
+        ).thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(false);
 
         final target = FirestoreSharedIncomeRepository(
@@ -103,8 +110,9 @@ void main() {
         // Arrange
         final date = DateTime(2025, 1);
 
-        when(mockPrivateProfileService.fetch(userId))
-            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
+        when(
+          mockPrivateProfileService.fetch(userId),
+        ).thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
         when(mockPrivateProfileDocSnapshot.data()).thenReturn(null);
 
@@ -127,11 +135,13 @@ void main() {
         // Arrange
         final date = DateTime(2025, 1);
 
-        when(mockPrivateProfileService.fetch(userId))
-            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
+        when(
+          mockPrivateProfileService.fetch(userId),
+        ).thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
-        when(mockPrivateProfileDocSnapshot.data())
-            .thenReturn(mockPrivateProfile);
+        when(
+          mockPrivateProfileDocSnapshot.data(),
+        ).thenReturn(mockPrivateProfile);
         when(mockPrivateProfile.sharedNote).thenReturn(null);
 
         final target = FirestoreSharedIncomeRepository(
@@ -154,11 +164,13 @@ void main() {
         final date = DateTime(2025, 1);
         final sharedNote = <String, dynamic>{};
 
-        when(mockPrivateProfileService.fetch(userId))
-            .thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
+        when(
+          mockPrivateProfileService.fetch(userId),
+        ).thenAnswer((_) async => Right(mockPrivateProfileDocSnapshot));
         when(mockPrivateProfileDocSnapshot.exists).thenReturn(true);
-        when(mockPrivateProfileDocSnapshot.data())
-            .thenReturn(mockPrivateProfile);
+        when(
+          mockPrivateProfileDocSnapshot.data(),
+        ).thenReturn(mockPrivateProfile);
         when(mockPrivateProfile.sharedNote).thenReturn(sharedNote);
 
         final target = FirestoreSharedIncomeRepository(

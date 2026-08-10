@@ -4,8 +4,8 @@ import '../../entity/record.dart';
 import '../../util/type/use_case.dart';
 import '../repository/record_repository.dart';
 
-typedef AddRecordUseCase<T extends RecordBase>
-    = UseCase<AddRecordInput<T>, Unit>;
+typedef AddRecordUseCase<T extends RecordBase> =
+    UseCase<AddRecordInput<T>, Unit>;
 
 class AddRecordInput<T extends RecordBase> {
   final String uid;

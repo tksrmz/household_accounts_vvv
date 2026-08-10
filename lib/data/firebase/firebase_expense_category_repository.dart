@@ -16,46 +16,41 @@ class FirebasePersonalExpenseCategoryRepository
     extends _FirebaseExpenseCategoryRepository
     implements PersonalExpenseCategoryRepository {
   FirebasePersonalExpenseCategoryRepository()
-      : super._(
-          (String uid) => FirebaseFirestore.instance
-              .collection(getPersonalExpenseCategoryCollectionPath(uid))
-              .withConverter<ExpenseCategoryModel>(
-                fromFirestore: _fromFirestore,
-                toFirestore: _toFirestore,
-              ),
-        );
+    : super._(
+        (String uid) => FirebaseFirestore.instance
+            .collection(getPersonalExpenseCategoryCollectionPath(uid))
+            .withConverter<ExpenseCategoryModel>(
+              fromFirestore: _fromFirestore,
+              toFirestore: _toFirestore,
+            ),
+      );
 }
 
 class FirebaseSharedExpenseCategoryRepository
     extends _FirebaseExpenseCategoryRepository
     implements SharedExpenseCategoryRepository {
   FirebaseSharedExpenseCategoryRepository()
-      : super._(
-          (String pairId) => FirebaseFirestore.instance
-              .collection(getSharedExpenseCategoryCollectionPath(pairId))
-              .withConverter<ExpenseCategoryModel>(
-                fromFirestore: _fromFirestore,
-                toFirestore: _toFirestore,
-              ),
-        );
+    : super._(
+        (String pairId) => FirebaseFirestore.instance
+            .collection(getSharedExpenseCategoryCollectionPath(pairId))
+            .withConverter<ExpenseCategoryModel>(
+              fromFirestore: _fromFirestore,
+              toFirestore: _toFirestore,
+            ),
+      );
 }
 
 ExpenseCategoryModel _fromFirestore(
   DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
-) =>
-    ExpenseCategoryModel.fromJson(snapshot.toJsonWithId());
+) => ExpenseCategoryModel.fromJson(snapshot.toJsonWithId());
 
-Json _toFirestore(
-  ExpenseCategoryModel value,
-  SetOptions? _,
-) =>
-    value.toJson();
+Json _toFirestore(ExpenseCategoryModel value, SetOptions? _) => value.toJson();
 
 class _FirebaseExpenseCategoryRepository
     implements Repository<ExpenseCategory> {
   final CollectionReferenceBuilder<ExpenseCategoryModel>
-      _collectionReferenceBuilder;
+  _collectionReferenceBuilder;
   final _firebase = FirebaseRepositoryBasicOperation<ExpenseCategoryModel>();
 
   _FirebaseExpenseCategoryRepository._(this._collectionReferenceBuilder);
@@ -64,18 +59,16 @@ class _FirebaseExpenseCategoryRepository
   Future<ExceptionOr<Unit>> deleteById({
     required String repoId,
     required String id,
-  }) =>
-      _firebase.delete(_collectionReferenceBuilder(repoId).doc(id));
+  }) => _firebase.delete(_collectionReferenceBuilder(repoId).doc(id));
 
   @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required ExpenseCategory value,
-  }) =>
-      _firebase.register(
-        _collectionReferenceBuilder(repoId).doc(value.id),
-        ExpenseCategoryModel.fromExpenseCategory(value),
-      );
+  }) => _firebase.register(
+    _collectionReferenceBuilder(repoId).doc(value.id),
+    ExpenseCategoryModel.fromExpenseCategory(value),
+  );
 
   @override
   Future<ExceptionOr<List<ExpenseCategory>>> retrieveAll({
@@ -105,9 +98,8 @@ class _FirebaseExpenseCategoryRepository
   Future<ExceptionOr<Unit>> update({
     required String repoId,
     required ExpenseCategory newValue,
-  }) =>
-      _firebase.update(
-        _collectionReferenceBuilder(repoId).doc(newValue.id),
-        ExpenseCategoryModel.fromExpenseCategory(newValue),
-      );
+  }) => _firebase.update(
+    _collectionReferenceBuilder(repoId).doc(newValue.id),
+    ExpenseCategoryModel.fromExpenseCategory(newValue),
+  );
 }

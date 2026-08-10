@@ -10,16 +10,10 @@ import '../../feature/property_retrieve/property_retrieve_interactor.dart';
 import '../../feature/property_retrieve/property_retrieve_use_case.dart';
 
 void initPropertyUseCase(GetIt sl) {
-  sl.registerFactory<AddPropertyUseCase>(
-    () => AddPropertyInteractor(),
-  );
+  sl.registerFactory<AddPropertyUseCase>(() => AddPropertyInteractor());
   sl.registerFactory<RetrievePropertiesUseCase>(
     () => RetrievePropertiesInteractor(),
   );
-  sl.registerFactory<UpdatePropertyUseCase>(
-    () => UpdatePropertyInteractor(),
-  );
-  sl.registerFactory<DeletePropertyUseCase>(
-    () => DeletePropertyInteractor(),
-  );
+  sl.registerFactory<UpdatePropertyUseCase>(() => UpdatePropertyInteractor());
+  sl.registerFactory<DeletePropertyUseCase>(() => DeletePropertyInteractor());
 }

@@ -4,9 +4,8 @@ part 'private_profile.freezed.dart';
 
 @freezed
 abstract class PrivateProfile with _$PrivateProfile {
-  const factory PrivateProfile({
-    required Map<String, dynamic>? sharedNote,
-  }) = _PrivateProfile;
+  const factory PrivateProfile({required Map<String, dynamic>? sharedNote}) =
+      _PrivateProfile;
 
   /// FirestoreからのJSON変換
   factory PrivateProfile.fromJson(Map<String, dynamic> json) {
@@ -19,8 +18,6 @@ abstract class PrivateProfile with _$PrivateProfile {
 extension PrivateProfileFirestore on PrivateProfile {
   /// Firestoreに保存するためのJSONに変換
   Map<String, dynamic> toFirestoreJson() {
-    return {
-      if (sharedNote != null) 'sharedNote': sharedNote,
-    };
+    return {if (sharedNote != null) 'sharedNote': sharedNote};
   }
 }

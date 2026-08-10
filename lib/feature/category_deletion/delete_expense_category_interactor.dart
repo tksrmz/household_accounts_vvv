@@ -7,9 +7,6 @@ class DeleteExpenseCategoryInteractor implements DeleteExpenseCategoryUseCase {
   @override
   Future<ExceptionOr<Unit>> call(DeleteExpenseCategoryInput input) {
     final repository = input.repository;
-    return repository.deleteById(
-      repoId: input.uid,
-      id: input.categoryId,
-    );
+    return repository.deleteById(repoId: input.uid, id: input.categoryId);
   }
 }

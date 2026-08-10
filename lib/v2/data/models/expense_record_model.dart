@@ -30,7 +30,8 @@ abstract class ExpenseRecordModel with _$ExpenseRecordModel {
     final type = json['type'] as String;
     if (type != 'expense') {
       throw ArgumentError(
-          'ExpenseRecordModel requires type "expense", but got "$type"');
+        'ExpenseRecordModel requires type "expense", but got "$type"',
+      );
     }
     // createdAtの型変換処理
     Timestamp createdAtTimestamp = json['createdAt'] as Timestamp;

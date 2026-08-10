@@ -9,11 +9,8 @@ import 'spaced_row.dart';
 
 /// A panel that displays the given [summary].
 class SummaryPanel extends StatelessWidget {
-  SummaryPanel(
-    this.income,
-    this.expense, {
-    super.key,
-  }) : balance = BalanceVo(income, expense);
+  SummaryPanel(this.income, this.expense, {super.key})
+    : balance = BalanceVo(income, expense);
 
   final IncomeVo income;
   final ExpenseVo expense;
@@ -38,14 +35,7 @@ class SummaryPanel extends StatelessWidget {
             spaceWidth: spaceBetweenLabelAndAmount,
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const _Labels(),
-              _Values(
-                income,
-                expense,
-                balance,
-              ),
-            ],
+            children: [const _Labels(), _Values(income, expense, balance)],
           ),
         );
       },
@@ -62,21 +52,13 @@ class _Labels extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('収入'),
-        Text('支出'),
-        Text('残高'),
-      ],
+      children: [Text('収入'), Text('支出'), Text('残高')],
     );
   }
 }
 
 class _Values extends StatelessWidget {
-  const _Values(
-    this.income,
-    this.expense,
-    this.balance,
-  );
+  const _Values(this.income, this.expense, this.balance);
 
   final IncomeVo income;
   final ExpenseVo expense;

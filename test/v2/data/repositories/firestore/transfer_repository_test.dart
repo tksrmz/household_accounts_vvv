@@ -14,9 +14,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
-@GenerateNiceMocks([
-  MockSpec<PersonalTransferRecordService>(),
-])
+@GenerateNiceMocks([MockSpec<PersonalTransferRecordService>()])
 import 'transfer_repository_test.mocks.dart';
 
 void main() {
@@ -42,24 +40,15 @@ void main() {
         toProperty: {'ref': '/personalNotes/user123/properties/prop2'},
       );
 
-      when(mockService.fetchByDate(
-        userId,
-        date.year,
-        date.month,
-      )).thenAnswer((_) async => Right([mockModel]));
+      when(
+        mockService.fetchByDate(userId, date.year, date.month),
+      ).thenAnswer((_) async => Right([mockModel]));
 
-      final target = FirestoreTransferRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestoreTransferRepository(mockService, userId);
       final result = await target.fetchMonthly(date);
       final transferList = result.getOrElse(() => []);
 
-      verify(mockService.fetchByDate(
-        userId,
-        date.year,
-        date.month,
-      )).called(1);
+      verify(mockService.fetchByDate(userId, date.year, date.month)).called(1);
 
       expect(result.isRight(), isTrue);
       expect(transferList, hasLength(1));
@@ -69,16 +58,11 @@ void main() {
 
     test('振替が存在しない場合、空のリストを返す', () async {
       final date = DateTime(2025, 1);
-      when(mockService.fetchByDate(
-        userId,
-        date.year,
-        date.month,
-      )).thenAnswer((_) async => Right([]));
+      when(
+        mockService.fetchByDate(userId, date.year, date.month),
+      ).thenAnswer((_) async => Right([]));
 
-      final target = FirestoreTransferRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestoreTransferRepository(mockService, userId);
       final result = await target.fetchMonthly(date);
       final transferList = result.getOrElse(() => []);
 
@@ -89,16 +73,11 @@ void main() {
     test('FirestoreServiceから例外が返された場合、Leftを返す', () async {
       final date = DateTime(2025, 1);
       final exception = Exception('test error');
-      when(mockService.fetchByDate(
-        userId,
-        date.year,
-        date.month,
-      )).thenAnswer((_) async => Left(exception));
+      when(
+        mockService.fetchByDate(userId, date.year, date.month),
+      ).thenAnswer((_) async => Left(exception));
 
-      final target = FirestoreTransferRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestoreTransferRepository(mockService, userId);
       final result = await target.fetchMonthly(date);
 
       expect(result.isLeft(), isTrue);
@@ -126,21 +105,12 @@ void main() {
         hasCheckedOut: false,
       );
 
-      when(mockService.add(
-        userId,
-        any,
-      )).thenAnswer((_) async => Right(unit));
+      when(mockService.add(userId, any)).thenAnswer((_) async => Right(unit));
 
-      final target = FirestoreTransferRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestoreTransferRepository(mockService, userId);
       final result = await target.add(record);
 
-      verify(mockService.add(
-        userId,
-        any,
-      )).called(1);
+      verify(mockService.add(userId, any)).called(1);
 
       expect(result.isRight(), isTrue);
     });
@@ -157,15 +127,11 @@ void main() {
       );
 
       final exception = Exception('test error');
-      when(mockService.add(
-        userId,
-        any,
-      )).thenAnswer((_) async => Left(exception));
+      when(
+        mockService.add(userId, any),
+      ).thenAnswer((_) async => Left(exception));
 
-      final target = FirestoreTransferRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestoreTransferRepository(mockService, userId);
       final result = await target.add(record);
 
       expect(result.isLeft(), isTrue);
@@ -185,21 +151,14 @@ void main() {
     test('振替レコードを削除できる', () async {
       const recordId = RecordIdVo('test-record-id');
 
-      when(mockService.delete(
-        userId,
-        recordId.value,
-      )).thenAnswer((_) async => Right(unit));
+      when(
+        mockService.delete(userId, recordId.value),
+      ).thenAnswer((_) async => Right(unit));
 
-      final target = FirestoreTransferRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestoreTransferRepository(mockService, userId);
       final result = await target.delete(recordId);
 
-      verify(mockService.delete(
-        userId,
-        recordId.value,
-      )).called(1);
+      verify(mockService.delete(userId, recordId.value)).called(1);
 
       expect(result.isRight(), isTrue);
     });
@@ -208,15 +167,11 @@ void main() {
       const recordId = RecordIdVo('test-record-id');
       final exception = Exception('test error');
 
-      when(mockService.delete(
-        userId,
-        recordId.value,
-      )).thenAnswer((_) async => Left(exception));
+      when(
+        mockService.delete(userId, recordId.value),
+      ).thenAnswer((_) async => Left(exception));
 
-      final target = FirestoreTransferRepository(
-        mockService,
-        userId,
-      );
+      final target = FirestoreTransferRepository(mockService, userId);
       final result = await target.delete(recordId);
 
       expect(result.isLeft(), isTrue);

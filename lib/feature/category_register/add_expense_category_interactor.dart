@@ -15,9 +15,6 @@ class AddExpenseCategoryInteractor implements AddExpenseCategoryUseCase {
       name: input.name,
       totalBudget: input.budget,
     );
-    return repository.register(
-      repoId: input.uid,
-      value: category,
-    );
+    return repository.register(repoId: input.uid, value: category);
   }
 }

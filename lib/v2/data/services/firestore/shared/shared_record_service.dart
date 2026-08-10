@@ -28,17 +28,13 @@ class SharedRecordService {
     final lastDay = day != null
         ? firstDay.add(Duration(days: 1)) // 日指定の場合は次の日
         : month != null
-            ? DateTime(year, month + 1, 1) // 月指定の場合は次の月の1日
-            : DateTime(year + 1, 1, 1); // 年指定の場合は次の年の1日
+        ? DateTime(year, month + 1, 1) // 月指定の場合は次の月の1日
+        : DateTime(year + 1, 1, 1); // 年指定の場合は次の年の1日
 
     try {
       final querySnapshot = await sharedNoteDocRef
           .collection('expenses')
-          .where(
-            'date',
-            isGreaterThanOrEqualTo: firstDay,
-            isLessThan: lastDay,
-          )
+          .where('date', isGreaterThanOrEqualTo: firstDay, isLessThan: lastDay)
           .get();
 
       return Right(querySnapshot.docs.map((doc) => doc.data()).toList());
@@ -70,17 +66,13 @@ class SharedRecordService {
     final lastDay = day != null
         ? firstDay.add(Duration(days: 1)) // 日指定の場合は次の日
         : month != null
-            ? DateTime(year, month + 1, 1) // 月指定の場合は次の月の1日
-            : DateTime(year + 1, 1, 1); // 年指定の場合は次の年の1日
+        ? DateTime(year, month + 1, 1) // 月指定の場合は次の月の1日
+        : DateTime(year + 1, 1, 1); // 年指定の場合は次の年の1日
 
     try {
       final querySnapshot = await sharedNoteDocRef
           .collection('incomes')
-          .where(
-            'date',
-            isGreaterThanOrEqualTo: firstDay,
-            isLessThan: lastDay,
-          )
+          .where('date', isGreaterThanOrEqualTo: firstDay, isLessThan: lastDay)
           .get();
 
       return Right(querySnapshot.docs.map((doc) => doc.data()).toList());

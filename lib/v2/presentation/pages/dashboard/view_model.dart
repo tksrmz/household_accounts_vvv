@@ -24,10 +24,10 @@ class DashboardViewModel extends ValueNotifier<DashboardInfoModel> {
     required PublicProfileRepository publicProfileRepository,
     required DateTime date,
     required UserIdVo userId,
-  })  : _incomeRepository = incomeRepository,
-        _expenseRepository = expenseRepository,
-        _publicProfileRepository = publicProfileRepository,
-        super(_emptyInfo) {
+  }) : _incomeRepository = incomeRepository,
+       _expenseRepository = expenseRepository,
+       _publicProfileRepository = publicProfileRepository,
+       super(_emptyInfo) {
     _initCommand = AsyncCommand2(_initializeData);
     _initCommand.call(date, userId);
   }
@@ -54,8 +54,9 @@ class DashboardViewModel extends ValueNotifier<DashboardInfoModel> {
         (exception) => throw exception,
         (expenses) => expenses,
       );
-      final userNameResult =
-          await _publicProfileRepository.fetchUserName(userId);
+      final userNameResult = await _publicProfileRepository.fetchUserName(
+        userId,
+      );
       final UserNameVo userName = userNameResult.fold(
         (exception) => throw exception,
         (name) => name,

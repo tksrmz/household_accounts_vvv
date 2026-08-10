@@ -5,8 +5,8 @@ import '../../util/type/use_case.dart';
 import '../../vo/budget_spent.dart';
 import '../repository/record_repository.dart';
 
-typedef RetrieveBudgetStateUseCase
-    = UseCase<RetrieveBudgetStateInput, RetrieveBudgetStateOutput>;
+typedef RetrieveBudgetStateUseCase =
+    UseCase<RetrieveBudgetStateInput, RetrieveBudgetStateOutput>;
 
 class RetrieveBudgetStateInput {
   const RetrieveBudgetStateInput({

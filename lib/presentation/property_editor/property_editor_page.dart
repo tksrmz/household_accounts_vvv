@@ -12,10 +12,10 @@ class PropertyEditorPage extends StatelessWidget {
     String? initialName,
     int? initialAmount,
     super.key,
-  })  : _title = title,
-        _onSubmit = onSubmit,
-        _initialName = initialName,
-        _initialAmount = initialAmount;
+  }) : _title = title,
+       _onSubmit = onSubmit,
+       _initialName = initialName,
+       _initialAmount = initialAmount;
 
   final String _title;
   final PropertyEditorOnSubmit _onSubmit;
@@ -25,9 +25,7 @@ class PropertyEditorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_title),
-      ),
+      appBar: AppBar(title: Text(_title)),
       body: _PageBody(
         onSubmit: _onSubmit,
         initialName: _initialName,
@@ -42,9 +40,9 @@ class _PageBody extends StatefulWidget {
     required PropertyEditorOnSubmit onSubmit,
     required String? initialName,
     required int? initialAmount,
-  })  : _onSubmit = onSubmit,
-        _initialName = initialName,
-        _initialAmount = initialAmount;
+  }) : _onSubmit = onSubmit,
+       _initialName = initialName,
+       _initialAmount = initialAmount;
 
   final PropertyEditorOnSubmit _onSubmit;
   final String? _initialName;
@@ -61,9 +59,7 @@ class _PageBodyState extends State<_PageBody> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(
-      text: widget._initialName,
-    );
+    _nameController = TextEditingController(text: widget._initialName);
     _amountController = TextEditingController(
       text: widget._initialAmount?.toString(),
     );
@@ -90,9 +86,7 @@ class _PageBodyState extends State<_PageBody> {
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: PropertyAmountTextField(
-            controller: _amountController,
-          ),
+          child: PropertyAmountTextField(controller: _amountController),
         ),
         ElevatedButton(
           onPressed: () {

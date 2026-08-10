@@ -2,8 +2,8 @@ import '../../entity/record.dart';
 import '../../util/type/use_case.dart';
 import '../repository/record_repository.dart';
 
-typedef RetrieveRecordsUseCase<T extends RecordBase>
-    = UseCase<RetrieveRecordsInput<T>, List<T>>;
+typedef RetrieveRecordsUseCase<T extends RecordBase> =
+    UseCase<RetrieveRecordsInput<T>, List<T>>;
 
 class RetrieveRecordsInput<T extends RecordBase> {
   /// User ID or pair ID.

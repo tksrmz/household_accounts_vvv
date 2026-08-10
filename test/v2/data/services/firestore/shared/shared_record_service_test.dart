@@ -27,8 +27,9 @@ void main() {
       final mockQueryDocumentSnapshot = MockQueryDocumentSnapshot();
 
       setUp(() {
-        when(mockSharedNoteDocRef.collection('expenses'))
-            .thenReturn(mockCollectionReference);
+        when(
+          mockSharedNoteDocRef.collection('expenses'),
+        ).thenReturn(mockCollectionReference);
         when(
           mockCollectionReference.where(
             any,
@@ -64,8 +65,11 @@ void main() {
         final target = const SharedRecordService();
 
         // Act
-        final result =
-            await target.fetchExpensesByDate(mockSharedNoteDocRef, 2025, 5);
+        final result = await target.fetchExpensesByDate(
+          mockSharedNoteDocRef,
+          2025,
+          5,
+        );
 
         // Assert
         verify(mockSharedNoteDocRef.collection('expenses')).called(1);
@@ -92,8 +96,10 @@ void main() {
         final target = const SharedRecordService();
 
         // Act
-        final result =
-            await target.fetchExpensesByDate(mockSharedNoteDocRef, 2025);
+        final result = await target.fetchExpensesByDate(
+          mockSharedNoteDocRef,
+          2025,
+        );
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -104,8 +110,12 @@ void main() {
         final target = const SharedRecordService();
 
         // Act
-        final result =
-            await target.fetchExpensesByDate(mockSharedNoteDocRef, 2025, 5, 25);
+        final result = await target.fetchExpensesByDate(
+          mockSharedNoteDocRef,
+          2025,
+          5,
+          25,
+        );
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -117,8 +127,11 @@ void main() {
         final target = const SharedRecordService();
 
         // Act
-        final result =
-            await target.fetchExpensesByDate(mockSharedNoteDocRef, 2025, 5);
+        final result = await target.fetchExpensesByDate(
+          mockSharedNoteDocRef,
+          2025,
+          5,
+        );
 
         // Assert
         expect(result.isLeft(), isTrue);
@@ -130,12 +143,8 @@ void main() {
 
         // Act & Assert
         expect(
-          () => target.fetchExpensesByDate(
-            mockSharedNoteDocRef,
-            2025,
-            null,
-            25,
-          ),
+          () =>
+              target.fetchExpensesByDate(mockSharedNoteDocRef, 2025, null, 25),
           throwsA(isA<AssertionError>()),
         );
       });
@@ -150,8 +159,9 @@ void main() {
       final mockQueryDocumentSnapshot = MockQueryDocumentSnapshot();
 
       setUp(() {
-        when(mockSharedNoteDocRef.collection('incomes'))
-            .thenReturn(mockCollectionReference);
+        when(
+          mockSharedNoteDocRef.collection('incomes'),
+        ).thenReturn(mockCollectionReference);
         when(
           mockCollectionReference.where(
             any,
@@ -187,8 +197,11 @@ void main() {
         final target = const SharedRecordService();
 
         // Act
-        final result =
-            await target.fetchIncomesByDate(mockSharedNoteDocRef, 2025, 5);
+        final result = await target.fetchIncomesByDate(
+          mockSharedNoteDocRef,
+          2025,
+          5,
+        );
 
         // Assert
         verify(mockSharedNoteDocRef.collection('incomes')).called(1);
@@ -215,8 +228,10 @@ void main() {
         final target = const SharedRecordService();
 
         // Act
-        final result =
-            await target.fetchIncomesByDate(mockSharedNoteDocRef, 2025);
+        final result = await target.fetchIncomesByDate(
+          mockSharedNoteDocRef,
+          2025,
+        );
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -227,8 +242,12 @@ void main() {
         final target = const SharedRecordService();
 
         // Act
-        final result =
-            await target.fetchIncomesByDate(mockSharedNoteDocRef, 2025, 5, 25);
+        final result = await target.fetchIncomesByDate(
+          mockSharedNoteDocRef,
+          2025,
+          5,
+          25,
+        );
 
         // Assert
         expect(result.isRight(), isTrue);
@@ -240,8 +259,11 @@ void main() {
         final target = const SharedRecordService();
 
         // Act
-        final result =
-            await target.fetchIncomesByDate(mockSharedNoteDocRef, 2025, 5);
+        final result = await target.fetchIncomesByDate(
+          mockSharedNoteDocRef,
+          2025,
+          5,
+        );
 
         // Assert
         expect(result.isLeft(), isTrue);
@@ -253,12 +275,7 @@ void main() {
 
         // Act & Assert
         expect(
-          () => target.fetchIncomesByDate(
-            mockSharedNoteDocRef,
-            2025,
-            null,
-            25,
-          ),
+          () => target.fetchIncomesByDate(mockSharedNoteDocRef, 2025, null, 25),
           throwsA(isA<AssertionError>()),
         );
       });

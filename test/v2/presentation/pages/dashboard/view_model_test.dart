@@ -42,12 +42,15 @@ void main() {
   }
 
   setUp(() {
-    when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-        (_) async => Right<Exception, List<IncomeVo>>(<IncomeVo>[]));
-    when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-        (_) async => Right<Exception, List<ExpenseVo>>(<ExpenseVo>[]));
-    when(mockPublicProfileRepository.fetchUserName(userId))
-        .thenAnswer((_) async => Right<Exception, UserNameVo>(userName));
+    when(
+      mockIncomeRepository.fetchMonthly(date),
+    ).thenAnswer((_) async => Right<Exception, List<IncomeVo>>(<IncomeVo>[]));
+    when(
+      mockExpenseRepository.fetchMonthly(date),
+    ).thenAnswer((_) async => Right<Exception, List<ExpenseVo>>(<ExpenseVo>[]));
+    when(
+      mockPublicProfileRepository.fetchUserName(userId),
+    ).thenAnswer((_) async => Right<Exception, UserNameVo>(userName));
   });
 
   tearDown(() {
@@ -137,15 +140,15 @@ void main() {
         ),
       ]) {
         test(testData.description, () async {
-          when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-            (_) async => Right(testData.incomeAnswer),
-          );
-          when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-            (_) async => Right(testData.expenseAnswer),
-          );
-          when(mockPublicProfileRepository.fetchUserName(userId)).thenAnswer(
-            (_) async => Right(testData.userNameAnswer),
-          );
+          when(
+            mockIncomeRepository.fetchMonthly(date),
+          ).thenAnswer((_) async => Right(testData.incomeAnswer));
+          when(
+            mockExpenseRepository.fetchMonthly(date),
+          ).thenAnswer((_) async => Right(testData.expenseAnswer));
+          when(
+            mockPublicProfileRepository.fetchUserName(userId),
+          ).thenAnswer((_) async => Right(testData.userNameAnswer));
 
           final target = await build();
 
@@ -161,9 +164,9 @@ void main() {
 
     group('エラーハンドリング', () {
       test('IncomeRepositoryでエラーが発生したとき、エラー状態になりModelは初期値である', () async {
-        when(mockIncomeRepository.fetchMonthly(date)).thenAnswer(
-          (_) async => Left(Exception('IncomeRepositoryエラー')),
-        );
+        when(
+          mockIncomeRepository.fetchMonthly(date),
+        ).thenAnswer((_) async => Left(Exception('IncomeRepositoryエラー')));
 
         final target = await build();
 
@@ -174,9 +177,9 @@ void main() {
       });
 
       test('ExpenseRepositoryでエラーが発生したとき、エラー状態になりModelは初期値である', () async {
-        when(mockExpenseRepository.fetchMonthly(date)).thenAnswer(
-          (_) async => Left(Exception('ExpenseRepositoryエラー')),
-        );
+        when(
+          mockExpenseRepository.fetchMonthly(date),
+        ).thenAnswer((_) async => Left(Exception('ExpenseRepositoryエラー')));
 
         final target = await build();
 

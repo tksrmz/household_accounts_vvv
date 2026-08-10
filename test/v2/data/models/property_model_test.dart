@@ -28,45 +28,25 @@ void main() {
     });
 
     test('同じ値を持つインスタンスは等価であること', () {
-      const model1 = PropertyModel(
-        id: 'test-id',
-        name: '銀行口座',
-        amount: 50000,
-      );
+      const model1 = PropertyModel(id: 'test-id', name: '銀行口座', amount: 50000);
 
-      const model2 = PropertyModel(
-        id: 'test-id',
-        name: '銀行口座',
-        amount: 50000,
-      );
+      const model2 = PropertyModel(id: 'test-id', name: '銀行口座', amount: 50000);
 
       expect(model1, model2);
       expect(model1.hashCode, model2.hashCode);
     });
 
     test('異なる値を持つインスタンスは等価でないこと', () {
-      const model1 = PropertyModel(
-        id: 'test-id-1',
-        name: '現金',
-        amount: 10000,
-      );
+      const model1 = PropertyModel(id: 'test-id-1', name: '現金', amount: 10000);
 
-      const model2 = PropertyModel(
-        id: 'test-id-2',
-        name: '現金',
-        amount: 10000,
-      );
+      const model2 = PropertyModel(id: 'test-id-2', name: '現金', amount: 10000);
 
       expect(model1, isNot(model2));
     });
 
     group('fromJson', () {
       test('正常なJSONから資産モデルに変換できること', () {
-        final json = {
-          'id': 'property-123',
-          'name': '普通預金',
-          'amount': 100000,
-        };
+        final json = {'id': 'property-123', 'name': '普通預金', 'amount': 100000};
 
         final model = PropertyModel.fromJson(json);
 
@@ -76,11 +56,7 @@ void main() {
       });
 
       test('金額が0の場合も正常に変換できること', () {
-        final json = {
-          'id': 'property-456',
-          'name': '電子マネー',
-          'amount': 0,
-        };
+        final json = {'id': 'property-456', 'name': '電子マネー', 'amount': 0};
 
         final model = PropertyModel.fromJson(json);
 
@@ -90,11 +66,7 @@ void main() {
       });
 
       test('金額が負の値の場合も正常に変換できること', () {
-        final json = {
-          'id': 'property-789',
-          'name': 'ローン',
-          'amount': -50000,
-        };
+        final json = {'id': 'property-789', 'name': 'ローン', 'amount': -50000};
 
         final model = PropertyModel.fromJson(json);
 
@@ -114,28 +86,18 @@ void main() {
 
         final json = model.toFirestoreJson();
 
-        expect(json, {
-          'name': '投資信託',
-          'amount': 250000,
-        });
+        expect(json, {'name': '投資信託', 'amount': 250000});
 
         // IDが含まれていないことを確認
         expect(json.containsKey('id'), false);
       });
 
       test('金額が0でもFirestore用JSONに変換できること', () {
-        const model = PropertyModel(
-          id: 'property-id',
-          name: '空の財布',
-          amount: 0,
-        );
+        const model = PropertyModel(id: 'property-id', name: '空の財布', amount: 0);
 
         final json = model.toFirestoreJson();
 
-        expect(json, {
-          'name': '空の財布',
-          'amount': 0,
-        });
+        expect(json, {'name': '空の財布', 'amount': 0});
       });
 
       test('負の金額でもFirestore用JSONに変換できること', () {
@@ -147,10 +109,7 @@ void main() {
 
         final json = model.toFirestoreJson();
 
-        expect(json, {
-          'name': '借金',
-          'amount': -30000,
-        });
+        expect(json, {'name': '借金', 'amount': -30000});
       });
     });
 
@@ -175,11 +134,7 @@ void main() {
 
     group('エッジケース', () {
       test('空文字の名前でもモデルが作成できること', () {
-        const model = PropertyModel(
-          id: 'test-id',
-          name: '',
-          amount: 1000,
-        );
+        const model = PropertyModel(id: 'test-id', name: '', amount: 1000);
 
         expect(model.name, '');
       });

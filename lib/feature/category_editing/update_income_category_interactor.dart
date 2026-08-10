@@ -7,9 +7,7 @@ import 'update_income_category_use_case.dart';
 
 class UpdateIncomeCategoryInteractor implements UpdateIncomeCategoryUseCase {
   @override
-  Future<ExceptionOr<Unit>> call(
-    UpdateIncomeCategoryInput input,
-  ) async {
+  Future<ExceptionOr<Unit>> call(UpdateIncomeCategoryInput input) async {
     final repository = input.repository;
 
     final currentValue = await repository.retrieveById(
@@ -17,15 +15,11 @@ class UpdateIncomeCategoryInteractor implements UpdateIncomeCategoryUseCase {
       id: input.categoryId,
     );
     final newValue = currentValue.map(
-      (value) => value.copyWith(
-        name: input.name,
-      ),
+      (value) => value.copyWith(name: input.name),
     );
 
-    Future<ExceptionOr<Unit>> update(IncomeCategory value) => repository.update(
-          repoId: input.uid,
-          newValue: value,
-        );
+    Future<ExceptionOr<Unit>> update(IncomeCategory value) =>
+        repository.update(repoId: input.uid, newValue: value);
     return newValue.fold(toFutureLeft, update);
   }
 }

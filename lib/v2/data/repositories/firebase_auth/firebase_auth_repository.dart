@@ -18,8 +18,6 @@ class FirebaseAuthRepository implements AuthRepository {
   UserAuth _toUserAuth(User? user) {
     return user == null
         ? UserAuth.notSignIn
-        : UserAuth(
-            uid: UserIdVo(user.uid),
-          );
+        : UserAuth(uid: UserIdVo(user.uid));
   }
 }

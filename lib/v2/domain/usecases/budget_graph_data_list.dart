@@ -35,9 +35,8 @@ class BudgetGraphDataList extends Equatable {
   bool get isBudgetConfigured => !isNotBudgetConfigured;
 
   /// 予算の合計値を取得する
-  BudgetAmountVo get totalBudget => BudgetAmountVo.sum(
-        _list.map((item) => item.budget).toList(),
-      );
+  BudgetAmountVo get totalBudget =>
+      BudgetAmountVo.sum(_list.map((item) => item.budget).toList());
 
   /// 使用している予算だけを抜き出したリストへ変換する
   BudgetGraphDataList toListWhereBudgetIsSpent() {
@@ -49,12 +48,11 @@ class BudgetGraphDataList extends Equatable {
   /// 総予算に対する使用額の割合の降順でソートされたリストを取得する
   BudgetGraphDataList sortBySpentRatio() {
     return BudgetGraphDataList(
-      _list
-        ..sort((a, b) {
-          final aRatio = a.spent.value / totalBudget.value;
-          final bRatio = b.spent.value / totalBudget.value;
-          return bRatio.compareTo(aRatio);
-        }),
+      _list..sort((a, b) {
+        final aRatio = a.spent.value / totalBudget.value;
+        final bRatio = b.spent.value / totalBudget.value;
+        return bRatio.compareTo(aRatio);
+      }),
     );
   }
 

@@ -15,7 +15,4 @@ class SelectedNoteState extends ChangeNotifier {
   }
 }
 
-enum SelectedNote {
-  personal,
-  shared,
-}
+enum SelectedNote { personal, shared }

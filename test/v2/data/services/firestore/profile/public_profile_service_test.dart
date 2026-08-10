@@ -22,14 +22,15 @@ void main() {
       final userId = UserIdVo('testUserId');
 
       setUp(() {
-        when(mockDb.doc('/publicProfiles/${userId.value}'))
-            .thenReturn(mockDocumentReference);
-        when(mockDocumentReference.get())
-            .thenAnswer((_) async => mockDocumentSnapshot);
-        when(mockDocumentSnapshot.data()).thenReturn({
-          'name': 'Test User',
-          'updatedAt': DateTime(2025, 5, 25),
-        });
+        when(
+          mockDb.doc('/publicProfiles/${userId.value}'),
+        ).thenReturn(mockDocumentReference);
+        when(
+          mockDocumentReference.get(),
+        ).thenAnswer((_) async => mockDocumentSnapshot);
+        when(
+          mockDocumentSnapshot.data(),
+        ).thenReturn({'name': 'Test User', 'updatedAt': DateTime(2025, 5, 25)});
       });
 
       tearDown(() {
@@ -76,8 +77,9 @@ void main() {
       final userName = UserNameVo('New User Name');
 
       setUp(() {
-        when(mockDb.doc('/publicProfiles/${userId.value}'))
-            .thenReturn(mockDocumentReference);
+        when(
+          mockDb.doc('/publicProfiles/${userId.value}'),
+        ).thenReturn(mockDocumentReference);
         when(mockDocumentReference.update(any)).thenAnswer((_) async => {});
       });
 
@@ -111,8 +113,9 @@ void main() {
 
       test('例外が発生した場合、Leftを返す', () async {
         // Arrange
-        when(mockDocumentReference.update(any))
-            .thenThrow(Exception('test error'));
+        when(
+          mockDocumentReference.update(any),
+        ).thenThrow(Exception('test error'));
         final target = PublicProfileService(mockDb);
 
         // Act

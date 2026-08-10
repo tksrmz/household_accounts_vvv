@@ -30,8 +30,8 @@ abstract class RecordBase extends Identifiable {
     required this.note,
     required this.hasCheckedOut,
     required this.type,
-  })  : amount = _assertAmount(amount),
-        super(id);
+  }) : amount = _assertAmount(amount),
+       super(id);
 
   @override
   List<Object> get props => super.props
@@ -64,9 +64,7 @@ class IncomeRecord extends RecordBase {
     required this.category,
     required this.property,
     required super.hasCheckedOut,
-  }) : super(
-          type: RecordType.income,
-        );
+  }) : super(type: RecordType.income);
 
   final IncomeCategory category;
 
@@ -88,9 +86,7 @@ class ExpenseRecord extends RecordBase {
     required this.category,
     required this.property,
     required super.hasCheckedOut,
-  }) : super(
-          type: RecordType.expense,
-        );
+  }) : super(type: RecordType.expense);
 
   final ExpenseCategory category;
 
@@ -112,9 +108,7 @@ class TransferRecord extends RecordBase {
     required this.source,
     required this.destination,
     required super.hasCheckedOut,
-  }) : super(
-          type: RecordType.transfer,
-        );
+  }) : super(type: RecordType.transfer);
 
   /// A property that [amount] will be subtracted from.
   final Property source;

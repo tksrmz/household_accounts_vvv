@@ -21,12 +21,16 @@ class FirestoreIncomeCategoryRepository implements IncomeCategoryRepository {
   @override
   Future<Either<Exception, List<IncomeCategoryModel>>> fetchAll() async {
     final result = await _personalIncomeCategoryService.fetchAll(_uid);
-    return result.map((categoryModels) => categoryModels
-        .map((model) => IncomeCategoryModel(
+    return result.map(
+      (categoryModels) => categoryModels
+          .map(
+            (model) => IncomeCategoryModel(
               id: CategoryIdVo(model.id),
               name: CategoryNameVo(model.name),
-            ))
-        .toList(growable: false));
+            ),
+          )
+          .toList(growable: false),
+    );
   }
 
   @override
@@ -40,7 +44,9 @@ class FirestoreIncomeCategoryRepository implements IncomeCategoryRepository {
 
   @override
   Future<Either<Exception, Unit>> update(
-      CategoryIdVo id, IncomeCategoryModel category) async {
+    CategoryIdVo id,
+    IncomeCategoryModel category,
+  ) async {
     final model = data.IncomeCategoryModel(
       id: category.id.value,
       name: category.name.value,

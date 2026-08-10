@@ -7,9 +7,6 @@ class DeletePropertyInteractor implements DeletePropertyUseCase {
   @override
   Future<ExceptionOr<Unit>> call(DeletePropertyInput input) {
     final repository = input.repository;
-    return repository.deleteById(
-      repoId: input.uid,
-      id: input.propertyId,
-    );
+    return repository.deleteById(repoId: input.uid, id: input.propertyId);
   }
 }

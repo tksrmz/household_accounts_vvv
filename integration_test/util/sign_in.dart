@@ -40,10 +40,7 @@ class SignInUserInfo {
   final String email;
   final String password;
 
-  const SignInUserInfo({
-    required this.email,
-    required this.password,
-  });
+  const SignInUserInfo({required this.email, required this.password});
 }
 
 const singleUser = SignInUserInfo(

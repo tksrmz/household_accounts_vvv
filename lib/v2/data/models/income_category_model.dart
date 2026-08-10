@@ -23,7 +23,8 @@ abstract class IncomeCategoryModel with _$IncomeCategoryModel {
     final type = json['type'] as String;
     if (type != 'income') {
       throw ArgumentError(
-          'IncomeCategoryModel requires type "income", but got "$type"');
+        'IncomeCategoryModel requires type "income", but got "$type"',
+      );
     }
     return IncomeCategoryModel(
       id: json['id'] as String,
@@ -37,9 +38,6 @@ extension IncomeCategoryModelFirestore on IncomeCategoryModel {
   /// Firestoreに保存するためのJSONに変換
   /// idは除外（FirestoreのドキュメントIDとして使用されるため）
   Map<String, dynamic> toFirestoreJson() {
-    return {
-      'name': name,
-      'type': type,
-    };
+    return {'name': name, 'type': type};
   }
 }

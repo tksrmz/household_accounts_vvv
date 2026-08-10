@@ -14,5 +14,5 @@ Future<Property?> getProperty(DocumentReference<PropertyModel> ref) async {
 
 /// Same to [getProperty] except that this returns [deletedProperty] instead of [null].
 Future<Property> getPropertyOrDeletedProperty(
-        DocumentReference<PropertyModel> ref) =>
-    getProperty(ref).then((data) => data ?? deletedProperty);
+  DocumentReference<PropertyModel> ref,
+) => getProperty(ref).then((data) => data ?? deletedProperty);

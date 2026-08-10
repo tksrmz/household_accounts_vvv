@@ -29,8 +29,10 @@ void main() {
     when(mockCollection.doc(any)).thenReturn(mockDocument);
     when(mockDocument.get()).thenAnswer((_) async => mockDocumentSnapshot);
 
-    final documentSnapshot =
-        await mockFirestore.collection('users').doc('123').get();
+    final documentSnapshot = await mockFirestore
+        .collection('users')
+        .doc('123')
+        .get();
 
     verify(mockFirestore.collection('users')).called(1);
     verify(mockCollection.doc('123')).called(1);

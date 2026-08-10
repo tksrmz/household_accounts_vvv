@@ -5,39 +5,33 @@ import 'data_model.dart';
 
 class IncomeCategoryModel implements DataModel<IncomeCategory> {
   IncomeCategoryModel.fromIncomeCategory(IncomeCategory category)
-      : id = category.id,
-        name = category.name;
+    : id = category.id,
+      name = category.name;
 
   IncomeCategoryModel.fromJson(Json json)
-      : id = json['id'] as String,
-        name = json['name'] as String;
+    : id = json['id'] as String,
+      name = json['name'] as String;
 
   final String id;
   final String name;
 
   @override
-  IncomeCategory toEntity() => IncomeCategory(
-        id: id,
-        name: name,
-      );
+  IncomeCategory toEntity() => IncomeCategory(id: id, name: name);
 
   @override
-  Json toJson() => {
-        'name': name,
-        'type': 'income',
-      };
+  Json toJson() => {'name': name, 'type': 'income'};
 }
 
 class ExpenseCategoryModel implements DataModel<ExpenseCategory> {
   ExpenseCategoryModel.fromExpenseCategory(ExpenseCategory category)
-      : id = category.id,
-        name = category.name,
-        totalBudget = category.totalBudget;
+    : id = category.id,
+      name = category.name,
+      totalBudget = category.totalBudget;
 
   ExpenseCategoryModel.fromJson(Json json)
-      : id = json['id'] as String,
-        name = json['name'] as String,
-        totalBudget = json['totalBudget'] as int;
+    : id = json['id'] as String,
+      name = json['name'] as String,
+      totalBudget = json['totalBudget'] as int;
 
   final String id;
   final String name;
@@ -49,8 +43,8 @@ class ExpenseCategoryModel implements DataModel<ExpenseCategory> {
 
   @override
   Json toJson() => {
-        'name': name,
-        'type': 'expense',
-        'totalBudget': totalBudget,
-      };
+    'name': name,
+    'type': 'expense',
+    'totalBudget': totalBudget,
+  };
 }

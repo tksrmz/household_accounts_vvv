@@ -35,9 +35,7 @@ abstract class Repository<T extends Identifiable> {
   /// The order of the returned list items is implementation dependant.
   ///
   /// Fails when something goes wrong with the repository.
-  Future<ExceptionOr<List<T>>> retrieveAll({
-    required String repoId,
-  });
+  Future<ExceptionOr<List<T>>> retrieveAll({required String repoId});
 
   /// Updates a record that is identified by [newValue.id].
   ///

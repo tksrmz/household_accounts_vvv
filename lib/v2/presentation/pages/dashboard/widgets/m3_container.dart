@@ -17,8 +17,8 @@ class M3Container extends StatelessWidget {
     this.decoration,
     this.padding,
     this.margin,
-  })  : _backgroundColor = colorScheme.primary,
-        _foregroundColor = colorScheme.onPrimary;
+  }) : _backgroundColor = colorScheme.primary,
+       _foregroundColor = colorScheme.onPrimary;
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +26,9 @@ class M3Container extends StatelessWidget {
       // Override the text theme
       data: Theme.of(context).copyWith(
         textTheme: Theme.of(context).textTheme.apply(
-              bodyColor: _foregroundColor,
-              displayColor: _foregroundColor,
-            ),
+          bodyColor: _foregroundColor,
+          displayColor: _foregroundColor,
+        ),
       ),
       child: Container(
         padding: padding,
@@ -37,9 +37,7 @@ class M3Container extends StatelessWidget {
         decoration: decoration?.copyWith(color: _backgroundColor),
         color: decoration == null ? _backgroundColor : null,
         // Need this Builder to get the correct context
-        child: Builder(
-          builder: (BuildContext context) => builder(context),
-        ),
+        child: Builder(builder: (BuildContext context) => builder(context)),
       ),
     );
   }

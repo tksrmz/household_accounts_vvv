@@ -14,10 +14,7 @@ class SpacedRow extends StatelessWidget {
     this.spaceWidth = defaultWidth,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
-  }) : assert(
-          spaceWidth >= 0,
-          'spaceWidth must be greater than or equal to 0',
-        );
+  }) : assert(spaceWidth >= 0, 'spaceWidth must be greater than or equal to 0');
 
   @override
   Widget build(BuildContext context) {

@@ -19,7 +19,9 @@ void main() {
 
     test('21文字で作成するとアサーションエラーが発生すること', () {
       expect(
-          () => CategoryNameVo('123456789012345678901'), throwsAssertionError);
+        () => CategoryNameVo('123456789012345678901'),
+        throwsAssertionError,
+      );
     });
   });
 }

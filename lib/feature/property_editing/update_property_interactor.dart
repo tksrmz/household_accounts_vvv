@@ -15,16 +15,12 @@ class UpdatePropertyInteractor implements UpdatePropertyUseCase {
       id: input.propertyId,
     );
     final failureOrNewValue = failureOrCurrentValue.map(
-      (currentValue) => currentValue.copyWith(
-        name: input.name,
-        amount: input.amount,
-      ),
+      (currentValue) =>
+          currentValue.copyWith(name: input.name, amount: input.amount),
     );
 
-    Future<ExceptionOr<Unit>> update(Property value) => repository.update(
-          repoId: input.uid,
-          newValue: value,
-        );
+    Future<ExceptionOr<Unit>> update(Property value) =>
+        repository.update(repoId: input.uid, newValue: value);
 
     return failureOrNewValue.fold(toFutureLeft, update);
   }

@@ -17,34 +17,26 @@ class FirebasePersonalTransferRecordRepository
   final _TransferRecordRepository _repository;
 
   FirebasePersonalTransferRecordRepository()
-      : _repository = _TransferRecordRepository(
-          (String uid) => FirebaseFirestore.instance
-              .collection(getPersonalTransferRecordCollectionPath(uid))
-              .withConverter(
-                fromFirestore: _fromFirestore,
-                toFirestore: _toFirestore,
-              ),
-        );
+    : _repository = _TransferRecordRepository(
+        (String uid) => FirebaseFirestore.instance
+            .collection(getPersonalTransferRecordCollectionPath(uid))
+            .withConverter(
+              fromFirestore: _fromFirestore,
+              toFirestore: _toFirestore,
+            ),
+      );
 
   @override
   Future<ExceptionOr<Unit>> deleteById({
     required String repoId,
     required String id,
-  }) =>
-      _repository.deleteById(
-        repoId: repoId,
-        id: id,
-      );
+  }) => _repository.deleteById(repoId: repoId, id: id);
 
   @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required TransferRecord value,
-  }) =>
-      _repository.register(
-        repoId: repoId,
-        value: value,
-      );
+  }) => _repository.register(repoId: repoId, value: value);
 
   @override
   Future<ExceptionOr<List<TransferRecord>>> retrieveAll({
@@ -67,12 +59,7 @@ class FirebasePersonalTransferRecordRepository
     required String repoId,
     required DateTime begin,
     required DateTime end,
-  }) =>
-      _repository.retrieveRecordsOf(
-        repoId: repoId,
-        begin: begin,
-        end: end,
-      );
+  }) => _repository.retrieveRecordsOf(repoId: repoId, begin: begin, end: end);
 
   @override
   Future<ExceptionOr<Unit>> update({
@@ -89,34 +76,26 @@ class FirebaseSharedTransferRecordRepository
   final _TransferRecordRepository _repository;
 
   FirebaseSharedTransferRecordRepository()
-      : _repository = _TransferRecordRepository(
-          (String uid) => FirebaseFirestore.instance
-              .collection(getPersonalTransferRecordCollectionPath(uid))
-              .withConverter(
-                fromFirestore: _fromFirestore,
-                toFirestore: _toFirestore,
-              ),
-        );
+    : _repository = _TransferRecordRepository(
+        (String uid) => FirebaseFirestore.instance
+            .collection(getPersonalTransferRecordCollectionPath(uid))
+            .withConverter(
+              fromFirestore: _fromFirestore,
+              toFirestore: _toFirestore,
+            ),
+      );
 
   @override
   Future<ExceptionOr<Unit>> deleteById({
     required String repoId,
     required String id,
-  }) =>
-      _repository.deleteById(
-        repoId: repoId,
-        id: id,
-      );
+  }) => _repository.deleteById(repoId: repoId, id: id);
 
   @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required TransferRecord value,
-  }) =>
-      _repository.register(
-        repoId: repoId,
-        value: value,
-      );
+  }) => _repository.register(repoId: repoId, value: value);
 
   @override
   Future<ExceptionOr<List<TransferRecord>>> retrieveAll({
@@ -139,12 +118,7 @@ class FirebaseSharedTransferRecordRepository
     required String repoId,
     required DateTime begin,
     required DateTime end,
-  }) =>
-      _repository.retrieveRecordsOf(
-        repoId: repoId,
-        begin: begin,
-        end: end,
-      );
+  }) => _repository.retrieveRecordsOf(repoId: repoId, begin: begin, end: end);
 
   @override
   Future<ExceptionOr<Unit>> update({
@@ -168,8 +142,9 @@ class _TransferRecordRepository {
     Future<void> handler(Transaction transaction) async {
       final recordDocument = _builder(repoId).doc(id);
       // Get the document
-      DocumentSnapshot<TransferRecordModel> snapshot =
-          await transaction.get(recordDocument);
+      DocumentSnapshot<TransferRecordModel> snapshot = await transaction.get(
+        recordDocument,
+      );
 
       if (!snapshot.exists) {
         return;
@@ -177,17 +152,13 @@ class _TransferRecordRepository {
 
       TransferRecordModel model = snapshot.data()!;
       if (model.hasCheckedOut) {
-        transaction.update(
-          model.fromPropertyRef,
-          {
-            'amount': FieldValue.increment(model.amount),
-          },
-        ).update(
-          model.toPropertyRef,
-          {
-            'amount': FieldValue.increment(-model.amount),
-          },
-        );
+        transaction
+            .update(model.fromPropertyRef, {
+              'amount': FieldValue.increment(model.amount),
+            })
+            .update(model.toPropertyRef, {
+              'amount': FieldValue.increment(-model.amount),
+            });
       }
       transaction.delete(recordDocument);
       return;
@@ -207,23 +178,18 @@ class _TransferRecordRepository {
     required TransferRecord value,
   }) async {
     final ownerDocument = _builder(repoId).parent!;
-    final propertyCollection =
-        ownerDocument.collection(firebaseCollectionProperties);
+    final propertyCollection = ownerDocument.collection(
+      firebaseCollectionProperties,
+    );
     final batch = FirebaseFirestore.instance.batch();
     if (value.hasCheckedOut) {
       batch
-        ..update(
-          propertyCollection.doc(value.source.id),
-          {
-            'amount': FieldValue.increment(-value.amount),
-          },
-        )
-        ..update(
-          propertyCollection.doc(value.destination.id),
-          {
-            'amount': FieldValue.increment(value.amount),
-          },
-        );
+        ..update(propertyCollection.doc(value.source.id), {
+          'amount': FieldValue.increment(-value.amount),
+        })
+        ..update(propertyCollection.doc(value.destination.id), {
+          'amount': FieldValue.increment(value.amount),
+        });
     }
     batch.set(
       _builder(repoId).doc(value.id),
@@ -264,8 +230,8 @@ class _TransferRecordRepository {
     }
 
     TransferRecordModel toModel(
-            QueryDocumentSnapshot<TransferRecordModel> snapshot) =>
-        snapshot.data();
+      QueryDocumentSnapshot<TransferRecordModel> snapshot,
+    ) => snapshot.data();
     final models = querySnapshot.docs.map(toModel);
     Future<TransferRecord> toEntityAsync(TransferRecordModel model) =>
         model.toEntityAsync();
@@ -277,11 +243,6 @@ class _TransferRecordRepository {
 TransferRecordModel _fromFirestore(
   DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
-) =>
-    TransferRecordModel.fromJson(snapshot.toJsonWithId());
+) => TransferRecordModel.fromJson(snapshot.toJsonWithId());
 
-Json _toFirestore(
-  TransferRecordModel value,
-  SetOptions? _,
-) =>
-    value.toJson();
+Json _toFirestore(TransferRecordModel value, SetOptions? _) => value.toJson();

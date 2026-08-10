@@ -13,11 +13,7 @@ class AuthGate extends StatelessWidget {
     final user = context.watch<UserAuth>();
 
     if (user == UserAuth.notSignIn) {
-      return ui.SignInScreen(
-        providers: [
-          ui.EmailAuthProvider(),
-        ],
-      );
+      return ui.SignInScreen(providers: [ui.EmailAuthProvider()]);
     }
 
     return MyAppHome();

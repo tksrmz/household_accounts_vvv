@@ -7,9 +7,6 @@ class DeleteIncomeCategoryInteractor implements DeleteIncomeCategoryUseCase {
   @override
   Future<ExceptionOr<Unit>> call(DeleteIncomeCategoryInput input) {
     final repository = input.repository;
-    return repository.deleteById(
-      repoId: input.uid,
-      id: input.categoryId,
-    );
+    return repository.deleteById(repoId: input.uid, id: input.categoryId);
   }
 }

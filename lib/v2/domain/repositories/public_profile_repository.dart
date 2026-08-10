@@ -9,5 +9,7 @@ abstract interface class PublicProfileRepository {
 
   /// 指定されたユーザーIDに紐づくユーザー名を更新する
   Future<Either<Exception, Unit>> updateUserName(
-      UserIdVo userId, UserNameVo userName);
+    UserIdVo userId,
+    UserNameVo userName,
+  );
 }

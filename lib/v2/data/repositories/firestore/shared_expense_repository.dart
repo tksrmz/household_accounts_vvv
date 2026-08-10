@@ -26,20 +26,15 @@ class FirestoreSharedExpenseRepository implements ExpenseRepository {
     ExpenseVo createExpenseVo(Map<String, dynamic> doc) =>
         ExpenseVo(doc['amount']!);
     List<ExpenseVo> convertToExpenseVoList(
-            List<Map<String, dynamic>> expenseList) =>
-        expenseList.map(createExpenseVo).toList(growable: false);
+      List<Map<String, dynamic>> expenseList,
+    ) => expenseList.map(createExpenseVo).toList(growable: false);
 
     Task<Either<Exception, List<ExpenseVo>>> createTask(
-            DocumentReference<SharedNoteRef> ref) =>
-        Task(
-          () => _sharedRecordService.fetchExpensesByDate(
-            ref,
-            date.year,
-            date.month,
-          ),
-        ).map(
-          (either) => either.map<List<ExpenseVo>>(convertToExpenseVoList),
-        );
+      DocumentReference<SharedNoteRef> ref,
+    ) => Task(
+      () =>
+          _sharedRecordService.fetchExpensesByDate(ref, date.year, date.month),
+    ).map((either) => either.map<List<ExpenseVo>>(convertToExpenseVoList));
 
     final Task<Either<Exception, List<ExpenseVo>>> task =
         Task(() => _privateProfileService.fetch(_userId))

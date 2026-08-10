@@ -20,11 +20,11 @@ class DailyRecordMinute extends StatelessWidget {
     required SelectedNote sop,
     required String repoId,
     super.key,
-  })  : _year = year,
-        _month = month,
-        _day = day,
-        _sop = sop,
-        _repoId = repoId;
+  }) : _year = year,
+       _month = month,
+       _day = day,
+       _sop = sop,
+       _repoId = repoId;
 
   final int _year;
   final int _month;
@@ -35,9 +35,7 @@ class DailyRecordMinute extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('$_year/$_month/$_day'),
-      ),
+      appBar: AppBar(title: Text('$_year/$_month/$_day')),
       body: _DailyRecordMinuteBody(
         year: _year,
         month: _month,
@@ -56,11 +54,11 @@ class _DailyRecordMinuteBody extends StatefulWidget {
     required int day,
     required SelectedNote sop,
     required String repoId,
-  })  : _year = year,
-        _month = month,
-        _day = day,
-        _sop = sop,
-        _repoId = repoId;
+  }) : _year = year,
+       _month = month,
+       _day = day,
+       _sop = sop,
+       _repoId = repoId;
 
   final int _year;
   final int _month;
@@ -98,9 +96,7 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
               .map(
                 (item) => Row(
                   children: [
-                    Expanded(
-                      child: Text(item.leadingText),
-                    ),
+                    Expanded(child: Text(item.leadingText)),
                     Text(item.amountText),
                     DeleteIconButton(
                       onPressed: () async {
@@ -128,53 +124,48 @@ class _DailyRecordMinuteBodyState extends State<_DailyRecordMinuteBody> {
     final day = widget._day;
     final sop = widget._sop;
     final repoId = widget._repoId;
-    _recordListFuture = Future.wait(
-      [
-        fetchIncomeRecords(
-          year: year,
-          month: month,
-          day: day,
-          sop: sop,
-          repoId: repoId,
-        ).then(
-          (failureOrIncomes) => failureOrIncomes.fold(
-            (_) => <_ViewModelItem>[],
-            (incomes) =>
-                incomes.map((record) => _ViewModelItemIncome(record)).toList(),
-          ),
+    _recordListFuture = Future.wait([
+      fetchIncomeRecords(
+        year: year,
+        month: month,
+        day: day,
+        sop: sop,
+        repoId: repoId,
+      ).then(
+        (failureOrIncomes) => failureOrIncomes.fold(
+          (_) => <_ViewModelItem>[],
+          (incomes) =>
+              incomes.map((record) => _ViewModelItemIncome(record)).toList(),
         ),
-        fetchExpenseRecords(
-          year: year,
-          month: month,
-          day: day,
-          sop: sop,
-          repoId: repoId,
-        ).then(
-          (failureOrExpenses) => failureOrExpenses.fold(
-            (_) => <_ViewModelItem>[],
-            (expenses) => expenses
-                .map((record) => _ViewModelItemExpense(record))
-                .toList(),
-          ),
+      ),
+      fetchExpenseRecords(
+        year: year,
+        month: month,
+        day: day,
+        sop: sop,
+        repoId: repoId,
+      ).then(
+        (failureOrExpenses) => failureOrExpenses.fold(
+          (_) => <_ViewModelItem>[],
+          (expenses) =>
+              expenses.map((record) => _ViewModelItemExpense(record)).toList(),
         ),
-        fetchTransferRecords(
-          year: year,
-          month: month,
-          day: day,
-          sop: sop,
-          repoId: repoId,
-        ).then(
-          (failureOrTransfers) => failureOrTransfers.fold(
-            (_) => <_ViewModelItem>[],
-            (transfers) => transfers
-                .map((record) => _ViewModelItemTransfer(record))
-                .toList(),
-          ),
+      ),
+      fetchTransferRecords(
+        year: year,
+        month: month,
+        day: day,
+        sop: sop,
+        repoId: repoId,
+      ).then(
+        (failureOrTransfers) => failureOrTransfers.fold(
+          (_) => <_ViewModelItem>[],
+          (transfers) => transfers
+              .map((record) => _ViewModelItemTransfer(record))
+              .toList(),
         ),
-      ],
-    ).then(
-      (nestedList) => nestedList.expand((list) => list).toList(),
-    );
+      ),
+    ]).then((nestedList) => nestedList.expand((list) => list).toList());
   }
 }
 
@@ -209,14 +200,13 @@ class _ViewModelItemIncome extends _ViewModelItem {
   Future<ExceptionOr<dartz.Unit>> delete({
     required String uid,
     required SelectedNote sop,
-  }) =>
-      sl<DeleteRecordUseCase<IncomeRecord>>()(
-        DeleteRecordInput(
-          uid: uid,
-          record: entity,
-          repository: selectIncomeRecordRepository(sop),
-        ),
-      );
+  }) => sl<DeleteRecordUseCase<IncomeRecord>>()(
+    DeleteRecordInput(
+      uid: uid,
+      record: entity,
+      repository: selectIncomeRecordRepository(sop),
+    ),
+  );
 }
 
 class _ViewModelItemExpense extends _ViewModelItem {
@@ -237,14 +227,13 @@ class _ViewModelItemExpense extends _ViewModelItem {
   Future<ExceptionOr<dartz.Unit>> delete({
     required String uid,
     required SelectedNote sop,
-  }) =>
-      sl<DeleteRecordUseCase<ExpenseRecord>>()(
-        DeleteRecordInput(
-          uid: uid,
-          record: entity,
-          repository: selectExpenseRecordRepository(sop),
-        ),
-      );
+  }) => sl<DeleteRecordUseCase<ExpenseRecord>>()(
+    DeleteRecordInput(
+      uid: uid,
+      record: entity,
+      repository: selectExpenseRecordRepository(sop),
+    ),
+  );
 }
 
 class _ViewModelItemTransfer extends _ViewModelItem {
@@ -265,12 +254,11 @@ class _ViewModelItemTransfer extends _ViewModelItem {
   Future<ExceptionOr<dartz.Unit>> delete({
     required String uid,
     required SelectedNote sop,
-  }) =>
-      sl<DeleteRecordUseCase<TransferRecord>>()(
-        DeleteRecordInput(
-          uid: uid,
-          record: entity,
-          repository: selectTransferRecordRepository(sop),
-        ),
-      );
+  }) => sl<DeleteRecordUseCase<TransferRecord>>()(
+    DeleteRecordInput(
+      uid: uid,
+      record: entity,
+      repository: selectTransferRecordRepository(sop),
+    ),
+  );
 }

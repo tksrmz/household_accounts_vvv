@@ -10,78 +10,80 @@ import 'util/document_snapshot.dart';
 import 'util/get_entity.dart';
 
 IncomeCategoryModel _incomeCategoryModelFromFirestore(
-        DocumentSnapshot<Json> snapshot, SnapshotOptions? _) =>
-    IncomeCategoryModel.fromJson(snapshot.toJsonWithId());
+  DocumentSnapshot<Json> snapshot,
+  SnapshotOptions? _,
+) => IncomeCategoryModel.fromJson(snapshot.toJsonWithId());
 Json _incomeCategoryModelToFirestore(
-        IncomeCategoryModel model, SetOptions? _) =>
-    model.toJson();
+  IncomeCategoryModel model,
+  SetOptions? _,
+) => model.toJson();
 
 ExpenseCategoryModel _expenseCategoryModelFromFirestore(
-        DocumentSnapshot<Json> snapshot, SnapshotOptions? _) =>
-    ExpenseCategoryModel.fromJson(snapshot.toJsonWithId());
+  DocumentSnapshot<Json> snapshot,
+  SnapshotOptions? _,
+) => ExpenseCategoryModel.fromJson(snapshot.toJsonWithId());
 Json _expenseCategoryModelToFirestore(
-        ExpenseCategoryModel model, SetOptions? _) =>
-    model.toJson();
+  ExpenseCategoryModel model,
+  SetOptions? _,
+) => model.toJson();
 
 PropertyModel _propertyModelFromFirestore(
-        DocumentSnapshot<Json> snapshot, SnapshotOptions? _) =>
-    PropertyModel.fromJson(snapshot.toJsonWithId());
+  DocumentSnapshot<Json> snapshot,
+  SnapshotOptions? _,
+) => PropertyModel.fromJson(snapshot.toJsonWithId());
 Json _propertyModelToFirestore(PropertyModel propertyModel, SetOptions? _) =>
     propertyModel.toJson();
 
 DocumentReference<IncomeCategoryModel> _createIncomeCategoryDocumentReference({
   required String categoryId,
   required String categoryCollectionPath,
-}) =>
-    FirebaseFirestore.instance
-        .collection(categoryCollectionPath)
-        .doc(categoryId)
-        .withConverter<IncomeCategoryModel>(
-          fromFirestore: _incomeCategoryModelFromFirestore,
-          toFirestore: _incomeCategoryModelToFirestore,
-        );
+}) => FirebaseFirestore.instance
+    .collection(categoryCollectionPath)
+    .doc(categoryId)
+    .withConverter<IncomeCategoryModel>(
+      fromFirestore: _incomeCategoryModelFromFirestore,
+      toFirestore: _incomeCategoryModelToFirestore,
+    );
 
 DocumentReference<ExpenseCategoryModel>
-    _createExpenseCategoryDocumentReference({
+_createExpenseCategoryDocumentReference({
   required String categoryId,
   required String categoryCollectionPath,
-}) =>
-        FirebaseFirestore.instance
-            .collection(categoryCollectionPath)
-            .doc(categoryId)
-            .withConverter<ExpenseCategoryModel>(
-              fromFirestore: _expenseCategoryModelFromFirestore,
-              toFirestore: _expenseCategoryModelToFirestore,
-            );
+}) => FirebaseFirestore.instance
+    .collection(categoryCollectionPath)
+    .doc(categoryId)
+    .withConverter<ExpenseCategoryModel>(
+      fromFirestore: _expenseCategoryModelFromFirestore,
+      toFirestore: _expenseCategoryModelToFirestore,
+    );
 
 DocumentReference<PropertyModel> _createPropertyDocumentReference({
   required String propertyId,
   required String propertyCollectionPath,
-}) =>
-    FirebaseFirestore.instance
-        .collection(propertyCollectionPath)
-        .doc(propertyId)
-        .withConverter<PropertyModel>(
-          fromFirestore: _propertyModelFromFirestore,
-          toFirestore: _propertyModelToFirestore,
-        );
+}) => FirebaseFirestore.instance
+    .collection(propertyCollectionPath)
+    .doc(propertyId)
+    .withConverter<PropertyModel>(
+      fromFirestore: _propertyModelFromFirestore,
+      toFirestore: _propertyModelToFirestore,
+    );
 
 abstract class RecordBaseModel implements DataModel<RecordBase> {
   RecordBaseModel.fromEntity(RecordBase entity)
-      : id = entity.id,
-        recordDate = entity.recordDate,
-        amount = entity.amount,
-        note = entity.note,
-        hasCheckedOut = entity.hasCheckedOut,
-        createdAt = FieldValue.serverTimestamp();
+    : id = entity.id,
+      recordDate = entity.recordDate,
+      amount = entity.amount,
+      note = entity.note,
+      hasCheckedOut = entity.hasCheckedOut,
+      createdAt = FieldValue.serverTimestamp();
 
   RecordBaseModel.fromJson(Json json)
-      : id = json['id'] as String,
-        recordDate = (json['date'] as Timestamp).toDate(),
-        amount = json['amount'] as int,
-        note = json['note'] as String,
-        hasCheckedOut = (json['hasCheckedOut'] ?? true) as bool,
-        createdAt = json['createdAt'] as Timestamp;
+    : id = json['id'] as String,
+      recordDate = (json['date'] as Timestamp).toDate(),
+      amount = json['amount'] as int,
+      note = json['note'] as String,
+      hasCheckedOut = (json['hasCheckedOut'] ?? true) as bool,
+      createdAt = json['createdAt'] as Timestamp;
 
   final String id;
   final DateTime recordDate;
@@ -92,12 +94,12 @@ abstract class RecordBaseModel implements DataModel<RecordBase> {
 
   @override
   Json toJson() => {
-        'date': recordDate,
-        'amount': amount,
-        'note': note,
-        'hasCheckedOut': hasCheckedOut,
-        'createdAt': createdAt,
-      };
+    'date': recordDate,
+    'amount': amount,
+    'note': note,
+    'hasCheckedOut': hasCheckedOut,
+    'createdAt': createdAt,
+  };
 }
 
 class IncomeRecordModel extends RecordBaseModel {
@@ -105,28 +107,28 @@ class IncomeRecordModel extends RecordBaseModel {
     required IncomeRecord record,
     required String categoryCollectionPath,
     required String propertyCollectionPath,
-  })  : categoryRef = _createIncomeCategoryDocumentReference(
-          categoryId: record.category.id,
-          categoryCollectionPath: categoryCollectionPath,
-        ),
-        propertyRef = _createPropertyDocumentReference(
-          propertyId: record.property.id,
-          propertyCollectionPath: propertyCollectionPath,
-        ),
-        super.fromEntity(record);
+  }) : categoryRef = _createIncomeCategoryDocumentReference(
+         categoryId: record.category.id,
+         categoryCollectionPath: categoryCollectionPath,
+       ),
+       propertyRef = _createPropertyDocumentReference(
+         propertyId: record.property.id,
+         propertyCollectionPath: propertyCollectionPath,
+       ),
+       super.fromEntity(record);
 
   IncomeRecordModel.fromJson(super.json)
-      : categoryRef =
-            (json['category']!['ref'] as DocumentReference).withConverter(
-          fromFirestore: _incomeCategoryModelFromFirestore,
-          toFirestore: _incomeCategoryModelToFirestore,
-        ),
-        propertyRef =
-            (json['property']!['ref'] as DocumentReference).withConverter(
-          fromFirestore: _propertyModelFromFirestore,
-          toFirestore: _propertyModelToFirestore,
-        ),
-        super.fromJson();
+    : categoryRef = (json['category']!['ref'] as DocumentReference)
+          .withConverter(
+            fromFirestore: _incomeCategoryModelFromFirestore,
+            toFirestore: _incomeCategoryModelToFirestore,
+          ),
+      propertyRef = (json['property']!['ref'] as DocumentReference)
+          .withConverter(
+            fromFirestore: _propertyModelFromFirestore,
+            toFirestore: _propertyModelToFirestore,
+          ),
+      super.fromJson();
 
   final DocumentReference<IncomeCategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
@@ -139,14 +141,14 @@ class IncomeRecordModel extends RecordBaseModel {
   }
 
   Future<IncomeRecord> toEntityAsync() async => IncomeRecord(
-        id: id,
-        recordDate: recordDate,
-        amount: amount,
-        note: note,
-        category: await _getCategory(),
-        property: await getPropertyOrDeletedProperty(propertyRef),
-        hasCheckedOut: hasCheckedOut,
-      );
+    id: id,
+    recordDate: recordDate,
+    amount: amount,
+    note: note,
+    category: await _getCategory(),
+    property: await getPropertyOrDeletedProperty(propertyRef),
+    hasCheckedOut: hasCheckedOut,
+  );
 
   Future<IncomeCategory> _getCategory() async {
     final snapshot = await categoryRef.get();
@@ -157,17 +159,11 @@ class IncomeRecordModel extends RecordBaseModel {
 
   @override
   Json toJson() => super.toJson()
-    ..addAll(
-      {
-        'property': {
-          'ref': propertyRef,
-        },
-        'category': {
-          'ref': categoryRef,
-        },
-        'type': 'income',
-      },
-    );
+    ..addAll({
+      'property': {'ref': propertyRef},
+      'category': {'ref': categoryRef},
+      'type': 'income',
+    });
 }
 
 class ExpenseRecordModel extends RecordBaseModel {
@@ -175,28 +171,28 @@ class ExpenseRecordModel extends RecordBaseModel {
     required ExpenseRecord record,
     required String categoryCollectionPath,
     required String propertyCollectionPath,
-  })  : categoryRef = _createExpenseCategoryDocumentReference(
-          categoryId: record.category.id,
-          categoryCollectionPath: categoryCollectionPath,
-        ),
-        propertyRef = _createPropertyDocumentReference(
-          propertyId: record.property.id,
-          propertyCollectionPath: propertyCollectionPath,
-        ),
-        super.fromEntity(record);
+  }) : categoryRef = _createExpenseCategoryDocumentReference(
+         categoryId: record.category.id,
+         categoryCollectionPath: categoryCollectionPath,
+       ),
+       propertyRef = _createPropertyDocumentReference(
+         propertyId: record.property.id,
+         propertyCollectionPath: propertyCollectionPath,
+       ),
+       super.fromEntity(record);
 
   ExpenseRecordModel.fromJson(super.json)
-      : categoryRef =
-            (json['category']!['ref'] as DocumentReference).withConverter(
-          fromFirestore: _expenseCategoryModelFromFirestore,
-          toFirestore: _expenseCategoryModelToFirestore,
-        ),
-        propertyRef =
-            (json['property']!['ref'] as DocumentReference).withConverter(
-          fromFirestore: _propertyModelFromFirestore,
-          toFirestore: _propertyModelToFirestore,
-        ),
-        super.fromJson();
+    : categoryRef = (json['category']!['ref'] as DocumentReference)
+          .withConverter(
+            fromFirestore: _expenseCategoryModelFromFirestore,
+            toFirestore: _expenseCategoryModelToFirestore,
+          ),
+      propertyRef = (json['property']!['ref'] as DocumentReference)
+          .withConverter(
+            fromFirestore: _propertyModelFromFirestore,
+            toFirestore: _propertyModelToFirestore,
+          ),
+      super.fromJson();
 
   final DocumentReference<ExpenseCategoryModel> categoryRef;
   final DocumentReference<PropertyModel> propertyRef;
@@ -209,14 +205,14 @@ class ExpenseRecordModel extends RecordBaseModel {
   }
 
   Future<ExpenseRecord> toEntityAsync() async => ExpenseRecord(
-        id: id,
-        recordDate: recordDate,
-        amount: amount,
-        note: note,
-        category: await _getCategory(),
-        property: await getPropertyOrDeletedProperty(propertyRef),
-        hasCheckedOut: hasCheckedOut,
-      );
+    id: id,
+    recordDate: recordDate,
+    amount: amount,
+    note: note,
+    category: await _getCategory(),
+    property: await getPropertyOrDeletedProperty(propertyRef),
+    hasCheckedOut: hasCheckedOut,
+  );
 
   Future<ExpenseCategory> _getCategory() async {
     final snapshot = await categoryRef.get();
@@ -227,45 +223,39 @@ class ExpenseRecordModel extends RecordBaseModel {
 
   @override
   Json toJson() => super.toJson()
-    ..addAll(
-      {
-        'property': {
-          'ref': propertyRef,
-        },
-        'category': {
-          'ref': categoryRef,
-        },
-        'type': 'expense',
-      },
-    );
+    ..addAll({
+      'property': {'ref': propertyRef},
+      'category': {'ref': categoryRef},
+      'type': 'expense',
+    });
 }
 
 class TransferRecordModel extends RecordBaseModel {
   TransferRecordModel.fromEntity({
     required TransferRecord record,
     required String propertyCollectionPath,
-  })  : fromPropertyRef = _createPropertyDocumentReference(
-          propertyId: record.source.id,
-          propertyCollectionPath: propertyCollectionPath,
-        ),
-        toPropertyRef = _createPropertyDocumentReference(
-          propertyId: record.destination.id,
-          propertyCollectionPath: propertyCollectionPath,
-        ),
-        super.fromEntity(record);
+  }) : fromPropertyRef = _createPropertyDocumentReference(
+         propertyId: record.source.id,
+         propertyCollectionPath: propertyCollectionPath,
+       ),
+       toPropertyRef = _createPropertyDocumentReference(
+         propertyId: record.destination.id,
+         propertyCollectionPath: propertyCollectionPath,
+       ),
+       super.fromEntity(record);
 
   TransferRecordModel.fromJson(super.json)
-      : fromPropertyRef =
-            (json['fromProperty']!['ref'] as DocumentReference).withConverter(
-          fromFirestore: _propertyModelFromFirestore,
-          toFirestore: _propertyModelToFirestore,
-        ),
-        toPropertyRef =
-            (json['toProperty']!['ref'] as DocumentReference).withConverter(
-          fromFirestore: _propertyModelFromFirestore,
-          toFirestore: _propertyModelToFirestore,
-        ),
-        super.fromJson();
+    : fromPropertyRef = (json['fromProperty']!['ref'] as DocumentReference)
+          .withConverter(
+            fromFirestore: _propertyModelFromFirestore,
+            toFirestore: _propertyModelToFirestore,
+          ),
+      toPropertyRef = (json['toProperty']!['ref'] as DocumentReference)
+          .withConverter(
+            fromFirestore: _propertyModelFromFirestore,
+            toFirestore: _propertyModelToFirestore,
+          ),
+      super.fromJson();
 
   final DocumentReference<PropertyModel> fromPropertyRef;
   final DocumentReference<PropertyModel> toPropertyRef;
@@ -273,7 +263,8 @@ class TransferRecordModel extends RecordBaseModel {
   @override
   TransferRecord toEntity() {
     throw UnsupportedError(
-        'This class contains DocumentReference. Use [toEntityAsync] instead.');
+      'This class contains DocumentReference. Use [toEntityAsync] instead.',
+    );
   }
 
   Future<TransferRecord> toEntityAsync() async {
@@ -290,15 +281,9 @@ class TransferRecordModel extends RecordBaseModel {
 
   @override
   Json toJson() => super.toJson()
-    ..addAll(
-      {
-        'fromProperty': {
-          'ref': fromPropertyRef,
-        },
-        'toProperty': {
-          'ref': toPropertyRef,
-        },
-        'type': 'transfer',
-      },
-    );
+    ..addAll({
+      'fromProperty': {'ref': fromPropertyRef},
+      'toProperty': {'ref': toPropertyRef},
+      'type': 'transfer',
+    });
 }

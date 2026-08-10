@@ -52,8 +52,12 @@ String _randomStr(int length) {
   const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   var random = Random();
 
-  var randomStr = String.fromCharCodes(Iterable.generate(
-      length, (_) => characters.codeUnitAt(random.nextInt(characters.length))));
+  var randomStr = String.fromCharCodes(
+    Iterable.generate(
+      length,
+      (_) => characters.codeUnitAt(random.nextInt(characters.length)),
+    ),
+  );
 
   return randomStr;
 }

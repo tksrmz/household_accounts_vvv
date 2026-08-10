@@ -24,7 +24,8 @@ abstract class ExpenseCategoryModel with _$ExpenseCategoryModel {
     final type = json['type'] as String;
     if (type != 'expense') {
       throw ArgumentError(
-          'ExpenseCategoryModel requires type "expense", but got "$type"');
+        'ExpenseCategoryModel requires type "expense", but got "$type"',
+      );
     }
     return ExpenseCategoryModel(
       id: json['id'] as String,
@@ -39,10 +40,6 @@ extension ExpenseCategoryModelFirestore on ExpenseCategoryModel {
   /// Firestoreに保存するためのJSONに変換
   /// idは除外（FirestoreのドキュメントIDとして使用されるため）
   Map<String, dynamic> toFirestoreJson() {
-    return {
-      'name': name,
-      'totalBudget': totalBudget,
-      'type': type,
-    };
+    return {'name': name, 'totalBudget': totalBudget, 'type': type};
   }
 }

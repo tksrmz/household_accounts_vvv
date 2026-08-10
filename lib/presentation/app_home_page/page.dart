@@ -16,7 +16,7 @@ class MyAppHome extends StatefulWidget {
 
 class _MyAppHomeState extends State<MyAppHome> {
   late final Stream<DocumentSnapshot<Map<String, dynamic>>>
-      _privateProfileStream;
+  _privateProfileStream;
 
   @override
   void initState() {
@@ -40,9 +40,10 @@ class _MyAppHomeState extends State<MyAppHome> {
         return switch (snapshot.connectionState) {
           ConnectionState.none => _onLoading(context),
           ConnectionState.waiting => _onLoading(context),
-          ConnectionState.active => snapshot.requireData.exists
-              ? _onSuccess(context, snapshot.requireData)
-              : _onLoading(context),
+          ConnectionState.active =>
+            snapshot.requireData.exists
+                ? _onSuccess(context, snapshot.requireData)
+                : _onLoading(context),
           ConnectionState.done => _onSuccess(context, snapshot.requireData),
         };
       },
@@ -66,25 +67,14 @@ class _MyAppHomeState extends State<MyAppHome> {
       uid: context.read<UserAuth>().uid.value,
       pairId: pairId,
     );
-    return Provider<UserInfo>.value(
-      value: info,
-      child: MainPage(),
-    );
+    return Provider<UserInfo>.value(value: info, child: MainPage());
   }
 
   Widget _onError(BuildContext context, Object error) {
-    return Scaffold(
-      body: Center(
-        child: Text(error.toString()),
-      ),
-    );
+    return Scaffold(body: Center(child: Text(error.toString())));
   }
 
   Widget _onLoading(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    return Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

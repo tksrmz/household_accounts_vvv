@@ -4,10 +4,7 @@ import '../../../v2/presentation/pages/state_managements/selected_note_state.dar
 
 @immutable
 class UserInfo {
-  const UserInfo({
-    required this.uid,
-    this.pairId,
-  });
+  const UserInfo({required this.uid, this.pairId});
 
   final String uid;
   final String? pairId;

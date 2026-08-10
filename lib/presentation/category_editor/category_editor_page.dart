@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../entity/category.dart';
 
-typedef CategoryEditorOnSubmit = void Function(
-  String name,
-  int budget,
-  CategoryType categoryType,
-);
+typedef CategoryEditorOnSubmit =
+    void Function(String name, int budget, CategoryType categoryType);
 
 class CategoryEditorPage extends StatelessWidget {
   const CategoryEditorPage({
@@ -17,12 +14,12 @@ class CategoryEditorPage extends StatelessWidget {
     CategoryType initialType = CategoryType.income,
     bool canChangeType = true,
     super.key,
-  })  : _title = title,
-        _onSubmit = onSubmit,
-        _initialName = initialName,
-        _initialBudget = initialBudget,
-        _initialType = initialType,
-        _canChangeType = canChangeType;
+  }) : _title = title,
+       _onSubmit = onSubmit,
+       _initialName = initialName,
+       _initialBudget = initialBudget,
+       _initialType = initialType,
+       _canChangeType = canChangeType;
 
   final String _title;
   final CategoryEditorOnSubmit _onSubmit;
@@ -34,9 +31,7 @@ class CategoryEditorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_title),
-      ),
+      appBar: AppBar(title: Text(_title)),
       body: _PageBody(
         onSubmit: _onSubmit,
         initialName: _initialName,
@@ -55,11 +50,11 @@ class _PageBody extends StatefulWidget {
     String? initialName,
     int? initialBudget,
     bool canChangeType = true,
-  })  : _onSubmit = onSubmit,
-        _initialType = initialType,
-        _initialName = initialName,
-        _initialBudget = initialBudget,
-        _canChangeType = canChangeType;
+  }) : _onSubmit = onSubmit,
+       _initialType = initialType,
+       _initialName = initialName,
+       _initialBudget = initialBudget,
+       _canChangeType = canChangeType;
 
   final CategoryEditorOnSubmit _onSubmit;
   final String? _initialName;
@@ -76,10 +71,7 @@ class _PageBodyState extends State<_PageBody> {
   late final TextEditingController _budgetController;
 
   // state
-  final List<bool> _categorySelection = [
-    false,
-    false,
-  ];
+  final List<bool> _categorySelection = [false, false];
 
   bool get _isExpenseSelected => _categorySelection[1];
 
@@ -95,9 +87,7 @@ class _PageBodyState extends State<_PageBody> {
         _categorySelection[1] = true;
         break;
     }
-    _nameController = TextEditingController(
-      text: widget._initialName,
-    );
+    _nameController = TextEditingController(text: widget._initialName);
     _budgetController = TextEditingController(
       text: widget._initialBudget?.toString(),
     );
@@ -119,8 +109,9 @@ class _PageBodyState extends State<_PageBody> {
     // buttons to gray out. Graying out is not appropriate as it becomes
     // difficult for the users to know which type of category they are
     // editing: income category type or expense category type.
-    final toggleButtonsOnPressed =
-        widget._canChangeType ? _setSelected : (_) {};
+    final toggleButtonsOnPressed = widget._canChangeType
+        ? _setSelected
+        : (_) {};
     children.add(
       LayoutBuilder(
         builder: (context, constraints) => Center(
@@ -131,10 +122,7 @@ class _PageBodyState extends State<_PageBody> {
               minHeight: 48.0,
             ),
             onPressed: toggleButtonsOnPressed,
-            children: const [
-              Text('収入'),
-              Text('支出'),
-            ],
+            children: const [Text('収入'), Text('支出')],
           ),
         ),
       ),
@@ -179,11 +167,9 @@ class _PageBodyState extends State<_PageBody> {
         onPressed: () {
           final int? budget = int.tryParse(_budgetController.text);
           if (budget == null && _isExpenseSelected) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('予算の入力が正しくありません'),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: const Text('予算の入力が正しくありません')));
           } else {
             widget._onSubmit(
               _nameController.text,
@@ -196,19 +182,20 @@ class _PageBodyState extends State<_PageBody> {
       ),
     );
 
-    return ListView(
-      children: children,
-    );
+    return ListView(children: children);
   }
 
   void _setSelected(int index) {
     if (widget._canChangeType) {
-      _budgetController.text =
-          widget._initialBudget == null ? '' : widget._initialBudget.toString();
+      _budgetController.text = widget._initialBudget == null
+          ? ''
+          : widget._initialBudget.toString();
       setState(() {
-        for (int buttonIndex = 0;
-            buttonIndex < _categorySelection.length;
-            buttonIndex++) {
+        for (
+          int buttonIndex = 0;
+          buttonIndex < _categorySelection.length;
+          buttonIndex++
+        ) {
           if (buttonIndex == index) {
             _categorySelection[buttonIndex] = true;
           } else {

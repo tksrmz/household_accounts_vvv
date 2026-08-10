@@ -10,13 +10,7 @@ class AddIncomeCategoryInteractor implements AddIncomeCategoryUseCase {
   Future<ExceptionOr<Unit>> call(AddIncomeCategoryInput input) {
     final repository = input.repository;
 
-    final category = IncomeCategory(
-      id: UUID.generate(),
-      name: input.name,
-    );
-    return repository.register(
-      repoId: input.uid,
-      value: category,
-    );
+    final category = IncomeCategory(id: UUID.generate(), name: input.name);
+    return repository.register(repoId: input.uid, value: category);
   }
 }

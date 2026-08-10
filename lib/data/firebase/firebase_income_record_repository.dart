@@ -17,34 +17,26 @@ class FirebasePersonalIncomeRecordRepository
   final _IncomeRecordRepository _repository;
 
   FirebasePersonalIncomeRecordRepository()
-      : _repository = _IncomeRecordRepository(
-          (String uid) => FirebaseFirestore.instance
-              .collection(getPersonalIncomeRecordCollectionPath(uid))
-              .withConverter(
-                fromFirestore: _fromFirestore,
-                toFirestore: _toFirestore,
-              ),
-        );
+    : _repository = _IncomeRecordRepository(
+        (String uid) => FirebaseFirestore.instance
+            .collection(getPersonalIncomeRecordCollectionPath(uid))
+            .withConverter(
+              fromFirestore: _fromFirestore,
+              toFirestore: _toFirestore,
+            ),
+      );
 
   @override
   Future<ExceptionOr<Unit>> deleteById({
     required String repoId,
     required String id,
-  }) =>
-      _repository.deleteById(
-        repoId: repoId,
-        id: id,
-      );
+  }) => _repository.deleteById(repoId: repoId, id: id);
 
   @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required IncomeRecord value,
-  }) =>
-      _repository.register(
-        repoId: repoId,
-        value: value,
-      );
+  }) => _repository.register(repoId: repoId, value: value);
 
   @override
   Future<ExceptionOr<List<IncomeRecord>>> retrieveAll({
@@ -67,12 +59,7 @@ class FirebasePersonalIncomeRecordRepository
     required String repoId,
     required DateTime begin,
     required DateTime end,
-  }) =>
-      _repository.retrieveRecordsOf(
-        repoId: repoId,
-        begin: begin,
-        end: end,
-      );
+  }) => _repository.retrieveRecordsOf(repoId: repoId, begin: begin, end: end);
 
   @override
   Future<ExceptionOr<Unit>> update({
@@ -89,34 +76,26 @@ class FirebaseSharedIncomeRecordRepository
   final _IncomeRecordRepository _repository;
 
   FirebaseSharedIncomeRecordRepository()
-      : _repository = _IncomeRecordRepository(
-          (String uid) => FirebaseFirestore.instance
-              .collection(getSharedIncomeRecordCollectionPath(uid))
-              .withConverter(
-                fromFirestore: _fromFirestore,
-                toFirestore: _toFirestore,
-              ),
-        );
+    : _repository = _IncomeRecordRepository(
+        (String uid) => FirebaseFirestore.instance
+            .collection(getSharedIncomeRecordCollectionPath(uid))
+            .withConverter(
+              fromFirestore: _fromFirestore,
+              toFirestore: _toFirestore,
+            ),
+      );
 
   @override
   Future<ExceptionOr<Unit>> deleteById({
     required String repoId,
     required String id,
-  }) =>
-      _repository.deleteById(
-        repoId: repoId,
-        id: id,
-      );
+  }) => _repository.deleteById(repoId: repoId, id: id);
 
   @override
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required IncomeRecord value,
-  }) =>
-      _repository.register(
-        repoId: repoId,
-        value: value,
-      );
+  }) => _repository.register(repoId: repoId, value: value);
 
   @override
   Future<ExceptionOr<List<IncomeRecord>>> retrieveAll({
@@ -139,12 +118,7 @@ class FirebaseSharedIncomeRecordRepository
     required String repoId,
     required DateTime begin,
     required DateTime end,
-  }) =>
-      _repository.retrieveRecordsOf(
-        repoId: repoId,
-        begin: begin,
-        end: end,
-      );
+  }) => _repository.retrieveRecordsOf(repoId: repoId, begin: begin, end: end);
 
   @override
   Future<ExceptionOr<Unit>> update({
@@ -168,8 +142,8 @@ class _IncomeRecordRepository {
     Future<void> handler(Transaction transaction) async {
       final recordDocument = _builder(repoId).doc(id);
       // Get the document
-      final DocumentSnapshot<IncomeRecordModel> snapshot =
-          await transaction.get(recordDocument);
+      final DocumentSnapshot<IncomeRecordModel> snapshot = await transaction
+          .get(recordDocument);
 
       if (!snapshot.exists) {
         return;
@@ -178,12 +152,9 @@ class _IncomeRecordRepository {
       IncomeRecordModel model = snapshot.data()!;
       if (model.hasCheckedOut) {
         // Restore property
-        transaction.update(
-          model.propertyRef,
-          {
-            'amount': FieldValue.increment(-model.amount),
-          },
-        );
+        transaction.update(model.propertyRef, {
+          'amount': FieldValue.increment(-model.amount),
+        });
       }
       transaction.delete(recordDocument);
       return;
@@ -203,18 +174,17 @@ class _IncomeRecordRepository {
     required IncomeRecord value,
   }) async {
     final ownerDocument = _builder(repoId).parent!;
-    final propertyCollection =
-        ownerDocument.collection(firebaseCollectionProperties);
-    final categoryCollection =
-        ownerDocument.collection(firebaseCollectionIncomeCategories);
+    final propertyCollection = ownerDocument.collection(
+      firebaseCollectionProperties,
+    );
+    final categoryCollection = ownerDocument.collection(
+      firebaseCollectionIncomeCategories,
+    );
     final batch = FirebaseFirestore.instance.batch();
     if (value.hasCheckedOut) {
-      batch.update(
-        propertyCollection.doc(value.property.id),
-        {
-          'amount': FieldValue.increment(value.amount),
-        },
-      );
+      batch.update(propertyCollection.doc(value.property.id), {
+        'amount': FieldValue.increment(value.amount),
+      });
     }
     batch.set(
       _builder(repoId).doc(value.id),
@@ -256,8 +226,8 @@ class _IncomeRecordRepository {
     }
 
     IncomeRecordModel toModel(
-            QueryDocumentSnapshot<IncomeRecordModel> snapshot) =>
-        snapshot.data();
+      QueryDocumentSnapshot<IncomeRecordModel> snapshot,
+    ) => snapshot.data();
     final models = querySnapshot.docs.map(toModel);
     Future<IncomeRecord> toEntityAsync(IncomeRecordModel model) =>
         model.toEntityAsync();
@@ -269,11 +239,6 @@ class _IncomeRecordRepository {
 IncomeRecordModel _fromFirestore(
   DocumentSnapshot<Json> snapshot,
   SnapshotOptions? _,
-) =>
-    IncomeRecordModel.fromJson(snapshot.toJsonWithId());
+) => IncomeRecordModel.fromJson(snapshot.toJsonWithId());
 
-Json _toFirestore(
-  IncomeRecordModel value,
-  SetOptions? _,
-) =>
-    value.toJson();
+Json _toFirestore(IncomeRecordModel value, SetOptions? _) => value.toJson();
