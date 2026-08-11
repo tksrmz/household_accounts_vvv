@@ -40,11 +40,23 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
-          plugins: 'code-review@claude-code-plugins'
+          # /pr-review is this repo's own command, in .claude/commands/, rather
+          # than the code-review@claude-code-plugins plugin it was vendored from.
+          # The plugin stops the moment Claude has commented on a PR once, so a
+          # push to an open PR was never reviewed. The action reads the project
+          # setting sources by default, so the checkout above is all it takes to
+          # make the command available.
+          #
           # Without --comment the review is only written to the job log and
           # nothing is posted to the PR.
-          prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }} --comment'
+          #
+          # --since narrows a re-run to the commits that were just pushed. Only
+          # synchronize carries github.event.before, so the flag is omitted for
+          # every other event and those runs review the whole PR.
+          prompt: >-
+            /pr-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+            --comment
+            ${{ github.event.action == 'synchronize' && format('--since {0}', github.event.before) || '' }}
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
 
