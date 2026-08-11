@@ -3,6 +3,20 @@ name: PR CI
 on:
   pull_request:
     branches: [master]
+    paths:
+      # format/analyze/testの対象になるソースファイル等
+      - 'lib/**'
+      - 'test/**'
+      - 'integration_test/**'
+      # golden testがfonts/NotoSansJP.ttfを読み込むため、フォント変更も検査対象
+      - 'fonts/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'build.yaml'
+      - 'analysis_options.yaml'
+      - 'dart_test.yaml'
+      # このCI自体
+      - '.github/workflows/pr-ci.yml'
 
 concurrency:
   group: pr-ci-${{ github.ref }}
