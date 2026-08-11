@@ -20,11 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      # Write access is required to post the review back to the PR: inline
-      # comments need pull-requests, and the "no issues found" summary goes
-      # through `gh pr comment`, which uses the issue comments API.
+      # Write access is required to post the review back to the PR, for both
+      # the inline comments and the "no issues found" summary. The summary
+      # goes through `gh pr comment`, which hits the issue comments API, but
+      # that endpoint accepts either Issues or Pull requests write -- so the
+      # grant below covers it and issues stays read-only.
       pull-requests: write
-      issues: write
+      issues: read
       id-token: write
 
     steps:
