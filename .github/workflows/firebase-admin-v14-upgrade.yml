@@ -1,0 +1,202 @@
+name: Upgrade firebase-admin to v14 when ready
+
+on:
+  schedule:
+    # Dependabot runs on Tuesday morning. Check again on Wednesday at 09:00 JST.
+    - cron: "0 0 * * 3"
+  workflow_dispatch:
+
+concurrency:
+  group: firebase-admin-v14-upgrade
+  cancel-in-progress: false
+
+env:
+  ISSUE_NUMBER: "36"
+  PR_MARKER: "<!-- firebase-admin-v14-upgrade-issue-36 -->"
+  ISSUE_COMMENT_MARKER: "<!-- firebase-admin-v14-upgrade-ready -->"
+
+jobs:
+  check-readiness:
+    name: Check upgrade readiness
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    outputs:
+      ready: ${{ steps.readiness.outputs.ready }}
+      firebase_admin_version: ${{ steps.readiness.outputs.firebase_admin_version }}
+      firebase_functions_test_version: ${{ steps.readiness.outputs.firebase_functions_test_version }}
+      firebase_admin_peer_range: ${{ steps.readiness.outputs.firebase_admin_peer_range }}
+    steps:
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      - name: Check Issue #36 and package compatibility
+        id: readiness
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          issue_state="$(
+            gh issue view "$ISSUE_NUMBER" \
+              --repo "$GITHUB_REPOSITORY" \
+              --json state \
+              --jq '.state'
+          )"
+
+          if [[ "$issue_state" != "OPEN" ]]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## firebase-admin v14 readiness"
+              echo
+              echo "Skipped because Issue #${ISSUE_NUMBER} is not open."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          existing_pr="$(
+            gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --state open \
+              --limit 100 \
+              --json body,url \
+              --jq "map(select((.body // \"\") | contains(\"$PR_MARKER\")))[0].url // \"\""
+          )"
+
+          if [[ -n "$existing_pr" ]]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## firebase-admin v14 readiness"
+              echo
+              echo "Skipped because an upgrade pull request is already open: ${existing_pr}"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          firebase_functions_test_version="$(
+            npm view firebase-functions-test@latest version
+          )"
+          firebase_admin_peer_range="$(
+            npm view \
+              "firebase-functions-test@${firebase_functions_test_version}" \
+              peerDependencies.firebase-admin
+          )"
+          firebase_admin_version="$(
+            npm view firebase-admin@14 version --json \
+              | node -e '
+                  let input = "";
+                  process.stdin.on("data", (chunk) => { input += chunk; });
+                  process.stdin.on("end", () => {
+                    const value = JSON.parse(input);
+                    const versions = Array.isArray(value) ? value : [value];
+                    if (versions.length === 0) process.exit(1);
+                    process.stdout.write(versions.at(-1));
+                  });
+                '
+          )"
+
+          if [[ -z "$firebase_admin_peer_range" ]]; then
+            echo "firebase-functions-test did not publish a firebase-admin peer dependency." >&2
+            exit 1
+          fi
+
+          echo "firebase_admin_version=${firebase_admin_version}" >> "$GITHUB_OUTPUT"
+          echo "firebase_functions_test_version=${firebase_functions_test_version}" >> "$GITHUB_OUTPUT"
+          echo "firebase_admin_peer_range=${firebase_admin_peer_range}" >> "$GITHUB_OUTPUT"
+
+          if npx --yes semver@7.7.2 \
+            "$firebase_admin_version" \
+            --range "$firebase_admin_peer_range" \
+            >/dev/null; then
+            ready=true
+          else
+            ready=false
+          fi
+
+          echo "ready=${ready}" >> "$GITHUB_OUTPUT"
+          {
+            echo "## firebase-admin v14 readiness"
+            echo
+            echo "| Package | Value |"
+            echo "| --- | --- |"
+            echo "| firebase-admin | ${firebase_admin_version} |"
+            echo "| firebase-functions-test | ${firebase_functions_test_version} |"
+            echo "| firebase-functions-test peer range | \`${firebase_admin_peer_range}\` |"
+            echo "| Ready | **${ready}** |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  upgrade-with-claude:
+    name: Upgrade dependencies and open a draft PR
+    needs: check-readiness
+    if: needs.check-readiness.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Upgrade firebase-admin with Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          base_branch: ${{ github.event.repository.default_branch }}
+          branch_prefix: claude/
+          branch_name_template: "{{prefix}}issue-36-firebase-admin-v14-{{timestamp}}"
+          prompt: |
+            Work on Issue #36 in ${{ github.repository }}.
+
+            The deterministic readiness check found:
+            - firebase-admin: ${{ needs.check-readiness.outputs.firebase_admin_version }}
+            - firebase-functions-test: ${{ needs.check-readiness.outputs.firebase_functions_test_version }}
+            - firebase-functions-test peer range for firebase-admin: ${{ needs.check-readiness.outputs.firebase_admin_peer_range }}
+
+            Upgrade the project under functions/ from firebase-admin v13 to the latest
+            stable v14 release. Update firebase-functions-test to the compatible latest
+            release and update other dependencies only when required for this upgrade.
+
+            Requirements:
+            1. Read Issue #36 and inspect the existing implementation before editing.
+            2. Do not use --legacy-peer-deps, --force, or any peer-dependency bypass.
+            3. Confirm that the code uses modular firebase-admin entry points and does not
+               use removed legacy namespace APIs or the removed Instance ID API.
+            4. Do not change files under .github/.
+            5. From the repository root, successfully run all of the following:
+               - npm --prefix functions ci
+               - npm --prefix functions ls firebase-admin firebase-functions firebase-functions-test jwks-rsa jose
+               - npm --prefix functions run build
+               - npm --prefix functions run lint
+               - npm --prefix functions test
+            6. Before creating a pull request, confirm that no open PR contains this marker:
+               ${{ env.PR_MARKER }}
+            7. Only after every verification succeeds, commit and push the changes and
+               create exactly one draft pull request targeting the default branch.
+            8. Use this PR title: chore(functions): upgrade firebase-admin to v14
+            9. Include the following in the PR body:
+               - ${{ env.PR_MARKER }}
+               - a dependency-change summary
+               - the breaking-change audit result
+               - the commands run and their results
+               - Closes #36
+            10. After creating the PR, comment on Issue #36 with the PR URL and this marker:
+                ${{ env.ISSUE_COMMENT_MARKER }}
+                Do not add the comment if one containing that marker already exists.
+
+            If the update or any verification fails, do not create a pull request and do
+            not comment on the issue. Report the failure in this workflow run instead.
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(npm:*),Bash(git status:*),Bash(git diff:*),Bash(git branch:*),Bash(git rev-parse:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh pr list:*),Bash(gh pr create:*)"
