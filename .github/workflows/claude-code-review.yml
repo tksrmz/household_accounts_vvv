@@ -46,14 +46,21 @@ jobs:
 
       # The action refuses to run unless this workflow file matches the default
       # branch, which is what stops a pull request from rewriting the job to leak
-      # CLAUDE_CODE_OAUTH_TOKEN. Nothing applies that check to .claude/, and the
-      # command Claude executes now lives there -- so a same-repository branch
-      # could edit only .claude/commands/pr-review.md, sail past the workflow
-      # check, and have its own instructions run with the token in scope. Take
-      # the whole directory from the default branch instead of from the pull
-      # request's checkout, deleting first so that files the branch added are
-      # gone rather than merely overwritten.
-      - name: Restore Claude configuration from the default branch
+      # CLAUDE_CODE_OAUTH_TOKEN. Nothing applies that check to the rest of the
+      # checkout, so everything Claude reads *as instructions* has to be put back
+      # to the default branch by hand:
+      #
+      #   .claude/  the command being run and the wrapper it calls
+      #   CLAUDE.md the rules the review agents are told to enforce
+      #   docs/     imported into CLAUDE.md with @, so equally instructions
+      #
+      # Delete before restoring, so that files the branch added are gone rather
+      # than merely overwritten. The pull request's own versions of all three
+      # still reach the review through the diff -- as content to be reviewed,
+      # which is the only role untrusted text gets to play. A pull request that
+      # edits the rules is therefore reviewed against the rules already in force,
+      # which is the right way round.
+      - name: Restore trusted instructions from the default branch
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
@@ -62,8 +69,10 @@ jobs:
             echo "::error::.claude/commands/pr-review.md does not exist on $DEFAULT_BRANCH. Refusing to run the pull request's copy."
             exit 1
           fi
-          rm -rf .claude
-          git checkout FETCH_HEAD -- .claude
+          rm -rf .claude docs
+          find . -path ./.git -prune -o -name CLAUDE.md -print0 | xargs -0 -r rm -f
+          git checkout FETCH_HEAD -- .claude docs
+          git ls-tree -r --name-only FETCH_HEAD | grep -E '(^|/)CLAUDE\.md$' | xargs -r git checkout FETCH_HEAD --
 
       - name: Run Claude Code Review
         id: claude-review
