@@ -10,15 +10,6 @@ on:
     #   - "src/**/*.js"
     #   - "src/**/*.jsx"
 
-# One review at a time per PR. Runs must not overlap: each one reviews the
-# commits between its own event's before and after, so a second run starting
-# mid-review could read the comment list before the first has posted and
-# duplicate its findings. Queue rather than cancel -- cancelling would abandon
-# that run's commit range and nothing would ever review it.
-concurrency:
-  group: claude-review-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
-
 jobs:
   claude-review:
     # Dependabot-triggered runs cannot read Actions secrets (they only get
@@ -44,76 +35,16 @@ jobs:
         with:
           fetch-depth: 1
 
-      # The action refuses to run unless this workflow file matches the default
-      # branch, which is what stops a pull request from rewriting the job to leak
-      # CLAUDE_CODE_OAUTH_TOKEN. Nothing applies that check to the rest of the
-      # checkout, so everything Claude reads *as instructions* has to be put back
-      # to the default branch by hand:
-      #
-      #   .claude/          the command, its wrapper, .claude/CLAUDE.md, rules/
-      #   CLAUDE.md         the rules the review agents are told to enforce
-      #   CLAUDE.local.md   loaded as project memory just the same, and a branch
-      #                     can commit one even though it is meant to be ignored
-      #   docs/             imported into CLAUDE.md with @, so equally instructions
-      #
-      # AGENTS.md is deliberately absent: Claude Code does not read it.
-      #
-      # Delete before restoring, so that files the branch added are gone rather
-      # than merely overwritten. The pull request's own versions of all three
-      # still reach the review through the diff -- as content to be reviewed,
-      # which is the only role untrusted text gets to play. A pull request that
-      # edits the rules is therefore reviewed against the rules already in force,
-      # which is the right way round.
-      - name: Restore trusted instructions from the default branch
-        env:
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-        run: |
-          git fetch --depth 1 origin "$DEFAULT_BRANCH"
-          if ! git cat-file -e "FETCH_HEAD:.claude/commands/pr-review.md" 2>/dev/null; then
-            echo "::error::.claude/commands/pr-review.md does not exist on $DEFAULT_BRANCH. Refusing to run the pull request's copy."
-            exit 1
-          fi
-          rm -rf .claude docs
-          find . -path ./.git -prune -o \( -name CLAUDE.md -o -name CLAUDE.local.md \) -print0 | xargs -0 -r rm -f
-          git checkout FETCH_HEAD -- .claude
-          # docs/ carries the imports, but unlike .claude/ the guard above does
-          # not prove it exists.
-          if git cat-file -e "FETCH_HEAD:docs" 2>/dev/null; then
-            git checkout FETCH_HEAD -- docs
-          fi
-          # grep exits 1 when the default branch holds no memory files at all,
-          # and this step runs under -e -o pipefail. Absorb that into an empty
-          # list rather than failing every review from then on.
-          memory_files="$(git ls-tree -r --name-only FETCH_HEAD | grep -E '(^|/)CLAUDE(\.local)?\.md$' || true)"
-          if [ -n "$memory_files" ]; then
-            printf '%s\n' "$memory_files" | xargs -r git checkout FETCH_HEAD --
-          fi
-
       - name: Run Claude Code Review
         id: claude-review
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          # /pr-review is this repo's own command, in .claude/commands/, rather
-          # than the code-review@claude-code-plugins plugin it was vendored from.
-          # The plugin stops the moment Claude has commented on a PR once, so a
-          # push to an open PR was never reviewed. The action reads the project
-          # setting sources by default, so the checkout above is all it takes to
-          # make the command available.
-          #
+          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
+          plugins: 'code-review@claude-code-plugins'
           # Without --comment the review is only written to the job log and
           # nothing is posted to the PR.
-          #
-          # --since and --head narrow a re-run to the commits that just arrived.
-          # Both endpoints come from the event so they stay fixed for the life of
-          # the run; resolving the head inside the command would pick up a later
-          # push and review past this run's range. Only synchronize carries
-          # before/after, so the flags are omitted for every other event and those
-          # runs review the whole PR.
-          prompt: >-
-            /pr-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
-            --comment
-            ${{ github.event.action == 'synchronize' && format('--since {0} --head {1}', github.event.before, github.event.after) || '' }}
+          prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }} --comment'
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
 
