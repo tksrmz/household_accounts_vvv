@@ -1,6 +1,6 @@
 ---
 allowed-tools: Bash(gh issue view:*), Bash(gh search:*), Bash(gh issue list:*), Bash(gh pr comment:*), Bash(gh pr diff:*), Bash(gh pr view:*), Bash(gh pr list:*), Bash(gh api:*), mcp__github_inline_comment__create_inline_comment
-argument-hint: "<owner>/<repo>/pull/<number> [--comment] [--since <sha>]"
+argument-hint: "<owner>/<repo>/pull/<number> [--comment] [--since <sha> --head <sha>]"
 description: Code review a pull request, incrementally on re-runs
 ---
 
@@ -38,16 +38,40 @@ Note: Still review Claude generated PR's.
 
 Resolve the scope once, before step 2, and give it to every subagent you launch.
 
-- Check whether Claude has already reviewed this PR with `gh pr view <PR> --comments`.
-- Use **full scope** -- the whole PR diff from `gh pr diff <PR>` -- when either:
-  - no `--since <sha>` argument was provided, or `<sha>` is empty; or
-  - Claude has not commented on this PR yet. The first review always covers everything.
-- Otherwise use **incremental scope** -- only the commits pushed since `<sha>`:
-  - Resolve the head with `gh pr view <PR> --json headRefOid --jq .headRefOid`.
-  - Get the changes with `gh api repos/<owner>/<repo>/compare/<sha>...<head-sha>`.
-  - If that call fails, `<sha>` is no longer reachable. That is what a force push or a
-    rebase looks like, and there is no usable range. Fall back to full scope.
-  - If it succeeds but reports no changed files, stop. There is nothing new to review.
+Read the PR's existing review comments first, and keep them for step 8 as well:
+
+```
+gh api --paginate repos/<owner>/<repo>/pulls/<number>/comments
+```
+
+`--paginate` is required. Without it only the first page comes back, and a review of a
+busy PR would both mis-detect continuity below and re-post findings in step 8.
+
+Use **incremental scope** -- the commits between `<since-sha>` and `<head-sha>` -- only
+when every one of these holds:
+
+- Both `--since <sha>` and `--head <sha>` were given and are non-empty. These are fixed
+  endpoints from the event that triggered this run. Never resolve the head yourself with
+  `gh pr view --json headRefOid`: that returns whatever the PR points at right now, which
+  may already be a later push, and reviewing past your own endpoint overlaps the run that
+  owns those commits.
+- Claude has already left at least one inline review comment on this PR, and the newest
+  such comment's `commit_id` equals `<since-sha>`. This is a continuity check, and it is
+  what keeps commits from being skipped: a run that failed, or one that reviewed cleanly
+  and posted nothing, leaves no comment at that SHA, so the next push must not assume the
+  commits before it were ever looked at.
+- `gh api repos/<owner>/<repo>/compare/<since-sha>...<head-sha>` succeeds and reports
+  fewer than 300 changed files. A failure means `<since-sha>` is unreachable, which is
+  what a force push or rebase looks like. 300 is the cap the compare endpoint puts on its
+  file list, and a truncated list would drop files from the review without saying so.
+
+Otherwise use **full scope** -- the whole PR diff from `gh pr diff <PR>`. Falling back
+costs a re-review of ground already covered, which step 8's deduplication absorbs.
+Guessing wrong in the other direction loses a commit silently, so prefer full scope
+whenever any condition above is unmet or unclear.
+
+Under incremental scope, if the compare reports no changed files, stop. There is nothing
+new to review.
 
 Every mention of "the changes" or "the diff" below means the resolved scope, not
 necessarily the whole PR. Under incremental scope the rest of the PR, the PR title and
@@ -85,7 +109,7 @@ themselves under review.
 
    In addition to the above, each subagent should be told the PR title and description. This will help provide context regarding the author's intent.
 
-5. For each issue found in the previous step by agents 3 and 4, launch parallel subagents to validate the issue. These subagents should get the PR title and description along with a description of the issue. The agent's job is to review the issue to validate that the stated issue is truly an issue with high confidence. For example, if an issue such as "variable is not defined" was flagged, the subagent's job would be to validate that is actually true in the code. Another example would be CLAUDE.md issues. The agent should validate that the CLAUDE.md rule that was violated is scoped for this file and is actually violated. Use Opus subagents for bugs and logic issues, and sonnet agents for CLAUDE.md violations.
+5. For each issue found in the previous step by any of the four agents, launch parallel subagents to validate the issue. These subagents should get the PR title and description along with a description of the issue. The agent's job is to review the issue to validate that the stated issue is truly an issue with high confidence. For example, if an issue such as "variable is not defined" was flagged, the subagent's job would be to validate that is actually true in the code. Another example would be CLAUDE.md issues. The agent should validate that the CLAUDE.md rule that was violated is scoped for this file and is actually violated. Use Opus subagents for bugs and logic issues, and sonnet agents for CLAUDE.md violations.
 
 6. Filter out any issues that were not validated in step 5. This step will give us our list of high signal issues for our review.
 
@@ -104,10 +128,14 @@ themselves under review.
 
 8. Create a list of all comments that you plan on leaving. This is only for you to make sure you are comfortable with the comments. Do not post this list anywhere.
 
-   Drop from that list any issue Claude has already raised on this PR. Read the existing
-   review comments with `gh api repos/<owner>/<repo>/pulls/<number>/comments`. An
-   unaddressed finding stays on the PR as its original comment -- repeating it on every
-   subsequent push is the noise this command exists to avoid.
+   Drop from that list any finding Claude has already raised on this PR **and that is
+   still live**, using the paginated comment list you read while resolving the review
+   scope. A past comment only counts as a duplicate when its `position` is not null: a
+   null `position` marks a comment GitHub has marked outdated because the code under it
+   changed, and a defect reintroduced somewhere else deserves its own annotation rather
+   than a silent drop. An unaddressed finding, by contrast, stays on the PR as its
+   original comment -- repeating that one on every subsequent push is the noise this
+   command exists to avoid.
 
 9. Post inline comments for each issue using `mcp__github_inline_comment__create_inline_comment` with `confirmed: true`. For each comment:
    - Provide a brief description of the issue
