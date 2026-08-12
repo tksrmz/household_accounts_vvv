@@ -50,9 +50,13 @@ jobs:
       # checkout, so everything Claude reads *as instructions* has to be put back
       # to the default branch by hand:
       #
-      #   .claude/  the command being run and the wrapper it calls
-      #   CLAUDE.md the rules the review agents are told to enforce
-      #   docs/     imported into CLAUDE.md with @, so equally instructions
+      #   .claude/          the command, its wrapper, .claude/CLAUDE.md, rules/
+      #   CLAUDE.md         the rules the review agents are told to enforce
+      #   CLAUDE.local.md   loaded as project memory just the same, and a branch
+      #                     can commit one even though it is meant to be ignored
+      #   docs/             imported into CLAUDE.md with @, so equally instructions
+      #
+      # AGENTS.md is deliberately absent: Claude Code does not read it.
       #
       # Delete before restoring, so that files the branch added are gone rather
       # than merely overwritten. The pull request's own versions of all three
@@ -70,9 +74,20 @@ jobs:
             exit 1
           fi
           rm -rf .claude docs
-          find . -path ./.git -prune -o -name CLAUDE.md -print0 | xargs -0 -r rm -f
-          git checkout FETCH_HEAD -- .claude docs
-          git ls-tree -r --name-only FETCH_HEAD | grep -E '(^|/)CLAUDE\.md$' | xargs -r git checkout FETCH_HEAD --
+          find . -path ./.git -prune -o \( -name CLAUDE.md -o -name CLAUDE.local.md \) -print0 | xargs -0 -r rm -f
+          git checkout FETCH_HEAD -- .claude
+          # docs/ carries the imports, but unlike .claude/ the guard above does
+          # not prove it exists.
+          if git cat-file -e "FETCH_HEAD:docs" 2>/dev/null; then
+            git checkout FETCH_HEAD -- docs
+          fi
+          # grep exits 1 when the default branch holds no memory files at all,
+          # and this step runs under -e -o pipefail. Absorb that into an empty
+          # list rather than failing every review from then on.
+          memory_files="$(git ls-tree -r --name-only FETCH_HEAD | grep -E '(^|/)CLAUDE(\.local)?\.md$' || true)"
+          if [ -n "$memory_files" ]; then
+            printf '%s\n' "$memory_files" | xargs -r git checkout FETCH_HEAD --
+          fi
 
       - name: Run Claude Code Review
         id: claude-review
