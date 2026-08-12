@@ -55,11 +55,13 @@ when every one of these holds:
   `gh pr view --json headRefOid`: that returns whatever the PR points at right now, which
   may already be a later push, and reviewing past your own endpoint overlaps the run that
   owns those commits.
-- Claude has already left at least one inline review comment on this PR, and the newest
-  such comment's `commit_id` equals `<since-sha>`. This is a continuity check, and it is
-  what keeps commits from being skipped: a run that failed, or one that reviewed cleanly
-  and posted nothing, leaves no comment at that SHA, so the next push must not assume the
-  commits before it were ever looked at.
+- Claude has already left an inline review comment on this PR whose `commit_id` or
+  `original_commit_id` is `<since-sha>`. This is a continuity check, and it is what keeps
+  commits from being skipped: a run that failed, or one that reviewed cleanly and posted
+  nothing, leaves no comment at that SHA, so the next push must not assume the commits
+  before it were ever looked at. Both fields are worth checking because GitHub advances
+  `commit_id` as a still-applicable comment follows the code forward, while
+  `original_commit_id` stays where the comment was first placed.
 - `gh api repos/<owner>/<repo>/compare/<since-sha>...<head-sha>` succeeds and reports
   fewer than 300 changed files. A failure means `<since-sha>` is unreachable, which is
   what a force push or rebase looks like. 300 is the cap the compare endpoint puts on its
