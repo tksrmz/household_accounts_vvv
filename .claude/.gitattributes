@@ -1,4 +1,0 @@
-# review-api.sh runs on the Linux runner. A CRLF checkout would break its
-# shebang, and the failure reads as "bad interpreter" rather than as a line
-# ending problem. Scoped to this directory so the repository root stays free.
-scripts/* text eol=lf
