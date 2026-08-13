@@ -56,20 +56,18 @@ jobs:
           # anthropics/claude-code-action#1467 fixes this upstream by deriving
           # Skill(<plugin>:*) from the plugins input; it is still open, so grant
           # the same rule here. Drop this once that lands.
-          # The plugin's first step launches a haiku agent, and the Agent tool
-          # backgrounds it. The turn then ends on "I'll wait for the background
-          # agent's completion notification", nothing resumes it in a headless
-          # run, and the job reports success after six turns having reviewed
-          # nothing. anthropics/claude-code-action#1462.
+          # The review still does not finish. The plugin launches its agents
+          # through the Agent tool, which backgrounds them, and the turn ends on
+          # "I'll wait for them to complete" with nothing in a headless run to
+          # resume it. anthropics/claude-code-action#1462; tracked here in the
+          # issue this workflow's companion monitor watches.
           #
-          # #1465 proposes disallowing the resume/wait tools by default; take
-          # that now. It is a partial measure by its author's own account --
-          # background subagents stay enabled, only the tooling that makes the
-          # wait look legitimate is removed -- so if the run still ends early,
-          # the answer is to wait for #1462 rather than to keep adding flags.
+          # Disallowing ScheduleWakeup/SendMessage/Monitor/TaskList, which is
+          # what #1465 proposes as the default, was tried and did not help: the
+          # model never called a wait tool, it just ended its turn. That flag is
+          # gone again rather than left behind looking load-bearing.
           claude_args: |
             --allowedTools "Skill(code-review:*)"
-            --disallowedTools ScheduleWakeup,SendMessage,Monitor,TaskList
           # TEMPORARY, for diagnosis. The review has now run to completion three
           # times without posting anything to the pull request, and the action
           # hides Claude's output by default, so the log says only that it
