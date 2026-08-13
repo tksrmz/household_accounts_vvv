@@ -45,6 +45,19 @@ jobs:
           # Without --comment the review is only written to the job log and
           # nothing is posted to the PR.
           prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }} --comment'
+          # TEMPORARY, for diagnosis. The review has now run to completion three
+          # times without posting anything to the pull request, and the action
+          # hides Claude's output by default, so the log says only that it
+          # succeeded. This shows the full JSON stream, which is the only way to
+          # tell whether the command decided the PR needed no review, found
+          # nothing, or failed to post.
+          #
+          # It prints every message including tool results. That is acceptable
+          # here only because this repository is private, so the logs are
+          # visible to people with repository access rather than to anyone, and
+          # because CLAUDE_CODE_OAUTH_TOKEN comes from secrets and is masked.
+          # Remove this once the behaviour is understood.
+          show_full_output: 'true'
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
 
