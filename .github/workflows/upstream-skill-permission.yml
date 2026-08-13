@@ -1,0 +1,110 @@
+name: Watch for the upstream Skill permission fix
+
+# Issue #134 tracks a workaround in claude-code-review.yml:
+# --allowedTools "Skill(code-review:*)". It exists because the action does not
+# grant Skill rules for the plugins it installs, so the review plugin's command
+# is auto-denied in a headless run. anthropics/claude-code-action#1467 fixes
+# that upstream. This checks weekly whether the fix has shipped and says so on
+# the issue, once.
+#
+# It only reports. Removing the workaround cannot be verified while
+# anthropics/claude-code-action#1462 stops the review finishing at all (issue
+# #135), so opening a pull request automatically would produce a change nobody
+# can confirm.
+
+on:
+  schedule:
+    # Mondays, 09:00 JST.
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: upstream-skill-permission
+  cancel-in-progress: false
+
+env:
+  ISSUE_NUMBER: "134"
+  UPSTREAM_REPO: "anthropics/claude-code-action"
+  UPSTREAM_PR: "1467"
+  # The function the upstream fix adds. Its presence on the v1 ref -- the ref
+  # this repository actually pins -- is what proves the fix has shipped, rather
+  # than merely landed on main.
+  FIX_MARKER: "getPluginSkillAllowRules"
+  FIX_PATH: "base-action/src/install-plugins.ts"
+  COMMENT_MARKER: "<!-- upstream-skill-permission-shipped -->"
+
+jobs:
+  check:
+    name: Check whether the fix has shipped
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Look for the fix on the pinned upstream ref
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          issue_state="$(gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json state --jq .state)"
+          if [ "$issue_state" != "OPEN" ]; then
+            {
+              echo "## Upstream Skill permission fix"
+              echo
+              echo "Skipped: issue #${ISSUE_NUMBER} is ${issue_state}."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          pr_state="$(gh pr view "$UPSTREAM_PR" --repo "$UPSTREAM_REPO" --json state --jq .state)"
+
+          # Fetched into a file first so that a 404 -- which would mean the file
+          # moved upstream, and is worth knowing -- fails the step instead of
+          # being read as "no fix yet".
+          source_file="$(mktemp)"
+          gh api "repos/${UPSTREAM_REPO}/contents/${FIX_PATH}?ref=v1" --jq .content \
+            | base64 -d > "$source_file"
+
+          shipped=false
+          if grep -q "$FIX_MARKER" "$source_file"; then
+            shipped=true
+          fi
+
+          {
+            echo "## Upstream Skill permission fix"
+            echo
+            echo "| Check | Value |"
+            echo "| --- | --- |"
+            echo "| ${UPSTREAM_REPO}#${UPSTREAM_PR} | ${pr_state} |"
+            echo "| \`${FIX_MARKER}\` on \`v1\` | ${shipped} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$shipped" != "true" ]; then
+            exit 0
+          fi
+
+          already_commented="$(
+            gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json comments \
+              --jq "[.comments[] | select(.body | contains(\"$COMMENT_MARKER\"))] | length"
+          )"
+          if [ "$already_commented" != "0" ]; then
+            echo "Already reported on issue #${ISSUE_NUMBER}." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          body_file="$(mktemp)"
+          {
+            printf '%s\n\n' "$COMMENT_MARKER"
+            printf '上流の修正が `v1` に取り込まれました。\n\n'
+            printf -- '- %s#%s: **%s**\n' "$UPSTREAM_REPO" "$UPSTREAM_PR" "$pr_state"
+            printf -- '- `%s` (ref `v1`) に `%s` を確認\n\n' "$FIX_PATH" "$FIX_MARKER"
+            printf '`.github/workflows/claude-code-review.yml` の `--allowedTools "Skill(code-review:*)"` を削除できます。\n'
+            printf '削除後、実行ログに `Execute skill: code-review:code-review` の `permission_denied` が出ないことを確認してください。\n\n'
+            printf 'レビューが最後まで走るかどうかは別問題で、#135 の解決も必要です。\n\n'
+            printf '_🤖 [%s](%s/%s/actions/runs/%s)_\n' \
+              "$GITHUB_WORKFLOW" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID"
+          } > "$body_file"
+
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$body_file"

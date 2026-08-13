@@ -1,0 +1,99 @@
+name: Watch for the upstream headless subagent fix
+
+# Issue #135 tracks the reason Claude Code Review does not finish: the plugin
+# launches its agents through the Agent tool, which backgrounds them, and a
+# headless run has nothing to resume the turn. There is no workaround --
+# #1465's disallowed-tools approach was tried and did not help -- so this is
+# the blocker, not a cleanup item. anthropics/claude-code-action#1462.
+#
+# It only reports. Confirming a fix means re-running the review on the probe
+# PR #130 and seeing the planted defects come back as comments, which is a
+# judgement call rather than something to automate.
+
+on:
+  schedule:
+    # Thursdays, 09:00 JST. Deliberately a different day from the Skill watcher
+    # so the two do not report together and get read as one event.
+    - cron: "0 0 * * 4"
+  workflow_dispatch:
+
+concurrency:
+  group: upstream-headless-agents
+  cancel-in-progress: false
+
+env:
+  ISSUE_NUMBER: "135"
+  UPSTREAM_REPO: "anthropics/claude-code-action"
+  UPSTREAM_ISSUE: "1462"
+  PROBE_PR: "130"
+  COMMENT_MARKER: "<!-- upstream-headless-agents-fixed -->"
+
+jobs:
+  check:
+    name: Check whether the upstream issue is closed
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Check upstream issue state
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          issue_state="$(gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json state --jq .state)"
+          if [ "$issue_state" != "OPEN" ]; then
+            {
+              echo "## Upstream headless subagent fix"
+              echo
+              echo "Skipped: issue #${ISSUE_NUMBER} is ${issue_state}."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          upstream_state="$(
+            gh issue view "$UPSTREAM_ISSUE" --repo "$UPSTREAM_REPO" --json state --jq .state
+          )"
+          upstream_reason="$(
+            gh issue view "$UPSTREAM_ISSUE" --repo "$UPSTREAM_REPO" --json stateReason --jq '.stateReason // ""'
+          )"
+
+          {
+            echo "## Upstream headless subagent fix"
+            echo
+            echo "| Check | Value |"
+            echo "| --- | --- |"
+            echo "| ${UPSTREAM_REPO}#${UPSTREAM_ISSUE} | ${upstream_state} |"
+            echo "| State reason | ${upstream_reason:-none} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$upstream_state" != "CLOSED" ]; then
+            exit 0
+          fi
+
+          already_commented="$(
+            gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json comments \
+              --jq "[.comments[] | select(.body | contains(\"$COMMENT_MARKER\"))] | length"
+          )"
+          if [ "$already_commented" != "0" ]; then
+            echo "Already reported on issue #${ISSUE_NUMBER}." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          body_file="$(mktemp)"
+          {
+            printf '%s\n\n' "$COMMENT_MARKER"
+            printf -- '%s#%s がクローズされました (reason: `%s`)。\n\n' \
+              "$UPSTREAM_REPO" "$UPSTREAM_ISSUE" "${upstream_reason:-none}"
+            printf 'クローズは修正がリリースされた証拠ではないので、実際に直ったかは #%s で確認してください。\n\n' "$PROBE_PR"
+            printf '1. #%s に master を取り込んで push し、レビューを再実行する\n' "$PROBE_PR"
+            printf '2. 実行ログで、`"status": "async_launched"` の直後にセッションが終わっていないことを確認する\n'
+            printf '3. #%s に Claude のレビューコメントが付くことを確認する（意図的な欠陥を2つ含むので、正常なら必ず指摘が出る）\n\n' "$PROBE_PR"
+            printf '確認できたら `show_full_output` を外し、#%s をクローズしてください。\n\n' "$PROBE_PR"
+            printf '_🤖 [%s](%s/%s/actions/runs/%s)_\n' \
+              "$GITHUB_WORKFLOW" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID"
+          } > "$body_file"
+
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$body_file"
