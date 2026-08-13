@@ -118,7 +118,7 @@ jobs:
     if: needs.generate.outputs.changed == 'true'
     runs-on: ubuntu-latest
     permissions:
-      actions: read
+      actions: write
       contents: write
     steps:
       - uses: actions/checkout@v7
@@ -185,6 +185,7 @@ jobs:
 
       - name: Commit and push canonical goldens
         env:
+          GH_TOKEN: ${{ github.token }}
           HEAD_BRANCH: ${{ needs.generate.outputs.head_branch }}
         shell: bash
         run: |
@@ -192,3 +193,4 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'Update canonical golden files'
           git push origin "HEAD:$HEAD_BRANCH"
+          gh workflow run pr-ci.yml --ref "$HEAD_BRANCH"

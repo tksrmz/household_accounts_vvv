@@ -2,7 +2,7 @@
 
 set -eu
 
-canonical_goldens=$(git diff --cached --name-only --diff-filter=ACMRD -- \
+canonical_goldens=$(git -c core.quotePath=false diff --cached --name-only --diff-filter=ACMRD -- \
   | grep -E '^test/(.*/)?goldens?/.*\.png$' || true)
 
 if [ -z "$canonical_goldens" ]; then

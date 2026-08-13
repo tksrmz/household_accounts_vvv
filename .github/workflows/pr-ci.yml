@@ -17,6 +17,7 @@ on:
       - 'dart_test.yaml'
       # このCI自体
       - '.github/workflows/pr-ci.yml'
+  workflow_dispatch:
 
 concurrency:
   group: pr-ci-${{ github.ref }}
