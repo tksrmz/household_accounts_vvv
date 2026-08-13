@@ -56,8 +56,20 @@ jobs:
           # anthropics/claude-code-action#1467 fixes this upstream by deriving
           # Skill(<plugin>:*) from the plugins input; it is still open, so grant
           # the same rule here. Drop this once that lands.
+          # The plugin's first step launches a haiku agent, and the Agent tool
+          # backgrounds it. The turn then ends on "I'll wait for the background
+          # agent's completion notification", nothing resumes it in a headless
+          # run, and the job reports success after six turns having reviewed
+          # nothing. anthropics/claude-code-action#1462.
+          #
+          # #1465 proposes disallowing the resume/wait tools by default; take
+          # that now. It is a partial measure by its author's own account --
+          # background subagents stay enabled, only the tooling that makes the
+          # wait look legitimate is removed -- so if the run still ends early,
+          # the answer is to wait for #1462 rather than to keep adding flags.
           claude_args: |
             --allowedTools "Skill(code-review:*)"
+            --disallowedTools ScheduleWakeup,SendMessage,Monitor,TaskList
           # TEMPORARY, for diagnosis. The review has now run to completion three
           # times without posting anything to the pull request, and the action
           # hides Claude's output by default, so the log says only that it
