@@ -45,6 +45,19 @@ jobs:
           # Without --comment the review is only written to the job log and
           # nothing is posted to the PR.
           prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }} --comment'
+          # The prompt above reaches Claude as a Skill call, and the action does
+          # not grant Skill rules for the plugins it installs. A headless run
+          # cannot answer a permission prompt, so the call is auto-denied
+          # ("Execute skill: code-review:code-review") and the plugin's command
+          # never runs. Claude then reviews the PR unaided and has none of the
+          # posting tools that command's frontmatter would have granted, which
+          # is why four runs in a row finished a real review and posted nothing.
+          #
+          # anthropics/claude-code-action#1467 fixes this upstream by deriving
+          # Skill(<plugin>:*) from the plugins input; it is still open, so grant
+          # the same rule here. Drop this once that lands.
+          claude_args: |
+            --allowedTools "Skill(code-review:*)"
           # TEMPORARY, for diagnosis. The review has now run to completion three
           # times without posting anything to the pull request, and the action
           # hides Claude's output by default, so the log says only that it
