@@ -1,0 +1,196 @@
+name: Update canonical goldens
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to update
+        required: true
+        type: number
+
+concurrency:
+  group: update-canonical-goldens-pr-${{ inputs.pr_number }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    env:
+      GOLDEN_MODE: ci
+    outputs:
+      changed: ${{ steps.golden-diff.outputs.changed }}
+      head_branch: ${{ steps.pr.outputs.head_branch }}
+      head_sha: ${{ steps.pr.outputs.head_sha }}
+    steps:
+      - name: Resolve pull request head
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        shell: bash
+        run: |
+          pr_json=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER")
+          state=$(jq -r '.state' <<< "$pr_json")
+          head_repository=$(jq -r '.head.repo.full_name' <<< "$pr_json")
+          head_branch=$(jq -r '.head.ref' <<< "$pr_json")
+          head_sha=$(jq -r '.head.sha' <<< "$pr_json")
+
+          if [[ "$state" != "open" ]]; then
+            echo "::error::Pull request #$PR_NUMBER is not open."
+            exit 1
+          fi
+
+          if [[ "$head_repository" != "$GITHUB_REPOSITORY" ]]; then
+            echo "::error::Fork pull requests are not supported by this workflow."
+            exit 1
+          fi
+
+          echo "head_branch=$head_branch" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.pr.outputs.head_sha }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.4'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build
+
+      - name: Remove tracked canonical goldens
+        shell: bash
+        run: |
+          git ls-files -z -- \
+            ':(glob)test/**/golden/**/*.png' \
+            ':(glob)test/**/goldens/**/*.png' \
+            | while IFS= read -r -d '' file; do rm -- "$file"; done
+
+      - name: Regenerate canonical goldens
+        env:
+          ALLOW_CANONICAL_GOLDEN_UPDATE: 'true'
+        run: flutter test --no-pub --tags golden --update-goldens
+
+      - name: Detect canonical golden changes
+        id: golden-diff
+        shell: bash
+        run: |
+          git add -A -- \
+            ':(glob)test/**/golden/**/*.png' \
+            ':(glob)test/**/goldens/**/*.png'
+
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Canonical goldens are already up to date." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --cached --name-status
+          fi
+
+      - name: Create canonical golden patch
+        if: steps.golden-diff.outputs.changed == 'true'
+        shell: bash
+        run: |
+          git diff --cached --binary --full-index --no-renames \
+            > canonical-goldens.patch
+
+      - name: Upload canonical golden patch
+        if: steps.golden-diff.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: canonical-goldens-${{ steps.pr.outputs.head_sha }}
+          path: canonical-goldens.patch
+          if-no-files-found: error
+          retention-days: 1
+
+  commit:
+    needs: generate
+    if: needs.generate.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.generate.outputs.head_branch }}
+
+      - name: Verify pull request head has not moved
+        env:
+          EXPECTED_HEAD_SHA: ${{ needs.generate.outputs.head_sha }}
+        shell: bash
+        run: |
+          current_head_sha=$(git rev-parse HEAD)
+          if [[ "$current_head_sha" != "$EXPECTED_HEAD_SHA" ]]; then
+            echo "::error::The pull request changed while goldens were generated. Run the workflow again."
+            exit 1
+          fi
+
+      - name: Download canonical golden patch
+        uses: actions/download-artifact@v5
+        with:
+          name: canonical-goldens-${{ needs.generate.outputs.head_sha }}
+          path: ${{ runner.temp }}/canonical-goldens
+
+      - name: Validate and apply canonical golden patch
+        shell: bash
+        run: |
+          patch_file="$RUNNER_TEMP/canonical-goldens/canonical-goldens.patch"
+          patch_path_count=0
+
+          while IFS= read -r -d '' numstat; do
+            path=${numstat#*$'\t'}
+            path=${path#*$'\t'}
+            patch_path_count=$((patch_path_count + 1))
+
+            if [[ ! "$path" =~ ^test/(.*/)?goldens?/.+\.png$ \
+              || "$path" == *'/../'* \
+              || "$path" == '../'* \
+              || "$path" == *'/.local/'* \
+              || "$path" == *$'\n'* \
+              || "$path" == *$'\r'* \
+              || "$path" == *$'\t'* \
+              || "$path" == *'\'* \
+              || "$path" == /* ]]; then
+              echo "::error::The patch contains a non-canonical path: $path"
+              exit 1
+            fi
+          done < <(git apply --numstat -z "$patch_file")
+
+          if (( patch_path_count == 0 )); then
+            echo "::error::The canonical golden patch is empty."
+            exit 1
+          fi
+
+          git apply --check --index --binary "$patch_file"
+          git apply --index --binary "$patch_file"
+
+          while IFS= read -r -d '' file; do
+            if [[ ! -f "$file" || -L "$file" ]]; then
+              echo "::error::Canonical golden is not a regular file: $file"
+              exit 1
+            fi
+          done < <(git diff --cached --name-only --diff-filter=ACM -z)
+
+      - name: Commit and push canonical goldens
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_BRANCH: ${{ needs.generate.outputs.head_branch }}
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Update canonical golden files'
+          git push origin "HEAD:$HEAD_BRANCH"
+          gh workflow run pr-ci.yml --ref "$HEAD_BRANCH"

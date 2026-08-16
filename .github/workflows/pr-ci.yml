@@ -17,6 +17,7 @@ on:
       - 'dart_test.yaml'
       # このCI自体
       - '.github/workflows/pr-ci.yml'
+  workflow_dispatch:
 
 concurrency:
   group: pr-ci-${{ github.ref }}
@@ -52,5 +53,107 @@ jobs:
       - name: Analyze
         run: flutter analyze --no-pub
 
-      - name: Run tests
-        run: flutter test --no-pub
+      - name: Run non-golden tests
+        run: flutter test --no-pub --exclude-tags golden
+
+  golden:
+    runs-on: ubuntu-latest
+    env:
+      GOLDEN_MODE: ci
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.4'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build
+
+      - name: Compare canonical goldens
+        id: compare
+        continue-on-error: true
+        run: flutter test --no-pub --tags golden
+
+      - name: Upload golden comparison failures
+        if: steps.compare.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-comparison-failures
+          path: test/**/failures/**
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Remove tracked canonical goldens
+        shell: bash
+        run: |
+          git ls-files -z -- \
+            ':(glob)test/**/golden/**/*.png' \
+            ':(glob)test/**/goldens/**/*.png' \
+            | while IFS= read -r -d '' file; do rm -- "$file"; done
+
+      - name: Regenerate canonical goldens
+        id: regenerate
+        continue-on-error: true
+        env:
+          ALLOW_CANONICAL_GOLDEN_UPDATE: 'true'
+        run: flutter test --no-pub --tags golden --update-goldens
+
+      - name: Detect canonical golden changes
+        id: golden-diff
+        if: steps.regenerate.outcome == 'success'
+        shell: bash
+        run: |
+          git add -A -- \
+            ':(glob)test/**/golden/**/*.png' \
+            ':(glob)test/**/goldens/**/*.png'
+
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --cached --name-status
+          fi
+
+      - name: Upload canonical golden candidates
+        if: steps.golden-diff.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: canonical-golden-candidates
+          path: |
+            test/**/golden/**/*.png
+            test/**/goldens/**/*.png
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Verify golden status
+        if: ${{ !cancelled() }}
+        shell: bash
+        env:
+          COMPARE_OUTCOME: ${{ steps.compare.outcome }}
+          REGENERATE_OUTCOME: ${{ steps.regenerate.outcome }}
+          GOLDENS_CHANGED: ${{ steps.golden-diff.outputs.changed }}
+        run: |
+          failed=false
+
+          if [[ "$COMPARE_OUTCOME" != "success" ]]; then
+            echo "::error::Canonical golden comparison failed."
+            failed=true
+          fi
+
+          if [[ "$REGENERATE_OUTCOME" != "success" ]]; then
+            echo "::error::Canonical golden regeneration failed."
+            failed=true
+          elif [[ "$GOLDENS_CHANGED" == "true" ]]; then
+            echo "::error::Canonical golden update is required."
+            failed=true
+          fi
+
+          if [[ "$failed" == "true" ]]; then
+            exit 1
+          fi
