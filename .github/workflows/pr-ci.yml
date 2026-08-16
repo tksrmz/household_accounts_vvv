@@ -132,7 +132,7 @@ jobs:
           retention-days: 14
 
       - name: Verify golden status
-        if: always()
+        if: ${{ !cancelled() }}
         shell: bash
         env:
           COMPARE_OUTCOME: ${{ steps.compare.outcome }}
