@@ -1,9 +1,16 @@
+# TODO: cron 実行は無効化中。
+# このワークフローが参照する Issue #36 は旧 household_accouts_firebase リポジトリの
+# ものであり、モノレポ統合後の本リポジトリの Issue トラッカーには存在しない。
+# そのまま定期実行すると毎回 Issue の取得に失敗するため、schedule をコメントアウトし
+# workflow_dispatch による手動実行のみを残している。
+# Issue #36 を本リポジトリへ移送・再作成し、下の ISSUE_NUMBER / PR_MARKER /
+# ISSUE_COMMENT_MARKER を新しい Issue 番号へ振り直したうえで cron を再度有効化すること。
 name: Upgrade firebase-admin to v14 when ready
 
 on:
-  schedule:
-    # Dependabot runs on Tuesday morning. Check again on Wednesday at 09:00 JST.
-    - cron: "0 0 * * 3"
+  # schedule:
+  #   # Dependabot runs on Tuesday morning. Check again on Wednesday at 09:00 JST.
+  #   - cron: "0 0 * * 3"
   workflow_dispatch:
 
 concurrency:
@@ -164,7 +171,7 @@ jobs:
             - firebase-functions-test: ${{ needs.check-readiness.outputs.firebase_functions_test_version }}
             - firebase-functions-test peer range for firebase-admin: ${{ needs.check-readiness.outputs.firebase_admin_peer_range }}
 
-            Upgrade the project under functions/ from firebase-admin v13 to the latest
+            Upgrade the project under firebase/functions/ from firebase-admin v13 to the latest
             stable v14 release. Update firebase-functions-test to the compatible latest
             release and update other dependencies only when required for this upgrade.
 
@@ -175,11 +182,11 @@ jobs:
                use removed legacy namespace APIs or the removed Instance ID API.
             4. Do not change files under .github/.
             5. From the repository root, successfully run all of the following:
-               - npm --prefix functions ci
-               - npm --prefix functions ls firebase-admin firebase-functions firebase-functions-test jwks-rsa jose
-               - npm --prefix functions run build
-               - npm --prefix functions run lint
-               - npm --prefix functions test
+               - npm --prefix firebase/functions ci
+               - npm --prefix firebase/functions ls firebase-admin firebase-functions firebase-functions-test jwks-rsa jose
+               - npm --prefix firebase/functions run build
+               - npm --prefix firebase/functions run lint
+               - npm --prefix firebase/functions test
             6. Before creating a pull request, confirm that no open PR contains this marker:
                ${{ env.PR_MARKER }}
             7. Only after every verification succeeds, commit and push the changes and
