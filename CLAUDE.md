@@ -13,6 +13,19 @@ For detailed information, refer to the following documentation:
 - @docs/firestore_schema.md - Database schema and data structure definitions
 - @docs/firestore_constraints.md - Database constraints and business rules
 
+## Monorepo Structure
+
+This repository contains both the app and its backend:
+
+- Repository root: the Flutter app
+- `firebase/`: the Firebase backend (TypeScript Cloud Functions in `firebase/functions/`, `firebase/firestore.rules`, Hosting content in `firebase/public/`)
+
+Notes:
+
+- Firebase CLI commands (`firebase deploy`, `firebase emulators:start`) are run from `firebase/`
+- Backend tests run online against the dev project: `npm --prefix firebase/functions test`
+- Emulator ports are defined in `firebase/firebase.json` (Firestore: 8081, Auth: 9099) and must stay in sync with `lib/main.dart`
+
 ## Development Commands
 
 ### Build & Run

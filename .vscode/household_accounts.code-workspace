@@ -4,7 +4,7 @@
 			"path": ".."
 		},
 		{
-			"path": "../../household_accounts_firebase"
+			"path": "../firebase"
 		}
 	],
 	"settings": {

@@ -19,7 +19,7 @@
 		{
 			"type": "shell",
 			"options": {
-				"cwd": "${workspaceFolder}/../household_accounts_firebase"
+				"cwd": "${workspaceFolder}/firebase"
 			},
 			"command": "firebase",
 			"args": [
@@ -43,7 +43,7 @@
 		{
 			"type": "shell",
 			"options": {
-				"cwd": "${workspaceFolder}/../household_accounts_firebase"
+				"cwd": "${workspaceFolder}/firebase"
 			},
 			"command": "firebase",
 			"args": [

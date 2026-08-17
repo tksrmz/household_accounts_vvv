@@ -1,6 +1,7 @@
-# household_accouts_firebase
+# Firebaseバックエンド
 
-[household_accounts](https://github.com/tksrmz/household_accounts)(Flutter製家計簿アプリ)のFirebaseバックエンド。
+本リポジトリ(Flutter製家計簿アプリのモノレポ)のFirebaseバックエンド部分であり、`firebase/`ディレクトリに置かれている。
+Flutterアプリ本体はリポジトリルートにある。
 Cloud Functions / Firestore(ルール・インデックス)/ Hosting の構成を管理する。
 
 ## ローカルでのテスト実行

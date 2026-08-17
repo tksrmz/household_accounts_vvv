@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="start firebase local emulator (export on exit)" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="firebase emulators:start --only auth,functions,firestore --import=../household_accounts/integration_test/saved-data --export-on-exit" />
+    <option name="SCRIPT_TEXT" value="firebase emulators:start --only auth,functions,firestore --import=../integration_test/saved-data --export-on-exit" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />
     <option name="SCRIPT_OPTIONS" value="" />
     <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
-    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/../household_accounts_firebase" />
+    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/firebase" />
     <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
     <option name="INTERPRETER_PATH" value="/bin/bash" />
     <option name="INTERPRETER_OPTIONS" value="" />

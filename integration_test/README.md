@@ -29,22 +29,22 @@
 まず、前提条件として以下が必要です。
 
 - Android device emulatorが起動していること
-- Firebase local emulatorを起動するために[household_accounts_firebase](https://github.com/tksrmz/household_accouts_firebase)をローカルにクローンされていること
+- Firebase CLIがインストールされていること（Firebase local emulatorの設定は同一リポジトリの`firebase/`ディレクトリにあります）
 
 受け入れテストは以下のコマンドで実行できます。
 
 ```shell
-# Firebaseのプロジェクトへ移動
-cd /path/to/household_accounts_firebase
+# Firebaseの設定ディレクトリへ移動（リポジトリルートから）
+cd firebase
 # Firebase local emulatorの起動と受け入れテストの実行
 firebase emulators:exec \
 --project household-accounts-1129d \
 --only auth,firestore,functions \
---import /path/to/household_accounts/integration_test/saved-data \
-/path/to/household_accounts/integration_test/run.sh
+--import ../integration_test/saved-data \
+../integration_test/run.sh
 ```
 
-`--project`の指定は必須である。`household_accouts_firebase`の`.firebaserc`には`default`エイリアスが存在しないため、
+`--project`の指定は必須である。`firebase/.firebaserc`には`default`エイリアスが存在しないため、
 `--project`を省略すると`firebase emulators:exec`は`demo-no-project`という別プロジェクトIDでCloud Functionsエミュレータを起動してしまう。
 一方、アプリ（`lib/firebase_options.dart`）は常に`household-accounts-1129d`でFirestoreエミュレータに接続するため、
 両者のプロジェクトIDが食い違うと、サインアップ時に`onCreateUser`トリガーが作成するドキュメント（`privateProfiles`等）が
