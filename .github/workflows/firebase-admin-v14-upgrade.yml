@@ -37,7 +37,7 @@ jobs:
       firebase_admin_peer_range: ${{ steps.readiness.outputs.firebase_admin_peer_range }}
     steps:
       - name: Set up Node.js 22
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           package-manager-cache: false
