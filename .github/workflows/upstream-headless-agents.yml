@@ -10,11 +10,15 @@ name: Watch for the upstream headless subagent fix
 # PR #130 and seeing the planted defects come back as comments, which is a
 # judgement call rather than something to automate.
 
+# TODO(モノレポ移行): ISSUE_NUMBER (#135) と PROBE_PR (#130) は旧リポジトリ
+# (tksrmz/household_accounts) の番号を指しているため、Issue移管と番号の
+# 更新が済むまで cron を無効化している。workflow_dispatch での手動実行は
+# 可能だが、参照先がズレている点に注意。
 on:
-  schedule:
-    # Thursdays, 09:00 JST. Deliberately a different day from the Skill watcher
-    # so the two do not report together and get read as one event.
-    - cron: "0 0 * * 4"
+  # schedule:
+  #   # Thursdays, 09:00 JST. Deliberately a different day from the Skill watcher
+  #   # so the two do not report together and get read as one event.
+  #   - cron: "0 0 * * 4"
   workflow_dispatch:
 
 concurrency:

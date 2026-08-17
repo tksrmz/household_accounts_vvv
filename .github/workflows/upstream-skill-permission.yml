@@ -12,10 +12,14 @@ name: Watch for the upstream Skill permission fix
 # #135), so opening a pull request automatically would produce a change nobody
 # can confirm.
 
+# TODO(モノレポ移行): ISSUE_NUMBER (#134) は旧リポジトリ
+# (tksrmz/household_accounts) の番号を指しているため、Issue移管と番号の
+# 更新が済むまで cron を無効化している。workflow_dispatch での手動実行は
+# 可能だが、参照先がズレている点に注意。
 on:
-  schedule:
-    # Mondays, 09:00 JST.
-    - cron: "0 0 * * 1"
+  # schedule:
+  #   # Mondays, 09:00 JST.
+  #   - cron: "0 0 * * 1"
   workflow_dispatch:
 
 concurrency:
