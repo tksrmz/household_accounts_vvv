@@ -1,0 +1,7 @@
+{
+  "include": [
+    ".eslintrc.js",
+    "vitest.config.mts",
+    "test/**/*.ts"
+  ]
+}

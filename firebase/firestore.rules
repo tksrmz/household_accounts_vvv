@@ -1,0 +1,317 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	// ログイン状態の検証をする関数
+  	function isSignedIn() {
+    	return request.auth != null;
+    }
+
+    // ログイン状態とユーザIDの検証をする関数
+    function isValidUser(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // DEPRECATED
+  	// income, expense, transfer recordドキュメントのスキーマ検証を行う関数
+    function isValidRecordOld(record) {
+      return record.size() == 7
+        && 'date' in record && record.date is timestamp
+        && 'amount' in record && record.amount is int
+          && record.amount >= 0
+        && 'note' in record && record.note is string
+          && record.note.size() <= 100
+        && 'createdAt' in record && record.createdAt is timestamp
+        && 'type' in record && record.type is string
+          && record.type in ['income', 'expense', 'transfer']
+          // income, expense, transferごとに固有のスキーマ検証
+          && record.type in ['income', 'expense']
+            ? ('property' in record && record.property is map
+                && record.property.size() == 1
+                && 'ref' in record.property && record.property.ref is path
+              && 'category' in record && record.category is map
+                && record.category.size() == 1
+                && 'ref' in record.category && record.category.ref is path)
+            : ('fromProperty' in record && record.fromProperty is map
+                && record.fromProperty.size() == 1
+                && 'ref' in record.fromProperty && record.fromProperty.ref is path
+              && 'toProperty' in record && record.toProperty is map
+                && record.toProperty.size() == 1
+                && 'ref' in record.toProperty && record.toProperty.ref is path);
+    }
+
+  	// income, expense, transfer recordドキュメントのスキーマ検証を行う関数
+    function isValidRecord(record) {
+      return record.size() == 8
+        && 'date' in record && record.date is timestamp
+        && 'amount' in record && record.amount is int
+          && record.amount >= 0
+        && 'note' in record && record.note is string
+          && record.note.size() <= 100
+        && 'createdAt' in record && record.createdAt is timestamp
+        && 'hasCheckedOut' in record && record.hasCheckedOut is bool
+        && 'type' in record && record.type is string
+          && record.type in ['income', 'expense', 'transfer']
+          // income, expense, transferごとに固有のスキーマ検証
+          && record.type in ['income', 'expense']
+            ? ('property' in record && record.property is map
+                && record.property.size() == 1
+                && 'ref' in record.property && record.property.ref is path
+              && 'category' in record && record.category is map
+                && record.category.size() == 1
+                && 'ref' in record.category && record.category.ref is path)
+            : ('fromProperty' in record && record.fromProperty is map
+                && record.fromProperty.size() == 1
+                && 'ref' in record.fromProperty && record.fromProperty.ref is path
+              && 'toProperty' in record && record.toProperty is map
+                && record.toProperty.size() == 1
+                && 'ref' in record.toProperty && record.toProperty.ref is path);
+    }
+
+
+    // income recordドキュメントのスキーマ検証を行う関数
+    function isValidIncomeRecord(record) {
+      // スキーマが正しく、typeに'income'が設定されていること
+      return (isValidRecordOld(record) || isValidRecord(record)) && record.type == 'income';
+    }
+
+    // expense recordドキュメントのスキーマ検証を行う関数
+    function isValidExpenseRecord(record) {
+      // スキーマが正しく、typeに'expense'が設定されていること
+      return (isValidRecordOld(record) || isValidRecord(record)) && record.type == 'expense';
+    }
+
+
+    // transfer recordドキュメントのスキーマ検証を行う関数
+    function isValidTransferRecord(record) {
+      // スキーマが正しく、typeに'transfer'が設定されていること
+      return (isValidRecordOld(record) || isValidRecord(record)) && record.type == 'transfer';
+    }
+
+    // categoryドキュメントのtypeフィールドの値を検証する関数
+    function isValidCategoryType(categoryType) {
+      return categoryType is string
+        && categoryType in ['income', 'expense'];
+    }
+
+    // cateogryドキュメントのスキーマ検証を行う関数
+    // バージョンアップしたらこれは消す
+    function isValidCategory(category) {
+      return category.size() == 2
+        && 'name' in category && category.name is string
+        && category.name.size() <= 20
+        && 'type' in category && category.type is string
+        && isValidCategoryType(category.type);
+    }
+
+    // income categoryドキュメントのスキーマ検証を行う関数
+    function isValidIncomeCategory(category) {
+    	return category.size() == 2
+      	&& 'name' in category && category.name is string
+        && category.name.size() <= 20
+        && 'type' in category && category.type is string
+        && category.type == 'income';
+    }
+
+    // expense categoryドキュメントのスキーマ検証を行う関数
+    function isValidExpenseCategory(category) {
+    	return category.size() == 3
+      	&& 'name' in category && category.name is string
+        && category.name.size() <= 20
+        && 'type' in category && category.type is string
+        && category.type == 'expense'
+        && 'totalBudget' in category && category.totalBudget is int
+        && category.totalBudget >= 0;
+    }
+
+    // propertyドキュメントのスキーマ検証を行う関数
+    function isValidProperty(property) {
+      return property.size() == 2
+        && 'name' in property && property.name is string
+        && property.name.size() <= 20
+        && 'amount' in property && property.amount is int;
+    }
+
+    match /publicProfiles/{uid} {
+      allow read: if isSignedIn();
+      allow update: if isValidUser(uid)
+        && request.resource.data.size() == 3
+        && 'name' in request.resource.data
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 1
+        && request.resource.data.name.size() <= 20;
+    }
+
+    match /privateProfiles/{uid} {
+      allow read: if isValidUser(uid);
+    }
+
+    match /personalNotes/{uid} {
+      match /categories/{categoryId} {
+      	allow read: if isValidUser(uid);
+        allow create: if isValidUser(uid) && isValidCategory(request.resource.data);
+        allow update: if isValidUser(uid) && isValidCategory(request.resource.data);
+        allow delete: if isValidUser(uid);
+      }
+
+      match /incomeCategories/{categoryId} {
+        allow read: if isValidUser(uid);
+        allow create: if isValidUser(uid) && isValidIncomeCategory(request.resource.data);
+        allow update: if isValidUser(uid) && isValidIncomeCategory(request.resource.data);
+        allow delete: if isValidUser(uid);
+      }
+
+      match /expenseCategories/{categoryId} {
+        allow read: if isValidUser(uid);
+        allow create: if isValidUser(uid) && isValidExpenseCategory(request.resource.data);
+        allow update: if isValidUser(uid) && isValidExpenseCategory(request.resource.data);
+        allow delete: if isValidUser(uid);
+      }
+
+      match /properties/{propertyId} {
+        allow read: if isValidUser(uid);
+        allow create: if isValidUser(uid) && isValidProperty(request.resource.data);
+        allow update: if isValidUser(uid) && isValidProperty(request.resource.data);
+        allow delete: if isValidUser(uid);
+      }
+
+      match /calendars/{calendarId} {
+        allow read: if isValidUser(uid);
+      }
+
+      match /incomes/{recordId} {
+      	allow read: if isValidUser(uid);
+        allow create: if isValidUser(uid) && isValidIncomeRecord(request.resource.data)
+        	// createdAtにサーバの現在時刻が設定されていること
+          && request.resource.data.createdAt == request.time
+          // property.refのpropertyドキュメントが存在すること
+          && exists(request.resource.data.property.ref)
+          // category.refのcategoryドキュメントが存在すること
+          && exists(request.resource.data.category.ref);
+        allow update: if isValidUser(uid) && isValidIncomeRecord(request.resource.data)
+        	// typeとcreatedAtが変更されていないこと
+          && (!request.resource.data.diff(resource.data).affectedKeys()
+          		.hasAny(['type', 'createdAt']));
+        allow delete: if isValidUser(uid);
+      }
+
+      match /expenses/{recordId} {
+	      allow read: if isValidUser(uid);
+        allow create: if isValidUser(uid) && isValidExpenseRecord(request.resource.data)
+        	// createdAtにサーバの現在時刻が設定されていること
+          && request.resource.data.createdAt == request.time
+          // property.refのpropertyドキュメントが存在すること
+          && exists(request.resource.data.property.ref)
+          // category.refのcategoryドキュメントが存在すること
+          && exists(request.resource.data.category.ref);
+        allow update: if isValidUser(uid) && isValidExpenseRecord(request.resource.data)
+        	// typeとcreatedAtが変更されていないこと
+          && (!request.resource.data.diff(resource.data).affectedKeys()
+          		.hasAny(['type', 'createdAt']));
+        allow delete: if isValidUser(uid);
+      }
+
+      match /transfers/{recordId} {
+      	allow read: if isValidUser(uid);
+        allow create: if isValidUser(uid) && isValidTransferRecord(request.resource.data)
+        	// createdAtにサーバの現在時刻が設定されていること
+          && request.resource.data.createdAt == request.time
+          // fromProperty.refのpropertyドキュメントが存在すること
+          && exists(request.resource.data.fromProperty.ref)
+          // toProperty.refのpropertyドキュメントが存在すること
+          && exists(request.resource.data.toProperty.ref);
+        allow update: if isValidUser(uid) && isValidTransferRecord(request.resource.data)
+        	// typeとcreatedAtが変更されていないこと
+          && (!request.resource.data.diff(resource.data).affectedKeys()
+          		.hasAny(['type', 'createdAt']));
+        allow delete: if isValidUser(uid);
+      }
+    }
+
+		match /sharedNotes/{pairId} {
+      // 指定されたユーザが、このドキュメントのオーナーか検証する
+    	function isOwner(uid) {
+        return uid in get(/databases/$(database)/documents/sharedNotes/$(pairId)).data.owners;
+      }
+
+      match /categories/{categoryId} {
+      	allow read: if isSignedIn() && isOwner(request.auth.uid);
+        allow create: if isSignedIn() && isOwner(request.auth.uid) && isValidCategory(request.resource.data);
+        allow update: if isSignedIn() && isOwner(request.auth.uid) && isValidCategory(request.resource.data);
+        allow delete: if isSignedIn() && isOwner(request.auth.uid);
+      }
+
+      match /incomeCategories/{categoryId} {
+        allow read: if isSignedIn() && isOwner(request.auth.uid);
+        allow create: if isSignedIn() && isOwner(request.auth.uid) && isValidIncomeCategory(request.resource.data);
+        allow update: if isSignedIn() && isOwner(request.auth.uid) && isValidIncomeCategory(request.resource.data);
+        allow delete: if isSignedIn() && isOwner(request.auth.uid);
+      }
+
+      match /expenseCategories/{categoryId} {
+        allow read: if isSignedIn() && isOwner(request.auth.uid);
+        allow create: if isSignedIn() && isOwner(request.auth.uid) && isValidExpenseCategory(request.resource.data);
+        allow update: if isSignedIn() && isOwner(request.auth.uid) && isValidExpenseCategory(request.resource.data);
+        allow delete: if isSignedIn() && isOwner(request.auth.uid);
+      }
+
+      match /properties/{propertyId} {
+        allow read: if isSignedIn() && isOwner(request.auth.uid);
+        allow create: if isSignedIn() && isOwner(request.auth.uid) && isValidProperty(request.resource.data);
+        allow update: if isSignedIn() && isOwner(request.auth.uid) && isValidProperty(request.resource.data);
+        allow delete: if isSignedIn() && isOwner(request.auth.uid);
+      }
+
+      match /calendars/{calendarId} {
+        allow read: if isSignedIn() && isOwner(request.auth.uid);
+      }
+
+      match /incomes/{recordId} {
+      	allow read: if isSignedIn() && isOwner(request.auth.uid);
+        allow create: if isSignedIn() && isOwner(request.auth.uid) && isValidIncomeRecord(request.resource.data)
+        	// createdAtにサーバの現在時刻が設定されていること
+          && request.resource.data.createdAt == request.time
+          // property.refのpropertyドキュメントが存在すること
+          && exists(request.resource.data.property.ref)
+          // category.refのcategoryドキュメントが存在すること
+          && exists(request.resource.data.category.ref);
+        allow update: if isSignedIn() && isOwner(request.auth.uid) && isValidIncomeRecord(request.resource.data)
+        	// typeとcreatedAtが変更されていないこと
+          && (!request.resource.data.diff(resource.data).affectedKeys()
+          		.hasAny(['type', 'createdAt']));
+        allow delete: if isSignedIn() && isOwner(request.auth.uid);
+      }
+
+      match /expenses/{recordId} {
+	      allow read: if isSignedIn() && isOwner(request.auth.uid);
+        allow create: if isSignedIn() && isOwner(request.auth.uid) && isValidExpenseRecord(request.resource.data)
+        	// createdAtにサーバの現在時刻が設定されていること
+          && request.resource.data.createdAt == request.time
+          // property.refのpropertyドキュメントが存在すること
+          && exists(request.resource.data.property.ref)
+          // category.refのcategoryドキュメントが存在すること
+          && exists(request.resource.data.category.ref);
+        allow update: if isSignedIn() && isOwner(request.auth.uid) && isValidExpenseRecord(request.resource.data)
+        	// typeとcreatedAtが変更されていないこと
+          && (!request.resource.data.diff(resource.data).affectedKeys()
+          		.hasAny(['type', 'createdAt']));
+        allow delete: if isSignedIn() && isOwner(request.auth.uid);
+      }
+
+      match /transfers/{recordId} {
+      	allow read: if isSignedIn() && isOwner(request.auth.uid);
+        allow create: if isSignedIn() && isOwner(request.auth.uid) && isValidTransferRecord(request.resource.data)
+        	// createdAtにサーバの現在時刻が設定されていること
+          && request.resource.data.createdAt == request.time
+          // fromProperty.refのpropertyドキュメントが存在すること
+          && exists(request.resource.data.fromProperty.ref)
+          // toProperty.refのpropertyドキュメントが存在すること
+          && exists(request.resource.data.toProperty.ref);
+        allow update: if isSignedIn() && isOwner(request.auth.uid) && isValidTransferRecord(request.resource.data)
+        	// typeとcreatedAtが変更されていないこと
+          && (!request.resource.data.diff(resource.data).affectedKeys()
+          		.hasAny(['type', 'createdAt']));
+        allow delete: if isSignedIn() && isOwner(request.auth.uid);
+      }
+    }
+  }
+}
