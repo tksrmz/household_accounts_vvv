@@ -551,4 +551,4 @@ GoRoute(
 - [Case study: UI layer](https://docs.flutter.dev/app-architecture/case-study/ui-layer) / [Data layer](https://docs.flutter.dev/app-architecture/case-study/data-layer) / [Dependency injection](https://docs.flutter.dev/app-architecture/case-study/dependency-injection) / [Testing](https://docs.flutter.dev/app-architecture/case-study/testing)
 - [Design patterns: Command](https://docs.flutter.dev/app-architecture/design-patterns/command) / [Result](https://docs.flutter.dev/app-architecture/design-patterns/result) / [Offline-first](https://docs.flutter.dev/app-architecture/design-patterns/offline-first) / [Optimistic state](https://docs.flutter.dev/app-architecture/design-patterns/optimistic-state)
 - [compass_app(公式サンプル)](https://github.com/flutter/samples/tree/main/compass_app)
-- 内部資料: 既存アプリ全容調査・公式ドキュメント調査・エコシステム調査(本セッション、2026-08-18)
+- 内部調査(既存アプリ全容・Flutter公式ドキュメント・エコシステム現状、2026-08-18実施)は単独ドキュメントとしては残していない。**結論はすべて本書の§1・§2・§7に反映済み**であり、詳細が必要な場合はリポジトリと上記公式リンクから再調査する

@@ -134,7 +134,7 @@
 
 ## 4. 横断の確認事項(PR1着手前後に実施)
 
-- [x] **CIと生成コード**: 確認済み(2026-08-19、ユーザー確認): `pr-ci.yml` はbuild_runnerを実行している。生成コードは当面**非コミット運用を継続**(移行中のPRレビューを手書きコードに集中させるため。方針を変える場合はここを更新)
+- [x] **CIと生成コード**: 確認済み(2026-08-19、ユーザー確認): `pr-ci.yml` はbuild_runnerを実行している。生成コードは当面**非コミット運用を継続**(移行中のPRレビューを手書きコードに集中させるため。方針を変える場合はここを更新)。再検討時の材料(2026-08-19調査): build_runner公式は「チェックインは選択でよい、pub公開時は同梱必須」、公式サンプルcompass_appは `*.freezed.dart`/`*.g.dart` をコミット、GitHub公式Dart.gitignoreテンプレートも生成物を除外していない
 - [ ] **Firestore Rules(共有write)**: O5(共有ノート書き込み解禁)の前提として、`firebase/firestore.rules` が `sharedNotes` 配下のwriteを許可しているか**読み取り確認**する(firebase/は変更しない方針。もし不許可ならPR4の前にユーザーへ相談)
 - [ ] **goldenワークフロー**: `update-canonical-goldens.yml` は新リポジトリで未登録(既知)。golden更新が必要になった時点でワークフロー登録(ファイルをtouchするpush)を検討
 - [ ] エミュレータポート(Firestore 8081 / Auth 9099、`firebase/firebase.json`)と `lib` 側接続設定の同期維持
