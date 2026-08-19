@@ -5,27 +5,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/user_auth.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
-import 'package:household_accounts/v2/domain/repositories/auth_repository.dart';
 import 'package:household_accounts/v2/domain/repositories/public_profile_repository.dart';
 import 'package:household_accounts/v2/presentation/pages/settings/view_model.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-@GenerateNiceMocks([
-  MockSpec<PublicProfileRepository>(),
-  MockSpec<AuthRepository>(),
-])
+import '../../../../test-util/fake_auth_repository.dart';
+@GenerateNiceMocks([MockSpec<PublicProfileRepository>()])
 import 'view_model_test.mocks.dart';
 
 void main() {
   final mockPublicProfileRepository = MockPublicProfileRepository();
-  final mockAuthRepository = MockAuthRepository();
+  final fakeAuthRepository = FakeAuthRepository();
   const userId = UserIdVo('testUserId');
   const userName = UserNameVo('TestUser');
   Future<SettingsViewModel> build() async {
     final vm = SettingsViewModel(
       publicProfileRepository: mockPublicProfileRepository,
-      authRepository: mockAuthRepository,
+      authRepository: fakeAuthRepository,
     );
     // 初期化完了を待つ
     await Future.delayed(Duration(milliseconds: 100));
@@ -33,7 +30,7 @@ void main() {
   }
 
   setUp(() {
-    when(mockAuthRepository.getCurrentUser()).thenReturn(UserAuth(uid: userId));
+    fakeAuthRepository.currentUser = UserAuth(uid: userId);
     when(
       mockPublicProfileRepository.fetchUserName(userId),
     ).thenAnswer((_) async => Right<Exception, UserNameVo>(userName));
@@ -42,7 +39,6 @@ void main() {
   tearDown(() {
     // モックのクリーンアップ
     reset(mockPublicProfileRepository);
-    reset(mockAuthRepository);
   });
 
   group('SettingsViewModel', () {
