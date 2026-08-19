@@ -12,7 +12,7 @@ typedef CommandAction1<T, A> = Future<Result<T>> Function(A);
 ///
 /// 公式Flutterアーキテクチャの Command パターン
 /// (https://docs.flutter.dev/app-architecture/design-patterns/command) を
-/// そのまま採用したもの(設計判断D3)。実行中/完了/エラーをChangeNotifierとして
+/// そのまま採用したもの。実行中/完了/エラーをChangeNotifierとして
 /// 公開するため、Viewは `ListenableBuilder` 等でそのまま購読できる。
 /// 結果は [Result] で保持するため、例外を投げずにViewModelまで届く。
 abstract class Command<T> extends ChangeNotifier {
