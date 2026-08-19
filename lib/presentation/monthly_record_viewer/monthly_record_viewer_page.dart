@@ -168,8 +168,8 @@ class _CalendarRecordViewState extends State<_CalendarRecordView> {
     Future<void> onTap() async {
       final sop = context.read<SelectedNoteState>().value;
       final repoId = context.read<UserInfo>().repoId(sop);
-      await Navigator.push(
-        context,
+      // ブランチNavigatorではなくルートNavigatorへpushし、編集画面がボトムナビを覆う従来挙動を維持する
+      await Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(
           builder: (context) => DailyRecordMinute(
             year: year,

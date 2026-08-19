@@ -3,39 +3,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:household_accounts/v2/data/services/firestore/profile/public_profile_service.dart';
-import 'package:household_accounts/v2/data/services/firestore/profile/private_profile_service.dart';
-import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_record_service.dart';
-import 'package:household_accounts/v2/data/services/firestore/personal/personal_income_record_service.dart';
-import 'package:household_accounts/v2/data/services/firestore/personal/personal_income_category_service.dart';
-import 'package:household_accounts/v2/data/services/firestore/personal/personal_expense_category_service.dart';
-import 'package:household_accounts/v2/data/services/firestore/personal/personal_property_service.dart';
-import 'package:household_accounts/v2/data/services/firestore/personal/personal_transfer_record_service.dart';
-import 'package:household_accounts/v2/data/services/firestore/shared/shared_record_service.dart';
-import 'package:household_accounts/v2/data/services/firestore/transaction/firestore_transaction_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 
-import 'feature/auth_gate/index.dart';
+import 'config/dependencies.dart';
+import 'data/repositories/auth/firebase_auth_repository.dart';
 import 'firebase_options.dart';
+import 'routing/router.dart';
+import 'ui/core/themes/theme.dart';
 import 'util/service_locator/main.dart';
-import 'v2/data/repositories/firebase_auth/firebase_auth_repository.dart';
-import 'v2/data/repositories/firestore/personal_expense_repository.dart';
-import 'v2/data/repositories/firestore/personal_income_repository.dart';
-import 'v2/data/repositories/firestore/public_profile_repository.dart';
-import 'v2/data/repositories/firestore/shared_expense_repository.dart';
-import 'v2/data/repositories/firestore/shared_income_repository.dart';
-import 'v2/domain/models/user_auth.dart';
-import 'v2/domain/repositories/auth_repository.dart';
-import 'v2/domain/repositories/expense_repository.dart';
-import 'v2/domain/repositories/income_repository.dart';
-import 'v2/domain/repositories/public_profile_repository.dart';
-import 'v2/presentation/pages/state_managements/selected_note_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeFirebaseApp();
   initializeServiceLocator();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 Future<void> initializeFirebaseApp() async {
@@ -58,104 +41,52 @@ Future<void> initializeFirebaseApp() async {
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  // GoRouter/認証リスナーをStateで所有する理由:
+  // integrationテストはテストごとにpumpWidget(const MyApp())で新しいツリーを作る。
+  // グローバルなrouterだと前テストの位置・リスナーが持ち越されるため、State単位で生成・破棄する。
+  late final FirebaseAuthRepository _authRepository;
+  late final StreamRefreshListenable _refreshListenable;
+  late final GoRouter _router;
+  late final List<SingleChildWidget> _providers;
+
+  @override
+  void initState() {
+    super.initState();
+    _authRepository = FirebaseAuthRepository();
+    _refreshListenable = StreamRefreshListenable(
+      _authRepository.authStateChanges(),
+    );
+    _router = createRouter(
+      authRepository: _authRepository,
+      refreshListenable: _refreshListenable,
+    );
+    _providers = appProviders(_authRepository);
+  }
+
+  @override
+  void dispose() {
+    _router.dispose();
+    _refreshListenable.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // UserAuthに依存しないProvider
-    final providersNotDependOnUserAuth = [
-      ChangeNotifierProvider(create: (_) => SelectedNoteState()),
-      Provider<AuthRepository>(create: (_) => FirebaseAuthRepository()),
-      Provider<FirebaseFirestore>.value(value: FirebaseFirestore.instance),
-      Provider<PublicProfileService>(
-        create: (context) => PublicProfileService(context.read()),
-      ),
-      Provider<PrivateProfileService>(
-        create: (context) => PrivateProfileService(context.read()),
-      ),
-      Provider<PersonalExpenseRecordService>(
-        create: (context) => PersonalExpenseRecordService(context.read()),
-      ),
-      Provider<PersonalIncomeRecordService>(
-        create: (context) => PersonalIncomeRecordService(context.read()),
-      ),
-      Provider<PersonalIncomeCategoryService>(
-        create: (context) => PersonalIncomeCategoryService(context.read()),
-      ),
-      Provider<PersonalExpenseCategoryService>(
-        create: (context) => PersonalExpenseCategoryService(context.read()),
-      ),
-      Provider<PersonalPropertyService>(
-        create: (context) => PersonalPropertyService(context.read()),
-      ),
-      Provider<PersonalTransferRecordService>(
-        create: (context) => PersonalTransferRecordService(context.read()),
-      ),
-      Provider<SharedRecordService>(
-        create: (context) => const SharedRecordService(),
-      ),
-      Provider<FirestoreTransactionService>(
-        create: (context) => FirestoreTransactionService(context.read()),
-      ),
-      Provider<PublicProfileRepository>(
-        create: (context) => FirestorePublicProfileRepository(context.read()),
-      ),
-    ];
-
     return MultiProvider(
-      providers: providersNotDependOnUserAuth,
-      // HACK AuthRepositoryを読み込むためにbuilderでUserAuthのProviderを作る
-      builder: (context, _) {
-        // UserAuth自身と、UserAuthに依存するProvider
-        final providersDependOnUserAuth = [
-          StreamProvider<UserAuth>.value(
-            initialData: context.read<AuthRepository>().getCurrentUser(),
-            value: context.read<AuthRepository>().authStateChanges(),
-          ),
-          ProxyProvider2<SelectedNoteState, UserAuth, IncomeRepository>(
-            update: (context, selectedNote, user, _) {
-              final userId = user.uid;
-
-              return selectedNote.isPersonal
-                  ? FirestorePersonalIncomeRepository(
-                      context.read<PersonalIncomeRecordService>(),
-                      userId,
-                    )
-                  : FirestoreSharedIncomeRepository(
-                      context.read<SharedRecordService>(),
-                      context.read<PrivateProfileService>(),
-                      userId,
-                    );
-            },
-          ),
-          ProxyProvider2<SelectedNoteState, UserAuth, ExpenseRepository>(
-            update: (context, selectedNote, user, _) {
-              final userId = user.uid;
-
-              return selectedNote.isPersonal
-                  ? FirestorePersonalExpenseRepository(
-                      context.read<PersonalExpenseRecordService>(),
-                      userId,
-                    )
-                  : FirestoreSharedExpenseRepository(
-                      context.read<SharedRecordService>(),
-                      context.read<PrivateProfileService>(),
-                      userId,
-                    );
-            },
-          ),
-        ];
-
-        return MultiProvider(
-          providers: providersDependOnUserAuth,
-          child: MaterialApp(
-            title: 'Household Accounts',
-            theme: ThemeData(primarySwatch: Colors.blue),
-            home: AuthGate(),
-          ),
-        );
-      },
+      providers: _providers,
+      child: MaterialApp.router(
+        title: 'Household Accounts',
+        theme: appTheme,
+        routerConfig: _router,
+      ),
     );
   }
 }

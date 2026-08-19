@@ -78,8 +78,8 @@ class _PageContent extends StatelessWidget {
           onPressed: () async {
             final uinfo = context.read<UserInfo>();
             final sop = context.read<SelectedNoteState>().value;
-            await Navigator.push(
-              context,
+            // ブランチNavigatorではなくルートNavigatorへpushし、編集画面がボトムナビを覆う従来挙動を維持する
+            await Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                 builder: (context) => CategoryEditorPage(
                   title: 'カテゴリの追加',
@@ -310,8 +310,8 @@ class _EditCategoryButton extends StatelessWidget {
         final sop = context.read<SelectedNoteState>().value;
         final uinfo = context.read<UserInfo>();
 
-        await Navigator.push(
-          context,
+        // ブランチNavigatorではなくルートNavigatorへpushし、編集画面がボトムナビを覆う従来挙動を維持する
+        await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
             builder: (context) => CategoryEditorPage(
               title: '編集',
