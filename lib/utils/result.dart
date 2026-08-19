@@ -2,7 +2,7 @@
 ///
 /// 公式Flutterアーキテクチャの Result パターン
 /// (https://docs.flutter.dev/app-architecture/design-patterns/result) を
-/// そのまま採用したもの(設計判断D4)。dartzの `Either<Exception, T>` を廃し、
+/// そのまま採用したもの。
 /// Dart 3のsealed class + switch式による網羅性チェックだけで
 /// 成功/失敗を扱えるようにする。Repositoryの単発操作はこの型を返し、
 /// ViewModel(Command内)でswitchして処理する。
