@@ -1,5 +1,8 @@
 name: Update canonical goldens
 
+# NOTE: モノレポ統合時の履歴移設ではGitHubにワークフローとして登録されなかったため、
+# 登録を発火させる目的でこのコメントを追加した(2026-08-19、動作内容の変更なし)
+
 on:
   workflow_dispatch:
     inputs:
