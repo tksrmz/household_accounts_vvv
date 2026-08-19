@@ -135,8 +135,8 @@
 ## 4. 横断の確認事項(PR1着手前後に実施)
 
 - [x] **CIと生成コード**: 確認済み(2026-08-19、ユーザー確認): `pr-ci.yml` はbuild_runnerを実行している。生成コードは当面**非コミット運用を継続**(移行中のPRレビューを手書きコードに集中させるため。方針を変える場合はここを更新)。再検討時の材料(2026-08-19調査): build_runner公式は「チェックインは選択でよい、pub公開時は同梱必須」、公式サンプルcompass_appは `*.freezed.dart`/`*.g.dart` をコミット、GitHub公式Dart.gitignoreテンプレートも生成物を除外していない
-- [ ] **Firestore Rules(共有write)**: O5(共有ノート書き込み解禁)の前提として、`firebase/firestore.rules` が `sharedNotes` 配下のwriteを許可しているか**読み取り確認**する(firebase/は変更しない方針。もし不許可ならPR4の前にユーザーへ相談)
-- [ ] **goldenワークフロー**: `update-canonical-goldens.yml` は新リポジトリで未登録(既知)。golden更新が必要になった時点でワークフロー登録(ファイルをtouchするpush)を検討
+- [x] **Firestore Rules(共有write)**: 確認済み(2026-08-19): `firebase/firestore.rules` の `sharedNotes/{pairId}` 配下は全サブコレクション(incomeCategories/expenseCategories/properties/incomes/expenses/transfers)とも `isOwner` 検証付きで create/update/delete を許可しており、O5の前提を満たす。PR4向けの追記: レコードcreateは `createdAt == request.time`(serverTimestamp必須)と8フィールド版スキーマ(`hasCheckedOut` 含む)を要求し、参照先property/categoryの存在チェックもRules側で行われる
+- [x] **goldenワークフロー**: 対応済み(2026-08-19): `update-canonical-goldens.yml` はファイルとしてはmasterに存在するがGitHubに未登録だった(`gh workflow list` に非表示。release.yml等も同様)。登録を発火させるtouch変更をPR #8として作成し、PR1のgolden dispatch前にマージする運び。マージ後に `gh workflow list` で登録を確認すること
 - [ ] エミュレータポート(Firestore 8081 / Auth 9099、`firebase/firebase.json`)と `lib` 側接続設定の同期維持
 
 ## 5. 挙動変更の一覧(ユーザー影響、いずれも合意済み)
@@ -147,6 +147,8 @@
 | PR4 | 未来日付の禁止 | 記録入力の日付が当日までに制限される(従来は+365日先まで入力可能だった)(O1) |
 | PR4 | 共有ノートの書き込み解禁 | 共有ノート選択時も記録入力が可能になる(O5) |
 | PR4〜5 | 残高の自動増減 | レコード作成/削除で資産残高が自動的に増減する。従来は `hasCheckedOut=false` 固定のため実質増減していなかった(O6)。**過去レコード分の遡及反映はしない**(必要なら資産編集で手動調整) |
+| PR1〜PR8 | タブ再訪時の自動再読込の一時停止 | StatefulShellRoute(IndexedStack)のステート保持により、旧実装のままのタブはアプリ再起動まで他タブでの変更を反映しなくなる(従来はタブ切替のたびに画面を作り直して再読込していた)。各画面のwatch化(PR3〜PR8)ごとに順次解消し、以後はリアルタイム反映に置き換わる |
+| PR1 | ログアウト処理からget_itリセットを除去 | 旧実装の `sl.reset()` は再登録経路がなく、同一セッションでの再ログイン後に旧画面が `sl<T>()` でクラッシュする潜在バグの原因だった。登録は全てステートレスな `registerFactory` でresetに実益がないため廃止 |
 
 ## 6. 進捗管理の運用
 
@@ -157,3 +159,4 @@
 
 - 2026-08-19: v1.0 作成(方針合意: 場所=このモノレポ / 機能単位 / 共存方法 / DoD / 体制 / 共有振替バグ対処不要)
 - 2026-08-19: v1.1 レビュー反映 — PR1をYAGNIで最小化(domain/models・profile系Repository・notebook_paths・transaction_runnerを各初出PRへ後送。土台のRepositoryはauthのみ)、CI項目を確認済み化(pr-ci.ymlはbuild_runner実行済み)
+- 2026-08-19: PR1詳細化に伴う決定を反映 — タブ鮮度は移行期間中の低下を受容(挙動変更一覧に追加) / logoutの `sl.reset()` 廃止(同) / goldenワークフロー登録はマイクロPR(#8)先行で対応 / Rules確認・golden登録の§4を消化。mockitoはResultを返すinterfaceをモック生成できないため、以後の新規テストは手書きFake(D10方針)を使うこと
