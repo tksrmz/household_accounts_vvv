@@ -4,10 +4,12 @@ import 'category_feature_test.dart';
 import 'dashboard_feature_test.dart';
 import 'property_feature_test.dart';
 import 'record_creating_feature_test.dart';
+import 'shell_feature_test.dart';
 import 'username_feature_test.dart';
 
 void main() async {
   final integrationTests = <Future<void> Function()>[
+    shellFeature,
     dashboardFeature,
     userNameFeature,
     recordCreatingFeature,
