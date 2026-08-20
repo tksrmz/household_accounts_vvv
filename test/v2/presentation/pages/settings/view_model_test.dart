@@ -16,9 +16,12 @@ import 'view_model_test.mocks.dart';
 
 void main() {
   final mockPublicProfileRepository = MockPublicProfileRepository();
-  final fakeAuthRepository = FakeAuthRepository();
   const userId = UserIdVo('testUserId');
   const userName = UserNameVo('TestUser');
+  // 全テストが同じサインイン状態を前提とするため、状態はコンストラクタで固定する
+  final fakeAuthRepository = FakeAuthRepository(
+    currentUser: const UserAuth(uid: userId),
+  );
   Future<SettingsViewModel> build() async {
     final vm = SettingsViewModel(
       publicProfileRepository: mockPublicProfileRepository,
@@ -30,7 +33,6 @@ void main() {
   }
 
   setUp(() {
-    fakeAuthRepository.currentUser = UserAuth(uid: userId);
     when(
       mockPublicProfileRepository.fetchUserName(userId),
     ).thenAnswer((_) async => Right<Exception, UserNameVo>(userName));

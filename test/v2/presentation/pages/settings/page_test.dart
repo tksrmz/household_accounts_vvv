@@ -21,7 +21,10 @@ import 'page_test.mocks.dart';
 void main() {
   const userId = UserIdVo('testUserId');
   final mockPublicProfileRepository = MockPublicProfileRepository();
-  final fakeAuthRepository = FakeAuthRepository();
+  // 全テストが同じサインイン状態を前提とするため、状態はコンストラクタで固定する
+  final fakeAuthRepository = FakeAuthRepository(
+    currentUser: const UserAuth(uid: userId),
+  );
   Future<void> buildTarget(WidgetTester tester) async {
     // golden file size is 320 * 600
     final newSize = Size(320, 600) * tester.view.devicePixelRatio;
@@ -47,10 +50,6 @@ void main() {
   });
 
   group('SettingsPage', () {
-    setUp(() {
-      fakeAuthRepository.currentUser = UserAuth(uid: userId);
-    });
-
     group('画面全体', () {
       String getFileName(WidgetTester tester) =>
           'goldens/${tester.testDescription}.png';
