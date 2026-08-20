@@ -26,8 +26,7 @@ import '../v2/presentation/pages/state_managements/selected_note_state.dart';
 
 /// アプリ全域・長寿命の依存(Repository/Service/共有状態)のProvider登録一覧。
 ///
-/// 旧main.dartの2段MultiProvider(HACKビルダー)を、AuthRepositoryインスタンスを
-/// 先に生成する方式で1段に平坦化した。
+/// AuthRepositoryインスタンスを先に生成する方式で1段に平坦化した。
 List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
   ChangeNotifierProvider(create: (_) => SelectedNoteState()),
   Provider<AuthRepository>.value(value: authRepository),
