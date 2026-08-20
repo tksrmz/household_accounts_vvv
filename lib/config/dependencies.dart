@@ -65,6 +65,12 @@ List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
     create: (context) => FirestorePublicProfileRepository(context.read()),
   ),
   StreamProvider<UserAuth>(
+    // lazy: false は必須。旧実装はAuthGateが起動直後からwatchしていたため
+    // 常に購読済みだったが、新実装のredirectはAuthRepositoryを直接読むので
+    // 誰も読まないままだと、最初にreadされた瞬間に古いinitialData
+    // (起動時のnotSignIn)が返り、ダッシュボードのRepositoryが
+    // 誤ったuidで生成されてしまう。
+    lazy: false,
     initialData: authRepository.getCurrentUser(),
     create: (_) => authRepository.authStateChanges(),
   ),
