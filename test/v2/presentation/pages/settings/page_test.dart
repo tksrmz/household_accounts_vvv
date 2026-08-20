@@ -21,7 +21,6 @@ import 'page_test.mocks.dart';
 void main() {
   const userId = UserIdVo('testUserId');
   final mockPublicProfileRepository = MockPublicProfileRepository();
-  // 全テストが同じサインイン状態を前提とするため、状態はコンストラクタで固定する
   final fakeAuthRepository = FakeAuthRepository(
     currentUser: const UserAuth(uid: userId),
   );
