@@ -103,7 +103,6 @@ GoRouter createRouter({
                 builder: (context, state) => Builder(
                   builder: (context) {
                     // ノート切替時にDashboardViewModelを作り直す
-                    // (旧MainPageがbodiesを再構築していた挙動の再現)。
                     // ProxyProvider2が上流で新Repositoryへ差し替わった後に
                     // このwatchで再buildされる。
                     context.watch<SelectedNoteState>();
