@@ -10,7 +10,6 @@ import 'shell_view_model.dart';
 /// タブシェルのルート層Widget。
 ///
 /// ペア検知の完了までローディングを表示し、完了後にシェル本体を描画する
-/// (旧実装のペア検知ゲートを再現したもの)。
 class ShellScreen extends StatelessWidget {
   const ShellScreen({required this.navigationShell, super.key});
 
