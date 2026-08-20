@@ -18,7 +18,6 @@ void main() {
   final mockPublicProfileRepository = MockPublicProfileRepository();
   const userId = UserIdVo('testUserId');
   const userName = UserNameVo('TestUser');
-  // 全テストが同じサインイン状態を前提とするため、状態はコンストラクタで固定する
   final fakeAuthRepository = FakeAuthRepository(
     currentUser: const UserAuth(uid: userId),
   );
