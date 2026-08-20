@@ -14,14 +14,8 @@ class FirebaseAuthRepository implements AuthRepository {
   UserAuth getCurrentUser() => _toUserAuth(FirebaseAuth.instance.currentUser);
 
   @override
-  Future<Result<void>> signOut() async {
-    try {
-      await FirebaseAuth.instance.signOut();
-      return const Result.ok(null);
-    } on Exception catch (e) {
-      return Result.error(e);
-    }
-  }
+  Future<Result<void>> signOut() =>
+      Result.guard(() => FirebaseAuth.instance.signOut());
 
   /// Returns [UserAuth] that contains current user info if [user] is not null.
   ///

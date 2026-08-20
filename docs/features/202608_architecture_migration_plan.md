@@ -160,3 +160,4 @@
 - 2026-08-19: v1.0 作成(方針合意: 場所=このモノレポ / 機能単位 / 共存方法 / DoD / 体制 / 共有振替バグ対処不要)
 - 2026-08-19: v1.1 レビュー反映 — PR1をYAGNIで最小化(domain/models・profile系Repository・notebook_paths・transaction_runnerを各初出PRへ後送。土台のRepositoryはauthのみ)、CI項目を確認済み化(pr-ci.ymlはbuild_runner実行済み)
 - 2026-08-19: PR1詳細化に伴う決定を反映 — タブ鮮度は移行期間中の低下を受容(挙動変更一覧に追加) / logoutの `sl.reset()` 廃止(同) / goldenワークフロー登録はマイクロPR(#8)先行で対応 / Rules確認・golden登録の§4を消化。mockitoはResultを返すinterfaceをモック生成できないため、以後の新規テストは手書きFake(D10方針)を使うこと
+- 2026-08-19: Repository実装の `Future<Result>` を返すメソッドは本体を `Result.guard(() => ...)` の1行にする規約を導入(PR1)。メソッドごとのtry/catch手書きによるcatch漏れを構造的に防ぐ。custom_lintによる機械検証(CI組み込み)はPR2着手前の別マイクロPRで導入予定
