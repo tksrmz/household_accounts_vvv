@@ -83,7 +83,7 @@ GoRouter createRouter({
         builder: (context, state, navigationShell) => ChangeNotifierProvider(
           // StatefulShellRoute.builderはタブ切替のたびに再実行されるため、ここで都度newすると
           // ペア検知の再購読でスピナーが点滅する。createはelement生存中1回しか走らないためVMは
-          // シェルと同寿命になり、「ViewModelはルートで生成し画面と同寿命」(D2)の精神を保ったまま
+          // シェルと同寿命になり、「ViewModelはルートで生成し画面と同寿命」の精神を保ったまま
           // シェル解除時に自動disposeされる。
           create: (context) => ShellViewModel(
             authRepository: context.read(),
