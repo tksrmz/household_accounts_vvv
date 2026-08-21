@@ -1,14 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../v2/presentation/pages/settings/page.dart';
-import '../../v2/presentation/pages/settings/view_model.dart';
-import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 
-class MainPageDrawer extends StatelessWidget {
-  const MainPageDrawer({required this.mode, this.setter, super.key});
+import '../../../v2/presentation/pages/state_managements/selected_note_state.dart';
 
+/// シェルのドロワー。ノート切替と設定画面への導線を持つ。
+///
+/// ルーターへ直接依存させないため、遷移はすべてコールバックで受け取る
+/// (goldenテストからrouter無しで組み立てられるようにするため)。
+class ShellDrawer extends StatelessWidget {
+  const ShellDrawer({
+    required this.mode,
+    required this.canSwitch,
+    required this.onSwitchNote,
+    required this.onOpenSettings,
+    super.key,
+  });
+
+  /// 現在選択されているノート。
   final SelectedNote mode;
-  final void Function(SelectedNote)? setter;
+
+  /// ノート切替タイルを表示するかどうか(= ペアが存在するかどうか)。
+  final bool canSwitch;
+
+  /// ノート切替が要求されたときに呼ばれる。
+  final void Function(SelectedNote) onSwitchNote;
+
+  /// 設定画面を開くときに呼ばれる。
+  final VoidCallback onOpenSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -31,23 +48,12 @@ class MainPageDrawer extends StatelessWidget {
               ],
             ),
           ),
-          if (setter != null) _getListTile(context, setter!),
+          if (canSwitch) _getListTile(context),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('設定'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsPage(
-                    viewModel: SettingsViewModel(
-                      publicProfileRepository: context.read(),
-                      authRepository: context.read(),
-                    ),
-                  ),
-                ),
-              );
-            },
+            // 旧実装どおり、設定を開く前にドロワーを閉じない
+            onTap: onOpenSettings,
           ),
         ],
       ),
@@ -70,10 +76,7 @@ class MainPageDrawer extends StatelessWidget {
     return modeText;
   }
 
-  ListTile _getListTile(
-    BuildContext context,
-    void Function(SelectedNote) setter,
-  ) {
+  ListTile _getListTile(BuildContext context) {
     final Text title;
     final void Function() onTap;
 
@@ -81,7 +84,7 @@ class MainPageDrawer extends StatelessWidget {
       case SelectedNote.personal:
         title = Text('ふたりの家計簿を見る');
         onTap = () {
-          setter(SelectedNote.shared);
+          onSwitchNote(SelectedNote.shared);
           Navigator.pop(context); // close the drawer
         };
         break;
@@ -89,7 +92,7 @@ class MainPageDrawer extends StatelessWidget {
       case SelectedNote.shared:
         title = Text('自分の家計簿を見る');
         onTap = () {
-          setter(SelectedNote.personal);
+          onSwitchNote(SelectedNote.personal);
           Navigator.pop(context); // close the drawer
         };
         break;

@@ -76,6 +76,14 @@ Future<void> createExpenseRecord(
   );
   await tester.pumpAndSettle();
 
+  // go_routerシェル移行後はタブ再訪でも入力フォームのWidgetが再生成されない
+  // (IndexedStackのステート保持)ため、2件目以降は前回のカテゴリ・資産の選択が
+  // 残り「カテゴリを選択」等のプレースホルダが存在しない。種別を一度「収入」に
+  // 切り替えてから「支出」へ戻すことで、種別変更時のドロップダウンリセットを
+  // 確実に発火させる(現在選択中の種別ボタンは無効化されており、同じ種別への
+  // タップではリセットが起きないため、必ず一往復させる)。
+  await tester.tap(find.text('収入'));
+  await tester.pumpAndSettle();
   await tester.tap(find.text('支出'));
   await tester.pumpAndSettle();
 

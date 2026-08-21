@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../../data/repositories/auth/auth_repository.dart';
 import '../../../domain/models/vo/user_id.dart';
 import '../../../domain/models/vo/user_name.dart';
-import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/repositories/public_profile_repository.dart';
 import '../../commands/command.dart';
 

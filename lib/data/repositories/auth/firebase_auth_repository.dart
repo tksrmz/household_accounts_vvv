@@ -1,8 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:household_accounts/v2/domain/models/user_auth.dart';
 
-import '../../../domain/models/vo/user_id.dart';
-import '../../../domain/repositories/auth_repository.dart';
+import '../../../utils/result.dart';
+import '../../../v2/domain/models/vo/user_id.dart';
+import 'auth_repository.dart';
 
 class FirebaseAuthRepository implements AuthRepository {
   @override
@@ -11,6 +12,10 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   UserAuth getCurrentUser() => _toUserAuth(FirebaseAuth.instance.currentUser);
+
+  @override
+  Future<Result<void>> signOut() =>
+      Result.guard(() => FirebaseAuth.instance.signOut());
 
   /// Returns [UserAuth] that contains current user info if [user] is not null.
   ///

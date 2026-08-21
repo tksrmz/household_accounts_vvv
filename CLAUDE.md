@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⚠️ アーキテクチャ移行進行中(2026-08〜)
+
+本アプリはアーキテクチャ刷新の移行期間中である。**新規実装・リファクタリングは以下の2ドキュメントを正とし、本ファイルおよび docs/architecture.md・docs/style_guide.md の既存記述(旧アーキテクチャ前提。「get_itは不使用」等の乖離あり)より優先すること**:
+
+- 設計の正: `docs/features/202608_architecture_redesign.md`(刷新案。決定D1〜D10・論点O1〜O6)
+- 実行計画と進捗: @docs/features/202608_architecture_migration_plan.md
+
+既存ドキュメント類の全面改訂は移行計画のPR9で行う(このバナーもその際に削除)。
+
 ## Project Overview
 
 Flutter mobile app for household expense tracking using Firebase as the backend. The app follows Clean Architecture principles with clear separation between presentation, domain, and data layers.

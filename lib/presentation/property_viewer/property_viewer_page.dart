@@ -169,10 +169,11 @@ class _EditPropertyButton extends StatelessWidget {
 
     return IconButton(
       onPressed: () async {
-        await Navigator.push(
+        // ブランチNavigatorではなくルートNavigatorへpushし、編集画面がボトムナビを覆う従来挙動を維持する
+        await Navigator.of(
           context,
-          MaterialPageRoute(builder: buildPropertyEditorPage),
-        );
+          rootNavigator: true,
+        ).push(MaterialPageRoute(builder: buildPropertyEditorPage));
         if (context.mounted) {
           _reloadState(context);
         }
@@ -225,10 +226,11 @@ class _AddPropertyButton extends StatelessWidget {
 
     return OutlinedButton(
       onPressed: () async {
-        await Navigator.push(
+        // ブランチNavigatorではなくルートNavigatorへpushし、編集画面がボトムナビを覆う従来挙動を維持する
+        await Navigator.of(
           context,
-          MaterialPageRoute(builder: buildPropertyEditorPage),
-        );
+          rootNavigator: true,
+        ).push(MaterialPageRoute(builder: buildPropertyEditorPage));
         if (context.mounted) {
           _reloadState(context);
         }

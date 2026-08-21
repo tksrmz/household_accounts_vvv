@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/v2/domain/models/user_auth.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_name.dart';
-import 'package:household_accounts/v2/domain/repositories/auth_repository.dart';
 import 'package:household_accounts/v2/domain/repositories/public_profile_repository.dart';
 import 'package:household_accounts/v2/presentation/pages/settings/page.dart';
 import 'package:household_accounts/v2/presentation/pages/settings/view_model.dart';
@@ -14,17 +13,17 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../test-util/fake_auth_repository.dart';
 import '../../../../test-util/golden_helper.dart';
-@GenerateNiceMocks([
-  MockSpec<PublicProfileRepository>(),
-  MockSpec<AuthRepository>(),
-])
+@GenerateNiceMocks([MockSpec<PublicProfileRepository>()])
 import 'page_test.mocks.dart';
 
 void main() {
   const userId = UserIdVo('testUserId');
   final mockPublicProfileRepository = MockPublicProfileRepository();
-  final mockAuthRepository = MockAuthRepository();
+  final fakeAuthRepository = FakeAuthRepository(
+    currentUser: const UserAuth(uid: userId),
+  );
   Future<void> buildTarget(WidgetTester tester) async {
     // golden file size is 320 * 600
     final newSize = Size(320, 600) * tester.view.devicePixelRatio;
@@ -36,7 +35,7 @@ void main() {
           child: SettingsPage(
             viewModel: SettingsViewModel(
               publicProfileRepository: mockPublicProfileRepository,
-              authRepository: mockAuthRepository,
+              authRepository: fakeAuthRepository,
             ),
           ),
         ),
@@ -47,16 +46,9 @@ void main() {
   tearDown(() {
     // モックのクリーンアップ
     reset(mockPublicProfileRepository);
-    reset(mockAuthRepository);
   });
 
   group('SettingsPage', () {
-    setUp(() {
-      when(
-        mockAuthRepository.getCurrentUser(),
-      ).thenReturn(UserAuth(uid: userId));
-    });
-
     group('画面全体', () {
       String getFileName(WidgetTester tester) =>
           'goldens/${tester.testDescription}.png';
