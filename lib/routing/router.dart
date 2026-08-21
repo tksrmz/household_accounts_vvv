@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart' as ui;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -12,9 +11,7 @@ import '../presentation/category_viewer/category_viewer_page.dart';
 import '../presentation/monthly_record_viewer/monthly_record_viewer_page.dart';
 import '../presentation/property_viewer/property_viewer_page.dart';
 import '../presentation/record_register/record_register_page.dart';
-import '../ui/shell/pair_id_stream.dart';
-import '../ui/shell/shell_screen.dart';
-import '../ui/shell/shell_view_model.dart';
+import '../ui/shell/shell_screen_host.dart';
 import '../v2/domain/models/user_auth.dart';
 import '../v2/presentation/pages/dashboard/page.dart';
 import '../v2/presentation/pages/dashboard/view_model.dart';
@@ -80,21 +77,8 @@ GoRouter createRouter({
         ),
       ),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) => ChangeNotifierProvider(
-          // StatefulShellRoute.builderはタブ切替のたびに再実行されるため、ここで都度newすると
-          // ペア検知の再購読でスピナーが点滅する。createはelement生存中1回しか走らないためVMは
-          // シェルと同寿命になり、「ViewModelはルートで生成し画面と同寿命」の精神を保ったまま
-          // シェル解除時に自動disposeされる。
-          create: (context) => ShellViewModel(
-            authRepository: context.read(),
-            selectedNoteState: context.read(),
-            watchPairId: (uid) => watchPrivateProfilePairId(
-              context.read<FirebaseFirestore>(),
-              uid,
-            ),
-          ),
-          child: ShellScreen(navigationShell: navigationShell),
-        ),
+        builder: (context, state, navigationShell) =>
+            ShellScreenHost(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
             routes: [
