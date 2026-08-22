@@ -6,8 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 ///
 /// なぜUI操作でseedするか:
 /// 既存のintegrationテスト（category_feature_test.dart 等）が一貫して
-/// UI操作によるデータ投入を採用しており、Firestoreへの直接書き込みを
-/// 行うヘルパーはこのプロジェクトに存在しないため、既存パターンを踏襲する。
+/// UI操作によるデータ投入を採用しているため、既存パターンを踏襲する。
+///
+/// 例外: import済みseedレコード(saved-data)の日付合わせは、UI操作では
+/// 実現できない(共有ノートへの記録入力UIが無い・時刻を指定できない)ため、
+/// seed_record_dates.dart がエミュレータREST APIで直接書き換える。
 
 /// カテゴリ画面で支出カテゴリ（予算付き）を1件作成する。
 ///

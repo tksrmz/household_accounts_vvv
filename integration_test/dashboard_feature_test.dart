@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
 
+import 'util/seed_record_dates.dart';
 import 'util/sign_in.dart';
 
 Future<void> dashboardFeature() async {
   testWidgets('ユーザーは自分の家計簿の情報をダッシュボード画面で確認できるので、家計の全体像を把握できる', (tester) async {
+    // seedレコードの日付を実行時の「今月」へ揃える
+    // (ダッシュボードは端末ローカルTZの暦月で集計するため。詳細はヘルパーのdoc参照)
+    await alignSeedRecordDatesToCurrentMonth();
+
     await tester.pumpWidget(const MyApp());
     await signInApp(tester, singleUser);
 
@@ -47,6 +52,9 @@ Future<void> dashboardFeature() async {
   testWidgets('ペアリング済みユーザーはふたりの家計簿の情報をダッシュボード画面で確認できるので、共有家計の全体像を把握できる', (
     tester,
   ) async {
+    // 共有ノートのseedレコードも同様に「今月」へ揃える(冪等なので再実行してよい)
+    await alignSeedRecordDatesToCurrentMonth();
+
     await tester.pumpWidget(const MyApp());
     await signInApp(tester, pairUser);
 
