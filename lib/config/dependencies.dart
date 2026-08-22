@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
 import '../data/repositories/auth/auth_repository.dart';
+import '../data/repositories/profile/firestore_profile_repository.dart';
+import '../data/repositories/profile/profile_repository.dart';
 import '../v2/data/repositories/firestore/personal_expense_repository.dart';
 import '../v2/data/repositories/firestore/personal_income_repository.dart';
 import '../v2/data/repositories/firestore/public_profile_repository.dart';
@@ -31,6 +33,9 @@ List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
   ChangeNotifierProvider(create: (_) => SelectedNoteState()),
   Provider<AuthRepository>.value(value: authRepository),
   Provider<FirebaseFirestore>.value(value: FirebaseFirestore.instance),
+  Provider<ProfileRepository>(
+    create: (context) => FirestoreProfileRepository(context.read()),
+  ),
   Provider<PublicProfileService>(
     create: (context) => PublicProfileService(context.read()),
   ),
