@@ -9,7 +9,8 @@ import 'package:analyzer/error/error.dart';
 
 import 'target_path.dart';
 
-/// Repository実装(`lib/data/repositories/`配下)の規約を機械検証するルール。
+/// Repository実装(`lib/data/repositories/`配下かつクラス/mixin名が`Repository`で
+/// 終わる宣言)の規約を機械検証するルール。
 ///
 /// 規約: 公開メソッドで宣言返り値型が`Future<Result<...>>`のものは、
 /// 本体を`Result.guard(...)`の直接返しにする(try/catch手書き禁止)。
@@ -61,7 +62,7 @@ class _Visitor extends SimpleAstVisitor<void> {
   @override
   void visitMethodDeclaration(MethodDeclaration node) {
     final path = context.currentUnit?.file.path;
-    if (path == null || !isRepositoryImplementationPath(path)) {
+    if (!isRepositoryApiDeclaration(node, path)) {
       return;
     }
     if (!_isTargetMethod(node)) {

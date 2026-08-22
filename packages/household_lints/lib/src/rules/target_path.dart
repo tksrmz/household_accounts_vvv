@@ -1,3 +1,5 @@
+import 'package:analyzer/dart/ast/ast.dart';
+
 /// [path] が `lib/data/repositories/` 配下のファイルを指しているかどうかを判定する。
 ///
 /// 解析対象のファイルパスは実行環境によって区切り文字が異なる
@@ -21,4 +23,42 @@ bool isRepositoryImplementationPath(String path) {
     }
   }
   return false;
+}
+
+/// [name] がRepositoryの公開API規約群の対象となるクラス名/mixin名かどうかを判定する。
+///
+/// 判定基準は「`Repository`で終わるかどうか」のみとする。パス判定
+/// ([isRepositoryImplementationPath])だけで対象を絞ると、将来
+/// `lib/data/repositories/`配下にDTOやヘルパー(freezedの生成getterを持つ
+/// クラス等)が置かれた場合に誤検知するため、クラス名判定を組み合わせて絞り込む。
+bool isRepositoryClassName(String name) => name.endsWith('Repository');
+
+/// [node] を直接囲むクラスまたはmixin宣言の名前を返す。
+///
+/// クラス・mixin宣言に属さない宣言(トップレベル関数、extension等)の場合は
+/// `null`を返す。Dartにクラスのネスト宣言は存在しないため、祖先を辿って
+/// 最初に見つかったクラス/mixin宣言がそのまま「直接囲む」ものになる。
+String? enclosingClassOrMixinName(AstNode node) {
+  for (var current = node.parent; current != null; current = current.parent) {
+    if (current is ClassDeclaration) {
+      return current.namePart.typeName.lexeme;
+    }
+    if (current is MixinDeclaration) {
+      return current.name.lexeme;
+    }
+  }
+  return null;
+}
+
+/// [node] がRepositoryの公開API規約群(`repository_must_use_result_guard`、
+/// `repository_no_bare_future`、`repository_no_public_properties`)の対象かどうかを判定する。
+///
+/// 「[filePath]が`lib/data/repositories/`配下であること」と「[node]を直接囲む
+/// クラス/mixin名が`Repository`で終わること」の両方を満たす場合のみ対象とする。
+bool isRepositoryApiDeclaration(AstNode node, String? filePath) {
+  if (filePath == null || !isRepositoryImplementationPath(filePath)) {
+    return false;
+  }
+  final enclosingName = enclosingClassOrMixinName(node);
+  return enclosingName != null && isRepositoryClassName(enclosingName);
 }

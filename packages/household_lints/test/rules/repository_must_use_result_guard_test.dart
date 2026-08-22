@@ -203,6 +203,27 @@ abstract class FakeRepository {
     await assertNoDiagnostics(source);
   }
 
+  /// クラス名が`Repository`で終わらない(DTO等を想定した)クラスは、
+  /// 違反と同じ形(try/catch手書き)であっても検知対象外であること。
+  /// 対象ディレクトリ配下でも、規約の関心はRepositoryの公開APIであり、
+  /// 同ディレクトリに置かれうるDTO等まで巻き込まないためのスコープ限定を検証する。
+  void test_classNameNotEndingWithRepository_isNotReported() async {
+    final source = '''
+import '../../../utils/result.dart';
+
+class RecordDto {
+  Future<Result<void>> signOut() async {
+    try {
+      return Result.ok(await Future<void>.value());
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+}
+''';
+    await assertNoDiagnostics(source);
+  }
+
   /// 宣言返り値型が`Future<Result<...>>`ではないメソッドは、
   /// 違反と同じ形(try/catch手書き)であっても検知対象外であること。
   void test_nonResultReturnType_isNotReported() async {
