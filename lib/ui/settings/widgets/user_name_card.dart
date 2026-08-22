@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../domain/models/vo/user_name.dart';
-import '../view_model.dart';
+import '../../../domain/models/user_name.dart';
+import '../settings_view_model.dart';
 
+/// ユーザー名を表示・編集するカード。
 class UserNameCard extends StatefulWidget {
   const UserNameCard({super.key, required SettingsViewModel viewModel})
     : _viewModel = viewModel;
@@ -15,7 +16,7 @@ class UserNameCard extends StatefulWidget {
 
 class _UserNameCardState extends State<UserNameCard> {
   @override
-  initState() {
+  void initState() {
     super.initState();
     _controller.text = widget._viewModel.userName;
     _focusNode.addListener(() {
@@ -48,7 +49,7 @@ class _UserNameCardState extends State<UserNameCard> {
             _UserNameCardTextField(
               controller: _controller,
               focusNode: _focusNode,
-              hasValidationError: widget._viewModel.hasValidationError,
+              errorText: widget._viewModel.validationErrorMessage,
             ),
             if (widget._viewModel.isEditing) ...[
               const SizedBox(height: 16),
@@ -57,7 +58,8 @@ class _UserNameCardState extends State<UserNameCard> {
                 onSave: () async {
                   _focusNode.unfocus(); // フォーカスを外す
                   await widget._viewModel.save(_controller.text);
-                  if (widget._viewModel.save.hasError) {
+                  // 保存に失敗したときは入力を編集前の値へ巻き戻す
+                  if (widget._viewModel.saveUserName.error) {
                     _controller.text = widget._viewModel.userName;
                   }
                 },
@@ -97,14 +99,14 @@ class _UserNameCardSaveButton extends StatelessWidget {
 class _UserNameCardTextField extends StatelessWidget {
   const _UserNameCardTextField({
     required TextEditingController controller,
-    required bool hasValidationError,
+    required String? errorText,
     required FocusNode focusNode,
   }) : _controller = controller,
-       _hasValidationError = hasValidationError,
+       _errorText = errorText,
        _focusNode = focusNode;
 
   final TextEditingController _controller;
-  final bool _hasValidationError;
+  final String? _errorText;
   final FocusNode _focusNode;
 
   @override
@@ -113,12 +115,10 @@ class _UserNameCardTextField extends StatelessWidget {
       keyboardType: TextInputType.text,
       autofocus: false,
       autocorrect: false,
-      maxLength: UserNameVo.maxLength,
+      maxLength: UserName.maxLength,
       controller: _controller,
       focusNode: _focusNode,
-      decoration: InputDecoration(
-        errorText: _hasValidationError ? '1文字以上20文字以下にしてください' : null,
-      ),
+      decoration: InputDecoration(errorText: _errorText),
     );
   }
 }
