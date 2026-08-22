@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:household_accounts/domain/models/pair_id.dart';
+import 'package:household_accounts/domain/models/pair_status.dart';
 import 'package:household_accounts/ui/shell/shell_view_model.dart';
 import 'package:household_accounts/utils/result.dart';
 import 'package:household_accounts/v2/domain/models/user_auth.dart';
@@ -30,7 +32,9 @@ void main() {
       () async {
         final target = _buildViewModel();
 
-        target.pairIdController.add('pair-id');
+        target.pairStatusController.add(
+          const PairStatus.paired(PairId('pair-id')),
+        );
         await pumpEventQueue();
 
         final pairState = target.viewModel.pairState;
@@ -43,11 +47,11 @@ void main() {
     );
 
     test(
-      'nullのpairIdが流れたとき、userInfoのpairIdがnullでcanSwitchNoteがfalseであること',
+      'notPairedが流れたとき、userInfoのpairIdがnullでcanSwitchNoteがfalseであること',
       () async {
         final target = _buildViewModel();
 
-        target.pairIdController.add(null);
+        target.pairStatusController.add(const PairStatus.notPaired());
         await pumpEventQueue();
 
         expect(target.viewModel.pairState, isA<ShellPairData>());
@@ -60,7 +64,7 @@ void main() {
     test('ペア検知ストリームがエラーを流したとき、pairStateがエラーになること', () async {
       final target = _buildViewModel();
 
-      target.pairIdController.addError(Exception('ペア検知エラー'));
+      target.pairStatusController.addError(Exception('ペア検知エラー'));
       await pumpEventQueue();
 
       expect(target.viewModel.pairState, isA<ShellPairError>());
@@ -71,15 +75,44 @@ void main() {
       var notifyCount = 0;
       target.viewModel.addListener(() => notifyCount++);
 
-      target.pairIdController.add(null);
+      target.pairStatusController.add(const PairStatus.notPaired());
       await pumpEventQueue();
       expect(notifyCount, 1);
       expect(target.viewModel.userInfo?.pairId, isNull);
 
-      target.pairIdController.add('pair-id');
+      target.pairStatusController.add(
+        const PairStatus.paired(PairId('pair-id')),
+      );
       await pumpEventQueue();
       expect(notifyCount, 2);
       expect(target.viewModel.userInfo?.pairId, 'pair-id');
+    });
+
+    test('ペアありからnotPairedが流れたとき、選択中ノートがsharedならpersonalへ強制リセットされること', () async {
+      final target = _buildViewModel();
+      target.pairStatusController.add(
+        const PairStatus.paired(PairId('pair-id')),
+      );
+      await pumpEventQueue();
+      target.viewModel.switchNote(SelectedNote.shared);
+      expect(target.selectedNoteState.value, SelectedNote.shared);
+
+      target.pairStatusController.add(const PairStatus.notPaired());
+      await pumpEventQueue();
+
+      expect(target.selectedNoteState.value, SelectedNote.personal);
+      expect(target.viewModel.selectedNote, SelectedNote.personal);
+    });
+
+    test('notPairedが流れたとき、選択中ノートがpersonalなら選択状態が変わらないこと', () async {
+      final target = _buildViewModel();
+      expect(target.selectedNoteState.value, SelectedNote.personal);
+
+      target.pairStatusController.add(const PairStatus.notPaired());
+      await pumpEventQueue();
+
+      expect(target.selectedNoteState.value, SelectedNote.personal);
+      expect(target.viewModel.selectedNote, SelectedNote.personal);
     });
   });
 
@@ -136,7 +169,7 @@ void main() {
       target.viewModel.dispose();
       // 既知の問題(testWidgets内でcloseやcancelをawaitするとハングする)を踏まないため、
       // ここでもcontroller.close()は呼ばない。close済みでなくともadd自体は無害。
-      target.pairIdController.add('after-dispose');
+      target.pairStatusController.add(const PairStatus.notPaired());
       await pumpEventQueue();
 
       expect(notifyCount, 0);
@@ -147,19 +180,19 @@ void main() {
 class _Fixture {
   _Fixture({
     required this.viewModel,
-    required this.pairIdController,
+    required this.pairStatusController,
     required this.authRepository,
     required this.selectedNoteState,
   });
 
   final ShellViewModel viewModel;
-  final StreamController<String?> pairIdController;
+  final StreamController<PairStatus> pairStatusController;
   final FakeAuthRepository authRepository;
   final SelectedNoteState selectedNoteState;
 }
 
 _Fixture _buildViewModel() {
-  final pairIdController = StreamController<String?>();
+  final pairStatusController = StreamController<PairStatus>();
   final authRepository = FakeAuthRepository(
     currentUser: const UserAuth(uid: UserIdVo('test-uid')),
   );
@@ -167,12 +200,12 @@ _Fixture _buildViewModel() {
   final viewModel = ShellViewModel(
     authRepository: authRepository,
     selectedNoteState: selectedNoteState,
-    watchPairId: (_) => pairIdController.stream,
+    watchPairStatus: (_) => pairStatusController.stream,
   );
 
   return _Fixture(
     viewModel: viewModel,
-    pairIdController: pairIdController,
+    pairStatusController: pairStatusController,
     authRepository: authRepository,
     selectedNoteState: selectedNoteState,
   );

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:household_accounts/domain/models/pair_id.dart';
+import 'package:household_accounts/domain/models/pair_status.dart';
 import 'package:household_accounts/ui/shell/shell_scaffold.dart';
 import 'package:household_accounts/ui/shell/shell_view_model.dart';
 import 'package:household_accounts/v2/domain/models/user_auth.dart';
@@ -161,7 +163,7 @@ _Fixture _buildFixture({
   String? pairId = 'pair-id',
   SelectedNote initialNote = SelectedNote.personal,
 }) {
-  final pairIdController = StreamController<String?>();
+  final pairStatusController = StreamController<PairStatus>();
   final authRepository = FakeAuthRepository(
     currentUser: const UserAuth(uid: UserIdVo('test-uid')),
   );
@@ -172,10 +174,14 @@ _Fixture _buildFixture({
   final viewModel = ShellViewModel(
     authRepository: authRepository,
     selectedNoteState: selectedNoteState,
-    watchPairId: (_) => pairIdController.stream,
+    watchPairStatus: (_) => pairStatusController.stream,
   );
   // シングルサブスクリプションストリームはlisten後のaddで問題なく配送される。
-  pairIdController.add(pairId);
+  pairStatusController.add(
+    pairId == null
+        ? const PairStatus.notPaired()
+        : PairStatus.paired(PairId(pairId)),
+  );
 
   return _Fixture(
     viewModel: viewModel,
