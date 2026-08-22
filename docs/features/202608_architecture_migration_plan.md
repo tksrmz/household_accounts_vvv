@@ -64,7 +64,7 @@
 | データ層 | **`Period` / `Notebook` 型と `notebook_paths` をここで初出**。Record sealed union + RecordId等のドメインモデル本体、RecordDto、`RecordRepository.watchPeriod(Period)`(incomes/expenses/transfersの3 snapshots結合) |
 | 移設・改修 | DashboardViewModelをwatch購読型に書き換え、月次集計をドメイン純粋関数化 |
 | 削除 | v2のpersonal/shared income・expense Repository+Service群、`ProxyProvider2` 2本(新RecordRepositoryの単一ProxyProviderへ) |
-| 特記 | **リアルタイム反映がここから始まる**(挙動変更一覧参照)。切替状態は移行期間中も既存 `SelectedNoteState` を共用し(旧画面が依存)、新側はProxyProvider内で `Notebook` を導出する(改名・整理はPR9)。未配線だったbudget_graph/summary_panelは触らずPR8で判断 |
+| 特記 | **リアルタイム反映がここから始まる**(挙動変更一覧参照)。切替状態は移行期間中も既存 `SelectedNoteState` を共用し(旧画面が依存)、新側はProxyProvider内で `Notebook` を導出する(改名・整理はPR9)。未配線だったbudget_graph/summary_panelは触らずPR8で判断。**watchのエラー表現をここで決める**: `Stream<T>` のままエラーは購読側で処理するか、`Stream<Result<T>>`+guardStream相当を導入してFuture側と対称にするか(2026-08-22のlint整備時の持ち越し。決定したらlintルールへの反映要否も判断) |
 
 ### PR4: 記録入力 `dev/arch-04-record-entry`
 
@@ -163,3 +163,4 @@
 - 2026-08-19: Repository実装の `Future<Result>` を返すメソッドは本体を `Result.guard(() => ...)` の1行にする規約を導入(PR1)。メソッドごとのtry/catch手書きによるcatch漏れを構造的に防ぐ。custom_lintによる機械検証(CI組み込み)はPR2着手前の別マイクロPRで導入予定
 - 2026-08-20: Result.guard規約の機械検証を導入(`repository_must_use_result_guard`ルール、`packages/household_lints`、CI組み込み)。custom_lintは2026-03-24付けでarchived(開発終了)されており後継はDartネイティブのanalyzer plugin機構のため、実装は当初想定のcustom_lintではなく`analysis_server_plugin`(analyzer 14.1.0)ベースで行った。`flutter analyze`の一発実行はプラグイン診断を取りこぼす既知の制約があるため、CIの機械的検証は`dart analyze`で行う(`.github/workflows/pr-ci.yml`参照)
 - 2026-08-22: Repository公開APIの形を検証するルールを追加(`repository_no_bare_future`=素のFuture/FutureOr禁止、`repository_no_public_properties`=公開getter/setter/フィールド禁止)。既存ルール含め対象を「lib/data/repositories/配下かつクラス名が*Repository」に統一(将来のDTO誤検知防止)。同期読み取りが素のT(例: getCurrentUser)を返すのは規約適合(Resultは失敗しうる操作のマーカー)
+- 2026-08-22: lint整備の持ち越し事項をPR3特記へ明文化(watchのエラー表現: `Stream<T>` か `Stream<Result<T>>` かの決定)。あわせてCLAUDE.mdへ「規約lintの検証は `dart analyze` を使う」旨を追記(flutter analyzeはプラグイン診断の検知を保証しないため)
