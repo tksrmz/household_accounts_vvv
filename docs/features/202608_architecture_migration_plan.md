@@ -64,7 +64,7 @@
 | データ層 | **`Period` / `Notebook` 型と `notebook_paths` をここで初出**。Record sealed union + RecordId等のドメインモデル本体、RecordDto、`RecordRepository.watchPeriod(Period)`(incomes/expenses/transfersの3 snapshots結合) |
 | 移設・改修 | DashboardViewModelをwatch購読型に書き換え、月次集計をドメイン純粋関数化 |
 | 削除 | v2のpersonal/shared income・expense Repository+Service群、`ProxyProvider2` 2本(新RecordRepositoryの単一ProxyProviderへ) |
-| 特記 | **リアルタイム反映がここから始まる**(挙動変更一覧参照)。切替状態は移行期間中も既存 `SelectedNoteState` を共用し(旧画面が依存)、新側はProxyProvider内で `Notebook` を導出する(改名・整理はPR9)。未配線だったbudget_graph/summary_panelは触らずPR8で判断。**watchのエラー表現をここで決める**: `Stream<T>` のままエラーは購読側で処理するか、`Stream<Result<T>>`+guardStream相当を導入してFuture側と対称にするか(2026-08-22のlint整備時の持ち越し。決定したらlintルールへの反映要否も判断) |
+| 特記 | **リアルタイム反映がここから始まる**(挙動変更一覧参照)。切替状態は移行期間中も既存 `SelectedNoteState` を共用し(旧画面が依存)、新側はProxyProvider内で `Notebook` を導出する(改名・整理はPR9)。未配線だったbudget_graph/summary_panelは触らずPR8で判断。**watchのエラー表現をここで決める**: `Stream<T>` のままエラーは購読側で処理するか、`Stream<Result<T>>`+guardStream相当を導入してFuture側と対称にするか(2026-08-22のlint整備時の持ち越し。決定したらlintルールへの反映要否も判断。`Stream<Result<T>>` を採る場合は、設計の正である刷新案のStream署名の記述(D6等)も決定記録として更新し、ドキュメント間の乖離を残さないこと) |
 
 ### PR4: 記録入力 `dev/arch-04-record-entry`
 
