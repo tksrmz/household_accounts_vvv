@@ -14,3 +14,5 @@ plugins:
     path: packages/household_lints
     diagnostics:
       repository_must_use_result_guard: true
+      repository_no_bare_future: true
+      repository_no_public_properties: true

@@ -7,9 +7,11 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/error/error.dart';
 
+import 'result_type.dart';
 import 'target_path.dart';
 
-/// Repository実装(`lib/data/repositories/`配下)の規約を機械検証するルール。
+/// Repository実装(`lib/data/repositories/`配下かつクラス/mixin名が`Repository`で
+/// 終わる宣言)の規約を機械検証するルール。
 ///
 /// 規約: 公開メソッドで宣言返り値型が`Future<Result<...>>`のものは、
 /// 本体を`Result.guard(...)`の直接返しにする(try/catch手書き禁止)。
@@ -61,7 +63,7 @@ class _Visitor extends SimpleAstVisitor<void> {
   @override
   void visitMethodDeclaration(MethodDeclaration node) {
     final path = context.currentUnit?.file.path;
-    if (path == null || !isRepositoryImplementationPath(path)) {
+    if (!isRepositoryApiDeclaration(node, path)) {
       return;
     }
     if (!_isTargetMethod(node)) {
@@ -77,17 +79,29 @@ class _Visitor extends SimpleAstVisitor<void> {
   /// 宣言返り値型が`Future<Result<...>>`であるもの。
   /// 規約の関心は「Repositoryがどんな形のAPIを公開するか」なので、
   /// 判定基準は公開/非公開であり、staticか否かは問わない。
-  /// getter/setter/operator・本体のない(抽象)メソッドは対象外。
+  /// getter/setter・本体のない(抽象)メソッドは対象外。operatorは公開APIの
+  /// 一部であるため対象に含める(operatorの名前は`[]`等であり、"_"始まりには
+  /// なりえないため、公開/非公開の判定に特別扱いは不要)。
   bool _isTargetMethod(MethodDeclaration node) {
-    if (node.isGetter || node.isSetter || node.isOperator) return false;
+    if (node.isGetter || node.isSetter) return false;
     if (node.name.lexeme.startsWith('_')) return false;
     if (node.body is EmptyFunctionBody) return false;
-    return _returnsFutureOfResult(node.returnType?.type);
+    return _returnsFutureOfResult(_declaredReturnType(node));
+  }
+
+  /// [node]の「宣言要素」としての返り値型を返す。
+  /// 構文上の`node.returnType?.type`ではなくこちらを使うのは、
+  /// 返り値型の注釈を省略してinterfaceの型を継承するオーバーライド
+  /// (`class FakeRepository implements BaseRepository { signOut() async {...} }`
+  /// のような書き方)をすり抜けさせないため。注釈がある場合は同じ型が得られ、
+  /// 注釈がなく継承元もない場合は自然に`dynamic`になり対象外になる。
+  DartType? _declaredReturnType(MethodDeclaration node) {
+    return node.declaredFragment?.element.returnType;
   }
 
   /// 宣言返り値型が`Future<Result<T>>`(Tは任意)かどうかを判定する。
   /// Future側は標準ライブラリの型なので解決済み型で判定し、Result側は
-  /// アプリ固有の型で標準判定が存在しないため要素名で判定する。
+  /// アプリ固有の型で標準判定が存在しないため[isResultElement]で判定する。
   bool _returnsFutureOfResult(DartType? returnType) {
     if (returnType is! InterfaceType || !returnType.isDartAsyncFuture) {
       return false;
@@ -96,7 +110,7 @@ class _Visitor extends SimpleAstVisitor<void> {
 
     final resultTypeArgument = returnType.typeArguments.single;
     return resultTypeArgument is InterfaceType &&
-        resultTypeArgument.element.name == 'Result';
+        isResultElement(resultTypeArgument.element);
   }
 
   /// メソッド本体が式本体`=> Result.guard(...)`、またはブロック本体

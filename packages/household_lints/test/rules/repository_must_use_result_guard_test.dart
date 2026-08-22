@@ -191,6 +191,25 @@ class FakeRepository {
     ]);
   }
 
+  /// operatorであっても、`Future<Result<...>>`をtry/catch手書きで返せば
+  /// 違反として検知されること(operatorもRepositoryの公開APIの一部であるため)。
+  void test_operatorHandWrittenTryCatch_isReported() async {
+    final source = '''
+import '../../../utils/result.dart';
+
+class FakeRepository {
+  Future<Result<int>> operator [](int index) async {
+    try {
+      return Result.ok(index);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+}
+''';
+    await assertDiagnostics(source, [lint(source.indexOf('['), '[]'.length)]);
+  }
+
   /// 本体を持たない抽象メソッドは検知対象外であること。
   void test_abstractMethod_isNotReported() async {
     final source = '''
@@ -198,6 +217,82 @@ import '../../../utils/result.dart';
 
 abstract class FakeRepository {
   Future<Result<void>> signOut();
+}
+''';
+    await assertNoDiagnostics(source);
+  }
+
+  /// 返り値型の注釈を省略し、interfaceの型を継承してオーバーライドする実装
+  /// (`class FakeRepository implements BaseRepository`)であっても、
+  /// 宣言要素としての返り値型(オーバーライド推論の結果)が
+  /// `Future<Result<...>>`であれば違反として検知されること。
+  /// 判定に構文上の`node.returnType`ではなく宣言要素の返り値型を使うことで、
+  /// 型注釈省略によるすり抜けを防ぐ。BaseRepository側の抽象宣言(本体なし)は
+  /// 引き続き対象外のまま。
+  void test_implicitReturnTypeFromInterface_isReported() async {
+    final source = '''
+import '../../../utils/result.dart';
+
+abstract class BaseRepository {
+  Future<Result<void>> signOut();
+}
+
+class FakeRepository implements BaseRepository {
+  signOut() async {
+    try {
+      return Result.ok(await Future<void>.value());
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+}
+''';
+    await assertDiagnostics(source, [
+      lint(source.lastIndexOf('signOut'), 'signOut'.length),
+    ]);
+  }
+
+  /// ファイル内でローカルに`Result`という名前のクラスを定義している場合、
+  /// アプリの`lib/utils/result.dart`のResultとは別物とみなし、検知対象外で
+  /// あること。名前の一致だけでなく、宣言元ライブラリのURIが
+  /// `utils/result.dart`で終わることまで確認しているため、他パッケージや
+  /// ローカル定義の同名クラスに惑わされない。
+  void test_localResultClass_isNotReported() async {
+    final source = '''
+class Result<T> {
+  const Result(this.value);
+  final T value;
+}
+
+class FakeRepository {
+  Future<Result<int>> fetchCount() async {
+    try {
+      return Result(1);
+    } on Exception {
+      rethrow;
+    }
+  }
+}
+''';
+    await assertNoDiagnostics(source);
+  }
+
+  /// クラス名が`Repository`で終わらない(DTO等を想定した)クラスは、
+  /// 違反と同じ形(try/catch手書き)であっても検知対象外であること。
+  /// 対象ディレクトリ配下でも、規約の関心はRepositoryの公開APIであり、
+  /// 同ディレクトリに置かれうるDTO等まで巻き込まないためのスコープ限定を検証する。
+  void test_classNameNotEndingWithRepository_isNotReported() async {
+    final source = '''
+import '../../../utils/result.dart';
+
+class RecordDto {
+  Future<Result<void>> signOut() async {
+    try {
+      return Result.ok(await Future<void>.value());
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
 }
 ''';
     await assertNoDiagnostics(source);

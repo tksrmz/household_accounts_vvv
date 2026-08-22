@@ -41,4 +41,18 @@ void main() {
       expect(isRepositoryImplementationPath(path), isTrue);
     });
   });
+
+  group('isRepositoryClassName', () {
+    test('Repositoryで終わるクラス名のとき、trueであること', () {
+      expect(isRepositoryClassName('FirebaseAuthRepository'), isTrue);
+    });
+
+    test('Repositoryで終わらないクラス名のとき、falseであること', () {
+      expect(isRepositoryClassName('RecordDto'), isFalse);
+    });
+
+    test('Repositoryを含むが末尾ではないクラス名のとき、falseであること', () {
+      expect(isRepositoryClassName('RepositoryHelper'), isFalse);
+    });
+  });
 }
