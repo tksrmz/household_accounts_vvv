@@ -46,6 +46,10 @@ jobs:
       # household_lints(packages/household_lints)はcustom analyzer plugin用の
       # 独立したpub package(ルートのpubspec.yamlには依存追加していない)なので、
       # 依存解決とルール自体のテストはここで個別に行う。
+      # アプリ本体と同じジョブで、かつ後段のdart analyzeより先に実行する理由:
+      # ルール自体が壊れていると、dart analyzeは「違反ゼロ」と「ルールが動いて
+      # いない」を区別できず、規約の強制が黙って無効化される。そのため先に
+      # 番人(ルール)の生存をテストで証明してから、本体の検証に進む順序にしている。
       - name: Install household_lints dependencies
         run: dart pub get
         working-directory: packages/household_lints
@@ -64,14 +68,19 @@ jobs:
       - name: Generate code
         run: dart run build_runner build
 
+      # 後段のdart analyzeと同じ解析エンジン・同じanalysis_options.yamlを読むため
+      # 現状の検出内容はほぼ同一だが、Flutter標準の検査経路として維持する:
+      # 将来flutter analyze側にFlutter固有の検査や既定が追加された場合はこちらで
+      # しか拾えず、ローカル開発の標準コマンド(flutter analyze)との整合も保てる。
       - name: Analyze
         run: flutter analyze --no-pub
 
       # household_lintsのルール(repository_must_use_result_guard)違反はdart analyzeで
       # 検知させる: flutter analyzeの一発実行(analyze_once)は、analysis serverの
       # ANALYZING進捗完了を受け取り次第サーバーを終了させる実装になっており、
-      # プラグインの診断が間に合わず取りこぼされることを実地確認した
-      # (flutter analyzeでは検知されず、dart analyzeでは確実に検知された)。
+      # 非同期に届くプラグイン診断は間に合ったときしか報告されない(タイミング依存で
+      # 取りこぼすことを実地確認済み)。ゲートには、プラグインの解析完了を待ってから
+      # 集計するdart analyzeを使う。
       - name: Analyze with household_lints plugin
         run: dart analyze
 

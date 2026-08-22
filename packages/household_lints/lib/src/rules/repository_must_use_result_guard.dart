@@ -11,7 +11,7 @@ import 'target_path.dart';
 
 /// Repository実装(`lib/data/repositories/`配下)の規約を機械検証するルール。
 ///
-/// 規約: 公開インスタンスメソッドで宣言返り値型が`Future<Result<...>>`のものは、
+/// 規約: 公開メソッドで宣言返り値型が`Future<Result<...>>`のものは、
 /// 本体を`Result.guard(...)`の直接返しにする(try/catch手書き禁止)。
 /// メソッドごとのcatch節の書き漏らし(`on FirebaseException`だけ書いて他の
 /// Exceptionを取りこぼす等)を構造的に防ぐための規約であり、詳細な経緯は
@@ -73,11 +73,12 @@ class _Visitor extends SimpleAstVisitor<void> {
     rule.reportAtToken(node.name);
   }
 
-  /// 検証対象: 公開("_"始まりでない)インスタンスメソッドで、
+  /// 検証対象: 公開("_"始まりでない)メソッドで、
   /// 宣言返り値型が`Future<Result<...>>`であるもの。
-  /// staticメソッド・getter/setter/operator・本体のない(抽象)メソッドは対象外。
+  /// 規約の関心は「Repositoryがどんな形のAPIを公開するか」なので、
+  /// 判定基準は公開/非公開であり、staticか否かは問わない。
+  /// getter/setter/operator・本体のない(抽象)メソッドは対象外。
   bool _isTargetMethod(MethodDeclaration node) {
-    if (node.isStatic) return false;
     if (node.isGetter || node.isSetter || node.isOperator) return false;
     if (node.name.lexeme.startsWith('_')) return false;
     if (node.body is EmptyFunctionBody) return false;

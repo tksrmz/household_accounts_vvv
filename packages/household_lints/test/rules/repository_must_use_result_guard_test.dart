@@ -13,9 +13,14 @@ void main() {
   });
 }
 
-/// `lib/utils/result.dart`と同じ形の`Result`型のフィクスチャ。
-/// アプリ本体(Flutter)への依存を避けるため、テストのソース文字列内に
-/// ローカル定義として埋め込む。
+/// 実アプリの`lib/utils/result.dart`と同じ形の`Result`型のフィクスチャ。
+///
+/// アプリ本体(Flutter)への依存を避けるため、テスト用パッケージ内に
+/// スタブとして定義し、検証対象のソースからimportして使う。
+/// 検証対象ソースへ直接埋め込まず実アプリと同じ`lib/utils/`配下の
+/// 別ファイルに置くのは、`lib/data/repositories/`配下に埋め込むと
+/// スタブ自身の`static guard`(本体がtry/catchそのもの)が
+/// ルールに検知されてしまうため。
 const _resultStub = '''
 sealed class Result<T> {
   const Result();
@@ -54,6 +59,7 @@ class RepositoryMustUseResultGuardTest extends AnalysisRuleTest {
   void setUp() {
     rule = RepositoryMustUseResultGuard();
     super.setUp();
+    newFile('$testPackageLibPath/utils/result.dart', _resultStub);
   }
 
   // 既定のtestFileNameは`test.dart`(lib直下)なので、このルールが対象とする
@@ -64,9 +70,9 @@ class RepositoryMustUseResultGuardTest extends AnalysisRuleTest {
   /// 公開の`Future<Result<void>>`メソッドがResult.guardを使わず
   /// try/catchを手書きしているとき、違反として検知されること。
   void test_handWrittenTryCatch_isReported() async {
-    final source =
-        '''
-$_resultStub
+    final source = '''
+import '../../../utils/result.dart';
+
 class FakeRepository {
   Future<Result<void>> signOut() async {
     try {
@@ -85,9 +91,9 @@ class FakeRepository {
   /// ブロック本体が`return Result.guard(...);`の前に別の文を持つ
   /// (単一のreturn文ではない)とき、違反として検知されること。
   void test_multiStatementBlockBody_isReported() async {
-    final source =
-        '''
-$_resultStub
+    final source = '''
+import '../../../utils/result.dart';
+
 class FakeRepository {
   Future<Result<void>> signOut() {
     _log();
@@ -105,9 +111,9 @@ class FakeRepository {
   /// async修飾つきの本体は`await Result.guard(...)`を返していても
   /// 「Result.guard(...)の直接返し」ではないため、違反として検知されること。
   void test_asyncBodyAwaitingResultGuard_isReported() async {
-    final source =
-        '''
-$_resultStub
+    final source = '''
+import '../../../utils/result.dart';
+
 class FakeRepository {
   Future<Result<void>> signOut() async =>
       await Result.guard(() => Future<void>.value());
@@ -120,9 +126,9 @@ class FakeRepository {
 
   /// 式本体`=> Result.guard(...)`で直接返しているとき、検知されないこと。
   void test_expressionBodyReturningResultGuard_isNotReported() async {
-    final source =
-        '''
-$_resultStub
+    final source = '''
+import '../../../utils/result.dart';
+
 class FakeRepository {
   Future<Result<void>> signOut() => Result.guard(() => Future<void>.value());
 }
@@ -133,9 +139,9 @@ class FakeRepository {
   /// ブロック本体が`return Result.guard(...);`という単一の文のみのとき、
   /// 検知されないこと。
   void test_singleReturnStatementBlockBody_isNotReported() async {
-    final source =
-        '''
-$_resultStub
+    final source = '''
+import '../../../utils/result.dart';
+
 class FakeRepository {
   Future<Result<void>> signOut() {
     return Result.guard(() => Future<void>.value());
@@ -148,9 +154,9 @@ class FakeRepository {
   /// privateメソッド("_"始まり)は、違反と同じ形(try/catch手書き)であっても
   /// 検知対象外であること。
   void test_privateMethod_isNotReported() async {
-    final source =
-        '''
-$_resultStub
+    final source = '''
+import '../../../utils/result.dart';
+
 class FakeRepository {
   Future<Result<void>> _signOut() async {
     try {
@@ -164,11 +170,12 @@ class FakeRepository {
     await assertNoDiagnostics(source);
   }
 
-  /// staticメソッドは、違反と同じ形であっても検知対象外であること。
-  void test_staticMethod_isNotReported() async {
-    final source =
-        '''
-$_resultStub
+  /// staticメソッドであっても公開メソッドである以上は検知対象であること
+  /// (判定基準は公開/非公開であり、static/インスタンスの別ではない)。
+  void test_staticMethod_isReported() async {
+    final source = '''
+import '../../../utils/result.dart';
+
 class FakeRepository {
   static Future<Result<void>> signOut() async {
     try {
@@ -179,14 +186,16 @@ class FakeRepository {
   }
 }
 ''';
-    await assertNoDiagnostics(source);
+    await assertDiagnostics(source, [
+      lint(source.indexOf('signOut'), 'signOut'.length),
+    ]);
   }
 
   /// 本体を持たない抽象メソッドは検知対象外であること。
   void test_abstractMethod_isNotReported() async {
-    final source =
-        '''
-$_resultStub
+    final source = '''
+import '../../../utils/result.dart';
+
 abstract class FakeRepository {
   Future<Result<void>> signOut();
 }
@@ -197,9 +206,7 @@ abstract class FakeRepository {
   /// 宣言返り値型が`Future<Result<...>>`ではないメソッドは、
   /// 違反と同じ形(try/catch手書き)であっても検知対象外であること。
   void test_nonResultReturnType_isNotReported() async {
-    final source =
-        '''
-$_resultStub
+    final source = '''
 class FakeRepository {
   Future<void> signOut() async {
     try {
@@ -215,9 +222,9 @@ class FakeRepository {
 
   /// getterは、違反と同じ形であっても検知対象外であること。
   void test_getter_isNotReported() async {
-    final source =
-        '''
-$_resultStub
+    final source = '''
+import '../../../utils/result.dart';
+
 class FakeRepository {
   Future<Result<void>> get pending {
     final future = Result.guard(() => Future<void>.value());
@@ -237,6 +244,7 @@ class RepositoryMustUseResultGuardOutsideTargetDirTest
   void setUp() {
     rule = RepositoryMustUseResultGuard();
     super.setUp();
+    newFile('$testPackageLibPath/utils/result.dart', _resultStub);
   }
 
   // testFileNameは既定(`test.dart`、lib直下)のまま
@@ -245,9 +253,9 @@ class RepositoryMustUseResultGuardOutsideTargetDirTest
   /// `lib/data/repositories/`外にある同形のコード(try/catch手書き)は、
   /// 検知対象外であること。
   void test_fileOutsideRepositoriesDir_isNotReported() async {
-    final source =
-        '''
-$_resultStub
+    final source = '''
+import 'utils/result.dart';
+
 class FakeRepository {
   Future<Result<void>> signOut() async {
     try {
