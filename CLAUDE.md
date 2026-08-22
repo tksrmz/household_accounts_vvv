@@ -72,8 +72,11 @@ flutter test integration_test/integration_test.dart  # Direct integration test
 
 ```bash
 flutter analyze                       # Static analysis
+dart analyze                          # Static analysis + household_lintsの規約lint
 dart format .                         # Format code
 ```
+
+Repository規約のlint(`packages/household_lints`)の検証には必ず `dart analyze` を使うこと。`flutter analyze` の一発実行はanalyzer pluginの診断をタイミング依存で取りこぼすため、規約違反の検知を保証しない(CIも同じ理由で `dart analyze` を使用している。詳細は `.github/workflows/pr-ci.yml` のコメント参照)。
 
 ## Architecture Overview
 
