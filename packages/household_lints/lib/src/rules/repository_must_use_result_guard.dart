@@ -79,9 +79,11 @@ class _Visitor extends SimpleAstVisitor<void> {
   /// 宣言返り値型が`Future<Result<...>>`であるもの。
   /// 規約の関心は「Repositoryがどんな形のAPIを公開するか」なので、
   /// 判定基準は公開/非公開であり、staticか否かは問わない。
-  /// getter/setter/operator・本体のない(抽象)メソッドは対象外。
+  /// getter/setter・本体のない(抽象)メソッドは対象外。operatorは公開APIの
+  /// 一部であるため対象に含める(operatorの名前は`[]`等であり、"_"始まりには
+  /// なりえないため、公開/非公開の判定に特別扱いは不要)。
   bool _isTargetMethod(MethodDeclaration node) {
-    if (node.isGetter || node.isSetter || node.isOperator) return false;
+    if (node.isGetter || node.isSetter) return false;
     if (node.name.lexeme.startsWith('_')) return false;
     if (node.body is EmptyFunctionBody) return false;
     return _returnsFutureOfResult(_declaredReturnType(node));

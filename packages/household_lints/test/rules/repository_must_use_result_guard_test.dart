@@ -191,6 +191,25 @@ class FakeRepository {
     ]);
   }
 
+  /// operatorであっても、`Future<Result<...>>`をtry/catch手書きで返せば
+  /// 違反として検知されること(operatorもRepositoryの公開APIの一部であるため)。
+  void test_operatorHandWrittenTryCatch_isReported() async {
+    final source = '''
+import '../../../utils/result.dart';
+
+class FakeRepository {
+  Future<Result<int>> operator [](int index) async {
+    try {
+      return Result.ok(index);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+}
+''';
+    await assertDiagnostics(source, [lint(source.indexOf('['), '[]'.length)]);
+  }
+
   /// 本体を持たない抽象メソッドは検知対象外であること。
   void test_abstractMethod_isNotReported() async {
     final source = '''

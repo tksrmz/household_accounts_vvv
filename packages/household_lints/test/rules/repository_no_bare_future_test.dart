@@ -199,6 +199,60 @@ class FakeRepository {
     ]);
   }
 
+  /// `dynamic`を明示した公開メソッドが`async`本体を持つとき、違反として
+  /// 検知されること。`dynamic`は型ベースの判定(`InterfaceType`のFuture/
+  /// FutureOr)をすり抜けるが、`async`な本体は実行時に必ずFutureを返し、
+  /// 失敗がResultの契約の外へ逃げるため、本体の非同期性で補足する。
+  void test_dynamicReturnTypeWithAsyncBody_isReported() async {
+    final source = '''
+class FakeRepository {
+  dynamic fetchToken() async => null;
+}
+''';
+    await assertDiagnostics(source, [
+      lint(source.indexOf('fetchToken'), 'fetchToken'.length),
+    ]);
+  }
+
+  /// interfaceを持たず返り値型注釈も省略した`async`本体の公開メソッドは、
+  /// 宣言要素の返り値型が`dynamic`になり型ベースの判定をすり抜けるが、
+  /// 違反として検知されること。
+  void test_implicitDynamicReturnTypeWithAsyncBody_isReported() async {
+    final source = '''
+class FakeRepository {
+  fetchToken() async {}
+}
+''';
+    await assertDiagnostics(source, [
+      lint(source.indexOf('fetchToken'), 'fetchToken'.length),
+    ]);
+  }
+
+  /// `void`を明示した`async`本体(fire-and-forget)は、違反として検知される
+  /// こと。呼び出し側が結果を待たない書き方であっても、内部で失敗した例外は
+  /// 握り潰されてResultの契約の外へ逃げるため許容しない。
+  void test_voidReturnTypeWithAsyncBody_isReported() async {
+    final source = '''
+class FakeRepository {
+  void refresh() async {}
+}
+''';
+    await assertDiagnostics(source, [
+      lint(source.indexOf('refresh'), 'refresh'.length),
+    ]);
+  }
+
+  /// operatorであっても、素のFutureを返せば違反として検知されること
+  /// (operatorもRepositoryの公開APIの一部であるため)。
+  void test_operatorBareFuture_isReported() async {
+    final source = '''
+class FakeRepository {
+  Future<String> operator [](int index) async => '';
+}
+''';
+    await assertDiagnostics(source, [lint(source.indexOf('['), '[]'.length)]);
+  }
+
   /// `Future<Result<void>>`を返すとき、検知されないこと。
   void test_futureOfResult_isNotReported() async {
     final source = '''
@@ -231,6 +285,34 @@ class FakeRepository {
     final source = '''
 class FakeRepository {
   String getCurrentUser() => 'uid';
+}
+''';
+    await assertNoDiagnostics(source);
+  }
+
+  /// `dynamic`を返す同期メソッドは、検知されないこと。本体ベースの判定は
+  /// `async`(generatorを除く)な本体だけを対象とするため、同期メソッドは
+  /// 型が`dynamic`であっても影響を受けない。
+  void test_syncDynamicReturnType_isNotReported() async {
+    final source = '''
+class FakeRepository {
+  dynamic parse() => null;
+}
+''';
+    await assertNoDiagnostics(source);
+  }
+
+  /// `Future<Result<void>>`を返す適合形の`async`メソッドは、検知されない
+  /// こと。本体ベースの判定を追加しても、型ベースの判定で適合形と確認できた
+  /// 時点で本体ベースの判定は行わないため、誤検知しない。
+  void test_asyncFutureOfResult_isNotReported() async {
+    final source = '''
+import '../../../utils/result.dart';
+
+class FakeRepository {
+  Future<Result<void>> m() async {
+    return Result.ok(null);
+  }
 }
 ''';
     await assertNoDiagnostics(source);

@@ -21,6 +21,15 @@ import 'target_path.dart';
 /// なお、失敗しない同期の読み取り(例: `AuthRepository.getCurrentUser()`)まで
 /// 塞ぐものではない。Resultは「失敗しうる操作」のマーカーであり、同期の素のTは
 /// 引き続き許容する。
+///
+/// 型ベースの判定に加えて、メソッド本体が`async`(generatorを除く)かどうかも
+/// 見る。`dynamic fetch() async => ...`や、interfaceを持たず返り値型注釈も
+/// 省略した実装(要素の返り値型が`dynamic`になる)、`void ... async {}`
+/// (fire-and-forget)は、宣言/推論された返り値型が`InterfaceType`の
+/// Future/FutureOrにならないため型ベースの判定だけではすり抜けてしまう。
+/// しかし`async`な本体は実行時には必ず(素の)`Future`を返し、失敗はResultの
+/// 契約の外へ逃げてしまうため、本体の非同期性そのものを違反の手がかりとして
+/// 補う。
 class RepositoryNoBareFuture extends AnalysisRule {
   RepositoryNoBareFuture()
     : super(
@@ -71,19 +80,21 @@ class _Visitor extends SimpleAstVisitor<void> {
     if (!_isTargetMethod(node)) {
       return;
     }
-    if (!_violatesBareFuture(_declaredReturnType(node))) {
+    if (!_violatesBareFuture(node)) {
       return;
     }
     rule.reportAtToken(node.name);
   }
 
   /// 検証対象: 公開("_"始まりでない)メソッド。
-  /// getter/setter/operatorは対象外(Repositoryの公開APIの形は
-  /// `repository_no_public_properties`側の関心)。
+  /// getter/setterは対象外(Repositoryの公開APIの形は
+  /// `repository_no_public_properties`側の関心)。operatorは公開APIの
+  /// 一部であるため対象に含める(operatorの名前は`[]`等であり、"_"始まりには
+  /// なりえないため、公開/非公開の判定に特別扱いは不要)。
   /// 本体の有無は問わない。抽象メソッド(interfaceの宣言)こそAPIの形
   /// そのものであり、実装だけでなく宣言時点で規約を検証する必要がある。
   bool _isTargetMethod(MethodDeclaration node) {
-    if (node.isGetter || node.isSetter || node.isOperator) return false;
+    if (node.isGetter || node.isSetter) return false;
     if (node.name.lexeme.startsWith('_')) return false;
     return true;
   }
@@ -96,27 +107,44 @@ class _Visitor extends SimpleAstVisitor<void> {
     return node.declaredFragment?.element.returnType;
   }
 
-  /// 宣言返り値型が「素のFuture(型引数がResultでない、型引数なし・dynamic含む、
-  /// または`Future`自体がnullable)」または「FutureOr(型引数を問わず)」で
-  /// あるとき、違反とみなす。
-  /// FutureOrは型引数がResultであってもRepositoryのAPIとしては
-  /// `Future<Result<T>>`に統一したいため一律違反として扱う。
-  bool _violatesBareFuture(DartType? returnType) {
-    if (returnType is! InterfaceType) return false;
+  /// [node]が違反かどうかを、型ベースの判定と本体ベースの判定を
+  /// ORで組み合わせて判定する。
+  bool _violatesBareFuture(MethodDeclaration node) {
+    final returnType = _declaredReturnType(node);
 
-    if (returnType.isDartAsyncFutureOr) return true;
-
-    if (returnType.isDartAsyncFuture) {
-      // `Future<...>?`のようにFuture自体がnullableな場合は、型引数の形を
-      // 問うまでもなく違反とする(Result.guardは非nullableなFutureを返すため、
-      // Future自体がnullableな時点でResult.guardと同じ形にはならない)。
-      if (returnType.nullabilitySuffix != NullabilitySuffix.none) {
-        return true;
+    // 型ベースの判定: 宣言(要素)返り値型が「素のFuture(型引数がResultでない、
+    // 型引数なし・dynamic含む、またはFuture自体がnullable)」または
+    // 「FutureOr(型引数を問わず)」であれば違反。
+    // FutureOrは型引数がResultであってもRepositoryのAPIとしては
+    // `Future<Result<T>>`に統一したいため一律違反として扱う。
+    if (returnType is InterfaceType) {
+      if (returnType.isDartAsyncFutureOr) return true;
+      if (returnType.isDartAsyncFuture) {
+        return !_isConformingFutureOfResult(returnType);
       }
-      return !_isResultType(returnType);
     }
 
-    return false;
+    // 本体ベースの判定: 上記の型ベースの判定だけでは、返り値型が
+    // `InterfaceType`の`Future`/`FutureOr`にならないケース
+    // (`dynamic`明示、interfaceを持たず注釈も省略した実装で要素の返り値型が
+    // `dynamic`になる場合、`void ... async {}`のfire-and-forget)を
+    // 捕まえられない。`async`(generatorを除く)な本体は実行時に必ず
+    // (素の)`Future`を返すため、ここまで到達した時点(=型ベースの判定で
+    // 適合形と確認できなかった時点)でasyncな本体であれば違反として扱う。
+    // async*/sync*のgeneratorはStreamを返すため対象外のまま
+    // (Streamの扱いは今回のスコープ外)。
+    return _isAsyncNonGeneratorBody(node.body);
+  }
+
+  bool _isAsyncNonGeneratorBody(FunctionBody body) {
+    return body.isAsynchronous && !body.isGenerator;
+  }
+
+  /// [futureType](`Future<...>`)が「非nullableで、型引数がひとつだけあり、
+  /// それが非nullableな`Result`である」という適合形かどうかを判定する。
+  bool _isConformingFutureOfResult(InterfaceType futureType) {
+    if (futureType.nullabilitySuffix != NullabilitySuffix.none) return false;
+    return _isResultType(futureType);
   }
 
   /// [futureType]の型引数がひとつだけあり、それが非nullableな`Result`で
