@@ -128,6 +128,77 @@ class FakeRepository {
     ]);
   }
 
+  /// 返り値型の注釈を省略し、`Repository`で終わらないinterface
+  /// (`TokenSource`)の型を継承してオーバーライドする実装であっても、
+  /// 宣言要素としての返り値型(オーバーライド推論の結果)が素の`Future<T>`
+  /// であれば、実装側(`FakeRepository`)は違反として検知されること。
+  /// interface宣言側(`TokenSource`、クラス名が`Repository`で終わらない)は
+  /// スコープ判定により対象外のまま。
+  void test_implicitReturnTypeFromNonRepositoryInterface_isReported() async {
+    final source = '''
+abstract class TokenSource {
+  Future<String> fetchToken();
+}
+
+class FakeRepository implements TokenSource {
+  fetchToken() async => '';
+}
+''';
+    await assertDiagnostics(source, [
+      lint(source.lastIndexOf('fetchToken'), 'fetchToken'.length),
+    ]);
+  }
+
+  /// `Future<Result<void>?>`(型引数のResult自体がnullable)は、
+  /// 違反として検知されること。nullableなResultはOk/Errorという契約を
+  /// 壊すため、Repositoryの公開APIとしては許容しない。
+  void test_futureOfNullableResult_isReported() async {
+    final source = '''
+import '../../../utils/result.dart';
+
+abstract class FakeRepository {
+  Future<Result<void>?> fetchMaybe();
+}
+''';
+    await assertDiagnostics(source, [
+      lint(source.indexOf('fetchMaybe'), 'fetchMaybe'.length),
+    ]);
+  }
+
+  /// `Future<Result<void>>?`(Future自体がnullable)は、
+  /// 違反として検知されること。
+  void test_nullableFutureOfResult_isReported() async {
+    final source = '''
+import '../../../utils/result.dart';
+
+abstract class FakeRepository {
+  Future<Result<void>>? fetchMaybe();
+}
+''';
+    await assertDiagnostics(source, [
+      lint(source.indexOf('fetchMaybe'), 'fetchMaybe'.length),
+    ]);
+  }
+
+  /// ファイル内でローカルに`Result`という名前のクラスを定義している場合、
+  /// アプリの`lib/utils/result.dart`のResultとは別物とみなし、
+  /// (Resultでラップされていない)素のFutureとして違反になること。
+  void test_localResultClass_isReported() async {
+    final source = '''
+class Result<T> {
+  const Result(this.value);
+  final T value;
+}
+
+class FakeRepository {
+  Future<Result<int>> fetchCount() async => Result(1);
+}
+''';
+    await assertDiagnostics(source, [
+      lint(source.indexOf('fetchCount'), 'fetchCount'.length),
+    ]);
+  }
+
   /// `Future<Result<void>>`を返すとき、検知されないこと。
   void test_futureOfResult_isNotReported() async {
     final source = '''

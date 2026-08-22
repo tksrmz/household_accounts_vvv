@@ -3,9 +3,11 @@ import 'package:analyzer/analysis_rule/rule_context.dart';
 import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
+import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/error/error.dart';
 
+import 'result_type.dart';
 import 'target_path.dart';
 
 /// Repository実装(`lib/data/repositories/`配下かつクラス/mixin名が`Repository`で
@@ -69,7 +71,7 @@ class _Visitor extends SimpleAstVisitor<void> {
     if (!_isTargetMethod(node)) {
       return;
     }
-    if (!_violatesBareFuture(node.returnType?.type)) {
+    if (!_violatesBareFuture(_declaredReturnType(node))) {
       return;
     }
     rule.reportAtToken(node.name);
@@ -86,8 +88,17 @@ class _Visitor extends SimpleAstVisitor<void> {
     return true;
   }
 
-  /// 宣言返り値型が「素のFuture(型引数がResultでない、型引数なし・dynamic含む)」
-  /// または「FutureOr(型引数を問わず)」であるとき、違反とみなす。
+  /// [node]の「宣言要素」としての返り値型を返す。
+  /// 構文上の`node.returnType?.type`ではなくこちらを使うのは、
+  /// 返り値型の注釈を省略してinterfaceの型を継承するオーバーライドを
+  /// すり抜けさせないため(`repository_must_use_result_guard`と同じ方針)。
+  DartType? _declaredReturnType(MethodDeclaration node) {
+    return node.declaredFragment?.element.returnType;
+  }
+
+  /// 宣言返り値型が「素のFuture(型引数がResultでない、型引数なし・dynamic含む、
+  /// または`Future`自体がnullable)」または「FutureOr(型引数を問わず)」で
+  /// あるとき、違反とみなす。
   /// FutureOrは型引数がResultであってもRepositoryのAPIとしては
   /// `Future<Result<T>>`に統一したいため一律違反として扱う。
   bool _violatesBareFuture(DartType? returnType) {
@@ -96,19 +107,29 @@ class _Visitor extends SimpleAstVisitor<void> {
     if (returnType.isDartAsyncFutureOr) return true;
 
     if (returnType.isDartAsyncFuture) {
+      // `Future<...>?`のようにFuture自体がnullableな場合は、型引数の形を
+      // 問うまでもなく違反とする(Result.guardは非nullableなFutureを返すため、
+      // Future自体がnullableな時点でResult.guardと同じ形にはならない)。
+      if (returnType.nullabilitySuffix != NullabilitySuffix.none) {
+        return true;
+      }
       return !_isResultType(returnType);
     }
 
     return false;
   }
 
-  /// [futureType]の型引数がひとつだけあり、それが`Result`であるかを判定する。
-  /// Result側はアプリ固有の型で標準判定が存在しないため要素名で判定する
-  /// (`repository_must_use_result_guard`と同じ方針)。
+  /// [futureType]の型引数がひとつだけあり、それが非nullableな`Result`で
+  /// あるかを判定する。`Result<T>?`のようにResult自体がnullableな場合は
+  /// 違反として扱う(nullableなResultはOk/Errorという契約を壊すため、
+  /// Repositoryの公開APIとして許容しない)。
   bool _isResultType(InterfaceType futureType) {
     if (futureType.typeArguments.length != 1) return false;
     final typeArgument = futureType.typeArguments.single;
-    return typeArgument is InterfaceType &&
-        typeArgument.element.name == 'Result';
+    if (typeArgument is! InterfaceType) return false;
+    if (typeArgument.nullabilitySuffix != NullabilitySuffix.none) {
+      return false;
+    }
+    return isResultElement(typeArgument.element);
   }
 }
