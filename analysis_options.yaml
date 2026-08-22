@@ -3,3 +3,14 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - test/**/**.mocks.dart
+
+# household_lints: Repository実装(lib/data/repositories/配下)がFuture<Result<T>>を
+# 返す公開メソッドをResult.guard(...)の直接返しにする規約(2026-08-19導入)を
+# 機械検証するDartネイティブのanalyzer plugin。プラグイン自体はpackages/household_lints
+# 配下の独立したpub packageであり、本アプリのpubspec.yamlへの依存追加は不要
+# (Analysis Serverがpluginsセクションを見てsyntheticに解決する)。
+plugins:
+  household_lints:
+    path: packages/household_lints
+    diagnostics:
+      repository_must_use_result_guard: true
