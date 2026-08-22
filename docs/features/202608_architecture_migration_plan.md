@@ -19,7 +19,7 @@
 1. **ストラングラー方式**: 移行した機能の旧実装は同じPR内で削除する。「あとでまとめて消す」を作らない
 2. **レイヤー横断の一斉移行フェーズを組まない**: データ層は機能PRが必要とするメソッドだけを都度実装して育てる
 3. **移行中の新機能開発は原則凍結**。やむを得ず追加する場合は新アーキテクチャ側に書く(「動く標的」の再発防止)
-4. 各PRは `flutter analyze` / `dart format` / 既存テストすべて緑を維持する
+4. 各PRは `flutter analyze` / `dart analyze`(Repository規約lint含む) / `dart format` / 既存テストすべて緑を維持する
 5. ブランチ命名: `dev/arch-01-foundation` のように連番+機能名
 
 ## 2. 完了条件(DoD、全機能PR共通)
@@ -52,7 +52,7 @@
 | データ層 | **ProfileRepositoryを新設**(ペア検知watch + ユーザー名read/update)。PR1でシェルに一時移植したペア検知をここで置換 |
 | 移設・改修 | `lib/v2/presentation/pages/settings/` → `lib/ui/settings/`。AsyncCommand→Command、Either→Result化の最初の実例を作る |
 | 削除 | v2のsettings一式、`FirestorePublicProfileRepository`・`PublicProfileService`・`PrivateProfileService` の旧配線、シェル内の一時ペア検知実装 |
-| 特記 | 最小画面で「移行の型」(ファイル配置・テスト構成・PR体裁)を確立する。以降のPRはこれを踏襲 |
+| 特記 | 最小画面で「移行の型」(ファイル配置・テスト構成・PR体裁)を確立する。以降のPRはこれを踏襲。ペア検知watchは当面 `authStateChanges` と同じ素の `Stream<T>` 形を踏襲する(watchのエラー表現の体系的決定は、より複雑なwatchPeriodが初出するPR3で行う。本watch 1本のみのため決定後の追随コストは小さい) |
 
 ### PR3: ダッシュボード `dev/arch-03-dashboard`
 
@@ -163,4 +163,4 @@
 - 2026-08-19: Repository実装の `Future<Result>` を返すメソッドは本体を `Result.guard(() => ...)` の1行にする規約を導入(PR1)。メソッドごとのtry/catch手書きによるcatch漏れを構造的に防ぐ。custom_lintによる機械検証(CI組み込み)はPR2着手前の別マイクロPRで導入予定
 - 2026-08-20: Result.guard規約の機械検証を導入(`repository_must_use_result_guard`ルール、`packages/household_lints`、CI組み込み)。custom_lintは2026-03-24付けでarchived(開発終了)されており後継はDartネイティブのanalyzer plugin機構のため、実装は当初想定のcustom_lintではなく`analysis_server_plugin`(analyzer 14.1.0)ベースで行った。`flutter analyze`の一発実行はプラグイン診断を取りこぼす既知の制約があるため、CIの機械的検証は`dart analyze`で行う(`.github/workflows/pr-ci.yml`参照)
 - 2026-08-22: Repository公開APIの形を検証するルールを追加(`repository_no_bare_future`=素のFuture/FutureOr禁止、`repository_no_public_properties`=公開getter/setter/フィールド禁止)。既存ルール含め対象を「lib/data/repositories/配下かつクラス名が*Repository」に統一(将来のDTO誤検知防止)。同期読み取りが素のT(例: getCurrentUser)を返すのは規約適合(Resultは失敗しうる操作のマーカー)
-- 2026-08-22: lint整備の持ち越し事項をPR3特記へ明文化(watchのエラー表現: `Stream<T>` か `Stream<Result<T>>` かの決定)。あわせてCLAUDE.mdへ「規約lintの検証は `dart analyze` を使う」旨を追記(flutter analyzeはプラグイン診断の検知を保証しないため)
+- 2026-08-22: lint整備の持ち越し事項をPR3特記へ明文化(watchのエラー表現: `Stream<T>` か `Stream<Result<T>>` かの決定)。あわせてCLAUDE.mdへ「規約lintの検証は `dart analyze` を使う」旨を追記(flutter analyzeはプラグイン診断の検知を保証しないため)。レビュー反映: 原則4の必須チェックにも `dart analyze` を追加し、PR2のペア検知watchは素の `Stream<T>` 形を踏襲(決定はPR3)である旨をPR2特記に明記
