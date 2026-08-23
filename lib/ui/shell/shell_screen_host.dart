@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/repositories/profile/profile_repository.dart';
 import 'shell_screen.dart';
 import 'shell_view_model.dart';
 
@@ -34,8 +33,7 @@ class _ShellScreenHostState extends State<ShellScreenHost> {
     _viewModel = ShellViewModel(
       authRepository: context.read(),
       selectedNoteState: context.read(),
-      watchPairStatus: (uid) =>
-          context.read<ProfileRepository>().watchPairStatus(uid),
+      profileRepository: context.read(),
     );
   }
 

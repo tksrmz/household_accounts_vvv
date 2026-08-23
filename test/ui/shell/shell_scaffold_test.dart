@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/domain/models/pair_id.dart';
@@ -11,6 +9,7 @@ import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/presentation/pages/state_managements/selected_note_state.dart';
 
 import '../../test-util/fake_auth_repository.dart';
+import '../../test-util/fake_profile_repository.dart';
 import '../../test-util/golden_helper.dart';
 
 // なぜtestGoldensのexpectFnで直接ドロワーをtapしてよいか:
@@ -163,7 +162,7 @@ _Fixture _buildFixture({
   String? pairId = 'pair-id',
   SelectedNote initialNote = SelectedNote.personal,
 }) {
-  final pairStatusController = StreamController<PairStatus>();
+  final profileRepository = FakeProfileRepository();
   final authRepository = FakeAuthRepository(
     currentUser: const UserAuth(uid: UserIdVo('test-uid')),
   );
@@ -174,10 +173,10 @@ _Fixture _buildFixture({
   final viewModel = ShellViewModel(
     authRepository: authRepository,
     selectedNoteState: selectedNoteState,
-    watchPairStatus: (_) => pairStatusController.stream,
+    profileRepository: profileRepository,
   );
-  // シングルサブスクリプションストリームはlisten後のaddで問題なく配送される。
-  pairStatusController.add(
+  // ViewModelがコンストラクタで購読済みなので、この時点のaddは購読者へ配送される。
+  profileRepository.pairStatusController.add(
     pairId == null
         ? const PairStatus.notPaired()
         : PairStatus.paired(PairId(pairId)),

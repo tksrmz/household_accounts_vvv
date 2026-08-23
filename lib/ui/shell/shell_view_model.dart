@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../data/repositories/auth/auth_repository.dart';
+import '../../data/repositories/profile/profile_repository.dart';
 import '../../domain/models/pair_status.dart';
 import '../../domain/models/user_id.dart';
 import '../../presentation/util/model/user_info.dart';
@@ -41,7 +42,7 @@ class ShellViewModel extends ChangeNotifier {
   ShellViewModel({
     required AuthRepository authRepository,
     required SelectedNoteState selectedNoteState,
-    required Stream<PairStatus> Function(UserId uid) watchPairStatus,
+    required ProfileRepository profileRepository,
   }) : _authRepository = authRepository,
        _selectedNoteState = selectedNoteState {
     logout = Command0(_logout);
@@ -49,9 +50,9 @@ class ShellViewModel extends ChangeNotifier {
     _uid = authRepository.getCurrentUser().uid.value;
     // ドロワー表示をノート切替へ追従させる
     _selectedNoteState.addListener(notifyListeners);
-    _subscription = watchPairStatus(
-      UserId(_uid),
-    ).listen(_onPairStatus, onError: _onPairError);
+    _subscription = profileRepository
+        .watchPairStatus(UserId(_uid))
+        .listen(_onPairStatus, onError: _onPairError);
   }
 
   final AuthRepository _authRepository;
