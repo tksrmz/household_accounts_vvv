@@ -57,6 +57,13 @@ class SettingsViewModel extends ChangeNotifier {
   /// ユーザー名を保存できるかどうか。
   bool get canSave => !saveUserName.running && !_hasValidationError;
 
+  /// 保存を実行中かどうか。
+  ///
+  /// 保存中はViewが入力欄を編集不可にするために参照する。保存中の入力変更を
+  /// 許すと、完了後の表示名との同期(巻き戻し)と競合して、保存済みの名前と
+  /// 画面表示がずれた状態を作れてしまうため。
+  bool get isSaving => saveUserName.running;
+
   /// ユーザー名の編集を開始する。
   void startEditing() {
     _isEditing = true;

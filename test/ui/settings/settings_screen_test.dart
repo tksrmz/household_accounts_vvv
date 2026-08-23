@@ -220,6 +220,23 @@ void main() {
       expect(button.onPressed, isNull);
     });
 
+    testWidgets('保存中のとき、入力欄が編集不可になり完了後に再び編集可能になること', (tester) async {
+      final completer = Completer<Result<void>>();
+      await _pumpScreen(tester, updateUserNameCompleter: completer);
+
+      await _startEditing(tester);
+      await _enterText(tester, _newUserName.value);
+      await tester.tap(find.text('保存'));
+      await tester.pump();
+
+      expect(tester.widget<TextField>(find.byType(TextField)).enabled, isFalse);
+
+      completer.complete(const Result.ok(null));
+      await tester.pumpAndSettle();
+
+      expect(tester.widget<TextField>(find.byType(TextField)).enabled, isTrue);
+    });
+
     testWidgets('保存に失敗したとき、スナックバーが表示され入力が編集前の名前へ戻ること', (tester) async {
       await _pumpScreen(
         tester,
@@ -269,11 +286,13 @@ _Fixture _buildFixture({
   Result<UserName>? fetchUserNameResult,
   Completer<Result<UserName>>? fetchUserNameCompleter,
   Result<void>? updateUserNameResult,
+  Completer<Result<void>>? updateUserNameCompleter,
 }) {
   final profileRepository = FakeProfileRepository()
     ..fetchUserNameResult = fetchUserNameResult ?? Result.ok(_loadedUserName)
     ..fetchUserNameCompleter = fetchUserNameCompleter
-    ..updateUserNameResult = updateUserNameResult ?? const Result.ok(null);
+    ..updateUserNameResult = updateUserNameResult ?? const Result.ok(null)
+    ..updateUserNameCompleter = updateUserNameCompleter;
   final authRepository = FakeAuthRepository(
     currentUser: const UserAuth(uid: UserIdVo('test-uid')),
   );
@@ -293,10 +312,12 @@ Future<_Fixture> _pumpScreen(
   WidgetTester tester, {
   Result<UserName>? fetchUserNameResult,
   Result<void>? updateUserNameResult,
+  Completer<Result<void>>? updateUserNameCompleter,
 }) async {
   final fixture = _buildFixture(
     fetchUserNameResult: fetchUserNameResult,
     updateUserNameResult: updateUserNameResult,
+    updateUserNameCompleter: updateUserNameCompleter,
   );
 
   await tester.pumpWidget(GoldenPageWrapper(child: fixture.screen));
