@@ -11,12 +11,12 @@ import '../presentation/category_viewer/category_viewer_page.dart';
 import '../presentation/monthly_record_viewer/monthly_record_viewer_page.dart';
 import '../presentation/property_viewer/property_viewer_page.dart';
 import '../presentation/record_register/record_register_page.dart';
+import '../ui/settings/settings_screen.dart';
+import '../ui/settings/settings_view_model.dart';
 import '../ui/shell/shell_screen_host.dart';
 import '../v2/domain/models/user_auth.dart';
 import '../v2/presentation/pages/dashboard/page.dart';
 import '../v2/presentation/pages/dashboard/view_model.dart';
-import '../v2/presentation/pages/settings/page.dart';
-import '../v2/presentation/pages/settings/view_model.dart';
 import '../v2/presentation/pages/state_managements/selected_note_state.dart';
 import 'routes.dart';
 
@@ -69,9 +69,9 @@ GoRouter createRouter({
       // ボトムナビを覆う従来挙動に合わせ、シェルの外(ルートレベル)へ置く
       GoRoute(
         path: Routes.settings,
-        builder: (context, state) => SettingsPage(
+        builder: (context, state) => SettingsScreen(
           viewModel: SettingsViewModel(
-            publicProfileRepository: context.read(),
+            profileRepository: context.read(),
             authRepository: context.read(),
           ),
         ),

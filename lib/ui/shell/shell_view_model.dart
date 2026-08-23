@@ -3,12 +3,15 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../data/repositories/auth/auth_repository.dart';
+import '../../data/repositories/profile/profile_repository.dart';
+import '../../domain/models/pair_status.dart';
+import '../../domain/models/user_id.dart';
 import '../../presentation/util/model/user_info.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 
-/// ペア検知の状態。PR2でProfileRepositoryのwatchへ置換されるまでの一時的なUI状態表現。
+/// ペア検知の状態を表すUI向けの状態表現。
 sealed class ShellPairState {
   const ShellPairState();
 }
@@ -39,7 +42,7 @@ class ShellViewModel extends ChangeNotifier {
   ShellViewModel({
     required AuthRepository authRepository,
     required SelectedNoteState selectedNoteState,
-    required Stream<String?> Function(String uid) watchPairId,
+    required ProfileRepository profileRepository,
   }) : _authRepository = authRepository,
        _selectedNoteState = selectedNoteState {
     logout = Command0(_logout);
@@ -47,14 +50,16 @@ class ShellViewModel extends ChangeNotifier {
     _uid = authRepository.getCurrentUser().uid.value;
     // ドロワー表示をノート切替へ追従させる
     _selectedNoteState.addListener(notifyListeners);
-    _subscription = watchPairId(_uid).listen(_onPairId, onError: _onPairError);
+    _subscription = profileRepository
+        .watchPairStatus(UserId(_uid))
+        .listen(_onPairStatus, onError: _onPairError);
   }
 
   final AuthRepository _authRepository;
   final SelectedNoteState _selectedNoteState;
 
   late final String _uid;
-  late final StreamSubscription<String?> _subscription;
+  late final StreamSubscription<PairStatus> _subscription;
 
   ShellPairState _pairState = const ShellPairLoading();
 
@@ -78,7 +83,17 @@ class ShellViewModel extends ChangeNotifier {
   /// 表示するノートを切り替える。
   void switchNote(SelectedNote note) => _selectedNoteState.select(note);
 
-  void _onPairId(String? pairId) {
+  void _onPairStatus(PairStatus status) {
+    final pairId = switch (status) {
+      Paired(:final pairId) => pairId.value,
+      NotPaired() => null,
+    };
+    // ペア解消時に選択中ノートがsharedのままだと、切替UIだけが消えて
+    // shared表示が残る不整合になるため、personalへ強制的に戻す
+    if (status is NotPaired &&
+        _selectedNoteState.value == SelectedNote.shared) {
+      _selectedNoteState.select(SelectedNote.personal);
+    }
     _pairState = ShellPairData(pairId);
     _userInfo = UserInfo(uid: _uid, pairId: pairId);
     notifyListeners();

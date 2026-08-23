@@ -88,9 +88,13 @@ jobs:
         id: golden-diff
         shell: bash
         run: |
-          git add -A -- \
+          # マッチ0件のpathspecを git add に直接渡すと exit 128 で落ちる
+          # (旧世代の goldens/ 複数形ディレクトリは移行の過程で消滅しうる)ため、
+          # 対象ファイルを列挙してから1件ずつaddする
+          git ls-files -z --cached --others --exclude-standard -- \
             ':(glob)test/**/golden/**/*.png' \
-            ':(glob)test/**/goldens/**/*.png'
+            ':(glob)test/**/goldens/**/*.png' \
+            | while IFS= read -r -d '' file; do git add -A -- "$file"; done
 
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"

@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'pair_id_stream.dart';
 import 'shell_screen.dart';
 import 'shell_view_model.dart';
 
@@ -35,8 +33,7 @@ class _ShellScreenHostState extends State<ShellScreenHost> {
     _viewModel = ShellViewModel(
       authRepository: context.read(),
       selectedNoteState: context.read(),
-      watchPairId: (uid) =>
-          watchPrivateProfilePairId(context.read<FirebaseFirestore>(), uid),
+      profileRepository: context.read(),
     );
   }
 

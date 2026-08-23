@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../domain/models/vo/user_name.dart';
-import '../view_model.dart';
+import '../../../domain/models/user_name.dart';
+import '../settings_view_model.dart';
 
+/// ユーザー名を表示・編集するカード。
 class UserNameCard extends StatefulWidget {
   const UserNameCard({super.key, required SettingsViewModel viewModel})
     : _viewModel = viewModel;
@@ -15,7 +16,7 @@ class UserNameCard extends StatefulWidget {
 
 class _UserNameCardState extends State<UserNameCard> {
   @override
-  initState() {
+  void initState() {
     super.initState();
     _controller.text = widget._viewModel.userName;
     _focusNode.addListener(() {
@@ -57,7 +58,12 @@ class _UserNameCardState extends State<UserNameCard> {
                 onSave: () async {
                   _focusNode.unfocus(); // フォーカスを外す
                   await widget._viewModel.save(_controller.text);
-                  if (widget._viewModel.save.hasError) {
+                  // 検証エラーのときは入力し直せるよう入力値をそのまま残す。
+                  // それ以外は表示名の唯一の源泉であるViewModelへ入力を合わせる
+                  // (保存に失敗したときは編集前の値へ巻き戻り、成功したときは
+                  // 保存した値のままで変化しない)。保存コマンドのエラー状態を
+                  // 見ないのは、失敗を伝えるスナックバーがそれを消費済みのため。
+                  if (!widget._viewModel.hasValidationError) {
                     _controller.text = widget._viewModel.userName;
                   }
                 },
@@ -113,9 +119,10 @@ class _UserNameCardTextField extends StatelessWidget {
       keyboardType: TextInputType.text,
       autofocus: false,
       autocorrect: false,
-      maxLength: UserNameVo.maxLength,
+      maxLength: UserName.maxLength,
       controller: _controller,
       focusNode: _focusNode,
+      // 検証エラーの文言は表示の関心事なのでViewModelではなくここで決める
       decoration: InputDecoration(
         errorText: _hasValidationError ? '1文字以上20文字以下にしてください' : null,
       ),
