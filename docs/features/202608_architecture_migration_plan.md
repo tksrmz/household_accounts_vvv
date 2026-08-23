@@ -61,7 +61,7 @@
 | 項目 | 内容 |
 |---|---|
 | 画面 | dashboard |
-| データ層 | **`Period` / `Notebook` 型と `notebook_paths` をここで初出**。Record sealed union + RecordId等のドメインモデル本体、RecordDto、`RecordRepository.watchPeriod(Period)`(incomes/expenses/transfersの3 snapshots結合) |
+| データ層 | **`Period` / `Notebook` 型と `notebook_paths` をここで初出**。Record sealed union + RecordId等のドメインモデル本体、RecordDto、`RecordRepository.watchPeriod(Period)`(incomes/expenses/transfersの3 snapshots結合)。あわせて `UserAuth` を `lib/domain/models/` へ移設し新 `UserId` へ切替(主要な消費者のProxyProvider2・v2 income/expense Repository群がこのPRで消滅するため移設の最適点。遅くともPR9) |
 | 移設・改修 | DashboardViewModelをwatch購読型に書き換え、月次集計をドメイン純粋関数化 |
 | 削除 | v2のpersonal/shared income・expense Repository+Service群、`ProxyProvider2` 2本(新RecordRepositoryの単一ProxyProviderへ)、**PR2から後送した旧profile系データ層**(`FirestorePublicProfileRepository`・`PublicProfileService`・`PrivateProfileService`・`PrivateProfile`モデル・`private_profile_util`。dashboard移行と共有Repository削除で依存が外れるため) |
 | 特記 | **リアルタイム反映がここから始まる**(挙動変更一覧参照)。切替状態は移行期間中も既存 `SelectedNoteState` を共用し(旧画面が依存)、新側はProxyProvider内で `Notebook` を導出する(改名・整理はPR9)。未配線だったbudget_graph/summary_panelは触らずPR8で判断。**watchのエラー表現をここで決める**: `Stream<T>` のままエラーは購読側で処理するか、`Stream<Result<T>>`+guardStream相当を導入してFuture側と対称にするか(2026-08-22のlint整備時の持ち越し。決定したらlintルールへの反映要否も判断。`Stream<Result<T>>` を採る場合は、設計の正である刷新案のStream署名の記述(D6等)も決定記録として更新し、ドキュメント間の乖離を残さないこと) |
@@ -167,3 +167,4 @@
 - 2026-08-22: lint整備の持ち越し事項をPR3特記へ明文化(watchのエラー表現: `Stream<T>` か `Stream<Result<T>>` かの決定)。あわせてCLAUDE.mdへ「規約lintの検証は `dart analyze` を使う」旨を追記(flutter analyzeはプラグイン診断の検知を保証しないため)。レビュー反映: 原則4の必須チェックにも `dart analyze` を追加し、PR2のペア検知watchは素の `Stream<T>` 形を踏襲(決定はPR3)である旨をPR2特記に明記
 - 2026-08-22: PR2詳細化(コード実態調査に基づくスコープ訂正、ユーザー決定4件) — (1)旧profile系データ層の削除はdashboard・共有Repositoryの現役依存によりPR3へ後送 (2)`lib/domain/models/` の初出をPR2に前倒し(PairStatus・PairId・UserId・UserNameの4型。D9の検証付き値型リストにUserNameを追加解釈) (3)設定画面goldenは3幅ヘルパーで全シナリオ移植 (4)ペア解消時のSelectedNoteState強制リセット修正をPR2に含める(挙動変更一覧に追加)
 - 2026-08-22: バリデーションの層分担を明確化 — バリデーション(ドメインルール未達の入力)はUI層の関心事としてVM状態で表現し、Command/Result.errorはData層由来の失敗のみを表す。保存Commandの引数は検証済み値型(`Command1<void, UserName>`)とし境界を型で強制する。検証タイミングのspec.md準拠化(ライブ検証)はPR2マージ後・PR3着手前のマイクロPRとして実施(PR2特記参照)
+- 2026-08-23: PR #15レビュー反映 — 検証付き値型の方針を「@Assert + static validate」からコンストラクタでの全ビルド検証+throwへ変更(ユーザー入力由来=`FormatException`(VMが捕捉し検証状態へ)、システム内不変条件=`ArgumentError`(fail fast)。`Result.guard` のException/Error区分と対応)。UI文言はWidget層へ戻す。ShellViewModelはStream関数注入をやめProfileRepository注入へ(VMはRepositoryインターフェースを受け取る規約)。`UserAuth` のdomain移設をPR3へ追記
