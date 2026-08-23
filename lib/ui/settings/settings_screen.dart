@@ -87,7 +87,10 @@ class _SettingsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: _viewModel,
+      // 保存コマンドの実行状態にも追従させる。ViewModel自体は保存完了時に
+      // しか通知しないため、実行開始の時点で入力欄と保存ボタンを無効化する
+      // にはコマンドの通知も購読する必要がある
+      listenable: Listenable.merge([_viewModel, _viewModel.saveUserName]),
       builder: (_, _) => Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(children: [UserNameCard(viewModel: _viewModel)]),

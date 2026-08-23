@@ -49,7 +49,11 @@ class _UserNameCardState extends State<UserNameCard> {
             _UserNameCardTextField(
               controller: _controller,
               focusNode: _focusNode,
+              // 保存中は編集不可にする。保存中の入力変更を許すと、完了後の
+              // 表示名との同期(巻き戻し)と競合するため
+              enabled: !widget._viewModel.isSaving,
               hasValidationError: widget._viewModel.hasValidationError,
+              onChanged: widget._viewModel.onUserNameChanged,
             ),
             if (widget._viewModel.isEditing) ...[
               const SizedBox(height: 16),
@@ -103,15 +107,21 @@ class _UserNameCardSaveButton extends StatelessWidget {
 class _UserNameCardTextField extends StatelessWidget {
   const _UserNameCardTextField({
     required TextEditingController controller,
+    required bool enabled,
     required bool hasValidationError,
     required FocusNode focusNode,
+    required void Function(String) onChanged,
   }) : _controller = controller,
+       _enabled = enabled,
        _hasValidationError = hasValidationError,
-       _focusNode = focusNode;
+       _focusNode = focusNode,
+       _onChanged = onChanged;
 
   final TextEditingController _controller;
+  final bool _enabled;
   final bool _hasValidationError;
   final FocusNode _focusNode;
+  final void Function(String) _onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -119,9 +129,13 @@ class _UserNameCardTextField extends StatelessWidget {
       keyboardType: TextInputType.text,
       autofocus: false,
       autocorrect: false,
+      enabled: _enabled,
+      // 20文字超はmaxLengthの入力制限そのもので防ぐ(この画面のライブ検証に
+      // 到達しうる不正は0文字のみ)
       maxLength: UserName.maxLength,
       controller: _controller,
       focusNode: _focusNode,
+      onChanged: _onChanged,
       // 検証エラーの文言は表示の関心事なのでViewModelではなくここで決める
       decoration: InputDecoration(
         errorText: _hasValidationError ? '1文字以上20文字以下にしてください' : null,

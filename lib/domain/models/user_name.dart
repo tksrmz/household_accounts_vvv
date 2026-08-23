@@ -17,13 +17,22 @@ class UserName with _$UserName {
   /// 事象であり、UI層が捕捉して検証エラー表示へ分岐させる制御フローに載せたいため
   /// (Errorはプログラミングバグを表し、捕捉されずfail fastすべきもの)。
   UserName(this.value) {
-    if (value.isEmpty || value.length > maxLength) {
+    if (!isValid(value)) {
       throw FormatException('ユーザー名は1文字以上$maxLength文字以下である必要があります', value);
     }
   }
 
   /// ユーザー名として許容する最大文字数。
   static const int maxLength = 20;
+
+  /// [value]がユーザー名として妥当(1文字以上[maxLength]文字以下)かどうかを判定する。
+  ///
+  /// コンストラクタの検証条件と同じ判定をUI層(ライブ検証)からも呼べるように
+  /// 公開する。ルールの記述箇所をここ1箇所に絞ることで、コンストラクタの
+  /// 例外送出条件と二重管理にならないようにする。
+  static bool isValid(String value) {
+    return value.isNotEmpty && value.length <= maxLength;
+  }
 
   /// ユーザー名の文字列。
   @override

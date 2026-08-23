@@ -52,7 +52,7 @@
 | データ層 | **ProfileRepositoryを新設**(`lib/data/repositories/profile/`。ペア検知watch + ユーザー名read/update。Service層・DTOは作らずFirestore直アクセス)。PR1でシェルに一時移植したペア検知をここで置換。**`lib/domain/models/` はここで初出**: `PairStatus`(sealed)・`PairId`・`UserId`・`UserName`(1〜20文字検証+static validate)の4型を1型1ファイルで新設し、`Stream<PairStatus> watchPairStatus(UserId)` を最終形のAPIとする(v2 `UserIdVo` との変換はシェル/VM境界で行う) |
 | 移設・改修 | `lib/v2/presentation/pages/settings/` → `lib/ui/settings/`。AsyncCommand→Command、Either→Result化の最初の実例を作る |
 | 削除 | v2のsettings一式(page/view_model/widgets/spec.md+テスト・golden)、シェル内の一時ペア検知実装(`lib/ui/shell/pair_id_stream.dart`)。**旧profile系データ層(`FirestorePublicProfileRepository`・`PublicProfileService`・`PrivateProfileService`)の削除はPR3へ後送**(v2 dashboardと共有income/expense Repositoryが現役依存しており、PR2で消すとコンパイル不能。2026-08-22のコード調査で判明) |
-| 特記 | 最小画面で「移行の型」(ファイル配置・テスト構成・PR体裁)を確立する。以降のPRはこれを踏襲。ペア検知watchは当面 `authStateChanges` と同じ素の `Stream<T>` 形を踏襲する(watchのエラー表現の体系的決定は、より複雑なwatchPeriodが初出するPR3で行う。本watch 1本のみのため決定後の追随コストは小さい)。goldenはPR1の3幅ヘルパー(`testGoldens`)でv2の全シナリオを移植する。あわせて、ペア解消時に `SelectedNoteState` がsharedのまま取り残される既存の潜在不整合を修正し、notPaired検知時にpersonalへ強制リセットする(挙動変更一覧参照)。**マージ後・PR3着手前のフォローアップ(マイクロPR)**: 設定画面の検証タイミングを旧spec.mdの記載(不正入力の時点でValidationError遷移+保存ボタン押下不可=ライブ検証)に合わせる。PR2自体は現行実装の観察可能な挙動(保存押下時に検証)を忠実移植するため、spec.mdとの乖離はPR2では解消されない(spec.mdはPR2で削除されるため、状態遷移の意図はこの記録が引き継ぐ) |
+| 特記 | 最小画面で「移行の型」(ファイル配置・テスト構成・PR体裁)を確立する。以降のPRはこれを踏襲。ペア検知watchは当面 `authStateChanges` と同じ素の `Stream<T>` 形を踏襲する(watchのエラー表現の体系的決定は、より複雑なwatchPeriodが初出するPR3で行う。本watch 1本のみのため決定後の追随コストは小さい)。goldenはPR1の3幅ヘルパー(`testGoldens`)でv2の全シナリオを移植する。あわせて、ペア解消時に `SelectedNoteState` がsharedのまま取り残される既存の潜在不整合を修正し、notPaired検知時にpersonalへ強制リセットする(挙動変更一覧参照)。**マージ後・PR3着手前のフォローアップ(マイクロPR)**: 設定画面の検証タイミングを旧spec.mdの記載(不正入力の時点でValidationError遷移+保存ボタン押下不可=ライブ検証)に合わせる。PR2自体は現行実装の観察可能な挙動(保存押下時に検証)を忠実移植するため、spec.mdとの乖離はPR2では解消されない(spec.mdはPR2で削除されるため、状態遷移の意図はこの記録が引き継ぐ)。**→ このフォローアップはPR #19で実施済み(2026-08-23)** |
 
 ### PR3: ダッシュボード `dev/arch-03-dashboard`
 
@@ -150,6 +150,7 @@
 | PR1〜PR8 | タブ再訪時の自動再読込の一時停止 | StatefulShellRoute(IndexedStack)のステート保持により、旧実装のままのタブはアプリ再起動まで他タブでの変更を反映しなくなる(従来はタブ切替のたびに画面を作り直して再読込していた)。各画面のwatch化(PR3〜PR8)ごとに順次解消し、以後はリアルタイム反映に置き換わる |
 | PR1 | ログアウト処理からget_itリセットを除去 | 旧実装の `sl.reset()` は再登録経路がなく、同一セッションでの再ログイン後に旧画面が `sl<T>()` でクラッシュする潜在バグの原因だった。登録は全てステートレスな `registerFactory` でresetに実益がないため廃止 |
 | PR2 | ペア解消時の個人ノートへの自動復帰 | ペア解消(pairId消失)を検知したとき、選択中ノートが共有のままでも個人ノートへ強制リセットするようになる(従来は切替UIが消えるだけでshared表示が継続する潜在不整合があった) |
+| PR2後続 | 設定画面のライブ検証 | ユーザー名の不正入力(0文字)を入力した時点で検証エラーを表示し保存ボタンを押下不可にする(従来は保存押下時に検証)。旧spec.mdの状態遷移への準拠(PR #19) |
 
 ## 6. 進捗管理の運用
 
@@ -168,3 +169,4 @@
 - 2026-08-22: PR2詳細化(コード実態調査に基づくスコープ訂正、ユーザー決定4件) — (1)旧profile系データ層の削除はdashboard・共有Repositoryの現役依存によりPR3へ後送 (2)`lib/domain/models/` の初出をPR2に前倒し(PairStatus・PairId・UserId・UserNameの4型。D9の検証付き値型リストにUserNameを追加解釈) (3)設定画面goldenは3幅ヘルパーで全シナリオ移植 (4)ペア解消時のSelectedNoteState強制リセット修正をPR2に含める(挙動変更一覧に追加)
 - 2026-08-22: バリデーションの層分担を明確化 — バリデーション(ドメインルール未達の入力)はUI層の関心事としてVM状態で表現し、Command/Result.errorはData層由来の失敗のみを表す。保存Commandの引数は検証済み値型(`Command1<void, UserName>`)とし境界を型で強制する。検証タイミングのspec.md準拠化(ライブ検証)はPR2マージ後・PR3着手前のマイクロPRとして実施(PR2特記参照)
 - 2026-08-23: PR #15レビュー反映 — 検証付き値型の方針を「@Assert + static validate」からコンストラクタでの全ビルド検証+throwへ変更(ユーザー入力由来=`FormatException`(VMが捕捉し検証状態へ)、システム内不変条件=`ArgumentError`(fail fast)。`Result.guard` のException/Error区分と対応)。UI文言はWidget層へ戻す。ShellViewModelはStream関数注入をやめProfileRepository注入へ(VMはRepositoryインターフェースを受け取る規約)。`UserAuth` のdomain移設をPR3へ追記
+- 2026-08-23: PR2フォローアップのマイクロPR(設定画面のライブ検証化)を実施(PR #19)。`UserName.isValid` を新設しコンストラクタの検証条件と判定を一本化。挙動変更一覧に追加

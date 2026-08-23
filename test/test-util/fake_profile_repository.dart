@@ -22,6 +22,10 @@ class FakeProfileRepository implements ProfileRepository {
   /// [updateUserName]が返す結果。
   Result<void> updateUserNameResult = const Result.ok(null);
 
+  /// 設定すると[updateUserName]がこのCompleterのFutureを返す。
+  /// 完了しないCompleterを渡せば保存中の状態を再現できる。
+  Completer<Result<void>>? updateUserNameCompleter;
+
   int watchPairStatusCallCount = 0;
   int fetchUserNameCallCount = 0;
   int updateUserNameCallCount = 0;
@@ -55,6 +59,11 @@ class FakeProfileRepository implements ProfileRepository {
     updateUserNameCallCount++;
     lastUpdateUserNameUid = uid;
     lastUpdatedUserName = userName;
+
+    final completer = updateUserNameCompleter;
+    if (completer != null) {
+      return completer.future;
+    }
     return Future.value(updateUserNameResult);
   }
 }
