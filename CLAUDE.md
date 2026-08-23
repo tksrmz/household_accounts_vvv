@@ -37,6 +37,18 @@ Notes:
 
 ## Development Commands
 
+### 環境の前提(mise)
+
+flutter / dart / firebase / node はmiseで管理されており、シェルの初期PATHからは見えない。**コマンド実行のたびにshimsをPATHへ前置すること**(シェル状態は持続しない):
+
+```powershell
+$env:Path = "$env:LOCALAPPDATA\mise\shims;$env:Path"
+```
+
+```bash
+export PATH="$HOME/AppData/Local/mise/shims:$PATH"
+```
+
 ### Build & Run
 
 ```bash
@@ -63,10 +75,15 @@ dart test test/                       # Run Dart-only tests
 
 ### Integration Testing
 
-```bash
-./integration_test/run.sh             # Run integration tests (uses emulator)
-flutter test integration_test/integration_test.dart  # Direct integration test
-```
+実行手順の正は `integration_test/README.md`(前提: functionsのビルド(node 22)・Androidエミュレータ・Firebaseエミュレータ)。要点:
+
+- `firebase/` から `firebase emulators:exec` で実行し、**`--project household-accounts-1129d` と `--import ../integration_test/saved-data` は必須**。前者を欠くとFunctionsトリガが発火せず全テストがローディングでタイムアウトし、後者を欠くとシードユーザー不在で既存ユーザー系のテストが失敗する
+- Windowsでは `emulators:exec` がスクリプトをcmd経由で実行するため `run.sh` を直接渡せない。代わりにコマンド文字列 `"cd .. && flutter test integration_test/integration_test.dart -d <deviceId>"` を渡す
+
+### Golden Tests(canonical運用)
+
+- 正本golden(`test/**/golden{,s}/**/*.png`)は**CI管理**。ローカルでのコミットは追加・変更・**削除**のいずれもpre-commitフック(`.githooks/pre-commit`)が拒否する。更新はPR作成後に `update-canonical-goldens.yml` をworkflow dispatchする(botがPRブランチへコミットし、参照されなくなった正本の削除も同時に行う)
+- ローカル実行はgitignoreされた `.local/` 配下の基準画像と比較する。基準が無い環境では先に `flutter test --tags golden --update-goldens` で生成してから通常実行する
 
 ### Linting & Analysis
 
@@ -142,6 +159,10 @@ lib/presentation/pages/feature_name/
 - Classes: `PascalCase` with role suffix (`DashboardViewModel`, `HomePage`)
 - Functions/variables: `camelCase`
 - Tests: `前提のとき、期待値であること` format for unit tests, User Story format for integration tests
+
+### Code Comments
+
+- コードコメントに設計ドキュメントの決定番号(D1〜D10、O1〜O6など)を書かない。番号はドキュメント改訂で通じなくなるため、決定の**内容**を書く
 
 ### Value Objects & Entities
 
