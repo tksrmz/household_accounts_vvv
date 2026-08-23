@@ -81,7 +81,7 @@ void main() {
     );
 
     testGoldens(
-      '0文字のユーザー名を保存しようとすると検証エラーが表示されること',
+      '0文字にすると検証エラーが表示され保存ボタンが押下不可になること',
       goldenFileName: 'settings_validation_error',
       builder: () => (fixture = _buildFixture(
         fetchUserNameResult: _editableResult,
@@ -89,12 +89,13 @@ void main() {
       expectFn: (tester) async {
         await tester.pumpAndSettle();
         await _startEditing(tester);
-        await _saveWith(tester, '');
+        // 保存を押下せず、入力そのものでライブ検証エラーになることを確かめる
+        await _enterText(tester, '');
       },
     );
 
     testGoldens(
-      '有効なユーザー名に戻すと検証エラーが解消されること',
+      '検証エラーの状態から有効な入力に戻すと検証エラーが解消され保存ボタンが押下可能になること',
       goldenFileName: 'settings_validation_error_recovered',
       builder: () => (fixture = _buildFixture(
         fetchUserNameResult: _editableResult,
@@ -102,8 +103,9 @@ void main() {
       expectFn: (tester) async {
         await tester.pumpAndSettle();
         await _startEditing(tester);
-        await _saveWith(tester, '');
-        await _saveWith(tester, _newUserName.value);
+        // どちらも保存は押下せず、入力の変化だけで検証エラーが出て消えることを確かめる
+        await _enterText(tester, '');
+        await _enterText(tester, _newUserName.value);
       },
     );
 
@@ -206,6 +208,18 @@ void main() {
       expect(fixture.profileRepository.updateUserNameCallCount, 0);
     });
 
+    testWidgets('0文字を入力したとき、保存ボタンを押下できなくなること', (tester) async {
+      await _pumpScreen(tester);
+
+      await _startEditing(tester);
+      await _enterText(tester, '');
+
+      final button = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, '保存'),
+      );
+      expect(button.onPressed, isNull);
+    });
+
     testWidgets('保存に失敗したとき、スナックバーが表示され入力が編集前の名前へ戻ること', (tester) async {
       await _pumpScreen(
         tester,
@@ -296,9 +310,17 @@ Future<void> _startEditing(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> _saveWith(WidgetTester tester, String userName) async {
+/// 保存ボタンを押下せず、テキストフィールドへの入力だけを行う。
+///
+/// ライブ検証(入力のたびに検証する挙動)を保存ボタン押下と切り離して
+/// 確かめるためのヘルパー。
+Future<void> _enterText(WidgetTester tester, String userName) async {
   await tester.enterText(find.byType(TextField), userName);
   await tester.pumpAndSettle();
+}
+
+Future<void> _saveWith(WidgetTester tester, String userName) async {
+  await _enterText(tester, userName);
   await tester.tap(find.text('保存'));
   await tester.pumpAndSettle();
 }

@@ -50,6 +50,7 @@ class _UserNameCardState extends State<UserNameCard> {
               controller: _controller,
               focusNode: _focusNode,
               hasValidationError: widget._viewModel.hasValidationError,
+              onChanged: widget._viewModel.onUserNameChanged,
             ),
             if (widget._viewModel.isEditing) ...[
               const SizedBox(height: 16),
@@ -105,13 +106,16 @@ class _UserNameCardTextField extends StatelessWidget {
     required TextEditingController controller,
     required bool hasValidationError,
     required FocusNode focusNode,
+    required void Function(String) onChanged,
   }) : _controller = controller,
        _hasValidationError = hasValidationError,
-       _focusNode = focusNode;
+       _focusNode = focusNode,
+       _onChanged = onChanged;
 
   final TextEditingController _controller;
   final bool _hasValidationError;
   final FocusNode _focusNode;
+  final void Function(String) _onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +126,7 @@ class _UserNameCardTextField extends StatelessWidget {
       maxLength: UserName.maxLength,
       controller: _controller,
       focusNode: _focusNode,
+      onChanged: _onChanged,
       // 検証エラーの文言は表示の関心事なのでViewModelではなくここで決める
       decoration: InputDecoration(
         errorText: _hasValidationError ? '1文字以上20文字以下にしてください' : null,

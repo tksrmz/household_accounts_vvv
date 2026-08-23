@@ -55,7 +55,7 @@ class SettingsViewModel extends ChangeNotifier {
   bool get hasValidationError => _hasValidationError;
 
   /// ユーザー名を保存できるかどうか。
-  bool get canSave => !saveUserName.running;
+  bool get canSave => !saveUserName.running && !_hasValidationError;
 
   /// ユーザー名の編集を開始する。
   void startEditing() {
@@ -63,8 +63,24 @@ class SettingsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 入力中のテキストが変化するたびにライブ検証を行う。
+  ///
+  /// 不正な入力(0文字)になった時点でエラー表示と保存ボタンの無効化を行い、
+  /// 保存ボタンの押下を待たずに気づけるようにする。値が変わらないときまで
+  /// notifyListenersすると毎キーストロークで無駄な再描画が起きるため、
+  /// 判定結果が変わったときだけ通知する。
+  void onUserNameChanged(String input) {
+    final isValid = UserName.isValid(input);
+    if (_hasValidationError == isValid) {
+      _hasValidationError = !isValid;
+      notifyListeners();
+    }
+  }
+
   /// 入力された[input]を検証し、妥当なら保存する。
   ///
+  /// ライブ検証([onUserNameChanged])が主経路だが、検証はここでも行う
+  /// (型境界[saveUserName]に不正な値を渡さないための防御)。
   /// 検証は[UserName]の生成そのもので行う(生成できた＝妥当)。失敗した場合は
   /// コマンドを実行せず、編集状態を保ったまま検証エラーの状態だけを更新する
   /// (入力し直せるようにするため)。

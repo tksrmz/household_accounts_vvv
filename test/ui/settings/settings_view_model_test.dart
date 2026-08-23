@@ -125,6 +125,27 @@ void main() {
       expect(target.viewModel.hasValidationError, isFalse);
       expect(target.viewModel.userName, newUserName.value);
     });
+
+    test('入力中に0文字にしたとき、検証エラーになり保存できなくなること', () async {
+      final target = await _buildFixture();
+      target.viewModel.startEditing();
+
+      target.viewModel.onUserNameChanged('');
+
+      expect(target.viewModel.hasValidationError, isTrue);
+      expect(target.viewModel.canSave, isFalse);
+    });
+
+    test('入力中の検証エラーのあとに有効な入力へ戻したとき、検証エラーが解消され保存できるようになること', () async {
+      final target = await _buildFixture();
+      target.viewModel.startEditing();
+      target.viewModel.onUserNameChanged('');
+
+      target.viewModel.onUserNameChanged(newUserName.value);
+
+      expect(target.viewModel.hasValidationError, isFalse);
+      expect(target.viewModel.canSave, isTrue);
+    });
   });
 }
 
