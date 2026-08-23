@@ -28,10 +28,11 @@
 
 まず、前提条件として以下が必要です。
 
-- Android device emulatorが起動していること
+- Android device emulator（AVD）が起動していること
 - Firebase CLIがインストールされていること（Firebase local emulatorの設定は同一リポジトリの`firebase/`ディレクトリにあります）
+- Cloud Functionsがビルド済みであること（Node.js 22で`firebase/functions/`にて`npm install && npm run build`を実行。未ビルドだとFunctionsエミュレータが起動できません）
 
-受け入れテストは以下のコマンドで実行できます。
+受け入れテストは以下のコマンドで実行できます（Unix系シェルの場合）。
 
 ```shell
 # Firebaseの設定ディレクトリへ移動（リポジトリルートから）
@@ -42,6 +43,17 @@ firebase emulators:exec \
 --only auth,firestore,functions \
 --import ../integration_test/saved-data \
 ../integration_test/run.sh
+```
+
+#### Windowsでの実行方法
+
+Windowsでは上記のコマンドは動きません。firebase-toolsの`emulators:exec`はスクリプトを**cmd.exe経由で実行する**ため、`run.sh`を直接渡すと「`'..' は、内部コマンドまたは外部コマンドとして認識されていません`」というエラーで失敗します。
+
+代わりに、スクリプトファイルではなくcmd互換のコマンド文字列を渡します（`<deviceId>`は`flutter devices`で確認できる接続中のAndroidエミュレータのID。例: `emulator-5554`）。
+
+```shell
+# firebase/ ディレクトリから実行
+firebase emulators:exec --project household-accounts-1129d --only auth,firestore,functions --import ../integration_test/saved-data "cd .. && flutter test integration_test/integration_test.dart -d <deviceId>"
 ```
 
 `--project`の指定は必須である。`firebase/.firebaserc`には`default`エイリアスが存在しないため、
