@@ -14,10 +14,15 @@ import '../../test-util/fake_profile_repository.dart';
 // なぜtestWidgetsではなくtestを使うか:
 // SettingsViewModelは純粋なDartのChangeNotifierでありWidgetツリーを必要としない。
 // コマンドの完了は`pumpEventQueue()`で待つ。
+//
+// なぜCommandの実行状態を網羅的に確かめないか:
+// running/completed/error/clearResultの振る舞いはCommand自体の責務であり
+// test/utils/command_test.dartで固定済みなので、ここでは画面の挙動を
+// 説明するのに必要な範囲だけを確かめる。
 void main() {
   const uid = 'test-uid';
-  const currentUserName = UserName('上田 技術');
-  const newUserName = UserName('Gijutsu Ueda');
+  final currentUserName = UserName('上田 技術');
+  final newUserName = UserName('Gijutsu Ueda');
 
   group('読み込み', () {
     test('読み込みが完了していないとき、loadコマンドが実行中であること', () async {
@@ -26,32 +31,14 @@ void main() {
       );
 
       expect(target.profileRepository.fetchUserNameCallCount, 1);
-      expect(target.profileRepository.lastFetchUserNameUid, const UserId(uid));
+      expect(target.profileRepository.lastFetchUserNameUid, UserId(uid));
       expect(target.viewModel.load.running, isTrue);
-    });
-
-    test('読み込み中にもう一度読み込みを要求したとき、fetchUserNameが再実行されないこと', () async {
-      final target = await _buildFixture(
-        fetchUserNameCompleter: Completer<Result<UserName>>(),
-      );
-
-      await target.viewModel.load.execute();
-      await pumpEventQueue();
-
-      expect(target.profileRepository.fetchUserNameCallCount, 1);
-    });
-
-    test('読み込みに成功したとき、loadコマンドがエラー状態でないこと', () async {
-      final target = await _buildFixture();
-
-      expect(target.viewModel.load.running, isFalse);
-      expect(target.viewModel.load.error, isFalse);
-      expect(target.viewModel.load.completed, isTrue);
     });
 
     test('読み込みに成功したとき、サーバから取得したユーザー名が表示されること', () async {
       final target = await _buildFixture();
 
+      expect(target.viewModel.load.completed, isTrue);
       expect(target.viewModel.userName, currentUserName.value);
     });
 
@@ -60,7 +47,6 @@ void main() {
         fetchUserNameResult: Result.error(Exception('fetchUserNameエラー')),
       );
 
-      expect(target.viewModel.load.running, isFalse);
       expect(target.viewModel.load.error, isTrue);
     });
   });
@@ -81,14 +67,14 @@ void main() {
       await target.viewModel.save(newUserName.value);
 
       expect(target.profileRepository.updateUserNameCallCount, 1);
-      expect(target.profileRepository.lastUpdateUserNameUid, const UserId(uid));
+      expect(target.profileRepository.lastUpdateUserNameUid, UserId(uid));
       expect(target.profileRepository.lastUpdatedUserName, newUserName);
       expect(target.viewModel.userName, newUserName.value);
       expect(target.viewModel.isEditing, isFalse);
       expect(target.viewModel.saveUserName.completed, isTrue);
     });
 
-    test('保存に失敗したとき、saveコマンドがエラー状態になり編集状態が終了すること', () async {
+    test('保存に失敗したとき、編集状態が終了し編集前の名前が表示されたままであること', () async {
       final target = await _buildFixture();
       target.profileRepository.updateUserNameResult = Result.error(
         Exception('保存に失敗しました'),
@@ -99,93 +85,32 @@ void main() {
 
       expect(target.profileRepository.updateUserNameCallCount, 1);
       expect(target.viewModel.saveUserName.error, isTrue);
-      expect(target.viewModel.canSave, isTrue);
+      expect(target.viewModel.userName, currentUserName.value);
       expect(target.viewModel.isEditing, isFalse);
-    });
-
-    test('保存に失敗したとき、userNameが編集前の値のままであること', () async {
-      final target = await _buildFixture();
-      target.profileRepository.updateUserNameResult = Result.error(
-        Exception('保存に失敗しました'),
-      );
-      target.viewModel.startEditing();
-
-      await target.viewModel.save(newUserName.value);
-
-      expect(target.viewModel.userName, currentUserName.value);
-    });
-
-    test('保存に失敗したあとclearResultしたとき、エラー状態が解消され編集前の名前が表示されること', () async {
-      final target = await _buildFixture();
-      target.profileRepository.updateUserNameResult = Result.error(
-        Exception('保存に失敗しました'),
-      );
-      target.viewModel.startEditing();
-
-      await target.viewModel.save(newUserName.value);
-      target.viewModel.saveUserName.clearResult();
-
-      expect(target.viewModel.saveUserName.error, isFalse);
-      expect(target.viewModel.canSave, isTrue);
-      expect(target.viewModel.userName, currentUserName.value);
-    });
-
-    test('連続で保存に失敗したとき、2回目もsaveコマンドのエラーが検知できること', () async {
-      final target = await _buildFixture();
-      target.profileRepository.updateUserNameResult = Result.error(
-        Exception('保存に失敗しました'),
-      );
-      target.viewModel.startEditing();
-
-      await target.viewModel.save(newUserName.value);
-      expect(target.viewModel.saveUserName.error, isTrue);
-      // 画面がスナックバーを表示したあとの状態を再現する
-      target.viewModel.saveUserName.clearResult();
-
-      target.viewModel.startEditing();
-      await target.viewModel.save(newUserName.value);
-
-      expect(target.profileRepository.updateUserNameCallCount, 2);
-      expect(target.viewModel.saveUserName.error, isTrue);
     });
   });
 
   group('入力の検証', () {
-    test('0文字のユーザー名を保存しようとしたとき、検証エラーメッセージが表示されること', () async {
+    test('0文字のユーザー名を保存しようとしたとき、検証エラーになり保存されず編集状態が続くこと', () async {
       final target = await _buildFixture();
       target.viewModel.startEditing();
 
       await target.viewModel.save('');
 
-      expect(target.viewModel.validationErrorMessage, '1文字以上20文字以下にしてください');
+      expect(target.viewModel.hasValidationError, isTrue);
+      expect(target.profileRepository.updateUserNameCallCount, 0);
+      expect(target.viewModel.saveUserName.result, isNull);
+      expect(target.viewModel.isEditing, isTrue);
     });
 
-    test('20文字を超えるユーザー名を保存しようとしたとき、検証エラーメッセージが表示されること', () async {
+    test('20文字を超えるユーザー名を保存しようとしたとき、検証エラーになり保存されないこと', () async {
       final target = await _buildFixture();
       target.viewModel.startEditing();
 
       await target.viewModel.save('a' * 21);
 
-      expect(target.viewModel.validationErrorMessage, '1文字以上20文字以下にしてください');
-    });
-
-    test('検証エラーになったとき、updateUserNameが呼ばれないこと', () async {
-      final target = await _buildFixture();
-      target.viewModel.startEditing();
-
-      await target.viewModel.save('');
-
+      expect(target.viewModel.hasValidationError, isTrue);
       expect(target.profileRepository.updateUserNameCallCount, 0);
-      expect(target.viewModel.saveUserName.result, isNull);
-    });
-
-    test('検証エラーになったとき、編集状態が継続すること', () async {
-      final target = await _buildFixture();
-      target.viewModel.startEditing();
-
-      await target.viewModel.save('');
-
-      expect(target.viewModel.isEditing, isTrue);
     });
 
     test('検証エラーのあとに有効なユーザー名を保存したとき、検証エラーが解消されること', () async {
@@ -193,11 +118,11 @@ void main() {
       target.viewModel.startEditing();
 
       await target.viewModel.save('a' * 21);
-      expect(target.viewModel.validationErrorMessage, isNotNull);
+      expect(target.viewModel.hasValidationError, isTrue);
 
       await target.viewModel.save(newUserName.value);
 
-      expect(target.viewModel.validationErrorMessage, isNull);
+      expect(target.viewModel.hasValidationError, isFalse);
       expect(target.viewModel.userName, newUserName.value);
     });
   });
@@ -215,8 +140,7 @@ Future<_Fixture> _buildFixture({
   Completer<Result<UserName>>? fetchUserNameCompleter,
 }) async {
   final profileRepository = FakeProfileRepository()
-    ..fetchUserNameResult =
-        fetchUserNameResult ?? Result.ok(const UserName('上田 技術'))
+    ..fetchUserNameResult = fetchUserNameResult ?? Result.ok(UserName('上田 技術'))
     ..fetchUserNameCompleter = fetchUserNameCompleter;
   final authRepository = FakeAuthRepository(
     currentUser: const UserAuth(uid: UserIdVo('test-uid')),

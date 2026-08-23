@@ -33,6 +33,10 @@ class SettingsViewModel extends ChangeNotifier {
   /// データ層由来の失敗だけを表す。
   late final Command1<void, UserName> saveUserName;
 
+  // 表示名をload結果ではなくVMのフィールドで保持する理由:
+  // 保存が成功すると表示名は読み込み時の値から変わるため、loadコマンドの結果は
+  // 表示名の源泉になりえない。表示名の源泉をこのフィールド1つに絞ることで、
+  // 読み込み由来と保存由来の値が二重管理になるのを防ぐ。
   UserName? _userName;
 
   /// 表示中のユーザー名。読み込み完了前は空文字。
@@ -43,10 +47,12 @@ class SettingsViewModel extends ChangeNotifier {
   /// ユーザー名を編集中かどうか。
   bool get isEditing => _isEditing;
 
-  String? _validationErrorMessage;
+  bool _hasValidationError = false;
 
-  /// 入力されたユーザー名の検証エラーメッセージ。問題がなければ`null`。
-  String? get validationErrorMessage => _validationErrorMessage;
+  /// 入力されたユーザー名が検証エラーかどうか。
+  ///
+  /// エラーの文言はUIの関心事なのでここでは持たず、表示するWidgetが決める。
+  bool get hasValidationError => _hasValidationError;
 
   /// ユーザー名を保存できるかどうか。
   bool get canSave => !saveUserName.running;
@@ -59,18 +65,21 @@ class SettingsViewModel extends ChangeNotifier {
 
   /// 入力された[input]を検証し、妥当なら保存する。
   ///
-  /// 検証に失敗した場合はコマンドを実行せず、編集状態を保ったまま
-  /// エラーメッセージだけを更新する(入力し直せるようにするため)。
+  /// 検証は[UserName]の生成そのもので行う(生成できた＝妥当)。失敗した場合は
+  /// コマンドを実行せず、編集状態を保ったまま検証エラーの状態だけを更新する
+  /// (入力し直せるようにするため)。
   Future<void> save(String input) async {
-    final validationErrorMessage = UserName.validate(input);
-    if (validationErrorMessage != null) {
-      _validationErrorMessage = validationErrorMessage;
+    final UserName userName;
+    try {
+      userName = UserName(input);
+    } on FormatException {
+      _hasValidationError = true;
       notifyListeners();
       return;
     }
 
-    _validationErrorMessage = null;
-    await saveUserName.execute(UserName(input));
+    _hasValidationError = false;
+    await saveUserName.execute(userName);
   }
 
   Future<Result<void>> _load() async {

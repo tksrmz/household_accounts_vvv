@@ -13,7 +13,7 @@ class FakeProfileRepository implements ProfileRepository {
       StreamController<PairStatus>.broadcast();
 
   /// [fetchUserName]が返す結果。
-  Result<UserName> fetchUserNameResult = Result.ok(const UserName('テストユーザー'));
+  Result<UserName> fetchUserNameResult = Result.ok(UserName('テストユーザー'));
 
   /// 設定すると[fetchUserName]がこのCompleterのFutureを返す。
   /// 完了しないCompleterを渡せば読み込み中の状態を再現できる。

@@ -49,7 +49,7 @@ class _UserNameCardState extends State<UserNameCard> {
             _UserNameCardTextField(
               controller: _controller,
               focusNode: _focusNode,
-              errorText: widget._viewModel.validationErrorMessage,
+              hasValidationError: widget._viewModel.hasValidationError,
             ),
             if (widget._viewModel.isEditing) ...[
               const SizedBox(height: 16),
@@ -58,8 +58,12 @@ class _UserNameCardState extends State<UserNameCard> {
                 onSave: () async {
                   _focusNode.unfocus(); // フォーカスを外す
                   await widget._viewModel.save(_controller.text);
-                  // 保存に失敗したときは入力を編集前の値へ巻き戻す
-                  if (widget._viewModel.saveUserName.error) {
+                  // 検証エラーのときは入力し直せるよう入力値をそのまま残す。
+                  // それ以外は表示名の唯一の源泉であるViewModelへ入力を合わせる
+                  // (保存に失敗したときは編集前の値へ巻き戻り、成功したときは
+                  // 保存した値のままで変化しない)。保存コマンドのエラー状態を
+                  // 見ないのは、失敗を伝えるスナックバーがそれを消費済みのため。
+                  if (!widget._viewModel.hasValidationError) {
                     _controller.text = widget._viewModel.userName;
                   }
                 },
@@ -99,14 +103,14 @@ class _UserNameCardSaveButton extends StatelessWidget {
 class _UserNameCardTextField extends StatelessWidget {
   const _UserNameCardTextField({
     required TextEditingController controller,
-    required String? errorText,
+    required bool hasValidationError,
     required FocusNode focusNode,
   }) : _controller = controller,
-       _errorText = errorText,
+       _hasValidationError = hasValidationError,
        _focusNode = focusNode;
 
   final TextEditingController _controller;
-  final String? _errorText;
+  final bool _hasValidationError;
   final FocusNode _focusNode;
 
   @override
@@ -118,7 +122,10 @@ class _UserNameCardTextField extends StatelessWidget {
       maxLength: UserName.maxLength,
       controller: _controller,
       focusNode: _focusNode,
-      decoration: InputDecoration(errorText: _errorText),
+      // 検証エラーの文言は表示の関心事なのでViewModelではなくここで決める
+      decoration: InputDecoration(
+        errorText: _hasValidationError ? '1文字以上20文字以下にしてください' : null,
+      ),
     );
   }
 }
