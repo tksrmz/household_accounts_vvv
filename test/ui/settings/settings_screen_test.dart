@@ -13,9 +13,9 @@ import '../../test-util/fake_auth_repository.dart';
 import '../../test-util/fake_profile_repository.dart';
 import '../../test-util/golden_helper.dart';
 
-const _loadedUserName = UserName('うえだぎじゅつ');
-const _editableUserName = UserName('testUserName');
-const _newUserName = UserName('Gijutsu Ueda');
+final _loadedUserName = UserName('うえだぎじゅつ');
+final _editableUserName = UserName('testUserName');
+final _newUserName = UserName('Gijutsu Ueda');
 const _saveErrorMessage = 'ユーザー名の保存に失敗しました';
 
 // なぜスナックバーをgoldenで確認しないか:

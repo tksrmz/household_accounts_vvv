@@ -4,17 +4,51 @@ import 'settings_view_model.dart';
 import 'widgets/user_name_card.dart';
 
 /// 設定画面。
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key, required SettingsViewModel viewModel})
     : _viewModel = viewModel;
 
   final SettingsViewModel _viewModel;
 
   @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    widget._viewModel.saveUserName.addListener(_onSaveResult);
+  }
+
+  @override
+  void dispose() {
+    widget._viewModel.saveUserName.removeListener(_onSaveResult);
+    super.dispose();
+  }
+
+  /// 保存の失敗をスナックバーで伝える。
+  ///
+  /// build内ではなくコマンドのリスナーで表示するのは、スナックバーが
+  /// 「状態」ではなく「一度きりの出来事」だからである(buildは再ビルドのたびに
+  /// 走るため、副作用の発火回数を画面の描画回数から切り離す)。
+  void _onSaveResult() {
+    if (!widget._viewModel.saveUserName.error) {
+      return;
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('ユーザー名の保存に失敗しました')));
+    // 表示済みのエラーを消し、次の失敗でも再びスナックバーが出るようにする
+    widget._viewModel.saveUserName.clearResult();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('設定')),
-      body: _LoadHandler(viewModel: _viewModel),
+      body: _LoadHandler(viewModel: widget._viewModel),
     );
   }
 }
@@ -38,38 +72,8 @@ class _LoadHandler extends StatelessWidget {
           return const Center(child: _ErrorMessage());
         }
 
-        return _SaveErrorHandler(viewModel: _viewModel);
+        return _SettingsContent(viewModel: _viewModel);
       },
-    );
-  }
-}
-
-/// 保存の失敗をスナックバーで伝える。
-class _SaveErrorHandler extends StatelessWidget {
-  const _SaveErrorHandler({required SettingsViewModel viewModel})
-    : _viewModel = viewModel;
-
-  final SettingsViewModel _viewModel;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: _viewModel.saveUserName,
-      builder: (context, child) {
-        if (_viewModel.saveUserName.error) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(const SnackBar(content: Text('ユーザー名の保存に失敗しました')));
-            // 表示済みのエラーを消し、次の失敗でも再びスナックバーが出るようにする
-            _viewModel.saveUserName.clearResult();
-          });
-        }
-
-        // コンテンツは保存状態に依存しないため、childとして再ビルドを避ける
-        return child!;
-      },
-      child: _SettingsContent(viewModel: _viewModel),
     );
   }
 }
