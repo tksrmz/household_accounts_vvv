@@ -8,25 +8,11 @@ import '../data/repositories/profile/profile_repository.dart';
 import '../data/repositories/record/firestore_record_repository.dart';
 import '../data/repositories/record/record_repository.dart';
 import '../domain/models/user_auth.dart';
-import '../v2/data/repositories/firestore/personal_expense_repository.dart';
-import '../v2/data/repositories/firestore/personal_income_repository.dart';
-import '../v2/data/repositories/firestore/public_profile_repository.dart';
-import '../v2/data/repositories/firestore/shared_expense_repository.dart';
-import '../v2/data/repositories/firestore/shared_income_repository.dart';
 import '../v2/data/services/firestore/personal/personal_expense_category_service.dart';
-import '../v2/data/services/firestore/personal/personal_expense_record_service.dart';
 import '../v2/data/services/firestore/personal/personal_income_category_service.dart';
-import '../v2/data/services/firestore/personal/personal_income_record_service.dart';
 import '../v2/data/services/firestore/personal/personal_property_service.dart';
 import '../v2/data/services/firestore/personal/personal_transfer_record_service.dart';
-import '../v2/data/services/firestore/profile/private_profile_service.dart';
-import '../v2/data/services/firestore/profile/public_profile_service.dart';
-import '../v2/data/services/firestore/shared/shared_record_service.dart';
 import '../v2/data/services/firestore/transaction/firestore_transaction_service.dart';
-import '../v2/domain/models/vo/user_id.dart';
-import '../v2/domain/repositories/expense_repository.dart';
-import '../v2/domain/repositories/income_repository.dart';
-import '../v2/domain/repositories/public_profile_repository.dart';
 import '../v2/presentation/pages/state_managements/selected_note_state.dart';
 
 /// アプリ全域・長寿命の依存(Repository/Service/共有状態)のProvider登録一覧。
@@ -38,18 +24,6 @@ List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
   Provider<FirebaseFirestore>.value(value: FirebaseFirestore.instance),
   Provider<ProfileRepository>(
     create: (context) => FirestoreProfileRepository(context.read()),
-  ),
-  Provider<PublicProfileService>(
-    create: (context) => PublicProfileService(context.read()),
-  ),
-  Provider<PrivateProfileService>(
-    create: (context) => PrivateProfileService(context.read()),
-  ),
-  Provider<PersonalExpenseRecordService>(
-    create: (context) => PersonalExpenseRecordService(context.read()),
-  ),
-  Provider<PersonalIncomeRecordService>(
-    create: (context) => PersonalIncomeRecordService(context.read()),
   ),
   Provider<PersonalIncomeCategoryService>(
     create: (context) => PersonalIncomeCategoryService(context.read()),
@@ -63,14 +37,8 @@ List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
   Provider<PersonalTransferRecordService>(
     create: (context) => PersonalTransferRecordService(context.read()),
   ),
-  Provider<SharedRecordService>(
-    create: (context) => const SharedRecordService(),
-  ),
   Provider<FirestoreTransactionService>(
     create: (context) => FirestoreTransactionService(context.read()),
-  ),
-  Provider<PublicProfileRepository>(
-    create: (context) => FirestorePublicProfileRepository(context.read()),
   ),
   StreamProvider<UserAuth>(
     // lazy: false は必須。旧実装はAuthGateが起動直後からwatchしていたため
@@ -89,41 +57,5 @@ List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
       // redirectにより画面がRepositoryを購読する前にサインイン画面へ遷移する
       selectedNote.resolve(user.uid),
     ),
-  ),
-  ProxyProvider2<SelectedNoteState, UserAuth, IncomeRepository>(
-    update: (context, selectedNote, user, _) {
-      // v2のRepository群はまだUserIdVoを要求するため変換する
-      // (これらのRepositoryはダッシュボード移行で置き換わる予定)
-      final userId = UserIdVo(user.uid.value);
-
-      return selectedNote.isPersonal
-          ? FirestorePersonalIncomeRepository(
-              context.read<PersonalIncomeRecordService>(),
-              userId,
-            )
-          : FirestoreSharedIncomeRepository(
-              context.read<SharedRecordService>(),
-              context.read<PrivateProfileService>(),
-              userId,
-            );
-    },
-  ),
-  ProxyProvider2<SelectedNoteState, UserAuth, ExpenseRepository>(
-    update: (context, selectedNote, user, _) {
-      // v2のRepository群はまだUserIdVoを要求するため変換する
-      // (これらのRepositoryはダッシュボード移行で置き換わる予定)
-      final userId = UserIdVo(user.uid.value);
-
-      return selectedNote.isPersonal
-          ? FirestorePersonalExpenseRepository(
-              context.read<PersonalExpenseRecordService>(),
-              userId,
-            )
-          : FirestoreSharedExpenseRepository(
-              context.read<SharedRecordService>(),
-              context.read<PrivateProfileService>(),
-              userId,
-            );
-    },
   ),
 ];
