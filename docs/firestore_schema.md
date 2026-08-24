@@ -59,8 +59,8 @@
               "required": ["ref"],
               "properties": {
                 "ref": {
-                  "type": "string",
-                  "description": "Reference path to a property"
+                  "type": "DocumentReference",
+                  "description": "DocumentReference to a property"
                 }
               }
             },
@@ -69,8 +69,8 @@
               "required": ["ref"],
               "properties": {
                 "ref": {
-                  "type": "string",
-                  "description": "Reference path to a category"
+                  "type": "DocumentReference",
+                  "description": "DocumentReference to a category"
                 }
               }
             }
@@ -93,8 +93,8 @@
               "required": ["ref"],
               "properties": {
                 "ref": {
-                  "type": "string",
-                  "description": "Reference path to a property"
+                  "type": "DocumentReference",
+                  "description": "DocumentReference to a property"
                 }
               }
             },
@@ -103,8 +103,8 @@
               "required": ["ref"],
               "properties": {
                 "ref": {
-                  "type": "string",
-                  "description": "Reference path to a category"
+                  "type": "DocumentReference",
+                  "description": "DocumentReference to a category"
                 }
               }
             }
@@ -127,8 +127,8 @@
               "required": ["ref"],
               "properties": {
                 "ref": {
-                  "type": "string",
-                  "description": "Reference path to source property"
+                  "type": "DocumentReference",
+                  "description": "DocumentReference to source property"
                 }
               }
             },
@@ -137,8 +137,8 @@
               "required": ["ref"],
               "properties": {
                 "ref": {
-                  "type": "string",
-                  "description": "Reference path to destination property"
+                  "type": "DocumentReference",
+                  "description": "DocumentReference to destination property"
                 }
               }
             }
