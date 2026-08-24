@@ -5,6 +5,8 @@ import 'package:provider/single_child_widget.dart';
 import '../data/repositories/auth/auth_repository.dart';
 import '../data/repositories/profile/firestore_profile_repository.dart';
 import '../data/repositories/profile/profile_repository.dart';
+import '../data/repositories/record/firestore_record_repository.dart';
+import '../data/repositories/record/record_repository.dart';
 import '../domain/models/user_auth.dart';
 import '../v2/data/repositories/firestore/personal_expense_repository.dart';
 import '../v2/data/repositories/firestore/personal_income_repository.dart';
@@ -79,6 +81,14 @@ List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
     lazy: false,
     initialData: authRepository.getCurrentUser(),
     create: (_) => authRepository.authStateChanges(),
+  ),
+  ProxyProvider2<SelectedNoteState, UserAuth, RecordRepository>(
+    update: (context, selectedNote, user, _) => FirestoreRecordRepository(
+      context.read<FirebaseFirestore>(),
+      // サインイン前はuidが仮値(not-sign-in)のまま評価されるが、routerの
+      // redirectにより画面がRepositoryを購読する前にサインイン画面へ遷移する
+      selectedNote.resolve(user.uid),
+    ),
   ),
   ProxyProvider2<SelectedNoteState, UserAuth, IncomeRepository>(
     update: (context, selectedNote, user, _) {
