@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:household_accounts/v2/domain/models/user_auth.dart';
+import 'package:household_accounts/domain/models/user_auth.dart';
+import 'package:household_accounts/domain/models/user_id.dart';
 import 'package:household_accounts/v2/domain/models/vo/expense.dart';
 import 'package:household_accounts/v2/domain/models/vo/income.dart';
 import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
@@ -46,7 +47,7 @@ void main() {
       ChangeNotifierProvider<SelectedNoteState>(
         create: (_) => SelectedNoteState(),
       ),
-      Provider<UserAuth>(create: (_) => UserAuth(uid: userId)),
+      Provider<UserAuth>(create: (_) => UserAuth(uid: UserId(userId.value))),
     ],
     child: DashboardPage(
       viewModel: DashboardViewModel(

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/domain/models/pair_id.dart';
 import 'package:household_accounts/domain/models/pair_status.dart';
+import 'package:household_accounts/domain/models/user_auth.dart';
+import 'package:household_accounts/domain/models/user_id.dart';
 import 'package:household_accounts/ui/shell/shell_scaffold.dart';
 import 'package:household_accounts/ui/shell/shell_view_model.dart';
-import 'package:household_accounts/v2/domain/models/user_auth.dart';
-import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 import 'package:household_accounts/v2/presentation/pages/state_managements/selected_note_state.dart';
 
 import '../../test-util/fake_auth_repository.dart';
@@ -164,7 +164,7 @@ _Fixture _buildFixture({
 }) {
   final profileRepository = FakeProfileRepository();
   final authRepository = FakeAuthRepository(
-    currentUser: const UserAuth(uid: UserIdVo('test-uid')),
+    currentUser: UserAuth(uid: UserId('test-uid')),
   );
   final selectedNoteState = SelectedNoteState();
   if (initialNote == SelectedNote.shared) {

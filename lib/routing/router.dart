@@ -11,10 +11,11 @@ import '../presentation/category_viewer/category_viewer_page.dart';
 import '../presentation/monthly_record_viewer/monthly_record_viewer_page.dart';
 import '../presentation/property_viewer/property_viewer_page.dart';
 import '../presentation/record_register/record_register_page.dart';
+import '../domain/models/user_auth.dart';
 import '../ui/settings/settings_screen.dart';
 import '../ui/settings/settings_view_model.dart';
 import '../ui/shell/shell_screen_host.dart';
-import '../v2/domain/models/user_auth.dart';
+import '../v2/domain/models/vo/user_id.dart';
 import '../v2/presentation/pages/dashboard/page.dart';
 import '../v2/presentation/pages/dashboard/view_model.dart';
 import '../v2/presentation/pages/state_managements/selected_note_state.dart';
@@ -93,13 +94,16 @@ GoRouter createRouter({
 
                     final now = DateTime.now();
                     final userAuth = context.read<UserAuth>();
+                    // DashboardViewModelはv2のUserIdVoをまだ要求するため変換する
+                    // (ダッシュボード移行でUserIdへ置き換わる予定)
+                    final userId = UserIdVo(userAuth.uid.value);
                     return DashboardPage(
                       viewModel: DashboardViewModel(
                         incomeRepository: context.read(),
                         expenseRepository: context.read(),
                         publicProfileRepository: context.read(),
                         date: now,
-                        userId: userAuth.uid,
+                        userId: userId,
                       ),
                     );
                   },

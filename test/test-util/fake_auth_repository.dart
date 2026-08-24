@@ -1,6 +1,6 @@
 import 'package:household_accounts/data/repositories/auth/auth_repository.dart';
+import 'package:household_accounts/domain/models/user_auth.dart';
 import 'package:household_accounts/utils/result.dart';
-import 'package:household_accounts/v2/domain/models/user_auth.dart';
 
 /// Resultを返すinterfaceはmockitoでモック生成できないため手書きFakeを共用する
 class FakeAuthRepository implements AuthRepository {

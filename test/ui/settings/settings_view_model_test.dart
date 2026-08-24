@@ -1,12 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:household_accounts/domain/models/user_auth.dart';
 import 'package:household_accounts/domain/models/user_id.dart';
 import 'package:household_accounts/domain/models/user_name.dart';
 import 'package:household_accounts/ui/settings/settings_view_model.dart';
 import 'package:household_accounts/utils/result.dart';
-import 'package:household_accounts/v2/domain/models/user_auth.dart';
-import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 
 import '../../test-util/fake_auth_repository.dart';
 import '../../test-util/fake_profile_repository.dart';
@@ -164,7 +163,7 @@ Future<_Fixture> _buildFixture({
     ..fetchUserNameResult = fetchUserNameResult ?? Result.ok(UserName('上田 技術'))
     ..fetchUserNameCompleter = fetchUserNameCompleter;
   final authRepository = FakeAuthRepository(
-    currentUser: const UserAuth(uid: UserIdVo('test-uid')),
+    currentUser: UserAuth(uid: UserId('test-uid')),
   );
 
   final viewModel = SettingsViewModel(

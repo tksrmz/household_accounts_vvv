@@ -5,6 +5,7 @@ import 'package:provider/single_child_widget.dart';
 import '../data/repositories/auth/auth_repository.dart';
 import '../data/repositories/profile/firestore_profile_repository.dart';
 import '../data/repositories/profile/profile_repository.dart';
+import '../domain/models/user_auth.dart';
 import '../v2/data/repositories/firestore/personal_expense_repository.dart';
 import '../v2/data/repositories/firestore/personal_income_repository.dart';
 import '../v2/data/repositories/firestore/public_profile_repository.dart';
@@ -20,7 +21,7 @@ import '../v2/data/services/firestore/profile/private_profile_service.dart';
 import '../v2/data/services/firestore/profile/public_profile_service.dart';
 import '../v2/data/services/firestore/shared/shared_record_service.dart';
 import '../v2/data/services/firestore/transaction/firestore_transaction_service.dart';
-import '../v2/domain/models/user_auth.dart';
+import '../v2/domain/models/vo/user_id.dart';
 import '../v2/domain/repositories/expense_repository.dart';
 import '../v2/domain/repositories/income_repository.dart';
 import '../v2/domain/repositories/public_profile_repository.dart';
@@ -81,7 +82,9 @@ List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
   ),
   ProxyProvider2<SelectedNoteState, UserAuth, IncomeRepository>(
     update: (context, selectedNote, user, _) {
-      final userId = user.uid;
+      // v2のRepository群はまだUserIdVoを要求するため変換する
+      // (これらのRepositoryはダッシュボード移行で置き換わる予定)
+      final userId = UserIdVo(user.uid.value);
 
       return selectedNote.isPersonal
           ? FirestorePersonalIncomeRepository(
@@ -97,7 +100,9 @@ List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
   ),
   ProxyProvider2<SelectedNoteState, UserAuth, ExpenseRepository>(
     update: (context, selectedNote, user, _) {
-      final userId = user.uid;
+      // v2のRepository群はまだUserIdVoを要求するため変換する
+      // (これらのRepositoryはダッシュボード移行で置き換わる予定)
+      final userId = UserIdVo(user.uid.value);
 
       return selectedNote.isPersonal
           ? FirestorePersonalExpenseRepository(

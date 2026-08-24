@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:household_accounts/v2/domain/models/user_auth.dart';
+import 'package:household_accounts/domain/models/user_auth.dart';
 
+import '../../../domain/models/user_id.dart';
 import '../../../utils/result.dart';
-import '../../../v2/domain/models/vo/user_id.dart';
 import 'auth_repository.dart';
 
 class FirebaseAuthRepository implements AuthRepository {
@@ -21,8 +21,6 @@ class FirebaseAuthRepository implements AuthRepository {
   ///
   /// Returns [UserAuth.notSignIn], otherwise.
   UserAuth _toUserAuth(User? user) {
-    return user == null
-        ? UserAuth.notSignIn
-        : UserAuth(uid: UserIdVo(user.uid));
+    return user == null ? UserAuth.notSignIn : UserAuth(uid: UserId(user.uid));
   }
 }

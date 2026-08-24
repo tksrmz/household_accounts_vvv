@@ -47,18 +47,18 @@ class ShellViewModel extends ChangeNotifier {
        _selectedNoteState = selectedNoteState {
     logout = Command0(_logout);
     // シェルは認証済みでのみマウントされる(routerのredirectが保証)
-    _uid = authRepository.getCurrentUser().uid.value;
+    _uid = authRepository.getCurrentUser().uid;
     // ドロワー表示をノート切替へ追従させる
     _selectedNoteState.addListener(notifyListeners);
     _subscription = profileRepository
-        .watchPairStatus(UserId(_uid))
+        .watchPairStatus(_uid)
         .listen(_onPairStatus, onError: _onPairError);
   }
 
   final AuthRepository _authRepository;
   final SelectedNoteState _selectedNoteState;
 
-  late final String _uid;
+  late final UserId _uid;
   late final StreamSubscription<PairStatus> _subscription;
 
   ShellPairState _pairState = const ShellPairLoading();
@@ -95,7 +95,7 @@ class ShellViewModel extends ChangeNotifier {
       _selectedNoteState.select(SelectedNote.personal);
     }
     _pairState = ShellPairData(pairId);
-    _userInfo = UserInfo(uid: _uid, pairId: pairId);
+    _userInfo = UserInfo(uid: _uid.value, pairId: pairId);
     notifyListeners();
   }
 

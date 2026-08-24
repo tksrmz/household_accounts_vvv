@@ -1,4 +1,4 @@
-import '../../../v2/domain/models/user_auth.dart';
+import '../../../domain/models/user_auth.dart';
 import '../../../utils/result.dart';
 
 abstract interface class AuthRepository {
