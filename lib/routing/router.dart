@@ -12,12 +12,10 @@ import '../presentation/monthly_record_viewer/monthly_record_viewer_page.dart';
 import '../presentation/property_viewer/property_viewer_page.dart';
 import '../presentation/record_register/record_register_page.dart';
 import '../domain/models/user_auth.dart';
+import '../ui/dashboard/dashboard_screen_host.dart';
 import '../ui/settings/settings_screen.dart';
 import '../ui/settings/settings_view_model.dart';
 import '../ui/shell/shell_screen_host.dart';
-import '../v2/domain/models/vo/user_id.dart';
-import '../v2/presentation/pages/dashboard/page.dart';
-import '../v2/presentation/pages/dashboard/view_model.dart';
 import '../v2/presentation/pages/state_managements/selected_note_state.dart';
 import 'routes.dart';
 
@@ -87,24 +85,18 @@ GoRouter createRouter({
                 path: Routes.dashboard,
                 builder: (context, state) => Builder(
                   builder: (context) {
-                    // ノート切替時にDashboardViewModelを作り直す
-                    // ProxyProvider2が上流で新Repositoryへ差し替わった後に
-                    // このwatchで再buildされる。
-                    context.watch<SelectedNoteState>();
-
-                    final now = DateTime.now();
-                    final userAuth = context.read<UserAuth>();
-                    // DashboardViewModelはv2のUserIdVoをまだ要求するため変換する
-                    // (ダッシュボード移行でUserIdへ置き換わる予定)
-                    final userId = UserIdVo(userAuth.uid.value);
-                    return DashboardPage(
-                      viewModel: DashboardViewModel(
-                        incomeRepository: context.read(),
-                        expenseRepository: context.read(),
-                        publicProfileRepository: context.read(),
-                        date: now,
-                        userId: userId,
-                      ),
+                    // ノート切替時にViewModelを作り直す: SelectedNoteStateの
+                    // 変化で再buildされ、ValueKeyの変化によりHostのStateごと
+                    // 再生成される(旧ViewModelのdisposeで購読解除、新ViewModelが
+                    // 新しいRecordRepositoryを購読する)。
+                    // サインイン前のUserAuthはnot-sign-inの仮値だが、routerの
+                    // redirectによりこの画面へは到達しない。
+                    final notebook = context.watch<SelectedNoteState>().resolve(
+                      context.watch<UserAuth>().uid,
+                    );
+                    return DashboardScreenHost(
+                      key: ValueKey(notebook),
+                      notebook: notebook,
                     );
                   },
                 ),
