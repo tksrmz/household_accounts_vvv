@@ -82,7 +82,17 @@ void main() {
       expect(target.viewModel.pairState, isA<ShellPairError>());
     });
 
+    // Errorが流れたときの再送出(Error.throwWithStackTrace)は意図的にテストしない。
+    // plain test内でこの経路を通すと、StreamSubscriptionのonErrorコールバック内で
+    // 投げ直した例外がテストのZoneでunhandledな非同期エラーとなり、
+    // どのtest()の失敗として報告されるかが不安定になる(既知の問題)。
+    // Exceptionが状態化される上のテストで、is! Exceptionによる分岐の入口
+    // 自体は経路として通っている。
+
     test('pairIdが後から変化したとき、userInfoが更新されリスナーへ通知されること', () async {
+      // 通知回数は「userInfo更新の明示的なnotifyListeners」と「SelectedNoteState
+      // 経由の転送notifyListeners」が両方発火しうる実装詳細のため、正確な回数では
+      // なく「各イベントで少なくとも1回は増える」ことだけを確認する。
       final target = _buildViewModel();
       var notifyCount = 0;
       target.viewModel.addListener(() => notifyCount++);
@@ -91,46 +101,45 @@ void main() {
         const PairStatus.notPaired(),
       );
       await pumpEventQueue();
-      expect(notifyCount, 1);
+      expect(notifyCount, greaterThan(0));
       expect(target.viewModel.userInfo?.pairId, isNull);
 
+      final notifyCountAfterFirstEvent = notifyCount;
       target.profileRepository.pairStatusController.add(
         PairStatus.paired(PairId('pair-id')),
       );
       await pumpEventQueue();
-      expect(notifyCount, 2);
+      expect(notifyCount, greaterThan(notifyCountAfterFirstEvent));
       expect(target.viewModel.userInfo?.pairId, 'pair-id');
     });
 
-    test('ペアありからnotPairedが流れたとき、選択中ノートがsharedならpersonalへ強制リセットされること', () async {
+    // ペア解消時にpersonalへ強制リセットする責務そのものはSelectedNoteStateへ
+    // 移った(selected_note_state_test.dartで検証済み)。ここではShellViewModelが
+    // ペア検知結果を確実にSelectedNoteStateへ伝えていることだけを確かめる。
+    test('pairIdが流れたとき、SelectedNoteStateのpairIdが更新されること', () async {
+      final target = _buildViewModel();
+
+      target.profileRepository.pairStatusController.add(
+        PairStatus.paired(PairId('pair-id')),
+      );
+      await pumpEventQueue();
+
+      expect(target.selectedNoteState.pairId, PairId('pair-id'));
+    });
+
+    test('notPairedが流れたとき、SelectedNoteStateのpairIdがnullに更新されること', () async {
       final target = _buildViewModel();
       target.profileRepository.pairStatusController.add(
         PairStatus.paired(PairId('pair-id')),
       );
       await pumpEventQueue();
-      target.viewModel.switchNote(SelectedNote.shared);
-      expect(target.selectedNoteState.value, SelectedNote.shared);
 
       target.profileRepository.pairStatusController.add(
         const PairStatus.notPaired(),
       );
       await pumpEventQueue();
 
-      expect(target.selectedNoteState.value, SelectedNote.personal);
-      expect(target.viewModel.selectedNote, SelectedNote.personal);
-    });
-
-    test('notPairedが流れたとき、選択中ノートがpersonalなら選択状態が変わらないこと', () async {
-      final target = _buildViewModel();
-      expect(target.selectedNoteState.value, SelectedNote.personal);
-
-      target.profileRepository.pairStatusController.add(
-        const PairStatus.notPaired(),
-      );
-      await pumpEventQueue();
-
-      expect(target.selectedNoteState.value, SelectedNote.personal);
-      expect(target.viewModel.selectedNote, SelectedNote.personal);
+      expect(target.selectedNoteState.pairId, isNull);
     });
   });
 
