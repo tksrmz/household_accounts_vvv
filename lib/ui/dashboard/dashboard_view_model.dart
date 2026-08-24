@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 
 import '../../data/repositories/auth/auth_repository.dart';
 import '../../data/repositories/profile/profile_repository.dart';
@@ -86,6 +88,14 @@ class DashboardViewModel extends ChangeNotifier {
     if (error is! Exception) {
       Error.throwWithStackTrace(error, stackTrace);
     }
+    // エラーUIは詳細を表示しないため、原因調査の手がかりをログへ残す
+    developer.log(
+      'レコードの購読が失敗しました',
+      name: 'DashboardViewModel',
+      level: Level.WARNING.value,
+      error: error,
+      stackTrace: stackTrace,
+    );
     _recordsError = error;
     notifyListeners();
   }
