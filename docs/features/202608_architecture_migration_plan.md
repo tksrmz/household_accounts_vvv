@@ -61,10 +61,10 @@
 | 項目 | 内容 |
 |---|---|
 | 画面 | dashboard |
-| データ層 | **`Period` / `Notebook` 型と `notebook_paths` をここで初出**。Record sealed union + RecordId等のドメインモデル本体、RecordDto、`RecordRepository.watchPeriod(Period)`(incomes/expenses/transfersの3 snapshots結合)。あわせて `UserAuth` を `lib/domain/models/` へ移設し新 `UserId` へ切替(主要な消費者のProxyProvider2・v2 income/expense Repository群がこのPRで消滅するため移設の最適点。遅くともPR9) |
+| データ層 | **`Period` / `Notebook` 型と `notebook_paths` をここで初出**。Record sealed union + RecordId等のドメインモデル本体、RecordDto、`RecordRepository.watchPeriod(Period)`(incomes/expenses/transfersの3 snapshots結合)。あわせて `UserAuth` を `lib/domain/models/` へ移設し新 `UserId` へ切替(主要な消費者のProxyProvider2・v2 income/expense Repository群がこのPRで消滅するため移設の最適点。遅くともPR9)。pairId供給は`SelectedNoteState`の拡張(pairId保持+`updatePairId`で原子的にpersonal復帰+`resolve(uid)`→`Notebook`導出)で行う。検証付き値型のうち`Amount`・`RecordNote`はPR4から前倒しして本PRで導入し、**`RecordDate`は無検証のまま**とする(integrationテストのシードデータが月末23:59:59を持ち、実行日によっては意図的に未来日付になるため。未来日付の拒否はPR4の入力境界(DatePicker制限+ドラフト検証)で行う) |
 | 移設・改修 | DashboardViewModelをwatch購読型に書き換え、月次集計をドメイン純粋関数化 |
 | 削除 | v2のpersonal/shared income・expense Repository+Service群、`ProxyProvider2` 2本(新RecordRepositoryの単一ProxyProviderへ)、**PR2から後送した旧profile系データ層**(`FirestorePublicProfileRepository`・`PublicProfileService`・`PrivateProfileService`・`PrivateProfile`モデル・`private_profile_util`。dashboard移行と共有Repository削除で依存が外れるため) |
-| 特記 | **リアルタイム反映がここから始まる**(挙動変更一覧参照)。切替状態は移行期間中も既存 `SelectedNoteState` を共用し(旧画面が依存)、新側はProxyProvider内で `Notebook` を導出する(改名・整理はPR9)。未配線だったbudget_graph/summary_panelは触らずPR8で判断。**watchのエラー表現をここで決める**: `Stream<T>` のままエラーは購読側で処理するか、`Stream<Result<T>>`+guardStream相当を導入してFuture側と対称にするか(2026-08-22のlint整備時の持ち越し。決定したらlintルールへの反映要否も判断。`Stream<Result<T>>` を採る場合は、設計の正である刷新案のStream署名の記述(D6等)も決定記録として更新し、ドキュメント間の乖離を残さないこと) |
+| 特記 | **リアルタイム反映がここから始まる**(挙動変更一覧参照)。切替状態は移行期間中も既存 `SelectedNoteState` を共用し(旧画面が依存)、新側はProxyProvider内で `Notebook` を導出する(改名・整理はPR9)。watchのエラー表現は素の `Stream<T>` に決定(2026-08-24)。Streamのエラーは購読側(ViewModel)が `listen(onError:)` で受け、onErrorハンドラ内でException(エラー状態化)とError(`Error.throwWithStackTrace` で再送出=fail fast)を区別する規約とする(`Result.guard` の区分と一貫)。`Stream<Result<T>>` 化はせず、刷新案D6の記述は現行のまま、lintの新ルールも設けない。「未配線だったbudget_graph/summary_panel」のうちsummary_panelは実際には現役表示中だったため、PR3で `lib/ui/dashboard/widgets/` へ移設した。真に未配線なのはbudget_graph(+BudgetGraphData/BudgetGraphDataList/golden 27枚)のみで、これらはv2に残置しPR8で判断する。RecordDtoはwithConverterを使わない(読み取り専用の本PRでは`toFirestore`が書けない: `createdAt`はserverTimestamp必須等。D6のwithConverter方針自体は維持し、`add`を実装するPR4で再評価)。DTOはIncome/Expense/Transferの3クラス(ドキュメント形が同一でもドメイン的に別物のため共用しない)。`FirestoreRecordRepository`自体の単体テストは書かない(パス解決=`notebook_paths_test`、変換=`record_dto_test`、結合=`combine_latest_test`で担保し、期間フィルタの実効性はintegrationテストで担保。エミュレータ結合テスト基盤の検討はPR4へ) |
 
 ### PR4: 記録入力 `dev/arch-04-record-entry`
 
@@ -73,7 +73,7 @@
 | 項目 | 内容 |
 |---|---|
 | 画面 | entry |
-| データ層 | `transaction_runner` をここで初出。`RecordRepository.add`(runTransaction + `record.balanceEffects` による残高増減)、`CategoryRepository.watchAll`(収入/支出)、`PropertyRepository.watchAll`、検証付き値型(Amount, RecordNote, RecordDate=未来禁止, 振替の同一資産禁止Assert) |
+| データ層 | `transaction_runner` をここで初出。`RecordRepository.add`(runTransaction + `record.balanceEffects` による残高増減)、`CategoryRepository.watchAll`(収入/支出)、`PropertyRepository.watchAll`。検証付き値型のうちAmount・RecordNote・振替の同一資産禁止AssertはPR3で導入済み。本PRは入力境界を担当する: DatePickerの当日までの制限とドラフト検証による未来日付の禁止(`RecordDate`型自体は読み取り耐性のため無検証を維持する)、フォーム検証 |
 | 削除 | `lib/presentation/record_register/` `lib/feature/record_register/` と該当service_locator登録 |
 | 特記 | **移行の山場**。挙動変更3点が入る: 未来日付入力の禁止(O1)、共有ノートでの記録入力の解禁(O5)、残高の自動増減開始(O6/D7)。着手前に「横断の確認事項」のRules確認を済ませること |
 
@@ -128,7 +128,7 @@
 | 項目 | 内容 |
 |---|---|
 | 削除 | 残存する旧世代すべて: `lib/feature/`(repository含む) `lib/util/service_locator/` `lib/data/` `lib/entity/` `lib/vo/` `lib/util/type/` ほか未使用ユーティリティ、`lib/v2/` ディレクトリの解消(空化)、シェルの `UserInfo` 互換供給・get_it初期化の除去、`SelectedNoteState` の最終形(`SelectedNotebook`)への改名整理 |
-| pubspec | `dartz` `get_it` `equatable` `uuid` `result_dart` を除去。`mocktail` は必要になった時点(それまでのPR)で追加済みの想定 |
+| pubspec | `dartz` `get_it` `equatable` `uuid` `result_dart` を除去。`mocktail` は必要になった時点(それまでのPR)で追加済みの想定(実態注記: PR3時点でも未導入。DocumentReference等のフェイクはnoSuchMethodを自前宣言した手書きFakeで足りたため) |
 | ドキュメント | `docs/architecture.md` `docs/style_guide.md` `CLAUDE.md` を新アーキテクチャに合わせて全面改訂(現行の「get_itは不使用」等の乖離も解消) |
 | 特記 | ここで「新アーキテクチャ100%」宣言。mockitoテストの全面置き換えはしない(既存テストは触るときに移行、の方針を継続) |
 
@@ -151,6 +151,7 @@
 | PR1 | ログアウト処理からget_itリセットを除去 | 旧実装の `sl.reset()` は再登録経路がなく、同一セッションでの再ログイン後に旧画面が `sl<T>()` でクラッシュする潜在バグの原因だった。登録は全てステートレスな `registerFactory` でresetに実益がないため廃止 |
 | PR2 | ペア解消時の個人ノートへの自動復帰 | ペア解消(pairId消失)を検知したとき、選択中ノートが共有のままでも個人ノートへ強制リセットするようになる(従来は切替UIが消えるだけでshared表示が継続する潜在不整合があった) |
 | PR2後続 | 設定画面のライブ検証 | ユーザー名の不正入力(0文字)を入力した時点で検証エラーを表示し保存ボタンを押下不可にする(従来は保存押下時に検証)。旧spec.mdの状態遷移への準拠(PR #19) |
+| PR3 | データ不正時のエラー表示 | 期間内に1件でもドメイン制約を満たさないレコード(金額0以下・メモ101文字以上・ドキュメント形の不正)があると、ダッシュボード全体がエラー表示になる(従来は検証せず合計していた)。正常なスナップショットが届けば自動回復する |
 
 ## 6. 進捗管理の運用
 
@@ -170,3 +171,5 @@
 - 2026-08-22: バリデーションの層分担を明確化 — バリデーション(ドメインルール未達の入力)はUI層の関心事としてVM状態で表現し、Command/Result.errorはData層由来の失敗のみを表す。保存Commandの引数は検証済み値型(`Command1<void, UserName>`)とし境界を型で強制する。検証タイミングのspec.md準拠化(ライブ検証)はPR2マージ後・PR3着手前のマイクロPRとして実施(PR2特記参照)
 - 2026-08-23: PR #15レビュー反映 — 検証付き値型の方針を「@Assert + static validate」からコンストラクタでの全ビルド検証+throwへ変更(ユーザー入力由来=`FormatException`(VMが捕捉し検証状態へ)、システム内不変条件=`ArgumentError`(fail fast)。`Result.guard` のException/Error区分と対応)。UI文言はWidget層へ戻す。ShellViewModelはStream関数注入をやめProfileRepository注入へ(VMはRepositoryインターフェースを受け取る規約)。`UserAuth` のdomain移設をPR3へ追記
 - 2026-08-23: PR2フォローアップのマイクロPR(設定画面のライブ検証化)を実施(PR #19)。`UserName.isValid` を新設しコンストラクタの検証条件と判定を一本化。挙動変更一覧に追加
+- 2026-08-24: integrationシードデータの参照フィールドを修正 — シードレコードの `property.ref`/`category.ref` が文字列パスで保存されており、本番の正(アプリはDocumentReferenceを書き込み、Rulesも `is path` を要求)と乖離していた(旧ダッシュボードはamountしか読まず露見せず、新RecordDtoの形検証で発覚。エミュレータのimportはRulesを迂回するためシードにだけ存在できていた)。エミュレータ+REST APIでreferenceValueへ一括変換し再export。変換手段は `integration_test/util/patch_seed_record_refs.cjs` として保存
+- 2026-08-24: PR3詳細化と実装の決定を反映 — watchエラー表現の決定(素の`Stream<T>`+`listen(onError:)`でException/Errorを区分、`Result.guard`の区分と一貫。`Stream<Result<T>>`化・lint新設は見送り) / combineLatest3を自作(`lib/utils/combine_latest.dart`、rxdart不採用) / pairId供給は`SelectedNoteState`の拡張(`updatePairId`) / 検証付き値型のうちAmount・RecordNoteをPR3へ前倒し、RecordDateはシード衝突回避のため無検証を維持 / RecordDtoはIncome/Expense/Transferの3クラスに分割(共用しない) / withConverter採用は見送り(PR4で再評価) / summary_panelは「未配線」ではなく現役表示中だった事実を訂正(budget_graphのみ真に未配線) / ダッシュボード初回ローディングもCommand0で統一(settings準拠)

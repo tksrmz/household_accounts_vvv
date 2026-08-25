@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:household_accounts/domain/models/user_auth.dart';
+import 'package:household_accounts/domain/models/user_id.dart';
 import 'package:household_accounts/domain/models/user_name.dart';
 import 'package:household_accounts/ui/settings/settings_screen.dart';
 import 'package:household_accounts/ui/settings/settings_view_model.dart';
 import 'package:household_accounts/utils/result.dart';
-import 'package:household_accounts/v2/domain/models/user_auth.dart';
-import 'package:household_accounts/v2/domain/models/vo/user_id.dart';
 
 import '../../test-util/fake_auth_repository.dart';
 import '../../test-util/fake_profile_repository.dart';
@@ -294,7 +294,7 @@ _Fixture _buildFixture({
     ..updateUserNameResult = updateUserNameResult ?? const Result.ok(null)
     ..updateUserNameCompleter = updateUserNameCompleter;
   final authRepository = FakeAuthRepository(
-    currentUser: const UserAuth(uid: UserIdVo('test-uid')),
+    currentUser: UserAuth.signedIn(UserId('test-uid')),
   );
 
   return _Fixture(

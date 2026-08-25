@@ -14,7 +14,7 @@ class SettingsViewModel extends ChangeNotifier {
     required AuthRepository authRepository,
   }) : _profileRepository = profileRepository,
        // 設定画面は認証済みでのみ到達する(routerのredirectが保証)
-       _userId = UserId(authRepository.getCurrentUser().uid.value) {
+       _userId = authRepository.getCurrentUser().signedInUid {
     saveUserName = Command1(_save);
     // 画面を開いた時点で読み込みを始める(Viewからの明示的な初期化呼び出しは不要)
     load = Command0(_load)..execute();

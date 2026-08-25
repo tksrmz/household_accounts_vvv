@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 
 import '../../data/repositories/auth/auth_repository.dart';
 import '../../data/repositories/profile/profile_repository.dart';
@@ -8,7 +10,10 @@ import '../../domain/models/pair_status.dart';
 import '../../domain/models/user_id.dart';
 import '../../presentation/util/model/user_info.dart';
 import '../../utils/command.dart';
-import '../../utils/result.dart';
+// utils/result.dartが独自の`Error<T>`(Resultの失敗variant)を公開しており、
+// dart:coreの`Error`(Error.throwWithStackTrace)と名前が衝突するため、
+// このファイルでは使わないResult側のErrorを隠してdart:core側を残す。
+import '../../utils/result.dart' hide Error;
 import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 
 /// ペア検知の状態を表すUI向けの状態表現。
@@ -47,18 +52,18 @@ class ShellViewModel extends ChangeNotifier {
        _selectedNoteState = selectedNoteState {
     logout = Command0(_logout);
     // シェルは認証済みでのみマウントされる(routerのredirectが保証)
-    _uid = authRepository.getCurrentUser().uid.value;
+    _uid = authRepository.getCurrentUser().signedInUid;
     // ドロワー表示をノート切替へ追従させる
     _selectedNoteState.addListener(notifyListeners);
     _subscription = profileRepository
-        .watchPairStatus(UserId(_uid))
+        .watchPairStatus(_uid)
         .listen(_onPairStatus, onError: _onPairError);
   }
 
   final AuthRepository _authRepository;
   final SelectedNoteState _selectedNoteState;
 
-  late final String _uid;
+  late final UserId _uid;
   late final StreamSubscription<PairStatus> _subscription;
 
   ShellPairState _pairState = const ShellPairLoading();
@@ -85,21 +90,33 @@ class ShellViewModel extends ChangeNotifier {
 
   void _onPairStatus(PairStatus status) {
     final pairId = switch (status) {
-      Paired(:final pairId) => pairId.value,
+      Paired(:final pairId) => pairId,
       NotPaired() => null,
     };
-    // ペア解消時に選択中ノートがsharedのままだと、切替UIだけが消えて
-    // shared表示が残る不整合になるため、personalへ強制的に戻す
-    if (status is NotPaired &&
-        _selectedNoteState.value == SelectedNote.shared) {
-      _selectedNoteState.select(SelectedNote.personal);
-    }
-    _pairState = ShellPairData(pairId);
-    _userInfo = UserInfo(uid: _uid, pairId: pairId);
+    // ペア解消時に選択中ノートがsharedのまま残ると共有ノートを解決できなく
+    // なるため、personalへの強制リセットはSelectedNoteState自身に委ねる
+    // (pairIdの消失とリセットを1回の通知で原子的に行う責務のため)
+    _selectedNoteState.updatePairId(pairId);
+    _pairState = ShellPairData(pairId?.value);
+    _userInfo = UserInfo(uid: _uid.value, pairId: pairId?.value);
     notifyListeners();
   }
 
+  /// [Result.guard]と同じ区分(Exception=想定内の失敗/Error=プログラミングバグ)を
+  /// Stream購読でも貫く。Errorを状態化せず再送出するのは、実装バグを
+  /// エラー表示に隠して気づけなくする事態を避けるため。
   void _onPairError(Object error, StackTrace stackTrace) {
+    if (error is! Exception) {
+      Error.throwWithStackTrace(error, stackTrace);
+    }
+    // エラーUIは詳細を表示しないため、原因調査の手がかりをログへ残す
+    developer.log(
+      'ペア検知の購読が失敗しました',
+      name: 'ShellViewModel',
+      level: Level.WARNING.value,
+      error: error,
+      stackTrace: stackTrace,
+    );
     _pairState = ShellPairError(error);
     notifyListeners();
   }
