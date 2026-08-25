@@ -7,7 +7,9 @@ import '../data/repositories/profile/firestore_profile_repository.dart';
 import '../data/repositories/profile/profile_repository.dart';
 import '../data/repositories/record/firestore_record_repository.dart';
 import '../data/repositories/record/record_repository.dart';
+import '../domain/models/notebook.dart';
 import '../domain/models/user_auth.dart';
+import '../domain/models/user_id.dart';
 import '../v2/data/services/firestore/personal/personal_expense_category_service.dart';
 import '../v2/data/services/firestore/personal/personal_income_category_service.dart';
 import '../v2/data/services/firestore/personal/personal_property_service.dart';
@@ -44,7 +46,7 @@ List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
     // lazy: false は必須。旧実装はAuthGateが起動直後からwatchしていたため
     // 常に購読済みだったが、新実装のredirectはAuthRepositoryを直接読むので
     // 誰も読まないままだと、最初にreadされた瞬間に古いinitialData
-    // (起動時のnotSignIn)が返り、ダッシュボードのRepositoryが
+    // (起動時の未サインイン状態)が返り、ダッシュボードのRepositoryが
     // 誤ったuidで生成されてしまう。
     lazy: false,
     initialData: authRepository.getCurrentUser(),
@@ -53,9 +55,13 @@ List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
   ProxyProvider2<SelectedNoteState, UserAuth, RecordRepository>(
     update: (context, selectedNote, user, _) => FirestoreRecordRepository(
       context.read<FirebaseFirestore>(),
-      // サインイン前はuidが仮値(not-sign-in)のまま評価されるが、routerの
-      // redirectにより画面がRepositoryを購読する前にサインイン画面へ遷移する
-      selectedNote.resolve(user.uid),
+      switch (user) {
+        UserAuthSignedIn(:final uid) => selectedNote.resolve(uid),
+        // サインイン前もProviderの評価自体は走るが、routerのredirectにより
+        // 画面がこのRepositoryを購読する前にサインイン画面へ遷移する。
+        // 使われない間のプレースホルダとして無害な個人ノートを与える
+        UserAuthNotSignedIn() => Notebook.personal(UserId('not-signed-in')),
+      },
     ),
   ),
 ];

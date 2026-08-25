@@ -163,7 +163,7 @@ Future<_Fixture> _buildFixture({
     ..fetchUserNameResult = fetchUserNameResult ?? Result.ok(UserName('上田 技術'))
     ..fetchUserNameCompleter = fetchUserNameCompleter;
   final authRepository = FakeAuthRepository(
-    currentUser: UserAuth(uid: UserId('test-uid')),
+    currentUser: UserAuth.signedIn(UserId('test-uid')),
   );
 
   final viewModel = SettingsViewModel(

@@ -52,7 +52,7 @@ class ShellViewModel extends ChangeNotifier {
        _selectedNoteState = selectedNoteState {
     logout = Command0(_logout);
     // シェルは認証済みでのみマウントされる(routerのredirectが保証)
-    _uid = authRepository.getCurrentUser().uid;
+    _uid = authRepository.getCurrentUser().signedInUid;
     // ドロワー表示をノート切替へ追従させる
     _selectedNoteState.addListener(notifyListeners);
     _subscription = profileRepository

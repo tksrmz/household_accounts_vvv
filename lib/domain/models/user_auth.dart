@@ -4,18 +4,29 @@ import 'user_id.dart';
 
 part 'user_auth.freezed.dart';
 
-/// 認証状態(現在サインインしているユーザー)を表すモデル。
+/// 認証状態を表すsealed union。
 ///
-/// [AuthRepository]がFirebase Authの状態を包んで返す型で、
-/// サインインしていないことを[notSignIn]という具体的な値で表現し、
-/// nullableにしない(呼び出し側がnullチェックを忘れる余地をなくすため)。
+/// サインインしていないことを番兵値(特別なuid)ではなく
+/// [UserAuthNotSignedIn]という型で表現する。両状態が流れてくる購読側
+/// (認証状態のStreamなど)に、分岐の考慮を型で強制するため。
 @freezed
-abstract class UserAuth with _$UserAuth {
-  const factory UserAuth({required UserId uid}) = _UserAuth;
+sealed class UserAuth with _$UserAuth {
+  const UserAuth._();
 
-  /// サインインしていないことを表す値。
+  /// サインイン済み。
+  const factory UserAuth.signedIn(UserId uid) = UserAuthSignedIn;
+
+  /// サインインしていない。
+  const factory UserAuth.notSignedIn() = UserAuthNotSignedIn;
+
+  /// サインイン済みユーザーのuidを返す。
   ///
-  /// [UserId]のコンストラクタが本文で検証をthrowするため、
-  /// コンパイル時定数(const)にできず`static final`で持つ。
-  static final UserAuth notSignIn = UserAuth(uid: UserId('not-sign-in'));
+  /// 認証済みでのみ到達する文脈(routerのredirectが保証する画面のViewModel等)
+  /// 専用。未サインインで呼ばれるのは呼び出し側の不具合なので[StateError]で
+  /// fail fastさせる。両状態が流れうる購読側では、このgetterではなく
+  /// パターンマッチで分岐すること。
+  UserId get signedInUid => switch (this) {
+    UserAuthSignedIn(:final uid) => uid,
+    UserAuthNotSignedIn() => throw StateError('サインインしていません'),
+  };
 }

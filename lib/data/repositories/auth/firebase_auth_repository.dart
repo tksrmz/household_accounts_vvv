@@ -19,8 +19,10 @@ class FirebaseAuthRepository implements AuthRepository {
 
   /// Returns [UserAuth] that contains current user info if [user] is not null.
   ///
-  /// Returns [UserAuth.notSignIn], otherwise.
+  /// Returns [UserAuth.notSignedIn], otherwise.
   UserAuth _toUserAuth(User? user) {
-    return user == null ? UserAuth.notSignIn : UserAuth(uid: UserId(user.uid));
+    return user == null
+        ? const UserAuth.notSignedIn()
+        : UserAuth.signedIn(UserId(user.uid));
   }
 }

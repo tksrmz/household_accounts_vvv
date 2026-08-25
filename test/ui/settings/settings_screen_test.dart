@@ -294,7 +294,7 @@ _Fixture _buildFixture({
     ..updateUserNameResult = updateUserNameResult ?? const Result.ok(null)
     ..updateUserNameCompleter = updateUserNameCompleter;
   final authRepository = FakeAuthRepository(
-    currentUser: UserAuth(uid: UserId('test-uid')),
+    currentUser: UserAuth.signedIn(UserId('test-uid')),
   );
 
   return _Fixture(

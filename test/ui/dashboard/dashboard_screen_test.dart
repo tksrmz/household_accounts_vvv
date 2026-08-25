@@ -89,7 +89,9 @@ _Fixture _buildFixture({
   final profileRepository = FakeProfileRepository()
     ..fetchUserNameResult = fetchUserNameResult ?? Result.ok(_userName)
     ..fetchUserNameCompleter = fetchUserNameCompleter;
-  final authRepository = FakeAuthRepository(currentUser: UserAuth(uid: userId));
+  final authRepository = FakeAuthRepository(
+    currentUser: UserAuth.signedIn(userId),
+  );
 
   return _Fixture(
     screen: DashboardScreen(

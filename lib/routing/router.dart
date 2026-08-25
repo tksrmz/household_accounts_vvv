@@ -48,7 +48,7 @@ GoRouter createRouter({
     // ProviderではなくAuthRepositoryを直接読む: redirectはProviderツリーの
     // 構築タイミングに左右されずに評価される必要があるため。
     redirect: (context, state) {
-      final isSignedIn = authRepository.getCurrentUser() != UserAuth.notSignIn;
+      final isSignedIn = authRepository.getCurrentUser() is UserAuthSignedIn;
       final isAtSignIn = state.matchedLocation == Routes.signIn;
 
       if (!isSignedIn) {
@@ -89,10 +89,15 @@ GoRouter createRouter({
                     // 変化で再buildされ、ValueKeyの変化によりHostのStateごと
                     // 再生成される(旧ViewModelのdisposeで購読解除、新ViewModelが
                     // 新しいRecordRepositoryを購読する)。
-                    // サインイン前のUserAuthはnot-sign-inの仮値だが、routerの
-                    // redirectによりこの画面へは到達しない。
+                    final userAuth = context.watch<UserAuth>();
+                    // サインアウト直後、redirectがサインイン画面へ遷移するまでの
+                    // 一瞬だけ未サインイン状態で再buildされうる。その間は何も
+                    // 描画しない(無効なuidで購読を開始しないため)
+                    if (userAuth is! UserAuthSignedIn) {
+                      return const SizedBox.shrink();
+                    }
                     final notebook = context.watch<SelectedNoteState>().resolve(
-                      context.watch<UserAuth>().uid,
+                      userAuth.uid,
                     );
                     return DashboardScreenHost(
                       key: ValueKey(notebook),

@@ -206,7 +206,7 @@ class _Fixture {
 _Fixture _buildViewModel() {
   final profileRepository = FakeProfileRepository();
   final authRepository = FakeAuthRepository(
-    currentUser: UserAuth(uid: UserId('test-uid')),
+    currentUser: UserAuth.signedIn(UserId('test-uid')),
   );
   final selectedNoteState = SelectedNoteState();
   final viewModel = ShellViewModel(

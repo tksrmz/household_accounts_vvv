@@ -244,7 +244,9 @@ _Fixture _buildViewModel({
     ..fetchUserNameResult =
         fetchUserNameResult ?? Result.ok(UserName('テストユーザー'))
     ..fetchUserNameCompleter = fetchUserNameCompleter;
-  final authRepository = FakeAuthRepository(currentUser: UserAuth(uid: userId));
+  final authRepository = FakeAuthRepository(
+    currentUser: UserAuth.signedIn(userId),
+  );
 
   return _Fixture(
     viewModel: DashboardViewModel(

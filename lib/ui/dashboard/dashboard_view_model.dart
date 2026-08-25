@@ -32,7 +32,7 @@ class DashboardViewModel extends ChangeNotifier {
   }) : _profileRepository = profileRepository,
        _notebook = notebook,
        // ダッシュボードは認証済みでのみ到達する(routerのredirectが保証)
-       _userId = authRepository.getCurrentUser().uid {
+       _userId = authRepository.getCurrentUser().signedInUid {
     // 画面を開いた時点で読み込みを始める(Viewからの明示的な初期化呼び出しは不要)
     load = Command0(_load)..execute();
     // レコードの購読をCommandに載せない理由:

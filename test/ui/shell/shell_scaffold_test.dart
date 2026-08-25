@@ -164,7 +164,7 @@ _Fixture _buildFixture({
 }) {
   final profileRepository = FakeProfileRepository();
   final authRepository = FakeAuthRepository(
-    currentUser: UserAuth(uid: UserId('test-uid')),
+    currentUser: UserAuth.signedIn(UserId('test-uid')),
   );
   final selectedNoteState = SelectedNoteState();
   if (initialNote == SelectedNote.shared) {
