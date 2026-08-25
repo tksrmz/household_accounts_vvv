@@ -56,7 +56,7 @@
 
 ### PR3: ダッシュボード `dev/arch-03-dashboard`
 
-- [ ] 完了
+- [x] 完了(2026-08-25、PR #20)
 
 | 項目 | 内容 |
 |---|---|
@@ -172,4 +172,5 @@
 - 2026-08-23: PR #15レビュー反映 — 検証付き値型の方針を「@Assert + static validate」からコンストラクタでの全ビルド検証+throwへ変更(ユーザー入力由来=`FormatException`(VMが捕捉し検証状態へ)、システム内不変条件=`ArgumentError`(fail fast)。`Result.guard` のException/Error区分と対応)。UI文言はWidget層へ戻す。ShellViewModelはStream関数注入をやめProfileRepository注入へ(VMはRepositoryインターフェースを受け取る規約)。`UserAuth` のdomain移設をPR3へ追記
 - 2026-08-23: PR2フォローアップのマイクロPR(設定画面のライブ検証化)を実施(PR #19)。`UserName.isValid` を新設しコンストラクタの検証条件と判定を一本化。挙動変更一覧に追加
 - 2026-08-24: integrationシードデータの参照フィールドを修正 — シードレコードの `property.ref`/`category.ref` が文字列パスで保存されており、本番の正(アプリはDocumentReferenceを書き込み、Rulesも `is path` を要求)と乖離していた(旧ダッシュボードはamountしか読まず露見せず、新RecordDtoの形検証で発覚。エミュレータのimportはRulesを迂回するためシードにだけ存在できていた)。エミュレータ+REST APIでreferenceValueへ一括変換し再export。変換手段は `integration_test/util/patch_seed_record_refs.cjs` として保存
+- 2026-08-25: PR #20(PR3)レビュー反映を経てマージ — `UserAuth`をsealed union化(サインイン未済を番兵値でなく`UserAuthNotSignedIn`型で表現。認証済み文脈専用の`signedInUid`は未サインインでStateError=fail fast)/ watchPeriodの契約docから実装詳細(サーバー側クエリ・リスナー解除)を除去 / combineLatest3はエラーを起こしたソースの最新値を無効化し、そのソースが回復するまで出力を止める(古い値の組で「正常に見える」出力をしない)/ RecordDtoが`type`フィールドを期待種別と突き合わせて検証 / 旧記録入力の0円入力を拒否(金額1以上のドメイン制約。PR4で旧入力UIごと消えるまでの暫定ガード)
 - 2026-08-24: PR3詳細化と実装の決定を反映 — watchエラー表現の決定(素の`Stream<T>`+`listen(onError:)`でException/Errorを区分、`Result.guard`の区分と一貫。`Stream<Result<T>>`化・lint新設は見送り) / combineLatest3を自作(`lib/utils/combine_latest.dart`、rxdart不採用) / pairId供給は`SelectedNoteState`の拡張(`updatePairId`) / 検証付き値型のうちAmount・RecordNoteをPR3へ前倒し、RecordDateはシード衝突回避のため無検証を維持 / RecordDtoはIncome/Expense/Transferの3クラスに分割(共用しない) / withConverter採用は見送り(PR4で再評価) / summary_panelは「未配線」ではなく現役表示中だった事実を訂正(budget_graphのみ真に未配線) / ダッシュボード初回ローディングもCommand0で統一(settings準拠)
