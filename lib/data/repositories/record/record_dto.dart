@@ -26,11 +26,13 @@ class IncomeRecordDto {
 
   /// [doc]から[IncomeRecordDto]を組み立てる。
   ///
-  /// フィールドの欠損・型不正のときは[FormatException]を送出する。
+  /// フィールドの欠損・型不正、および`type`フィールドが`income`でないときは
+  /// [FormatException]を送出する。
   factory IncomeRecordDto.fromSnapshot(
     QueryDocumentSnapshot<Map<String, dynamic>> doc,
   ) {
     final data = doc.data();
+    _requireType(data, 'income', doc.id);
     return IncomeRecordDto(
       id: doc.id,
       date: _readDate(data, doc.id),
@@ -73,11 +75,13 @@ class ExpenseRecordDto {
 
   /// [doc]から[ExpenseRecordDto]を組み立てる。
   ///
-  /// フィールドの欠損・型不正のときは[FormatException]を送出する。
+  /// フィールドの欠損・型不正、および`type`フィールドが`expense`でないときは
+  /// [FormatException]を送出する。
   factory ExpenseRecordDto.fromSnapshot(
     QueryDocumentSnapshot<Map<String, dynamic>> doc,
   ) {
     final data = doc.data();
+    _requireType(data, 'expense', doc.id);
     return ExpenseRecordDto(
       id: doc.id,
       date: _readDate(data, doc.id),
@@ -120,11 +124,13 @@ class TransferRecordDto {
 
   /// [doc]から[TransferRecordDto]を組み立てる。
   ///
-  /// フィールドの欠損・型不正のときは[FormatException]を送出する。
+  /// フィールドの欠損・型不正、および`type`フィールドが`transfer`でないときは
+  /// [FormatException]を送出する。
   factory TransferRecordDto.fromSnapshot(
     QueryDocumentSnapshot<Map<String, dynamic>> doc,
   ) {
     final data = doc.data();
+    _requireType(data, 'transfer', doc.id);
     return TransferRecordDto(
       id: doc.id,
       date: _readDate(data, doc.id),
@@ -153,6 +159,18 @@ class TransferRecordDto {
     fromPropertyId: PropertyId(fromPropertyId),
     toPropertyId: PropertyId(toPropertyId),
   );
+}
+
+/// レコード種別(`type`フィールド)が[expected]と一致することを検証する。
+///
+/// コレクションの所属だけで種別を決めると、誤った場所に置かれた
+/// ドキュメントを黙って別種別として集計してしまうため、
+/// ドキュメント自身が宣言する種別と突き合わせる。
+void _requireType(Map<String, dynamic> data, String expected, String docId) {
+  final value = data['type'];
+  if (value != expected) {
+    throw FormatException('type フィールドが不正です(期待: $expected): docId=$docId');
+  }
 }
 
 DateTime _readDate(Map<String, dynamic> data, String docId) {

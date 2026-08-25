@@ -8,6 +8,7 @@ void main() {
     test('正常なドキュメントのとき、ref.id抽出とTimestamp→DateTime変換を含めて変換できること', () {
       final date = DateTime(2026, 8, 20, 10, 30);
       final doc = _fakeDoc('income-1', {
+        'type': 'income',
         'date': Timestamp.fromDate(date),
         'amount': 1000,
         'note': '給料',
@@ -24,6 +25,15 @@ void main() {
       expect(dto.categoryId, 'category-1');
       expect(dto.propertyId, 'property-1');
       expect(dto.toDomain(), isA<IncomeRecord>());
+    });
+
+    test('typeがincomeでないとき、FormatExceptionが送出されること(コレクション所属だけで種別を決めないこと)', () {
+      final doc = _fakeDoc(
+        'income-1',
+        _validIncomeData()..['type'] = 'expense',
+      );
+
+      expect(() => IncomeRecordDto.fromSnapshot(doc), throwsFormatException);
     });
 
     test('dateがTimestampでないとき、FormatExceptionが送出されること', () {
@@ -82,6 +92,7 @@ void main() {
     test('正常なドキュメントのとき、ref.id抽出とTimestamp→DateTime変換を含めて変換できること', () {
       final date = DateTime(2026, 8, 21, 9);
       final doc = _fakeDoc('expense-1', {
+        'type': 'expense',
         'date': Timestamp.fromDate(date),
         'amount': 500,
         'note': '食費',
@@ -102,6 +113,7 @@ void main() {
 
     test('propertyのrefが欠損しているとき、FormatExceptionが送出されること', () {
       final doc = _fakeDoc('expense-1', {
+        'type': 'expense',
         'date': Timestamp.fromDate(DateTime(2026, 8, 21)),
         'amount': 500,
         'note': '食費',
@@ -119,6 +131,7 @@ void main() {
       () {
         final date = DateTime(2026, 8, 22, 12);
         final doc = _fakeDoc('transfer-1', {
+          'type': 'transfer',
           'date': Timestamp.fromDate(date),
           'amount': 3000,
           'note': '振替',
@@ -140,6 +153,7 @@ void main() {
 
     test('fromPropertyのrefが欠損しているとき、FormatExceptionが送出されること', () {
       final doc = _fakeDoc('transfer-1', {
+        'type': 'transfer',
         'date': Timestamp.fromDate(DateTime(2026, 8, 22)),
         'amount': 3000,
         'note': '振替',
@@ -149,10 +163,23 @@ void main() {
 
       expect(() => TransferRecordDto.fromSnapshot(doc), throwsFormatException);
     });
+
+    test('typeが欠損しているとき、FormatExceptionが送出されること', () {
+      final doc = _fakeDoc('transfer-1', {
+        'date': Timestamp.fromDate(DateTime(2026, 8, 22)),
+        'amount': 3000,
+        'note': '振替',
+        'fromProperty': {'ref': _fakeRef('property-3')},
+        'toProperty': {'ref': _fakeRef('property-4')},
+      });
+
+      expect(() => TransferRecordDto.fromSnapshot(doc), throwsFormatException);
+    });
   });
 }
 
 Map<String, dynamic> _validIncomeData() => {
+  'type': 'income',
   'date': Timestamp.fromDate(DateTime(2026, 8, 20)),
   'amount': 1000,
   'note': '給料',
