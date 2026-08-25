@@ -120,6 +120,43 @@ void main() {
       await c.close();
     });
 
+    test('ソースがエラーをemitした後、そのソースが回復するまで他のソースのemitでは出力されないこと', () async {
+      final a = StreamController<int>();
+      final b = StreamController<int>();
+      final c = StreamController<int>();
+      final events = <String>[];
+      final errors = <Object>[];
+
+      combineLatest3(
+        a.stream,
+        b.stream,
+        c.stream,
+        (x, y, z) => '$x-$y-$z',
+      ).listen(events.add, onError: errors.add);
+
+      a.add(1);
+      b.add(2);
+      c.add(3);
+      await pumpEventQueue();
+
+      a.addError(Exception('ソースのエラー'));
+      await pumpEventQueue();
+
+      // エラー中のaの古い値(1)との組で出力してはならない
+      b.add(20);
+      await pumpEventQueue();
+      expect(events, ['1-2-3']);
+
+      // aが回復した時点で、他ソースの最新値との組で出力が再開する
+      a.add(10);
+      await pumpEventQueue();
+      expect(events, ['1-2-3', '10-20-3']);
+
+      await a.close();
+      await b.close();
+      await c.close();
+    });
+
     test('combine内でthrowしたとき、出力のエラーになり購読が維持されること', () async {
       final a = StreamController<int>();
       final b = StreamController<int>();

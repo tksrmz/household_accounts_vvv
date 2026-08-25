@@ -12,9 +12,11 @@ import 'dart:async';
 ///   そのときの最新値の組で[combine]を呼び出した結果を出力する
 /// - 単一購読(single-subscription)の[Stream]を返す。ソースの購読は
 ///   出力の`onListen`まで開始しない
-/// - ソースのいずれかがエラーをemitした場合、そのエラーをそのまま出力へ
-///   転送する。購読は打ち切らないため、エラーの後にソースが値をemitすれば
-///   出力も回復する
+/// - ソースのいずれかがエラーをemitした場合、そのエラーを出力へ転送し、
+///   そのソースの最新値を無効化する。エラーを起こしたソースが次に正常な値を
+///   emitするまで、他のソースがemitしても出力しない(エラー前の古い値の組で
+///   出力すると、失敗中のソースを含む結果が正常であるかのように見えてしまうため)。
+///   購読は打ち切らない
 /// - [combine]の呼び出しがthrowした場合も、出力のエラーとして扱う
 ///   (購読は維持する)
 /// - [a] [b] [c] のすべてがdoneになった時点で出力をcloseする
@@ -62,13 +64,18 @@ Stream<R> combineLatest3<A, B, C, R>(
 
   controller = StreamController<R>(
     onListen: () {
+      // エラーを起こしたソースの最新値は信頼できないため無効化し、
+      // そのソースが次に正常な値をemitするまで出力を止める
       subscriptionA = a.listen(
         (value) {
           latestA = value;
           hasA = true;
           emitIfReady();
         },
-        onError: controller.addError,
+        onError: (Object error, StackTrace stackTrace) {
+          hasA = false;
+          controller.addError(error, stackTrace);
+        },
         onDone: onSourceDone,
       );
       subscriptionB = b.listen(
@@ -77,7 +84,10 @@ Stream<R> combineLatest3<A, B, C, R>(
           hasB = true;
           emitIfReady();
         },
-        onError: controller.addError,
+        onError: (Object error, StackTrace stackTrace) {
+          hasB = false;
+          controller.addError(error, stackTrace);
+        },
         onDone: onSourceDone,
       );
       subscriptionC = c.listen(
@@ -86,7 +96,10 @@ Stream<R> combineLatest3<A, B, C, R>(
           hasC = true;
           emitIfReady();
         },
-        onError: controller.addError,
+        onError: (Object error, StackTrace stackTrace) {
+          hasC = false;
+          controller.addError(error, stackTrace);
+        },
         onDone: onSourceDone,
       );
     },
