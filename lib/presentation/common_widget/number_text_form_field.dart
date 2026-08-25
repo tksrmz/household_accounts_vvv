@@ -17,8 +17,10 @@ class NumberTextFormField extends TextFormField {
            if (num == null) {
              return 'Pleas input valid string.';
            }
-           if (num < 0) {
-             return 'Please input non-negative value.';
+           // 金額は1以上(レコードのドメイン制約)。0で保存できてしまうと、
+           // 一覧側の読み取り検証がそのレコードを不正として扱いエラー表示になる
+           if (num <= 0) {
+             return 'Please input positive value.';
            }
            return null;
          },
