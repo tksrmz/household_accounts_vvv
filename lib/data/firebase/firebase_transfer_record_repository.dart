@@ -78,8 +78,13 @@ class FirebaseSharedTransferRecordRepository
 
   FirebaseSharedTransferRecordRepository()
     : _repository = _TransferRecordRepository(
+        // かつては誤って個人パスを参照しており、共有振替の書き込みと読み取りが
+        // どちらも同じ誤パスで釣り合っていたため露見しなかった。記録入力の
+        // 新実装が正しくsharedNotes配下へ書くようになったため、読み取り・削除も
+        // 正パスへ揃える(揃えないと、作成した共有振替がカレンダーで見えず
+        // 削除もできない)
         (String uid) => FirebaseFirestore.instance
-            .collection(getPersonalTransferRecordCollectionPath(uid))
+            .collection(getSharedTransferRecordCollectionPath(uid))
             .withConverter(
               fromFirestore: _fromFirestore,
               toFirestore: _toFirestore,

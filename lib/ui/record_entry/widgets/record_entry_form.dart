@@ -43,7 +43,7 @@ class RecordEntryForm extends StatelessWidget {
         _DateField(
           date: _viewModel.date,
           firstDate: _viewModel.minSelectableDate,
-          lastDate: _viewModel.maxSelectableDate,
+          lastDate: () => _viewModel.maxSelectableDate,
           hasError: _viewModel.hasFutureDateError,
           enabled: enabled,
           onChanged: _viewModel.selectDate,
@@ -157,7 +157,7 @@ class _DateField extends StatelessWidget {
   const _DateField({
     required DateTime date,
     required DateTime firstDate,
-    required DateTime lastDate,
+    required DateTime Function() lastDate,
     required bool hasError,
     required bool enabled,
     required ValueChanged<DateTime> onChanged,
@@ -170,7 +170,12 @@ class _DateField extends StatelessWidget {
 
   final DateTime _date;
   final DateTime _firstDate;
-  final DateTime _lastDate;
+
+  // 上限(当日)を値でなく関数で受け取る理由: このタブはIndexedStackで生き続け、
+  // 日をまたいでも再ビルドされるとは限らない。ビルド時の値を持ち回ると、
+  // 日付が変わった直後にダイアログを開いたとき新しい当日が選べない
+  final DateTime Function() _lastDate;
+
   final bool _hasError;
   final bool _enabled;
   final ValueChanged<DateTime> _onChanged;
@@ -196,7 +201,8 @@ class _DateField extends StatelessWidget {
                         context: context,
                         initialDate: _date,
                         firstDate: _firstDate,
-                        lastDate: _lastDate,
+                        // ダイアログを開く時点で評価する(日跨ぎ対応)
+                        lastDate: _lastDate(),
                       );
                       if (picked != null) {
                         _onChanged(picked);
