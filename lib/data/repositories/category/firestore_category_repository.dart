@@ -18,21 +18,27 @@ class FirestoreCategoryRepository implements CategoryRepository {
 
   @override
   Stream<List<IncomeCategory>> watchIncomeCategories() =>
-      // orderByは付けない: 旧実装もクエリの既定順(ドキュメントID順)のまま
-      // 扱っており、挙動変更を増やさないため踏襲する。
-      _collection('incomeCategories').snapshots().map(
-        (snapshot) => snapshot.docs
-            .map((doc) => IncomeCategoryDto.fromSnapshot(doc).toDomain())
-            .toList(),
-      );
+      // 名前順は旧実装(retrieveAllのorderBy('name'))の踏襲。ドキュメントID順に
+      // すると選択肢の並びが実質ランダムになってしまう
+      _collection('incomeCategories')
+          .orderBy('name')
+          .snapshots()
+          .map(
+            (snapshot) => snapshot.docs
+                .map((doc) => IncomeCategoryDto.fromSnapshot(doc).toDomain())
+                .toList(),
+          );
 
   @override
   Stream<List<ExpenseCategory>> watchExpenseCategories() =>
-      _collection('expenseCategories').snapshots().map(
-        (snapshot) => snapshot.docs
-            .map((doc) => ExpenseCategoryDto.fromSnapshot(doc).toDomain())
-            .toList(),
-      );
+      _collection('expenseCategories')
+          .orderBy('name')
+          .snapshots()
+          .map(
+            (snapshot) => snapshot.docs
+                .map((doc) => ExpenseCategoryDto.fromSnapshot(doc).toDomain())
+                .toList(),
+          );
 
   CollectionReference<Map<String, dynamic>> _collection(String name) =>
       _db.collection('${notebookPath(_notebook)}/$name');

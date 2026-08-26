@@ -18,10 +18,11 @@ class FirestorePropertyRepository implements PropertyRepository {
 
   @override
   Stream<List<Property>> watchAll() =>
-      // orderByは付けない: 旧実装もクエリの既定順(ドキュメントID順)のまま
-      // 扱っており、挙動変更を増やさないため踏襲する。
+      // 名前順は旧実装(retrieveAllのorderBy('name'))の踏襲。ドキュメントID順に
+      // すると選択肢の並びが実質ランダムになってしまう
       _db
           .collection('${notebookPath(_notebook)}/properties')
+          .orderBy('name')
           .snapshots()
           .map(
             (snapshot) => snapshot.docs
