@@ -16,4 +16,18 @@ void main() {
       });
     }
   });
+
+  group('isValid', () {
+    for (final value in [0, -1]) {
+      test('$valueのとき、falseを返すこと', () {
+        expect(Amount.isValid(value), isFalse);
+      });
+    }
+
+    for (final value in [1, 2]) {
+      test('$valueのとき、trueを返すこと', () {
+        expect(Amount.isValid(value), isTrue);
+      });
+    }
+  });
 }
