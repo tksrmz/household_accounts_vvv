@@ -185,6 +185,20 @@ void main() {
       expect(find.text('資産を選択'), findsOneWidget);
     });
 
+    testWidgets('資産が1件だけのときに振替を選ぶと、資産の追加を促す案内が表示されること', (tester) async {
+      // 振替は振替元と振替先に異なる資産を要求するため、資産1件では成立しない。
+      // 案内が無いと、唯一の資産を2回選んで同一資産エラーへ行き着くしかない
+      final fixture = _buildFixture();
+      await tester.pumpWidget(
+        GoldenPageWrapper(child: Scaffold(body: fixture.screen)),
+      );
+      await _emitOptions(tester, fixture, properties: [_wallet]);
+
+      await _selectType(tester, '振替');
+
+      expect(find.text('振替には資産が2件必要です。資産を先に登録してください'), findsOneWidget);
+    });
+
     testWidgets('収入カテゴリを選択後に支出へ切り替えたとき、カテゴリの選択が解除され選択を促す文言が再表示されること', (
       tester,
     ) async {

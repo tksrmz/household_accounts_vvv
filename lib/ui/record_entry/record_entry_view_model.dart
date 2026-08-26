@@ -178,10 +178,13 @@ class RecordEntryViewModel extends ChangeNotifier {
 
   bool _hasNoteError = false;
 
-  /// メモが検証エラーかどうか。
+  /// 入力中のメモが検証エラーかどうか。
   ///
-  /// メモの上限文字数はViewの入力制限で防ぐため通常は立たない。[submit]での
-  /// 防御検証に引っかかった場合だけ立ち、入力し直せば解消する。
+  /// Viewの入力制限(TextFieldのmaxLength)は書記素クラスタ(見た目の文字数)で
+  /// 数えるため、絵文字などでドメインの上限(UTF-16コード単位)を超えても
+  /// 入力できてしまう。ドメインと同じ判定([RecordNote.isValid])でライブ検証し、
+  /// 入力制限とドメイン制約の数え方の差を保存前に露見させる。
+  /// エラーの文言はUIの関心事なのでここでは持たず、表示するWidgetが決める。
   bool get hasNoteError => _hasNoteError;
 
   bool _hasFutureDateError = false;
@@ -218,6 +221,7 @@ class RecordEntryViewModel extends ChangeNotifier {
   bool get canSubmit =>
       !submitRecord.running &&
       _isAmountValid &&
+      !_hasNoteError &&
       !_hasFutureDateError &&
       _hasRequiredSelections;
 
@@ -261,15 +265,15 @@ class RecordEntryViewModel extends ChangeNotifier {
     }
   }
 
-  /// 入力中のメモが変化するたびに保持する。
+  /// 入力中のメモが変化するたびにライブ検証を行う。
   ///
-  /// メモはライブ検証を持たない(上限文字数はViewの入力制限が防ぎ、空文字は
-  /// 旧実装同様に許容する)ため、表示は変わらず通知も不要。[submit]の防御検証で
-  /// 立ったエラーだけはここで解消する。
+  /// 空文字は旧実装同様に許容する。毎キーストロークで無駄な再描画が起きないよう、
+  /// 判定結果が変わったときだけ通知する([onAmountChanged]と同じ方針)。
   void onNoteChanged(String input) {
+    final hadError = _hasNoteError;
     _noteInput = input;
-    if (_hasNoteError) {
-      _hasNoteError = false;
+    _hasNoteError = !RecordNote.isValid(input);
+    if (_hasNoteError != hadError) {
       notifyListeners();
     }
   }
@@ -466,7 +470,11 @@ class RecordEntryViewModel extends ChangeNotifier {
 
   Future<Result<void>> _submit(NewRecord record) async {
     final result = await _recordRepository.add(record);
-    if (result is Ok<void>) {
+    // dispose後は何もしない: ノート切替はHostごと再生成でこのVMをdisposeするが、
+    // 保存中のCommandはVMのライフサイクルから独立して完走する。破棄済みの
+    // ChangeNotifierへの通知はassert違反になる(レコード自体は切替前のノートへ
+    // 正しく書き込まれている)
+    if (result is Ok<void> && !_disposed) {
       // 続けて記録を入力できるよう、レコードごとに変わる金額とメモだけ空にする
       // (日付・種別・カテゴリ・資産は次の記録でも同じことが多いため保持する。
       // 旧UIのForm.reset()と同じ範囲)
@@ -477,8 +485,11 @@ class RecordEntryViewModel extends ChangeNotifier {
     return result;
   }
 
+  bool _disposed = false;
+
   @override
   void dispose() {
+    _disposed = true;
     _incomeCategoriesSubscription.cancel();
     _expenseCategoriesSubscription.cancel();
     _propertiesSubscription.cancel();

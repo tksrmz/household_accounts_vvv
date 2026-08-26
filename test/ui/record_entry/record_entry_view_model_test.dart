@@ -394,6 +394,33 @@ void main() {
       expect(target.viewModel.canSubmit, isFalse);
     });
 
+    test('UTF-16で101以上の長さのメモを入力したとき、検証エラーになり保存できない状態であること', () async {
+      // TextFieldのmaxLengthは見た目の文字数(書記素)で数えるため、
+      // 絵文字などマルチコード単位の文字はドメインの上限(UTF-16)を超えても
+      // 入力できてしまう。ドメインと同じ判定でのライブ検証の回帰テスト
+      final target = await _buildLoadedFixture();
+      target.viewModel
+        ..onAmountChanged('1200')
+        ..selectCategory(_salary.id)
+        ..selectProperty(_wallet.id);
+
+      // 見た目60文字だがUTF-16では120コード単位の絵文字列
+      target.viewModel.onNoteChanged('😀' * 60);
+
+      expect(target.viewModel.hasNoteError, isTrue);
+      expect(target.viewModel.canSubmit, isFalse);
+    });
+
+    test('長すぎるメモのあとに上限以内へ入力し直したとき、検証エラーが解消されること', () async {
+      final target = await _buildLoadedFixture();
+      target.viewModel.onNoteChanged('a' * 101);
+      expect(target.viewModel.hasNoteError, isTrue);
+
+      target.viewModel.onNoteChanged('a' * 100);
+
+      expect(target.viewModel.hasNoteError, isFalse);
+    });
+
     test('未来日付で保存しようとしたとき、検証エラーになり保存が呼ばれないこと', () async {
       final target = await _buildLoadedFixture();
       target.viewModel
@@ -427,6 +454,27 @@ void main() {
   });
 
   group('破棄', () {
+    test('保存の完了前にdisposeされたとき、完了後の通知でエラーにならないこと', () async {
+      // ノート切替はHostごと再生成でVMをdisposeするが、保存中のCommandは
+      // VMと独立して完走する。破棄済みChangeNotifierへの通知(assert違反)を
+      // しないことの回帰テスト
+      final target = await _buildLoadedFixture();
+      final completer = Completer<Result<void>>();
+      target.recordRepository.addCompleter = completer;
+      target.viewModel
+        ..onAmountChanged('1200')
+        ..selectCategory(_salary.id)
+        ..selectProperty(_wallet.id);
+      unawaited(target.viewModel.submit());
+      await pumpEventQueue();
+
+      target.viewModel.dispose();
+      completer.complete(const Result.ok(null));
+      await pumpEventQueue();
+
+      expect(target.recordRepository.addCallCount, 1);
+    });
+
     test('disposeしたとき、3本の購読がすべて解除されること', () async {
       final target = _buildFixture();
 

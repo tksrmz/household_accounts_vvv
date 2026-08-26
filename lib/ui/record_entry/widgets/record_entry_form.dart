@@ -37,7 +37,7 @@ class RecordEntryForm extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       children: [
         if (_hasMissingOptions) ...[
-          const _MissingOptionsMessage(),
+          _MissingOptionsMessage(_missingOptionsMessage),
           const SizedBox(height: 16.0),
         ],
         _DateField(
@@ -120,7 +120,8 @@ class RecordEntryForm extends StatelessWidget {
           controller: _noteController,
           enabled: enabled,
           keyboardType: TextInputType.text,
-          // 上限超過はmaxLengthの入力制限そのもので防ぐ
+          // maxLengthは見た目の文字数(書記素)で数えるため、ドメインの上限
+          // (UTF-16コード単位)との差はViewModelのライブ検証が補う
           maxLength: RecordNote.maxLength,
           onChanged: _viewModel.onNoteChanged,
           decoration: InputDecoration(
@@ -146,10 +147,20 @@ class RecordEntryForm extends StatelessWidget {
   ];
 
   /// 保存に必要な選択肢がまだ登録されていないかどうか。
-  bool get _hasMissingOptions =>
-      _viewModel.propertyOptions.isEmpty ||
-      (_viewModel.type != RecordEntryType.transfer &&
-          _viewModel.categoryOptions.isEmpty);
+  ///
+  /// 振替は振替元と振替先に異なる資産を要求するため、資産が1件だけでも
+  /// 成立しない(案内を出さないと、唯一の資産を2回選んで同一資産エラーに
+  /// 行き着くしかなく、次にすべきことが伝わらない)。
+  bool get _hasMissingOptions => switch (_viewModel.type) {
+    RecordEntryType.transfer => _viewModel.propertyOptions.length < 2,
+    RecordEntryType.income || RecordEntryType.expense =>
+      _viewModel.propertyOptions.isEmpty || _viewModel.categoryOptions.isEmpty,
+  };
+
+  String get _missingOptionsMessage => switch (_viewModel.type) {
+    RecordEntryType.transfer => '振替には資産が2件必要です。資産を先に登録してください',
+    RecordEntryType.income || RecordEntryType.expense => 'カテゴリと資産を先に登録してください',
+  };
 }
 
 /// 日付の表示と、日付選択ダイアログの呼び出し。
@@ -221,15 +232,17 @@ class _DateField extends StatelessWidget {
 
 /// 選択肢が足りず保存できないことと、次にすべきことを伝える案内。
 class _MissingOptionsMessage extends StatelessWidget {
-  const _MissingOptionsMessage();
+  const _MissingOptionsMessage(this._message);
+
+  final String _message;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Text('カテゴリと資産を先に登録してください'),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(_message),
       ),
     );
   }
