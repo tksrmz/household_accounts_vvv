@@ -3,8 +3,6 @@ import 'package:get_it/get_it.dart';
 import '../../entity/record.dart';
 import '../../feature/record_deletion/interactor.dart';
 import '../../feature/record_deletion/use_case.dart';
-import '../../feature/record_register/interactor.dart';
-import '../../feature/record_register/use_case.dart';
 import '../../feature/record_retrieve/interactor.dart';
 import '../../feature/record_retrieve/use_case.dart';
 
@@ -15,9 +13,6 @@ void initRecordUseCase(GetIt sl) {
 }
 
 void _initIncomeRecordUseCase(GetIt sl) {
-  sl.registerFactory<AddRecordUseCase<IncomeRecord>>(
-    () => AddRecordInteractor<IncomeRecord>(),
-  );
   sl.registerFactory<RetrieveRecordsUseCase<IncomeRecord>>(
     () => RetrieveRecordsInteractor<IncomeRecord>(),
   );
@@ -27,9 +22,6 @@ void _initIncomeRecordUseCase(GetIt sl) {
 }
 
 void _initExpenseRecordUseCase(GetIt sl) {
-  sl.registerFactory<AddRecordUseCase<ExpenseRecord>>(
-    () => AddRecordInteractor<ExpenseRecord>(),
-  );
   sl.registerFactory<RetrieveRecordsUseCase<ExpenseRecord>>(
     () => RetrieveRecordsInteractor<ExpenseRecord>(),
   );
@@ -39,9 +31,6 @@ void _initExpenseRecordUseCase(GetIt sl) {
 }
 
 void _initTransferRecordUseCase(GetIt sl) {
-  sl.registerFactory<AddRecordUseCase<TransferRecord>>(
-    () => AddRecordInteractor<TransferRecord>(),
-  );
   sl.registerFactory<RetrieveRecordsUseCase<TransferRecord>>(
     () => RetrieveRecordsInteractor<TransferRecord>(),
   );
