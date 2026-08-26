@@ -185,6 +185,22 @@ void main() {
       expect(find.text('資産を選択'), findsOneWidget);
     });
 
+    testWidgets('収入カテゴリを選択後に支出へ切り替えたとき、カテゴリの選択が解除され選択を促す文言が再表示されること', (
+      tester,
+    ) async {
+      // FormFieldの内部状態が古い選択値を保持したままだと、支出カテゴリの
+      // 一覧に無い収入カテゴリを「選択中」のまま描画しようとして
+      // Dropdownのassert違反になる(選択肢の集合でFieldを作り直す対策の回帰テスト)
+      await _pumpScreen(tester);
+      await _selectOption(tester, dropdownKey: 'category', label: _salary.name);
+
+      await _selectType(tester, '支出');
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('カテゴリを選択'), findsOneWidget);
+      expect(find.text(_salary.name), findsNothing);
+    });
+
     testWidgets('振替を選んだとき、振替元と振替先の選択を促す文言が表示されること', (tester) async {
       await _pumpScreen(tester);
 

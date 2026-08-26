@@ -40,13 +40,31 @@ class RecordEntryViewModel extends ChangeNotifier {
     // 続ける購読はその型に載らない。購読の結果はこのVMのフィールドで表す。
     _incomeCategoriesSubscription = categoryRepository
         .watchIncomeCategories()
-        .listen(_onIncomeCategories, onError: _onOptionsError);
+        .listen(
+          _onIncomeCategories,
+          onError: (Object error, StackTrace stackTrace) => _onOptionsError(
+            error,
+            stackTrace,
+            (exception) => _incomeCategoriesError = exception,
+          ),
+        );
     _expenseCategoriesSubscription = categoryRepository
         .watchExpenseCategories()
-        .listen(_onExpenseCategories, onError: _onOptionsError);
+        .listen(
+          _onExpenseCategories,
+          onError: (Object error, StackTrace stackTrace) => _onOptionsError(
+            error,
+            stackTrace,
+            (exception) => _expenseCategoriesError = exception,
+          ),
+        );
     _propertiesSubscription = propertyRepository.watchAll().listen(
       _onProperties,
-      onError: _onOptionsError,
+      onError: (Object error, StackTrace stackTrace) => _onOptionsError(
+        error,
+        stackTrace,
+        (exception) => _propertiesError = exception,
+      ),
     );
   }
 
@@ -87,10 +105,19 @@ class RecordEntryViewModel extends ChangeNotifier {
       !_hasReceivedExpenseCategories ||
       !_hasReceivedProperties;
 
-  Exception? _optionsError;
+  // エラーは購読ごとに保持する。単一のフィールドで共有すると、失敗していない
+  // 別の購読の正常データがエラーを消してしまい、失敗した購読の初回データは
+  // 届かないままなので、画面がローディング表示に戻って抜け出せなくなる。
+  Exception? _incomeCategoriesError;
+  Exception? _expenseCategoriesError;
+  Exception? _propertiesError;
 
   /// 選択肢の購読で発生した想定内の失敗。発生していなければ`null`。
-  Exception? get optionsError => _optionsError;
+  ///
+  /// 3本の購読のうちどれか1本でも失敗していれば非null(選択肢が揃わないと
+  /// 記録を入力できないため、部分的な失敗も画面全体のエラーとして扱う)。
+  Exception? get optionsError =>
+      _incomeCategoriesError ?? _expenseCategoriesError ?? _propertiesError;
 
   /// 選択できるカテゴリの一覧。振替はカテゴリを持たないため空。
   List<({CategoryId id, String name})> get categoryOptions => switch (_type) {
@@ -362,25 +389,28 @@ class RecordEntryViewModel extends ChangeNotifier {
   void _onIncomeCategories(List<IncomeCategory> categories) {
     _incomeCategories = categories;
     _hasReceivedIncomeCategories = true;
+    // 後続のスナップショットで回復しうるため、正常な発行でエラーを解消する。
+    // 解消するのは自分の購読のエラーだけ(他の購読の失敗はここでは回復していない)
+    _incomeCategoriesError = null;
     _onOptionsReceived();
   }
 
   void _onExpenseCategories(List<ExpenseCategory> categories) {
     _expenseCategories = categories;
     _hasReceivedExpenseCategories = true;
+    _expenseCategoriesError = null;
     _onOptionsReceived();
   }
 
   void _onProperties(List<Property> properties) {
     _properties = properties;
     _hasReceivedProperties = true;
+    _propertiesError = null;
     _onOptionsReceived();
   }
 
   void _onOptionsReceived() {
     _pruneSelections();
-    // 後続のスナップショットで回復しうるため、正常な発行でエラーを解消する
-    _optionsError = null;
     notifyListeners();
   }
 
@@ -410,7 +440,15 @@ class RecordEntryViewModel extends ChangeNotifier {
   /// [Result.guard]と同じ区分(Exception=想定内の失敗/Error=プログラミングバグ)を
   /// Stream購読でも貫く。Errorを状態化せず再送出するのは、実装バグを
   /// エラー表示に隠して気づけなくする事態を避けるため。
-  void _onOptionsError(Object error, StackTrace stackTrace) {
+  ///
+  /// [assign]で失敗した購読自身のエラーフィールドだけを更新する
+  /// (どの購読が失敗しているかを区別できないと、正常な発行での解消も
+  /// 購読単位にできないため)。
+  void _onOptionsError(
+    Object error,
+    StackTrace stackTrace,
+    void Function(Exception) assign,
+  ) {
     if (error is! Exception) {
       Error.throwWithStackTrace(error, stackTrace);
     }
@@ -422,7 +460,7 @@ class RecordEntryViewModel extends ChangeNotifier {
       error: error,
       stackTrace: stackTrace,
     );
-    _optionsError = error;
+    assign(error);
     notifyListeners();
   }
 

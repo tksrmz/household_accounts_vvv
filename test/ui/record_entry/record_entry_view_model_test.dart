@@ -94,6 +94,21 @@ void main() {
       expect(target.viewModel.optionsError, isNull);
     });
 
+    test('資産の購読が失敗しているとき、カテゴリの正常な発行ではoptionsErrorが解消されないこと', () async {
+      // 失敗していない購読の正常データがエラーを消すと、失敗した購読の初回
+      // データは届かないままなので、画面がローディング表示に戻って抜け出せなく
+      // なる(エラーを購読ごとに保持する対策の回帰テスト)
+      final target = _buildFixture();
+      final exception = Exception('watchAllエラー');
+
+      target.propertyRepository.propertiesController.addError(exception);
+      await pumpEventQueue();
+      target.categoryRepository.incomeCategoriesController.add([_salary]);
+      await pumpEventQueue();
+
+      expect(target.viewModel.optionsError, exception);
+    });
+
     test('購読がError(実装バグ)を流したとき、状態化されず再送出されること', () async {
       // 再送出はStreamSubscriptionのonErrorコールバック内で起きるため、
       // 購読を開始したZoneの未処理エラーとして観測する(そのままだとテスト全体の
