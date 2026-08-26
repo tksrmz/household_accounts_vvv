@@ -27,14 +27,23 @@ class FakeRecordRepository implements RecordRepository {
   /// [add]が返す結果。テストから成功/失敗を差し替えられる。
   Result<void> addResult = const Result.ok(null);
 
+  /// 設定すると[add]がこのCompleterのFutureを返す。
+  /// 完了しないCompleterを渡せば保存中の状態を再現できる。
+  Completer<Result<void>>? addCompleter;
+
   int addCallCount = 0;
 
   NewRecord? lastAddedRecord;
 
   @override
-  Future<Result<void>> add(NewRecord record) async {
+  Future<Result<void>> add(NewRecord record) {
     addCallCount++;
     lastAddedRecord = record;
-    return addResult;
+
+    final completer = addCompleter;
+    if (completer != null) {
+      return completer.future;
+    }
+    return Future.value(addResult);
   }
 }
