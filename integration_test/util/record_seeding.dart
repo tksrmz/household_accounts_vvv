@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'firestore_probe.dart';
+import 'firestore_rest.dart';
+import 'ui_operations.dart';
+
 /// budget_feature_test.dart で使用する、支出カテゴリ・資産・境界日の
-/// 支出レコードをUI操作でseedするためのヘルパー関数群。
+/// 支出レコードをseedするためのヘルパー関数群。
 ///
-/// なぜUI操作でseedするか:
-/// 既存のintegrationテスト（category_feature_test.dart 等）が一貫して
-/// UI操作によるデータ投入を採用しているため、既存パターンを踏襲する。
+/// カテゴリと資産はUI操作で作る(カテゴリ画面・資産画面は現行の実装であり、
+/// 入力できない値も無いため、既存のintegrationテストと同じ流儀で作れる)。
 ///
-/// 例外: import済みseedレコード(saved-data)の日付合わせは、UI操作では
-/// 実現できない(共有ノートへの記録入力UIが無い・時刻を指定できない)ため、
-/// seed_record_dates.dart がエミュレータREST APIで直接書き換える。
+/// 支出レコードだけはFirestoreエミュレータのREST APIで直接書き込む。
+/// 新しい記録入力画面は日付の選択範囲を当日までに制限しており、月度境界の
+/// フィクスチャに必要な未来日付(月度end当日など、実行日によっては未来になる)を
+/// UIからは投入できなくなったため。
 
 /// カテゴリ画面で支出カテゴリ（予算付き）を1件作成する。
 ///
@@ -20,8 +24,7 @@ Future<void> createExpenseCategory(
   required String name,
   required int budget,
 }) async {
-  await tester.tap(find.text('カテゴリ'));
-  await tester.pumpAndSettle();
+  await openTab(tester, 'カテゴリ');
 
   await tester.tap(find.text('カテゴリの追加'));
   await tester.pumpAndSettle();
@@ -39,8 +42,7 @@ Future<void> createProperty(
   required String name,
   required int amount,
 }) async {
-  await tester.tap(find.text('資産'));
-  await tester.pumpAndSettle();
+  await openTab(tester, '資産');
 
   await tester.tap(find.text('資産の追加'));
   await tester.pumpAndSettle();
@@ -51,15 +53,19 @@ Future<void> createProperty(
   await tester.pumpAndSettle();
 }
 
-/// 入力画面で、指定した[date]・[amount]・[categoryName]・[propertyName]の
-/// 支出レコードを1件登録する。
+/// サインイン中ユーザーの個人ノートへ、指定した[date]・[amount]・
+/// [categoryName]・[propertyName]・[note]の支出レコードを1件書き込む。
 ///
-/// [date]の指定方法: 標準の[showDatePicker]ダイアログを「キーボード入力モード」に
-/// 切り替え、mm/dd/yyyy形式でテキスト入力する。カレンダーグリッドを直接タップする
-/// 方式は月またぎのナビゲーションが煩雑なため採用しない。
-/// アプリは[MaterialApp.localizationsDelegates]を指定していないため、
-/// ロケールは既定のen_US（[DefaultMaterialLocalizations]）であり、
-/// 日付入力フォーマットは "mm/dd/yyyy"、確定ボタンラベルは "OK" になる。
+/// 書き込む8フィールドは、Firestore Rulesが要求するスキーマ
+/// (date/amount/note/createdAt/hasCheckedOut/type/category/property)と
+/// 一致させてある。旧実装の読み取り(予算タブ)と新実装のRecordDtoの検証は
+/// どちらもこの形を前提にしているため、片方だけを満たす形にはしない。
+///
+/// 資産残高([propertyName]のamount)は増減させない。予算タブは残高を参照せず、
+/// 残高の自動増減はrecord_creating_feature_test.dartが検証するため。
+///
+/// [tester]は使わないが、UI操作でseedしていた頃からの呼び出し側
+/// (budget_feature_test.dart)を変更せずに済むよう引数に残している。
 Future<void> createExpenseRecord(
   WidgetTester tester, {
   required DateTime date,
@@ -68,78 +74,28 @@ Future<void> createExpenseRecord(
   required String propertyName,
   required String note,
 }) async {
-  // AppBarのタイトルと入力タブのボトムナビゲーションラベルがどちらも"入力"であるため、
-  // 既に入力タブを表示中は単純な find.text('入力') だと2件ヒットしてタップが曖昧になる。
-  // ボトムナビゲーションバー配下に絞って一意に特定する。
-  await tester.tap(
-    find.descendant(
-      of: find.byType(BottomNavigationBar),
-      matching: find.text('入力'),
-    ),
+  final notePath = currentPersonalNotePath();
+  final categoryPath = await fetchDocumentPathByName(
+    '$notePath/expenseCategories',
+    categoryName,
   );
-  await tester.pumpAndSettle();
-
-  // go_routerシェル移行後はタブ再訪でも入力フォームのWidgetが再生成されない
-  // (IndexedStackのステート保持)ため、2件目以降は前回のカテゴリ・資産の選択が
-  // 残り「カテゴリを選択」等のプレースホルダが存在しない。種別を一度「収入」に
-  // 切り替えてから「支出」へ戻すことで、種別変更時のドロップダウンリセットを
-  // 確実に発火させる(現在選択中の種別ボタンは無効化されており、同じ種別への
-  // タップではリセットが起きないため、必ず一往復させる)。
-  await tester.tap(find.text('収入'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('支出'));
-  await tester.pumpAndSettle();
-
-  await _pickRecordDate(tester, date);
-
-  await tester.enterText(find.widgetWithText(TextField, '金額'), '$amount');
-
-  await tester.tap(find.text('カテゴリを選択'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text(categoryName).last);
-  await tester.pumpAndSettle();
-
-  await tester.tap(find.text('資産を選択'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text(propertyName).last);
-  await tester.pumpAndSettle();
-
-  await tester.enterText(find.widgetWithText(TextField, 'ノート'), note);
-
-  await tester.tap(find.text('登録'));
-  await tester.pumpAndSettle();
-}
-
-/// 入力画面の日付編集アイコンをタップして[showDatePicker]ダイアログを開き、
-/// キーボード入力モードに切り替えて[date]をmm/dd/yyyy形式で入力・確定する。
-Future<void> _pickRecordDate(WidgetTester tester, DateTime date) async {
-  await tester.tap(find.byIcon(Icons.edit));
-  await tester.pumpAndSettle();
-
-  // ダイアログをキーボード入力モードに切り替える
-  // (Material3 既定では edit_outlined アイコンで入力モードへ切替わる)
-  final switchToInputIcon = find.byIcon(Icons.edit_outlined);
-  if (switchToInputIcon.evaluate().isNotEmpty) {
-    await tester.tap(switchToInputIcon);
-    await tester.pumpAndSettle();
-  }
-
-  final mmddyyyy =
-      '${date.month.toString().padLeft(2, '0')}/'
-      '${date.day.toString().padLeft(2, '0')}/'
-      '${date.year.toString().padLeft(4, '0')}';
-
-  // ダイアログ(Dialog)内のTextFormFieldに絞り込む
-  // (背景の入力画面にもTextFormField（ノート欄等）が存在するため)
-  final dateInputField = find.descendant(
-    of: find.byType(Dialog),
-    matching: find.byType(TextFormField),
+  final propertyPath = await fetchDocumentPathByName(
+    '$notePath/properties',
+    propertyName,
   );
-  await tester.enterText(dateInputField, mmddyyyy);
-  await tester.pumpAndSettle();
 
-  await tester.tap(
-    find.descendant(of: find.byType(Dialog), matching: find.text('OK')),
+  await useFirestoreRest(
+    (rest) => rest.createDocument('$notePath/expenses', {
+      'date': timestampValue(date),
+      'amount': integerValue(amount),
+      'note': stringValue(note),
+      // アプリはserverTimestampを書くが、REST APIにセンチネルは無いため
+      // 書き込み時刻をそのまま入れる(読み取り側は値を検証しない)
+      'createdAt': timestampValue(DateTime.now()),
+      'hasCheckedOut': booleanValue(true),
+      'type': stringValue('expense'),
+      'category': mapValue({'ref': referenceValue(categoryPath)}),
+      'property': mapValue({'ref': referenceValue(propertyPath)}),
+    }),
   );
-  await tester.pumpAndSettle();
 }

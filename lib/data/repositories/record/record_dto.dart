@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../domain/models/amount.dart';
 import '../../../domain/models/category_id.dart';
+import '../../../domain/models/new_record.dart';
 import '../../../domain/models/property_id.dart';
 import '../../../domain/models/record.dart';
 import '../../../domain/models/record_date.dart';
@@ -211,3 +212,70 @@ String _readRefId(Map<String, dynamic> data, String field, String docId) {
   }
   return ref.id;
 }
+
+// 書き込み用のDTOは上記の読み取り用クラスとは形が異なる(読み取りはidを持ち
+// 参照はString化済み、書き込みはidを持たずFirestoreの生の型
+// (DocumentReference/serverTimestampのセンチネル)をそのまま使う)ため、
+// クラスを共用せずトップレベル関数として分けて表現する。
+
+/// incomesコレクションへ書き込むJSONを組み立てる。
+///
+/// Firestore Rulesが要求する8フィールド版スキーマ
+/// (date/amount/note/createdAt/hasCheckedOut/type/category/property)の
+/// キー集合と完全に一致させる必要がある。
+Map<String, Object?> incomeRecordJson({
+  required NewIncomeRecord record,
+  required DocumentReference<Map<String, dynamic>> categoryRef,
+  required DocumentReference<Map<String, dynamic>> propertyRef,
+}) => {
+  ..._commonRecordJson(record),
+  'type': 'income',
+  'category': {'ref': categoryRef},
+  'property': {'ref': propertyRef},
+};
+
+/// expensesコレクションへ書き込むJSONを組み立てる。
+///
+/// Firestore Rulesが要求する8フィールド版スキーマの
+/// キー集合と完全に一致させる必要がある。
+Map<String, Object?> expenseRecordJson({
+  required NewExpenseRecord record,
+  required DocumentReference<Map<String, dynamic>> categoryRef,
+  required DocumentReference<Map<String, dynamic>> propertyRef,
+}) => {
+  ..._commonRecordJson(record),
+  'type': 'expense',
+  'category': {'ref': categoryRef},
+  'property': {'ref': propertyRef},
+};
+
+/// transfersコレクションへ書き込むJSONを組み立てる。
+///
+/// Firestore Rulesが要求する8フィールド版スキーマ(category/propertyの代わりに
+/// fromProperty/toPropertyを持つ)のキー集合と完全に一致させる必要がある。
+Map<String, Object?> transferRecordJson({
+  required NewTransferRecord record,
+  required DocumentReference<Map<String, dynamic>> fromPropertyRef,
+  required DocumentReference<Map<String, dynamic>> toPropertyRef,
+}) => {
+  ..._commonRecordJson(record),
+  'type': 'transfer',
+  'fromProperty': {'ref': fromPropertyRef},
+  'toProperty': {'ref': toPropertyRef},
+};
+
+/// 収入/支出/振替に共通するフィールドを組み立てる。
+///
+/// `createdAt`はクライアント時計ではなくサーバー時刻のセンチネル
+/// ([FieldValue.serverTimestamp])を書く(Firestore Rulesが
+/// `createdAt == request.time`を要求するため)。`hasCheckedOut`は常にtrueを書く
+/// (このRepositoryが作成するレコードは作成と同時に残高へ反映済みであることを
+/// 表すフラグであり、カレンダーの削除処理がこのフラグを見て残高打ち消しの
+/// 要否を決めるため)。
+Map<String, Object?> _commonRecordJson(NewRecord record) => {
+  'date': Timestamp.fromDate(record.date.value),
+  'amount': record.amount.value,
+  'note': record.note.value,
+  'createdAt': FieldValue.serverTimestamp(),
+  'hasCheckedOut': true,
+};

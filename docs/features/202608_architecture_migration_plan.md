@@ -72,10 +72,10 @@
 
 | 項目 | 内容 |
 |---|---|
-| 画面 | entry |
-| データ層 | `transaction_runner` をここで初出。`RecordRepository.add`(runTransaction + `record.balanceEffects` による残高増減)、`CategoryRepository.watchAll`(収入/支出)、`PropertyRepository.watchAll`。検証付き値型のうちAmount・RecordNote・振替の同一資産禁止AssertはPR3で導入済み。本PRは入力境界を担当する: DatePickerの当日までの制限とドラフト検証による未来日付の禁止(`RecordDate`型自体は読み取り耐性のため無検証を維持する)、フォーム検証 |
-| 削除 | `lib/presentation/record_register/` `lib/feature/record_register/` と該当service_locator登録 |
-| 特記 | **移行の山場**。挙動変更3点が入る: 未来日付入力の禁止(O1)、共有ノートでの記録入力の解禁(O5)、残高の自動増減開始(O6/D7)。着手前に「横断の確認事項」のRules確認を済ませること |
+| 画面 | entry(`lib/ui/record_entry/`) |
+| データ層 | `RecordRepository.add(NewRecord)`: **WriteBatch**でレコード作成と `NewRecord.balanceEffects` による資産残高incrementを原子的に実行(addは読み取りを伴わないためrunTransactionでなくバッチ。オフライン時もローカル適用され復帰時に同期される。読みのあるdelete(PR5)はrunTransaction、という「読みの有無」を使い分け基準とする)。`CategoryRepository`(`watchIncomeCategories`/`watchExpenseCategories` の2メソッド。watchAll(type)形は支出だけが予算を持つ将来と両立しないため不採用)・`PropertyRepository.watchAll`。ドメインは `NewRecord`(sealed union。保存済み`Record`とはIDの有無で型を分ける)+`BalanceEffect`(named record)を新設し、Category/PropertyモデルはYAGNI最小(id+名前。名前は`CategoryName`/`PropertyName`の検証付き値型(1〜20文字)とする=PRレビューで決定。totalBudget・Property.amountはPR6〜8の初出時)。**transaction_runnerは作らない(恒久方針)**。入力境界: DatePickerのlastDate=当日+submit時の防御検証で未来日付を禁止(`RecordDate`型は無検証を維持) |
+| 削除 | `lib/presentation/record_register/` `lib/feature/record_register/` `AddRecordUseCase`のservice_locator登録3本、`NumberTextFormField`、`lib/util/extension/string.dart`、旧record系Repositoryの`register`実装(抽象宣言は共通基底`Repository<T>`にありカテゴリ/資産登録が現役のため、具象6クラスをUnsupportedError化)、`RecordBaseModel.fromEntity`系、`config/dependencies.dart`の消費者ゼロだったv2サービス登録5本(PersonalIncomeCategoryService等。ファイル本体の削除はPR9) |
+| 特記 | **移行の山場**(実装済み・2026-08-26)。挙動変更で実際に入るのは未来日付入力の禁止(O1)と**共有振替の正パス化**のみ(O5/O6の計画時記述は事実誤認だった。挙動変更一覧の訂正参照)。**hasCheckedOutは恒久的にtrueを書く**(旧カレンダー削除がtrueのレコードだけ残高を打ち消すため、falseを書くとPR5までの間に残高不整合窓が生じる。ユーザー決定)。withConverterはレコードについて不採用に確定(読み取り=id付き/参照String、書き込み=idなし/DocumentReference/serverTimestampセンチネルで型が一致しない。書き込みはDTOファイル内のトップレベル関数)。刷新案§6の`RecordDraft`は不採用: 検証はUI層の関心事のためVM状態で表現し、Commandは`Command1<void, NewRecord>`で検証済み型だけを受ける(settingsの`Command1<void, UserName>`と同型)。`balanceEffects`は`NewRecord`側に置き、PR5の削除打ち消しは`Record.withoutIdentity()`(PR5で新設)+符号反転で同じ定義を再利用する予定。integrationテストは6シナリオを新UI向けに刷新し、スナックバーに加えFirestore実データ(8フィールド・参照先・当日日付)と資産残高の前後差分、共有振替がsharedNotes配下に書かれること(旧バグの構造的解消)を検証する。**budget_feature_testの境界日シードはREST化**(`record_seeding.createExpenseRecord`。月度境界の2日付がほぼ必ず未来日付になり、新UIの当日制限でUI投入が不可能になったため。REST共通部は`integration_test/util/firestore_rest.dart`へ抽出し`seed_record_dates.dart`と共用)。goldenは9シナリオ×3幅 |
 
 ### PR5: カレンダー `dev/arch-05-calendar`
 
@@ -144,9 +144,9 @@
 | PR | 変更 | 内容 |
 |---|---|---|
 | PR3〜 | リアルタイム反映 | 一覧系画面が他端末・ペア相手の変更を自動反映するようになる(従来は画面再訪まで反映されない) |
-| PR4 | 未来日付の禁止 | 記録入力の日付が当日までに制限される(従来は+365日先まで入力可能だった)(O1) |
-| PR4 | 共有ノートの書き込み解禁 | 共有ノート選択時も記録入力が可能になる(O5) |
-| PR4〜5 | 残高の自動増減 | レコード作成/削除で資産残高が自動的に増減する。従来は `hasCheckedOut=false` 固定のため実質増減していなかった(O6)。**過去レコード分の遡及反映はしない**(必要なら資産編集で手動調整) |
+| PR4 | 未来日付の禁止 | 記録入力の日付が当日までに制限される(従来は選択中日付±365日の範囲で未来も入力可能だった)(O1) |
+| PR4 | 共有振替の正パス化 | 共有ノートでの振替レコードが正しく `sharedNotes/{pairId}/transfers` へ書かれるようになる(旧実装は誤って個人パスへ書く既知バグがあった)。**訂正(2026-08-26)**: 計画時の「共有ノートの書き込み解禁(O5)」は事実誤認。旧実装に共有ノート時の入力禁止は存在せず、共有ノートへの記録入力は従来から可能だった。あわせて**旧カレンダー側の共有振替リポジトリ(読み取り・削除)にも同じパス誤りが残っていたため正パスへ修正**(§0の「対処不要」は旧ライターについての決定。新ライターが正パスへ書き始めたことで、修正しないとPR5までの間、作成した共有振替がカレンダーで見えず削除もできない整合窓が生じるため。PR #24レビュー指摘) |
+| PR4〜5 | (訂正)残高の自動増減は既存挙動 | **訂正(2026-08-26)**: 「従来は `hasCheckedOut=false` 固定のため実質増減していなかった」は事実誤認。旧入力UIは常に `hasCheckedOut: true` を設定し、登録時の残高増減は従来から毎回発生していた。新実装はこの挙動を維持する(O6の「falseを書き込むのみ」は撤回し、**今後も常にtrueを書く**。旧カレンダー削除の打ち消し条件との整合のため)。過去レコード分の遡及反映をしない点は従来どおり |
 | PR1〜PR8 | タブ再訪時の自動再読込の一時停止 | StatefulShellRoute(IndexedStack)のステート保持により、旧実装のままのタブはアプリ再起動まで他タブでの変更を反映しなくなる(従来はタブ切替のたびに画面を作り直して再読込していた)。各画面のwatch化(PR3〜PR8)ごとに順次解消し、以後はリアルタイム反映に置き換わる |
 | PR1 | ログアウト処理からget_itリセットを除去 | 旧実装の `sl.reset()` は再登録経路がなく、同一セッションでの再ログイン後に旧画面が `sl<T>()` でクラッシュする潜在バグの原因だった。登録は全てステートレスな `registerFactory` でresetに実益がないため廃止 |
 | PR2 | ペア解消時の個人ノートへの自動復帰 | ペア解消(pairId消失)を検知したとき、選択中ノートが共有のままでも個人ノートへ強制リセットするようになる(従来は切替UIが消えるだけでshared表示が継続する潜在不整合があった) |
@@ -173,4 +173,6 @@
 - 2026-08-23: PR2フォローアップのマイクロPR(設定画面のライブ検証化)を実施(PR #19)。`UserName.isValid` を新設しコンストラクタの検証条件と判定を一本化。挙動変更一覧に追加
 - 2026-08-24: integrationシードデータの参照フィールドを修正 — シードレコードの `property.ref`/`category.ref` が文字列パスで保存されており、本番の正(アプリはDocumentReferenceを書き込み、Rulesも `is path` を要求)と乖離していた(旧ダッシュボードはamountしか読まず露見せず、新RecordDtoの形検証で発覚。エミュレータのimportはRulesを迂回するためシードにだけ存在できていた)。エミュレータ+REST APIでreferenceValueへ一括変換し再export。変換手段は `integration_test/util/patch_seed_record_refs.cjs` として保存
 - 2026-08-25: PR #20(PR3)レビュー反映を経てマージ — `UserAuth`をsealed union化(サインイン未済を番兵値でなく`UserAuthNotSignedIn`型で表現。認証済み文脈専用の`signedInUid`は未サインインでStateError=fail fast)/ watchPeriodの契約docから実装詳細(サーバー側クエリ・リスナー解除)を除去 / combineLatest3はエラーを起こしたソースの最新値を無効化し、そのソースが回復するまで出力を止める(古い値の組で「正常に見える」出力をしない)/ RecordDtoが`type`フィールドを期待種別と突き合わせて検証 / 旧記録入力の0円入力を拒否(金額1以上のドメイン制約。PR4で旧入力UIごと消えるまでの暫定ガード)
+- 2026-08-30: PR #24レビュー反映 — カテゴリ名・資産名を検証付き値型(`CategoryName`/`PropertyName`、1〜20文字)へ前倒し(YAGNI最小の範囲をユーザーレビューで訂正。D9の検証付き値型リストに沿う)/ VM内の入力判定を状態依存getterでなく入力を引数に取る純粋関数にする方針を確認(`_isAmountValid`)/ integrationテスト共通のUI操作(タブ移動・共有ノート切替)を `integration_test/util/ui_operations.dart` へ集約
+- 2026-08-26: PR4詳細化と実装の決定を反映 — コード実態調査で計画の事実誤認2件を訂正(O5: 共有ノートの記録入力は従来から可能。O6: 残高増減はhasCheckedOut=true固定により従来から発生)/ hasCheckedOutは恒久的にtrueを書く(旧カレンダー削除の打ち消し条件との不整合窓を作らない。ユーザー決定)/ addの原子性はWriteBatch(読みなし操作。読みのあるdelete=PR5はrunTransaction。「読みの有無」を使い分け基準に)/ transaction_runnerは恒久不採用(必要時も各Repositoryへ直書き。v2のFirestoreTransactionServiceも未使用だった)/ withConverterはレコードについて不採用確定 / RecordDraft不採用(Command1<void, NewRecord>。検証はUI層)/ Category・PropertyモデルはYAGNI最小(id+name)/ balanceEffectsはNewRecord側(PR5はRecord.withoutIdentity()で反転予定)/ budget_feature_testの境界日シードはREST化(月度境界シードがほぼ必ず未来日付を含み、O1の当日制限とUI投入が両立しないため。計画外の依存としてbudget→旧入力UIの密結合が発覚した教訓)/ integrationは実データ+残高差分を検証 / dependencies.dartの死んだv2サービス登録5本を削除
 - 2026-08-24: PR3詳細化と実装の決定を反映 — watchエラー表現の決定(素の`Stream<T>`+`listen(onError:)`でException/Errorを区分、`Result.guard`の区分と一貫。`Stream<Result<T>>`化・lint新設は見送り) / combineLatest3を自作(`lib/utils/combine_latest.dart`、rxdart不採用) / pairId供給は`SelectedNoteState`の拡張(`updatePairId`) / 検証付き値型のうちAmount・RecordNoteをPR3へ前倒し、RecordDateはシード衝突回避のため無検証を維持 / RecordDtoはIncome/Expense/Transferの3クラスに分割(共用しない) / withConverter採用は見送り(PR4で再評価) / summary_panelは「未配線」ではなく現役表示中だった事実を訂正(budget_graphのみ真に未配線) / ダッシュボード初回ローディングもCommand0で統一(settings準拠)

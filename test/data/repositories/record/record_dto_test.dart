@@ -1,6 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/data/repositories/record/record_dto.dart';
+import 'package:household_accounts/domain/models/amount.dart';
+import 'package:household_accounts/domain/models/category_id.dart';
+import 'package:household_accounts/domain/models/new_record.dart';
+import 'package:household_accounts/domain/models/property_id.dart';
 import 'package:household_accounts/domain/models/record.dart';
+import 'package:household_accounts/domain/models/record_date.dart';
+import 'package:household_accounts/domain/models/record_note.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -176,7 +182,133 @@ void main() {
       expect(() => TransferRecordDto.fromSnapshot(doc), throwsFormatException);
     });
   });
+
+  group('incomeRecordJson', () {
+    test('組み立てたJSONのとき、Rulesが要求する8フィールドと完全に一致すること', () {
+      final json = incomeRecordJson(
+        record: _newIncomeRecord(),
+        categoryRef: _fakeRef('category-1'),
+        propertyRef: _fakeRef('property-1'),
+      );
+
+      expect(json.keys.toSet(), {
+        'date',
+        'amount',
+        'note',
+        'createdAt',
+        'hasCheckedOut',
+        'type',
+        'category',
+        'property',
+      });
+    });
+
+    test('組み立てたJSONのとき、各フィールドの値が正しいこと', () {
+      final date = DateTime(2026, 8, 26, 10);
+      final categoryRef = _fakeRef('category-1');
+      final propertyRef = _fakeRef('property-1');
+      final json = incomeRecordJson(
+        record: NewIncomeRecord(
+          date: RecordDate(date),
+          amount: Amount(1000),
+          note: RecordNote('給料'),
+          categoryId: CategoryId('category-1'),
+          propertyId: PropertyId('property-1'),
+        ),
+        categoryRef: categoryRef,
+        propertyRef: propertyRef,
+      );
+
+      expect(json['date'], Timestamp.fromDate(date));
+      expect(json['amount'], 1000);
+      expect(json['note'], '給料');
+      expect(json['createdAt'], isA<FieldValue>());
+      expect(json['hasCheckedOut'], isTrue);
+      expect(json['type'], 'income');
+      // _fakeRefは呼び出すたびに新しいインスタンスを返すため、比較には
+      // 同一インスタンス(categoryRef/propertyRef)を使う。
+      expect(json['category'], {'ref': categoryRef});
+      expect(json['property'], {'ref': propertyRef});
+    });
+  });
+
+  group('expenseRecordJson', () {
+    test('組み立てたJSONのとき、Rulesが要求する8フィールドと完全に一致すること', () {
+      final json = expenseRecordJson(
+        record: NewExpenseRecord(
+          date: RecordDate(DateTime(2026, 8, 26)),
+          amount: Amount(500),
+          note: RecordNote('食費'),
+          categoryId: CategoryId('category-2'),
+          propertyId: PropertyId('property-2'),
+        ),
+        categoryRef: _fakeRef('category-2'),
+        propertyRef: _fakeRef('property-2'),
+      );
+
+      expect(json.keys.toSet(), {
+        'date',
+        'amount',
+        'note',
+        'createdAt',
+        'hasCheckedOut',
+        'type',
+        'category',
+        'property',
+      });
+      expect(json['type'], 'expense');
+      expect(json['hasCheckedOut'], isTrue);
+      expect(json['createdAt'], isA<FieldValue>());
+    });
+  });
+
+  group('transferRecordJson', () {
+    test(
+      '組み立てたJSONのとき、Rulesが要求する8フィールド(fromProperty/toProperty)と完全に一致すること',
+      () {
+        final fromPropertyRef = _fakeRef('property-3');
+        final toPropertyRef = _fakeRef('property-4');
+        final json = transferRecordJson(
+          record: NewTransferRecord(
+            date: RecordDate(DateTime(2026, 8, 26)),
+            amount: Amount(3000),
+            note: RecordNote('振替'),
+            fromPropertyId: PropertyId('property-3'),
+            toPropertyId: PropertyId('property-4'),
+          ),
+          fromPropertyRef: fromPropertyRef,
+          toPropertyRef: toPropertyRef,
+        );
+
+        expect(json.keys.toSet(), {
+          'date',
+          'amount',
+          'note',
+          'createdAt',
+          'hasCheckedOut',
+          'type',
+          'fromProperty',
+          'toProperty',
+        });
+        expect(json['type'], 'transfer');
+        expect(json['hasCheckedOut'], isTrue);
+        expect(json['createdAt'], isA<FieldValue>());
+        // _fakeRefは呼び出すたびに新しいインスタンスを返すため、比較には
+        // 同一インスタンス(fromPropertyRef/toPropertyRef)を使う。
+        expect(json['fromProperty'], {'ref': fromPropertyRef});
+        expect(json['toProperty'], {'ref': toPropertyRef});
+      },
+    );
+  });
 }
+
+NewIncomeRecord _newIncomeRecord() => NewIncomeRecord(
+  date: RecordDate(DateTime(2026, 8, 26)),
+  amount: Amount(1000),
+  note: RecordNote('給料'),
+  categoryId: CategoryId('category-1'),
+  propertyId: PropertyId('property-1'),
+);
 
 Map<String, dynamic> _validIncomeData() => {
   'type': 'income',

@@ -5,7 +5,6 @@ import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
 import '../../entity/record.dart';
 import '../../feature/repository/record_repository.dart';
-import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/json.dart';
 import 'record_model.dart';
@@ -36,7 +35,9 @@ class FirebasePersonalIncomeRecordRepository
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required IncomeRecord value,
-  }) => _repository.register(repoId: repoId, value: value);
+  }) {
+    throw UnsupportedError('レコードの登録は新実装(RecordRepository.add)へ移行済み');
+  }
 
   @override
   Future<ExceptionOr<List<IncomeRecord>>> retrieveAll({
@@ -95,7 +96,9 @@ class FirebaseSharedIncomeRecordRepository
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required IncomeRecord value,
-  }) => _repository.register(repoId: repoId, value: value);
+  }) {
+    throw UnsupportedError('レコードの登録は新実装(RecordRepository.add)へ移行済み');
+  }
 
   @override
   Future<ExceptionOr<List<IncomeRecord>>> retrieveAll({
@@ -162,41 +165,6 @@ class _IncomeRecordRepository {
 
     try {
       await FirebaseFirestore.instance.runTransaction(handler);
-      return Right(unit);
-    } on FirebaseException catch (e) {
-      debugPrint('$e');
-      return Left(e);
-    }
-  }
-
-  Future<ExceptionOr<Unit>> register({
-    required String repoId,
-    required IncomeRecord value,
-  }) async {
-    final ownerDocument = _builder(repoId).parent!;
-    final propertyCollection = ownerDocument.collection(
-      firebaseCollectionProperties,
-    );
-    final categoryCollection = ownerDocument.collection(
-      firebaseCollectionIncomeCategories,
-    );
-    final batch = FirebaseFirestore.instance.batch();
-    if (value.hasCheckedOut) {
-      batch.update(propertyCollection.doc(value.property.id), {
-        'amount': FieldValue.increment(value.amount),
-      });
-    }
-    batch.set(
-      _builder(repoId).doc(value.id),
-      IncomeRecordModel.fromEntity(
-        record: value,
-        categoryCollectionPath: categoryCollection.path,
-        propertyCollectionPath: propertyCollection.path,
-      ),
-    );
-
-    try {
-      await batch.commit();
       return Right(unit);
     } on FirebaseException catch (e) {
       debugPrint('$e');

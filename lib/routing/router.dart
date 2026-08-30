@@ -10,9 +10,10 @@ import '../presentation/budget_viewer/budget_viewer_page.dart';
 import '../presentation/category_viewer/category_viewer_page.dart';
 import '../presentation/monthly_record_viewer/monthly_record_viewer_page.dart';
 import '../presentation/property_viewer/property_viewer_page.dart';
-import '../presentation/record_register/record_register_page.dart';
+import '../domain/models/notebook.dart';
 import '../domain/models/user_auth.dart';
 import '../ui/dashboard/dashboard_screen_host.dart';
+import '../ui/record_entry/record_entry_screen_host.dart';
 import '../ui/settings/settings_screen.dart';
 import '../ui/settings/settings_view_model.dart';
 import '../ui/shell/shell_screen_host.dart';
@@ -83,27 +84,11 @@ GoRouter createRouter({
             routes: [
               GoRoute(
                 path: Routes.dashboard,
-                builder: (context, state) => Builder(
-                  builder: (context) {
-                    // ノート切替時にViewModelを作り直す: SelectedNoteStateの
-                    // 変化で再buildされ、ValueKeyの変化によりHostのStateごと
-                    // 再生成される(旧ViewModelのdisposeで購読解除、新ViewModelが
-                    // 新しいRecordRepositoryを購読する)。
-                    final userAuth = context.watch<UserAuth>();
-                    // サインアウト直後、redirectがサインイン画面へ遷移するまでの
-                    // 一瞬だけ未サインイン状態で再buildされうる。その間は何も
-                    // 描画しない(無効なuidで購読を開始しないため)
-                    if (userAuth is! UserAuthSignedIn) {
-                      return const SizedBox.shrink();
-                    }
-                    final notebook = context.watch<SelectedNoteState>().resolve(
-                      userAuth.uid,
-                    );
-                    return DashboardScreenHost(
-                      key: ValueKey(notebook),
-                      notebook: notebook,
-                    );
-                  },
+                builder: (context, state) => _notebookScoped(
+                  (notebook) => DashboardScreenHost(
+                    key: ValueKey(notebook),
+                    notebook: notebook,
+                  ),
                 ),
               ),
             ],
@@ -112,7 +97,9 @@ GoRouter createRouter({
             routes: [
               GoRoute(
                 path: Routes.entry,
-                builder: (context, state) => const RecordInputPage(),
+                builder: (context, state) => _notebookScoped(
+                  (notebook) => RecordEntryScreenHost(key: ValueKey(notebook)),
+                ),
               ),
             ],
           ),
@@ -151,5 +138,27 @@ GoRouter createRouter({
         ],
       ),
     ],
+  );
+}
+
+/// サインイン済みユーザーの選択中ノートを解決し、[builder] へ渡す。
+///
+/// ノート切替時にViewModelを作り直すため、SelectedNoteStateの変化で
+/// 再buildされ、ValueKeyの変化によりHostのStateごと再生成される(旧ViewModelの
+/// disposeで購読解除、新ViewModelが新しいRepositoryを購読する)。[builder] 側で
+/// `ValueKey(notebook)` を付与すること。
+Widget _notebookScoped(Widget Function(Notebook notebook) builder) {
+  return Builder(
+    builder: (context) {
+      final userAuth = context.watch<UserAuth>();
+      // サインアウト直後、redirectがサインイン画面へ遷移するまでの
+      // 一瞬だけ未サインイン状態で再buildされうる。その間は何も
+      // 描画しない(無効なuidで購読を開始しないため)
+      if (userAuth is! UserAuthSignedIn) {
+        return const SizedBox.shrink();
+      }
+      final notebook = context.watch<SelectedNoteState>().resolve(userAuth.uid);
+      return builder(notebook);
+    },
   );
 }

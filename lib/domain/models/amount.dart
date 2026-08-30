@@ -18,9 +18,18 @@ class Amount with _$Amount {
   /// 制御フローに載せたいため(Errorはプログラミングバグを表し、
   /// 捕捉されずfail fastすべきもの)。
   Amount(this.value) {
-    if (value <= 0) {
+    if (!isValid(value)) {
       throw FormatException('金額は1以上である必要があります', value);
     }
+  }
+
+  /// [value]が金額として妥当(1以上)かどうかを判定する。
+  ///
+  /// コンストラクタの検証条件と同じ判定をUI層(ライブ検証)からも呼べるように
+  /// 公開する。ルールの記述箇所をここ1箇所に絞ることで、コンストラクタの
+  /// 例外送出条件と二重管理にならないようにする。
+  static bool isValid(int value) {
+    return value > 0;
   }
 
   /// 金額の整数値。

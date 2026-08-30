@@ -62,7 +62,7 @@
 | amount | 0より大きい整数、必須項目 | ビジネスルール | Firestore Rules, ドメインモデル |
 | note | 100文字以下、必須項目 | UX要件 | Firestore Rules, ドメインモデル |
 | createdAt | 必須項目、自動生成 | データ整合性、監査証跡 | Repository実装 |
-| hasCheckedOut | 必須項目、デフォルトはfalse | ビジネスルール | Repository実装 |
+| hasCheckedOut | 必須項目、常にtrue(残高へ反映済みであることを表す) | ビジネスルール | Repository実装 |
 | type | "income"固定値 | データ整合性 | Repository実装 |
 | property | 有効な資産への参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |
 | category | 有効な収入カテゴリへの参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |
@@ -76,7 +76,7 @@
 | amount | 0より大きい整数、必須項目 | ビジネスルール | Firestore Rules, ドメインモデル |
 | note | 100文字以下、必須項目 | UX要件 | Firestore Rules, ドメインモデル |
 | createdAt | 必須項目、自動生成 | データ整合性、監査証跡 | Repository実装 |
-| hasCheckedOut | 必須項目、デフォルトはfalse | ビジネスルール | Repository実装 |
+| hasCheckedOut | 必須項目、常にtrue(残高へ反映済みであることを表す) | ビジネスルール | Repository実装 |
 | type | "expense"固定値 | データ整合性 | Repository実装 |
 | property | 有効な資産への参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |
 | category | 有効な支出カテゴリへの参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |
@@ -91,7 +91,7 @@
 | amount | 0より大きい整数、必須項目 | ビジネスルール | Firestore Rules, ドメインモデル |
 | note | 100文字以下、必須項目 | UX要件 | Firestore Rules, ドメインモデル |
 | createdAt | 必須項目、自動生成 | データ整合性、監査証跡 | Repository実装 |
-| hasCheckedOut | 必須項目、デフォルトはfalse | ビジネスルール | Repository実装 |
+| hasCheckedOut | 必須項目、常にtrue(残高へ反映済みであることを表す) | ビジネスルール | Repository実装 |
 | type | "transfer"固定値 | データ整合性 | Repository実装 |
 | fromProperty | 有効な資産への参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |
 | toProperty | 有効な資産への参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |

@@ -5,7 +5,6 @@ import 'package:household_accounts/data/firebase/util/document_snapshot.dart';
 
 import '../../entity/record.dart';
 import '../../feature/repository/record_repository.dart';
-import '../../util/constant/firebase_constant.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/json.dart';
 import 'record_model.dart';
@@ -36,7 +35,9 @@ class FirebasePersonalTransferRecordRepository
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required TransferRecord value,
-  }) => _repository.register(repoId: repoId, value: value);
+  }) {
+    throw UnsupportedError('レコードの登録は新実装(RecordRepository.add)へ移行済み');
+  }
 
   @override
   Future<ExceptionOr<List<TransferRecord>>> retrieveAll({
@@ -77,8 +78,13 @@ class FirebaseSharedTransferRecordRepository
 
   FirebaseSharedTransferRecordRepository()
     : _repository = _TransferRecordRepository(
+        // かつては誤って個人パスを参照しており、共有振替の書き込みと読み取りが
+        // どちらも同じ誤パスで釣り合っていたため露見しなかった。記録入力の
+        // 新実装が正しくsharedNotes配下へ書くようになったため、読み取り・削除も
+        // 正パスへ揃える(揃えないと、作成した共有振替がカレンダーで見えず
+        // 削除もできない)
         (String uid) => FirebaseFirestore.instance
-            .collection(getPersonalTransferRecordCollectionPath(uid))
+            .collection(getSharedTransferRecordCollectionPath(uid))
             .withConverter(
               fromFirestore: _fromFirestore,
               toFirestore: _toFirestore,
@@ -95,7 +101,9 @@ class FirebaseSharedTransferRecordRepository
   Future<ExceptionOr<Unit>> register({
     required String repoId,
     required TransferRecord value,
-  }) => _repository.register(repoId: repoId, value: value);
+  }) {
+    throw UnsupportedError('レコードの登録は新実装(RecordRepository.add)へ移行済み');
+  }
 
   @override
   Future<ExceptionOr<List<TransferRecord>>> retrieveAll({
@@ -166,41 +174,6 @@ class _TransferRecordRepository {
 
     try {
       await FirebaseFirestore.instance.runTransaction(handler);
-      return Right(unit);
-    } on FirebaseException catch (e) {
-      debugPrint('$e');
-      return Left(e);
-    }
-  }
-
-  Future<ExceptionOr<Unit>> register({
-    required String repoId,
-    required TransferRecord value,
-  }) async {
-    final ownerDocument = _builder(repoId).parent!;
-    final propertyCollection = ownerDocument.collection(
-      firebaseCollectionProperties,
-    );
-    final batch = FirebaseFirestore.instance.batch();
-    if (value.hasCheckedOut) {
-      batch
-        ..update(propertyCollection.doc(value.source.id), {
-          'amount': FieldValue.increment(-value.amount),
-        })
-        ..update(propertyCollection.doc(value.destination.id), {
-          'amount': FieldValue.increment(value.amount),
-        });
-    }
-    batch.set(
-      _builder(repoId).doc(value.id),
-      TransferRecordModel.fromEntity(
-        record: value,
-        propertyCollectionPath: propertyCollection.path,
-      ),
-    );
-
-    try {
-      await batch.commit();
       return Right(unit);
     } on FirebaseException catch (e) {
       debugPrint('$e');

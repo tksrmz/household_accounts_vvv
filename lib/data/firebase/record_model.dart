@@ -34,49 +34,7 @@ PropertyModel _propertyModelFromFirestore(
 Json _propertyModelToFirestore(PropertyModel propertyModel, SetOptions? _) =>
     propertyModel.toJson();
 
-DocumentReference<IncomeCategoryModel> _createIncomeCategoryDocumentReference({
-  required String categoryId,
-  required String categoryCollectionPath,
-}) => FirebaseFirestore.instance
-    .collection(categoryCollectionPath)
-    .doc(categoryId)
-    .withConverter<IncomeCategoryModel>(
-      fromFirestore: _incomeCategoryModelFromFirestore,
-      toFirestore: _incomeCategoryModelToFirestore,
-    );
-
-DocumentReference<ExpenseCategoryModel>
-_createExpenseCategoryDocumentReference({
-  required String categoryId,
-  required String categoryCollectionPath,
-}) => FirebaseFirestore.instance
-    .collection(categoryCollectionPath)
-    .doc(categoryId)
-    .withConverter<ExpenseCategoryModel>(
-      fromFirestore: _expenseCategoryModelFromFirestore,
-      toFirestore: _expenseCategoryModelToFirestore,
-    );
-
-DocumentReference<PropertyModel> _createPropertyDocumentReference({
-  required String propertyId,
-  required String propertyCollectionPath,
-}) => FirebaseFirestore.instance
-    .collection(propertyCollectionPath)
-    .doc(propertyId)
-    .withConverter<PropertyModel>(
-      fromFirestore: _propertyModelFromFirestore,
-      toFirestore: _propertyModelToFirestore,
-    );
-
 abstract class RecordBaseModel implements DataModel<RecordBase> {
-  RecordBaseModel.fromEntity(RecordBase entity)
-    : id = entity.id,
-      recordDate = entity.recordDate,
-      amount = entity.amount,
-      note = entity.note,
-      hasCheckedOut = entity.hasCheckedOut,
-      createdAt = FieldValue.serverTimestamp();
-
   RecordBaseModel.fromJson(Json json)
     : id = json['id'] as String,
       recordDate = (json['date'] as Timestamp).toDate(),
@@ -103,20 +61,6 @@ abstract class RecordBaseModel implements DataModel<RecordBase> {
 }
 
 class IncomeRecordModel extends RecordBaseModel {
-  IncomeRecordModel.fromEntity({
-    required IncomeRecord record,
-    required String categoryCollectionPath,
-    required String propertyCollectionPath,
-  }) : categoryRef = _createIncomeCategoryDocumentReference(
-         categoryId: record.category.id,
-         categoryCollectionPath: categoryCollectionPath,
-       ),
-       propertyRef = _createPropertyDocumentReference(
-         propertyId: record.property.id,
-         propertyCollectionPath: propertyCollectionPath,
-       ),
-       super.fromEntity(record);
-
   IncomeRecordModel.fromJson(super.json)
     : categoryRef = (json['category']!['ref'] as DocumentReference)
           .withConverter(
@@ -167,20 +111,6 @@ class IncomeRecordModel extends RecordBaseModel {
 }
 
 class ExpenseRecordModel extends RecordBaseModel {
-  ExpenseRecordModel.fromEntity({
-    required ExpenseRecord record,
-    required String categoryCollectionPath,
-    required String propertyCollectionPath,
-  }) : categoryRef = _createExpenseCategoryDocumentReference(
-         categoryId: record.category.id,
-         categoryCollectionPath: categoryCollectionPath,
-       ),
-       propertyRef = _createPropertyDocumentReference(
-         propertyId: record.property.id,
-         propertyCollectionPath: propertyCollectionPath,
-       ),
-       super.fromEntity(record);
-
   ExpenseRecordModel.fromJson(super.json)
     : categoryRef = (json['category']!['ref'] as DocumentReference)
           .withConverter(
@@ -231,19 +161,6 @@ class ExpenseRecordModel extends RecordBaseModel {
 }
 
 class TransferRecordModel extends RecordBaseModel {
-  TransferRecordModel.fromEntity({
-    required TransferRecord record,
-    required String propertyCollectionPath,
-  }) : fromPropertyRef = _createPropertyDocumentReference(
-         propertyId: record.source.id,
-         propertyCollectionPath: propertyCollectionPath,
-       ),
-       toPropertyRef = _createPropertyDocumentReference(
-         propertyId: record.destination.id,
-         propertyCollectionPath: propertyCollectionPath,
-       ),
-       super.fromEntity(record);
-
   TransferRecordModel.fromJson(super.json)
     : fromPropertyRef = (json['fromProperty']!['ref'] as DocumentReference)
           .withConverter(
