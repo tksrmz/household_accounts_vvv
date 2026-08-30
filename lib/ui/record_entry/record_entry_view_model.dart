@@ -123,11 +123,11 @@ class RecordEntryViewModel extends ChangeNotifier {
   List<({CategoryId id, String name})> get categoryOptions => switch (_type) {
     RecordEntryType.income =>
       _incomeCategories
-          .map((category) => (id: category.id, name: category.name))
+          .map((category) => (id: category.id, name: category.name.value))
           .toList(),
     RecordEntryType.expense =>
       _expenseCategories
-          .map((category) => (id: category.id, name: category.name))
+          .map((category) => (id: category.id, name: category.name.value))
           .toList(),
     RecordEntryType.transfer => const [],
   };
@@ -220,7 +220,7 @@ class RecordEntryViewModel extends ChangeNotifier {
   /// 入力内容を保存できるかどうか。
   bool get canSubmit =>
       !submitRecord.running &&
-      _isAmountValid &&
+      _isAmountValid(_amountInput) &&
       !_hasNoteError &&
       !_hasFutureDateError &&
       _hasRequiredSelections;
@@ -255,12 +255,13 @@ class RecordEntryViewModel extends ChangeNotifier {
   /// 通知する。
   void onAmountChanged(String input) {
     final hadError = _hasAmountError;
-    final wasValid = _isAmountValid;
+    final wasValid = _isAmountValid(_amountInput);
+    final isValid = _isAmountValid(input);
 
     _amountInput = input;
-    _hasAmountError = input.isNotEmpty && !_isAmountValid;
+    _hasAmountError = input.isNotEmpty && !isValid;
 
-    if (_hasAmountError != hadError || _isAmountValid != wasValid) {
+    if (_hasAmountError != hadError || isValid != wasValid) {
       notifyListeners();
     }
   }
@@ -376,8 +377,11 @@ class RecordEntryViewModel extends ChangeNotifier {
     await submitRecord.execute(record);
   }
 
-  bool get _isAmountValid {
-    final parsed = int.tryParse(_amountInput);
+  // VMの状態を読むgetterではなく入力を引数に取る純粋関数にする:
+  // 「どの入力に対する判定か」が呼び出し側で明示され、変更前後の入力への
+  // 判定([onAmountChanged])を同じ関数で表せる
+  static bool _isAmountValid(String amountInput) {
+    final parsed = int.tryParse(amountInput);
     return parsed != null && Amount.isValid(parsed);
   }
 

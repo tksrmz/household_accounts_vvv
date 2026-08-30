@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'property_id.dart';
+import 'property_name.dart';
 
 part 'property.freezed.dart';
 
@@ -11,6 +12,6 @@ part 'property.freezed.dart';
 /// 十分なため)。
 @freezed
 abstract class Property with _$Property {
-  const factory Property({required PropertyId id, required String name}) =
+  const factory Property({required PropertyId id, required PropertyName name}) =
       _Property;
 }

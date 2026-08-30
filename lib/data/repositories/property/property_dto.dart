@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../domain/models/property.dart';
 import '../../../domain/models/property_id.dart';
+import '../../../domain/models/property_name.dart';
 
 /// propertiesコレクションの1ドキュメントを表すDTO。
 class PropertyDto {
@@ -20,9 +21,11 @@ class PropertyDto {
   final String id;
   final String name;
 
+  /// ドメインモデルへ変換する。名前の値型([PropertyName])の検証違反による
+  /// [FormatException]はそのまま透過させる。
   // amountは読まない(記録入力では資産を選択できれば十分なため。
   // 資産管理画面の移行時に追加する)。
-  Property toDomain() => Property(id: PropertyId(id), name: name);
+  Property toDomain() => Property(id: PropertyId(id), name: PropertyName(name));
 }
 
 String _readName(Map<String, dynamic> data, String docId) {

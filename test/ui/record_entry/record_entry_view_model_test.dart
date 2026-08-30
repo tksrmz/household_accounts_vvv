@@ -4,9 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/domain/models/amount.dart';
 import 'package:household_accounts/domain/models/category.dart';
 import 'package:household_accounts/domain/models/category_id.dart';
+import 'package:household_accounts/domain/models/category_name.dart';
 import 'package:household_accounts/domain/models/new_record.dart';
 import 'package:household_accounts/domain/models/property.dart';
 import 'package:household_accounts/domain/models/property_id.dart';
+import 'package:household_accounts/domain/models/property_name.dart';
 import 'package:household_accounts/domain/models/record_date.dart';
 import 'package:household_accounts/domain/models/record_note.dart';
 import 'package:household_accounts/ui/record_entry/record_entry_view_model.dart';
@@ -19,11 +21,17 @@ import '../../test-util/fake_record_repository.dart';
 // 「当日」をテストから固定し、未来日付の判定を実行日に左右されないようにする
 final _today = DateTime(2026, 8, 26, 13, 45);
 
-final _salary = IncomeCategory(id: CategoryId('salary'), name: '給与');
-final _bonus = IncomeCategory(id: CategoryId('bonus'), name: '賞与');
-final _food = ExpenseCategory(id: CategoryId('food'), name: '食費');
-final _wallet = Property(id: PropertyId('wallet'), name: '財布');
-final _bank = Property(id: PropertyId('bank'), name: '銀行');
+final _salary = IncomeCategory(
+  id: CategoryId('salary'),
+  name: CategoryName('給与'),
+);
+final _bonus = IncomeCategory(
+  id: CategoryId('bonus'),
+  name: CategoryName('賞与'),
+);
+final _food = ExpenseCategory(id: CategoryId('food'), name: CategoryName('食費'));
+final _wallet = Property(id: PropertyId('wallet'), name: PropertyName('財布'));
+final _bank = Property(id: PropertyId('bank'), name: PropertyName('銀行'));
 
 // なぜtestWidgetsではなくtestを使うか:
 // RecordEntryViewModelは純粋なDartのChangeNotifierであり、Widgetツリーを
@@ -61,8 +69,8 @@ void main() {
 
       expect(target.viewModel.isLoading, isFalse);
       expect(target.viewModel.categoryOptions, [
-        (id: _salary.id, name: _salary.name),
-        (id: _bonus.id, name: _bonus.name),
+        (id: _salary.id, name: _salary.name.value),
+        (id: _bonus.id, name: _bonus.name.value),
       ]);
       expect(target.viewModel.propertyOptions, [_wallet, _bank]);
     });
@@ -175,7 +183,7 @@ void main() {
 
       expect(target.viewModel.selectedCategoryId, isNull);
       expect(target.viewModel.categoryOptions, [
-        (id: _food.id, name: _food.name),
+        (id: _food.id, name: _food.name.value),
       ]);
     });
 

@@ -143,7 +143,7 @@ class RecordEntryForm extends StatelessWidget {
 
   List<({PropertyId value, String label})> get _propertyOptions => [
     for (final property in _viewModel.propertyOptions)
-      (value: property.id, label: property.name),
+      (value: property.id, label: property.name.value),
   ];
 
   /// 保存に必要な選択肢がまだ登録されていないかどうか。

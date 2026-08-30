@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'firestore_probe.dart';
 import 'firestore_rest.dart';
+import 'ui_operations.dart';
 
 /// budget_feature_test.dart で使用する、支出カテゴリ・資産・境界日の
 /// 支出レコードをseedするためのヘルパー関数群。
@@ -23,8 +24,7 @@ Future<void> createExpenseCategory(
   required String name,
   required int budget,
 }) async {
-  await tester.tap(find.text('カテゴリ'));
-  await tester.pumpAndSettle();
+  await openTab(tester, 'カテゴリ');
 
   await tester.tap(find.text('カテゴリの追加'));
   await tester.pumpAndSettle();
@@ -42,8 +42,7 @@ Future<void> createProperty(
   required String name,
   required int amount,
 }) async {
-  await tester.tap(find.text('資産'));
-  await tester.pumpAndSettle();
+  await openTab(tester, '資産');
 
   await tester.tap(find.text('資産の追加'));
   await tester.pumpAndSettle();

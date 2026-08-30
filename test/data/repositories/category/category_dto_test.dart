@@ -38,6 +38,14 @@ void main() {
 
       expect(() => IncomeCategoryDto.fromSnapshot(doc), throwsFormatException);
     });
+
+    test('nameが21文字のとき、toDomainでFormatExceptionが送出されること', () {
+      final doc = _fakeDoc('category-1', {'type': 'income', 'name': 'a' * 21});
+
+      final dto = IncomeCategoryDto.fromSnapshot(doc);
+
+      expect(() => dto.toDomain(), throwsFormatException);
+    });
   });
 
   group('ExpenseCategoryDto', () {
@@ -61,6 +69,14 @@ void main() {
       final doc = _fakeDoc('category-2', {'type': 'expense', 'name': null});
 
       expect(() => ExpenseCategoryDto.fromSnapshot(doc), throwsFormatException);
+    });
+
+    test('nameが空文字のとき、toDomainでFormatExceptionが送出されること', () {
+      final doc = _fakeDoc('category-2', {'type': 'expense', 'name': ''});
+
+      final dto = ExpenseCategoryDto.fromSnapshot(doc);
+
+      expect(() => dto.toDomain(), throwsFormatException);
     });
   });
 }

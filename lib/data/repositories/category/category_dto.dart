@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../domain/models/category.dart';
 import '../../../domain/models/category_id.dart';
+import '../../../domain/models/category_name.dart';
 
 // incomeCategories/expenseCategoriesのFirestoreドキュメントは形が似ているが、
 // 収入カテゴリと支出カテゴリはドメイン的に別物である(支出カテゴリだけが
@@ -26,9 +27,10 @@ class IncomeCategoryDto {
   final String id;
   final String name;
 
-  /// ドメインモデルへ変換する。名前の文字数検証はまだない(カテゴリ管理画面の
-  /// 移行時に検証付き値型化する)ため、ここでの変換自体は失敗しない。
-  IncomeCategory toDomain() => IncomeCategory(id: CategoryId(id), name: name);
+  /// ドメインモデルへ変換する。名前の値型([CategoryName])の検証違反による
+  /// [FormatException]はそのまま透過させる。
+  IncomeCategory toDomain() =>
+      IncomeCategory(id: CategoryId(id), name: CategoryName(name));
 }
 
 /// expenseCategoriesコレクションの1ドキュメントを表すDTO。
@@ -50,9 +52,12 @@ class ExpenseCategoryDto {
   final String id;
   final String name;
 
+  /// ドメインモデルへ変換する。名前の値型([CategoryName])の検証違反による
+  /// [FormatException]はそのまま透過させる。
   // totalBudgetは読まない(記録入力ではカテゴリを選択できれば十分なため。
   // カテゴリ管理画面の移行時に追加する)。
-  ExpenseCategory toDomain() => ExpenseCategory(id: CategoryId(id), name: name);
+  ExpenseCategory toDomain() =>
+      ExpenseCategory(id: CategoryId(id), name: CategoryName(name));
 }
 
 /// カテゴリ種別(`type`フィールド)が[expected]と一致することを検証する。

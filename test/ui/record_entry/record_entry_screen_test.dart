@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/domain/models/category.dart';
 import 'package:household_accounts/domain/models/category_id.dart';
+import 'package:household_accounts/domain/models/category_name.dart';
 import 'package:household_accounts/domain/models/property.dart';
 import 'package:household_accounts/domain/models/property_id.dart';
+import 'package:household_accounts/domain/models/property_name.dart';
 import 'package:household_accounts/ui/record_entry/record_entry_screen.dart';
 import 'package:household_accounts/ui/record_entry/record_entry_view_model.dart';
 import 'package:household_accounts/utils/result.dart';
@@ -18,10 +20,13 @@ import '../../test-util/golden_helper.dart';
 // 「当日」をテストから固定し、日付の表示と選択範囲を実行日に左右されないようにする
 final _today = DateTime(2026, 8, 26, 13, 45);
 
-final _salary = IncomeCategory(id: CategoryId('salary'), name: '給与');
-final _food = ExpenseCategory(id: CategoryId('food'), name: '食費');
-final _wallet = Property(id: PropertyId('wallet'), name: '財布');
-final _bank = Property(id: PropertyId('bank'), name: '銀行');
+final _salary = IncomeCategory(
+  id: CategoryId('salary'),
+  name: CategoryName('給与'),
+);
+final _food = ExpenseCategory(id: CategoryId('food'), name: CategoryName('食費'));
+final _wallet = Property(id: PropertyId('wallet'), name: PropertyName('財布'));
+final _bank = Property(id: PropertyId('bank'), name: PropertyName('銀行'));
 
 const _amountLabel = '金額';
 const _noteLabel = 'メモ';
@@ -72,8 +77,16 @@ void main() {
       expectFn: (tester) async {
         await _emitOptions(tester, fixture);
         await _selectType(tester, '支出');
-        await _selectOption(tester, dropdownKey: 'category', label: _food.name);
-        await _selectOption(tester, dropdownKey: 'property', label: _bank.name);
+        await _selectOption(
+          tester,
+          dropdownKey: 'category',
+          label: _food.name.value,
+        );
+        await _selectOption(
+          tester,
+          dropdownKey: 'property',
+          label: _bank.name.value,
+        );
         await _enterText(tester, label: _amountLabel, text: '980');
       },
     );
@@ -84,7 +97,11 @@ void main() {
       builder: () => (fixture = _buildFixture()).screen,
       expectFn: (tester) async {
         await _emitOptions(tester, fixture);
-        await _selectTransfer(tester, from: _wallet.name, to: _bank.name);
+        await _selectTransfer(
+          tester,
+          from: _wallet.name.value,
+          to: _bank.name.value,
+        );
         await _enterText(tester, label: _amountLabel, text: '5000');
       },
     );
@@ -106,7 +123,11 @@ void main() {
       builder: () => (fixture = _buildFixture()).screen,
       expectFn: (tester) async {
         await _emitOptions(tester, fixture);
-        await _selectTransfer(tester, from: _wallet.name, to: _wallet.name);
+        await _selectTransfer(
+          tester,
+          from: _wallet.name.value,
+          to: _wallet.name.value,
+        );
       },
     );
 
@@ -206,13 +227,17 @@ void main() {
       // 一覧に無い収入カテゴリを「選択中」のまま描画しようとして
       // Dropdownのassert違反になる(選択肢の集合でFieldを作り直す対策の回帰テスト)
       await _pumpScreen(tester);
-      await _selectOption(tester, dropdownKey: 'category', label: _salary.name);
+      await _selectOption(
+        tester,
+        dropdownKey: 'category',
+        label: _salary.name.value,
+      );
 
       await _selectType(tester, '支出');
 
       expect(tester.takeException(), isNull);
       expect(find.text('カテゴリを選択'), findsOneWidget);
-      expect(find.text(_salary.name), findsNothing);
+      expect(find.text(_salary.name.value), findsNothing);
     });
 
     testWidgets('振替を選んだとき、振替元と振替先の選択を促す文言が表示されること', (tester) async {
@@ -326,8 +351,16 @@ Future<void> _emitOptions(
 
 /// 収入として保存できる入力をひととおり埋める。
 Future<void> _fillIncome(WidgetTester tester) async {
-  await _selectOption(tester, dropdownKey: 'category', label: _salary.name);
-  await _selectOption(tester, dropdownKey: 'property', label: _wallet.name);
+  await _selectOption(
+    tester,
+    dropdownKey: 'category',
+    label: _salary.name.value,
+  );
+  await _selectOption(
+    tester,
+    dropdownKey: 'property',
+    label: _wallet.name.value,
+  );
   await _enterText(tester, label: _amountLabel, text: '1200');
   await _enterText(tester, label: _noteLabel, text: 'ランチ代');
 }

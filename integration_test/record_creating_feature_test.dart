@@ -5,6 +5,7 @@ import 'package:household_accounts/main.dart';
 import 'util/firestore_probe.dart';
 import 'util/firestore_rest.dart';
 import 'util/sign_in.dart';
+import 'util/ui_operations.dart';
 import 'util/sign_up.dart';
 
 /// 記録入力の受け入れテスト。
@@ -24,15 +25,15 @@ Future<void> recordCreatingFeature() async {
     await signUpApp(tester);
     await tester.pumpAndSettle();
 
-    await _openTab(tester, 'カテゴリ');
+    await openTab(tester, 'カテゴリ');
     await _addIncomeCategory(tester, name: categoryName);
-    await _openTab(tester, '資産');
+    await openTab(tester, '資産');
     await _addProperty(tester, name: propertyName, amount: 100000);
 
     final notePath = currentPersonalNotePath();
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
 
-    await _openTab(tester, '入力');
+    await openTab(tester, '入力');
     await _enterText(tester, label: _amountLabel, text: '$amount');
     await _selectOption(tester, dropdownKey: 'category', label: categoryName);
     await _selectOption(tester, dropdownKey: 'property', label: propertyName);
@@ -71,15 +72,15 @@ Future<void> recordCreatingFeature() async {
     await signUpApp(tester);
     await tester.pumpAndSettle();
 
-    await _openTab(tester, 'カテゴリ');
+    await openTab(tester, 'カテゴリ');
     await _addExpenseCategory(tester, name: categoryName, budget: 50000);
-    await _openTab(tester, '資産');
+    await openTab(tester, '資産');
     await _addProperty(tester, name: propertyName, amount: 50000);
 
     final notePath = currentPersonalNotePath();
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
 
-    await _openTab(tester, '入力');
+    await openTab(tester, '入力');
     await _selectType(tester, '支出');
     await _enterText(tester, label: _amountLabel, text: '$amount');
     await _selectOption(tester, dropdownKey: 'category', label: categoryName);
@@ -119,7 +120,7 @@ Future<void> recordCreatingFeature() async {
     await signUpApp(tester);
     await tester.pumpAndSettle();
 
-    await _openTab(tester, '資産');
+    await openTab(tester, '資産');
     await _addProperty(tester, name: fromPropertyName, amount: 200000);
     await _addProperty(tester, name: toPropertyName, amount: 30000);
 
@@ -130,7 +131,7 @@ Future<void> recordCreatingFeature() async {
     );
     final toBalanceBefore = await fetchPropertyAmount(notePath, toPropertyName);
 
-    await _openTab(tester, '入力');
+    await openTab(tester, '入力');
     await _selectType(tester, '振替');
     await _enterText(tester, label: _amountLabel, text: '$amount');
     await _selectOption(
@@ -184,17 +185,17 @@ Future<void> recordCreatingFeature() async {
     // FIXME: ペアリング機能未作成の間は、seed済みのペアユーザーでサインインする
     await signInApp(tester, pairUser);
     await tester.pumpAndSettle();
-    await _switchToSharedNote(tester);
+    await switchToSharedNote(tester);
 
-    await _openTab(tester, 'カテゴリ');
+    await openTab(tester, 'カテゴリ');
     await _addIncomeCategory(tester, name: categoryName);
-    await _openTab(tester, '資産');
+    await openTab(tester, '資産');
     await _addProperty(tester, name: propertyName, amount: 300000);
 
     final notePath = await currentSharedNotePath();
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
 
-    await _openTab(tester, '入力');
+    await openTab(tester, '入力');
     await _enterText(tester, label: _amountLabel, text: '$amount');
     await _selectOption(tester, dropdownKey: 'category', label: categoryName);
     await _selectOption(tester, dropdownKey: 'property', label: propertyName);
@@ -234,17 +235,17 @@ Future<void> recordCreatingFeature() async {
     // FIXME: ペアリング機能未作成の間は、seed済みのペアユーザーでサインインする
     await signInApp(tester, pairUser);
     await tester.pumpAndSettle();
-    await _switchToSharedNote(tester);
+    await switchToSharedNote(tester);
 
-    await _openTab(tester, 'カテゴリ');
+    await openTab(tester, 'カテゴリ');
     await _addExpenseCategory(tester, name: categoryName, budget: 30000);
-    await _openTab(tester, '資産');
+    await openTab(tester, '資産');
     await _addProperty(tester, name: propertyName, amount: 300000);
 
     final notePath = await currentSharedNotePath();
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
 
-    await _openTab(tester, '入力');
+    await openTab(tester, '入力');
     await _selectType(tester, '支出');
     await _enterText(tester, label: _amountLabel, text: '$amount');
     await _selectOption(tester, dropdownKey: 'category', label: categoryName);
@@ -285,9 +286,9 @@ Future<void> recordCreatingFeature() async {
     // FIXME: ペアリング機能未作成の間は、seed済みのペアユーザーでサインインする
     await signInApp(tester, pairUser);
     await tester.pumpAndSettle();
-    await _switchToSharedNote(tester);
+    await switchToSharedNote(tester);
 
-    await _openTab(tester, '資産');
+    await openTab(tester, '資産');
     await _addProperty(tester, name: fromPropertyName, amount: 300000);
     await _addProperty(tester, name: toPropertyName, amount: 200000);
 
@@ -298,7 +299,7 @@ Future<void> recordCreatingFeature() async {
     );
     final toBalanceBefore = await fetchPropertyAmount(notePath, toPropertyName);
 
-    await _openTab(tester, '入力');
+    await openTab(tester, '入力');
     await _selectType(tester, '振替');
     await _enterText(tester, label: _amountLabel, text: '$amount');
     await _selectOption(
@@ -353,28 +354,6 @@ const _amountLabel = '金額';
 const _noteLabel = 'メモ';
 const _submitLabel = '登録';
 const _submitSucceededMessage = 'レコードを登録しました';
-
-/// ボトムナビゲーションで[label]のタブへ移動する。
-///
-/// AppBarのタイトルとタブのラベルは同じ文字列なので(例: 入力タブでは
-/// どちらも'入力')、ボトムナビゲーション配下に絞って一意に特定する。
-Future<void> _openTab(WidgetTester tester, String label) async {
-  await tester.tap(
-    find.descendant(
-      of: find.byType(BottomNavigationBar),
-      matching: find.text(label),
-    ),
-  );
-  await tester.pumpAndSettle();
-}
-
-/// ドロワーを開き、ふたりの家計簿へ切り替える。
-Future<void> _switchToSharedNote(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.menu));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('ふたりの家計簿を見る'));
-  await tester.pumpAndSettle();
-}
 
 /// カテゴリ画面で収入カテゴリを1件作成する。
 Future<void> _addIncomeCategory(

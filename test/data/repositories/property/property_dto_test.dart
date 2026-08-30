@@ -26,6 +26,14 @@ void main() {
 
       expect(() => PropertyDto.fromSnapshot(doc), throwsFormatException);
     });
+
+    test('nameが21文字のとき、toDomainでFormatExceptionが送出されること', () {
+      final doc = _fakeDoc('property-1', {'name': 'a' * 21});
+
+      final dto = PropertyDto.fromSnapshot(doc);
+
+      expect(() => dto.toDomain(), throwsFormatException);
+    });
   });
 }
 
