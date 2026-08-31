@@ -12,6 +12,7 @@ import '../presentation/property_viewer/property_viewer_page.dart';
 import '../domain/models/notebook.dart';
 import '../domain/models/user_auth.dart';
 import '../ui/calendar/calendar_screen_host.dart';
+import '../ui/calendar/daily_records_screen_host.dart';
 import '../ui/dashboard/dashboard_screen_host.dart';
 import '../ui/record_entry/record_entry_screen_host.dart';
 import '../ui/settings/settings_screen.dart';
@@ -75,6 +76,24 @@ GoRouter createRouter({
             authRepository: context.read(),
           ),
         ),
+      ),
+      // 日次明細もボトムナビを覆う(旧実装のrootNavigatorへのpushに合わせる)
+      GoRoute(
+        path: Routes.calendarDay,
+        builder: (context, state) {
+          // 遷移経路はカレンダーの日セルだけであり、パラメータはアプリが
+          // 組み立てる([Routes.calendarDayOf])。解釈できない値が来るのは
+          // 実装の不具合であるため、FormatExceptionでfail fastさせる。
+          final date = DateTime.parse(state.pathParameters['date']!);
+          return _notebookScoped(
+            (notebook) => DailyRecordsScreenHost(
+              key: ValueKey(notebook),
+              year: date.year,
+              month: date.month,
+              day: date.day,
+            ),
+          );
+        },
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
