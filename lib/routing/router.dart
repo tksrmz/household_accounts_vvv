@@ -8,10 +8,10 @@ import 'package:provider/provider.dart';
 import '../data/repositories/auth/auth_repository.dart';
 import '../presentation/budget_viewer/budget_viewer_page.dart';
 import '../presentation/category_viewer/category_viewer_page.dart';
-import '../presentation/monthly_record_viewer/monthly_record_viewer_page.dart';
 import '../presentation/property_viewer/property_viewer_page.dart';
 import '../domain/models/notebook.dart';
 import '../domain/models/user_auth.dart';
+import '../ui/calendar/calendar_screen_host.dart';
 import '../ui/dashboard/dashboard_screen_host.dart';
 import '../ui/record_entry/record_entry_screen_host.dart';
 import '../ui/settings/settings_screen.dart';
@@ -107,7 +107,9 @@ GoRouter createRouter({
             routes: [
               GoRoute(
                 path: Routes.calendar,
-                builder: (context, state) => const CalendarRecordViewPage(),
+                builder: (context, state) => _notebookScoped(
+                  (notebook) => CalendarScreenHost(key: ValueKey(notebook)),
+                ),
               ),
             ],
           ),
