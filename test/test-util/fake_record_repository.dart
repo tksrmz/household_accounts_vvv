@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:household_accounts/data/repositories/record/record_repository.dart';
-import 'package:household_accounts/domain/models/new_record.dart';
 import 'package:household_accounts/domain/models/period.dart';
 import 'package:household_accounts/domain/models/record.dart';
+import 'package:household_accounts/domain/models/record_content.dart';
 import 'package:household_accounts/utils/result.dart';
 
 /// Resultを返すinterfaceはmockitoでモック生成できないため手書きFakeを共用する
@@ -33,10 +33,10 @@ class FakeRecordRepository implements RecordRepository {
 
   int addCallCount = 0;
 
-  NewRecord? lastAddedRecord;
+  RecordContent? lastAddedRecord;
 
   @override
-  Future<Result<void>> add(NewRecord record) {
+  Future<Result<void>> add(RecordContent record) {
     addCallCount++;
     lastAddedRecord = record;
 

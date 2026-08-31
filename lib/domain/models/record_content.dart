@@ -7,63 +7,63 @@ import 'property_id.dart';
 import 'record_date.dart';
 import 'record_note.dart';
 
-part 'new_record.freezed.dart';
+part 'record_content.freezed.dart';
 
-/// 未保存の収入/支出/振替の記録を表すsealed union。
+/// 収入/支出/振替の記録の内容を表すsealed union。
 ///
-/// [Record]と持つ情報はほぼ重複するが、IDを持たない([Record]は
-/// [RecordId]を必須で持つ)。「保存済みかどうか」を型で区別することで、
-/// 未保存のレコードにIDを要求してしまう(あるいは保存済みのレコードで
-/// IDの有無を実行時に確認する)経路をコンパイル時に排除する。
+/// IDの有無・保存状態とは無関係な概念であり、[Record]とは保存済みの
+/// 同一性(ID)を持つかどうかで役割が分かれる([Record]は
+/// [RecordId]を必須で持つ。[Record.content]で保存済みレコードから
+/// このsealed unionを取り出せる)。
 @freezed
-sealed class NewRecord with _$NewRecord {
-  const NewRecord._();
+sealed class RecordContent with _$RecordContent {
+  const RecordContent._();
 
-  /// 収入の記録。
-  const factory NewRecord.income({
+  /// 収入の記録内容。
+  const factory RecordContent.income({
     required RecordDate date,
     required Amount amount,
     required RecordNote note,
     required CategoryId categoryId,
     required PropertyId propertyId,
-  }) = NewIncomeRecord;
+  }) = IncomeRecordContent;
 
-  /// 支出の記録。
-  const factory NewRecord.expense({
+  /// 支出の記録内容。
+  const factory RecordContent.expense({
     required RecordDate date,
     required Amount amount,
     required RecordNote note,
     required CategoryId categoryId,
     required PropertyId propertyId,
-  }) = NewExpenseRecord;
+  }) = ExpenseRecordContent;
 
-  /// 振替の記録。
+  /// 振替の記録内容。
   ///
   /// [fromPropertyId]と[toPropertyId]が同一のときはビジネスルール違反であり、
   /// 呼び出し側の実装ミス(ユーザーの入力ミスではない)であるため、AssertionErrorで
   /// fail fastさせる。
   @Assert('fromPropertyId != toPropertyId', '振替元と振替先は異なる資産が必要')
-  const factory NewRecord.transfer({
+  const factory RecordContent.transfer({
     required RecordDate date,
     required Amount amount,
     required RecordNote note,
     required PropertyId fromPropertyId,
     required PropertyId toPropertyId,
-  }) = NewTransferRecord;
+  }) = TransferRecordContent;
 
-  /// このレコードが資産残高に与える増減。
+  /// この内容が資産残高に与える増減。
   ///
   /// 資産の残高はレコードの集合から導出される派生値である、というルールの
   /// 定義箇所。収入/支出は対象資産1件の増減、振替は振替元の減少と振替先の
   /// 増加の2件からなる。
   List<BalanceEffect> get balanceEffects => switch (this) {
-    NewIncomeRecord(:final amount, :final propertyId) => [
+    IncomeRecordContent(:final amount, :final propertyId) => [
       (propertyId: propertyId, delta: amount.value),
     ],
-    NewExpenseRecord(:final amount, :final propertyId) => [
+    ExpenseRecordContent(:final amount, :final propertyId) => [
       (propertyId: propertyId, delta: -amount.value),
     ],
-    NewTransferRecord(
+    TransferRecordContent(
       :final amount,
       :final fromPropertyId,
       :final toPropertyId,

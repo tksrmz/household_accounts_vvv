@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../domain/models/amount.dart';
 import '../../../domain/models/category_id.dart';
-import '../../../domain/models/new_record.dart';
 import '../../../domain/models/property_id.dart';
 import '../../../domain/models/record.dart';
+import '../../../domain/models/record_content.dart';
 import '../../../domain/models/record_date.dart';
 import '../../../domain/models/record_id.dart';
 import '../../../domain/models/record_note.dart';
@@ -224,7 +224,7 @@ String _readRefId(Map<String, dynamic> data, String field, String docId) {
 /// (date/amount/note/createdAt/hasCheckedOut/type/category/property)の
 /// キー集合と完全に一致させる必要がある。
 Map<String, Object?> incomeRecordJson({
-  required NewIncomeRecord record,
+  required IncomeRecordContent record,
   required DocumentReference<Map<String, dynamic>> categoryRef,
   required DocumentReference<Map<String, dynamic>> propertyRef,
 }) => {
@@ -239,7 +239,7 @@ Map<String, Object?> incomeRecordJson({
 /// Firestore Rulesが要求する8フィールド版スキーマの
 /// キー集合と完全に一致させる必要がある。
 Map<String, Object?> expenseRecordJson({
-  required NewExpenseRecord record,
+  required ExpenseRecordContent record,
   required DocumentReference<Map<String, dynamic>> categoryRef,
   required DocumentReference<Map<String, dynamic>> propertyRef,
 }) => {
@@ -254,7 +254,7 @@ Map<String, Object?> expenseRecordJson({
 /// Firestore Rulesが要求する8フィールド版スキーマ(category/propertyの代わりに
 /// fromProperty/toPropertyを持つ)のキー集合と完全に一致させる必要がある。
 Map<String, Object?> transferRecordJson({
-  required NewTransferRecord record,
+  required TransferRecordContent record,
   required DocumentReference<Map<String, dynamic>> fromPropertyRef,
   required DocumentReference<Map<String, dynamic>> toPropertyRef,
 }) => {
@@ -272,7 +272,7 @@ Map<String, Object?> transferRecordJson({
 /// (このRepositoryが作成するレコードは作成と同時に残高へ反映済みであることを
 /// 表すフラグであり、カレンダーの削除処理がこのフラグを見て残高打ち消しの
 /// 要否を決めるため)。
-Map<String, Object?> _commonRecordJson(NewRecord record) => {
+Map<String, Object?> _commonRecordJson(RecordContent record) => {
   'date': Timestamp.fromDate(record.date.value),
   'amount': record.amount.value,
   'note': record.note.value,

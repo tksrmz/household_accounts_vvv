@@ -2,6 +2,7 @@ import 'package:household_accounts/domain/models/amount.dart';
 import 'package:household_accounts/domain/models/category_id.dart';
 import 'package:household_accounts/domain/models/property_id.dart';
 import 'package:household_accounts/domain/models/record.dart';
+import 'package:household_accounts/domain/models/record_content.dart';
 import 'package:household_accounts/domain/models/record_date.dart';
 import 'package:household_accounts/domain/models/record_id.dart';
 import 'package:household_accounts/domain/models/record_note.dart';
@@ -115,5 +116,119 @@ void main() {
       ),
       throwsA(isA<AssertionError>()),
     );
+  });
+
+  group('content', () {
+    test('収入レコードのとき、IDを除いた同じフィールドを持つRecordContent.incomeであること', () {
+      final record = Record.income(
+        id: RecordId('record-id'),
+        date: date,
+        amount: Amount(100),
+        note: RecordNote('メモ'),
+        categoryId: CategoryId('category-id'),
+        propertyId: PropertyId('property-id'),
+      );
+
+      expect(
+        record.content,
+        RecordContent.income(
+          date: date,
+          amount: Amount(100),
+          note: RecordNote('メモ'),
+          categoryId: CategoryId('category-id'),
+          propertyId: PropertyId('property-id'),
+        ),
+      );
+    });
+
+    test('支出レコードのとき、IDを除いた同じフィールドを持つRecordContent.expenseであること', () {
+      final record = Record.expense(
+        id: RecordId('record-id'),
+        date: date,
+        amount: Amount(200),
+        note: RecordNote('メモ'),
+        categoryId: CategoryId('category-id'),
+        propertyId: PropertyId('property-id'),
+      );
+
+      expect(
+        record.content,
+        RecordContent.expense(
+          date: date,
+          amount: Amount(200),
+          note: RecordNote('メモ'),
+          categoryId: CategoryId('category-id'),
+          propertyId: PropertyId('property-id'),
+        ),
+      );
+    });
+
+    test('振替レコードのとき、IDを除いた同じフィールドを持つRecordContent.transferであること', () {
+      final record = Record.transfer(
+        id: RecordId('record-id'),
+        date: date,
+        amount: Amount(300),
+        note: RecordNote('メモ'),
+        fromPropertyId: PropertyId('from-property-id'),
+        toPropertyId: PropertyId('to-property-id'),
+      );
+
+      expect(
+        record.content,
+        RecordContent.transfer(
+          date: date,
+          amount: Amount(300),
+          note: RecordNote('メモ'),
+          fromPropertyId: PropertyId('from-property-id'),
+          toPropertyId: PropertyId('to-property-id'),
+        ),
+      );
+    });
+
+    test('収入レコードのcontentのとき、balanceEffectsが対象資産の増加1件であること', () {
+      final record = Record.income(
+        id: RecordId('record-id'),
+        date: date,
+        amount: Amount(100),
+        note: RecordNote(''),
+        categoryId: CategoryId('category-id'),
+        propertyId: PropertyId('property-id'),
+      );
+
+      expect(record.content.balanceEffects, [
+        (propertyId: PropertyId('property-id'), delta: 100),
+      ]);
+    });
+
+    test('支出レコードのcontentのとき、balanceEffectsが対象資産の減少1件であること', () {
+      final record = Record.expense(
+        id: RecordId('record-id'),
+        date: date,
+        amount: Amount(100),
+        note: RecordNote(''),
+        categoryId: CategoryId('category-id'),
+        propertyId: PropertyId('property-id'),
+      );
+
+      expect(record.content.balanceEffects, [
+        (propertyId: PropertyId('property-id'), delta: -100),
+      ]);
+    });
+
+    test('振替レコードのcontentのとき、balanceEffectsが振替元減少・振替先増加の2件がこの順で並ぶこと', () {
+      final record = Record.transfer(
+        id: RecordId('record-id'),
+        date: date,
+        amount: Amount(100),
+        note: RecordNote(''),
+        fromPropertyId: PropertyId('from-property-id'),
+        toPropertyId: PropertyId('to-property-id'),
+      );
+
+      expect(record.content.balanceEffects, [
+        (propertyId: PropertyId('from-property-id'), delta: -100),
+        (propertyId: PropertyId('to-property-id'), delta: 100),
+      ]);
+    });
   });
 }

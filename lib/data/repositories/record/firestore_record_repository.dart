@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../../domain/models/new_record.dart';
 import '../../../domain/models/notebook.dart';
 import '../../../domain/models/period.dart';
 import '../../../domain/models/record.dart';
+import '../../../domain/models/record_content.dart';
 import '../../../utils/combine_latest.dart';
 import '../../../utils/result.dart';
 import '../firestore_shared/notebook_paths.dart';
@@ -35,7 +35,7 @@ class FirestoreRecordRepository implements RecordRepository {
   );
 
   @override
-  Future<Result<void>> add(NewRecord record) =>
+  Future<Result<void>> add(RecordContent record) =>
       Result.guard(() => _add(record));
 
   // WriteBatchを使う理由: addは読み取りを伴わないため、原子性の面では
@@ -43,10 +43,10 @@ class FirestoreRecordRepository implements RecordRepository {
   // 即時適用され、オンライン復帰時にサーバーへ同期される(トランザクションは
   // オフラインでは即座に失敗する)。存在しない資産へのupdateはバッチ全体を
   // 失敗させるため、参照整合性(資産が存在すること)もこの原子性の中で保たれる。
-  Future<void> _add(NewRecord record) async {
+  Future<void> _add(RecordContent record) async {
     final batch = _db.batch();
     final (collectionName, json) = switch (record) {
-      NewIncomeRecord() => (
+      IncomeRecordContent() => (
         'incomes',
         incomeRecordJson(
           record: record,
@@ -56,7 +56,7 @@ class FirestoreRecordRepository implements RecordRepository {
           propertyRef: _collection('properties').doc(record.propertyId.value),
         ),
       ),
-      NewExpenseRecord() => (
+      ExpenseRecordContent() => (
         'expenses',
         expenseRecordJson(
           record: record,
@@ -66,7 +66,7 @@ class FirestoreRecordRepository implements RecordRepository {
           propertyRef: _collection('properties').doc(record.propertyId.value),
         ),
       ),
-      NewTransferRecord() => (
+      TransferRecordContent() => (
         'transfers',
         transferRecordJson(
           record: record,

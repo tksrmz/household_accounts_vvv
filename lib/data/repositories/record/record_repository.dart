@@ -1,6 +1,6 @@
-import '../../../domain/models/new_record.dart';
 import '../../../domain/models/period.dart';
 import '../../../domain/models/record.dart';
+import '../../../domain/models/record_content.dart';
 import '../../../utils/result.dart';
 
 /// 収入/支出/振替のレコードを購読するRepository。
@@ -22,7 +22,7 @@ abstract interface class RecordRepository {
   /// 削除(delete)はカレンダーの移行時に追加予定。
   Stream<List<Record>> watchPeriod(Period period);
 
-  /// [record]を作成し、[NewRecord.balanceEffects]が示す資産残高の増減を
+  /// [record]を作成し、[RecordContent.balanceEffects]が示す資産残高の増減を
   /// 原子的に行う。
   ///
   /// 契約:
@@ -30,5 +30,5 @@ abstract interface class RecordRepository {
   ///   一方だけが反映される部分適用は起きない
   /// - 増減対象の資産(`propertyId`)が存在しない場合は失敗する([Result.error])
   /// - 成功した場合、作成されたレコードは以後の[watchPeriod]の購読へ反映される
-  Future<Result<void>> add(NewRecord record);
+  Future<Result<void>> add(RecordContent record);
 }
