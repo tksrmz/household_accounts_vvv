@@ -33,6 +33,22 @@ void main() {
       expect(dto.toDomain(), isA<IncomeRecord>());
     });
 
+    test('ドキュメントIDと中身から直接変換したとき、スナップショット経由と同じ結果になること', () {
+      final data = _validIncomeData();
+
+      final fromData = IncomeRecordDto.fromData('income-1', data);
+      final fromSnapshot = IncomeRecordDto.fromSnapshot(
+        _fakeDoc('income-1', data),
+      );
+
+      expect(fromData.id, fromSnapshot.id);
+      expect(fromData.date, fromSnapshot.date);
+      expect(fromData.amount, fromSnapshot.amount);
+      expect(fromData.note, fromSnapshot.note);
+      expect(fromData.categoryId, fromSnapshot.categoryId);
+      expect(fromData.propertyId, fromSnapshot.propertyId);
+    });
+
     test('typeがincomeでないとき、FormatExceptionが送出されること(コレクション所属だけで種別を決めないこと)', () {
       final doc = _fakeDoc(
         'income-1',

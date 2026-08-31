@@ -46,4 +46,27 @@ class FakeRecordRepository implements RecordRepository {
     }
     return Future.value(addResult);
   }
+
+  /// [delete]が返す結果。テストから成功/失敗を差し替えられる。
+  Result<void> deleteResult = const Result.ok(null);
+
+  /// 設定すると[delete]がこのCompleterのFutureを返す。
+  /// 完了しないCompleterを渡せば削除中の状態を再現できる。
+  Completer<Result<void>>? deleteCompleter;
+
+  int deleteCallCount = 0;
+
+  Record? lastDeletedRecord;
+
+  @override
+  Future<Result<void>> delete(Record record) {
+    deleteCallCount++;
+    lastDeletedRecord = record;
+
+    final completer = deleteCompleter;
+    if (completer != null) {
+      return completer.future;
+    }
+    return Future.value(deleteResult);
+  }
 }
