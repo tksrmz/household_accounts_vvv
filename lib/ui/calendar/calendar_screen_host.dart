@@ -13,23 +13,43 @@ import 'calendar_view_model.dart';
 /// 画面のViewModelはコンストラクタ注入)を保つため、ChangeNotifierProviderでは
 /// なくこのStatefulWidgetでライフサイクルを持つ。
 class CalendarScreenHost extends StatefulWidget {
-  const CalendarScreenHost({super.key});
+  const CalendarScreenHost({super.key, this.now = DateTime.now});
+
+  /// 現在日時の取得手段。本番は既定値のままでよく、テストが固定日時を
+  /// 注入するための口である([CalendarViewModel.new]の`now`へそのまま渡す)。
+  final DateTime Function() now;
 
   @override
   State<CalendarScreenHost> createState() => _CalendarScreenHostState();
 }
 
-class _CalendarScreenHostState extends State<CalendarScreenHost> {
+class _CalendarScreenHostState extends State<CalendarScreenHost>
+    with WidgetsBindingObserver {
   late final CalendarViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = CalendarViewModel(recordRepository: context.read());
+    _viewModel = CalendarViewModel(
+      recordRepository: context.read(),
+      now: widget.now,
+    );
+    // タブがIndexedStackに保持されたまま月をまたぐと、時間の経過だけでは
+    // 再描画されず「翌月へ進む」ボタンが無効のまま残る。日時が進んでいそうな
+    // 契機であるアプリ復帰を監視し、現在月の確認をViewModelへ委ねる
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _viewModel.refreshCurrentMonth();
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _viewModel.dispose();
     super.dispose();
   }

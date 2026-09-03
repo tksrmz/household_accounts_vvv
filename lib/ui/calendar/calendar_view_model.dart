@@ -24,6 +24,8 @@ class CalendarViewModel extends ChangeNotifier {
     final today = now();
     _year = today.year;
     _month = today.month;
+    _knownTodayYear = today.year;
+    _knownTodayMonth = today.month;
     // レコードの購読をCommandに載せない理由:
     // Commandは「完了する非同期処理」の実行状態(実行中/完了/エラー)を扱う型で
     // あり、完了せず流れ続ける購読はその型に載らない。購読の結果はこのVMの
@@ -75,6 +77,27 @@ class CalendarViewModel extends ChangeNotifier {
       otherYear: today.year,
       otherMonth: today.month,
     );
+  }
+
+  // refreshCurrentMonthが「前回確認した今日の月」として比較する値。
+  // canShowNextMonthは評価のたびに_now()を見るため常に正しいが、時間の経過
+  // 自体は再描画の契機を持たない。この値との差分で通知の要否を決める。
+  late int _knownTodayYear;
+  late int _knownTodayMonth;
+
+  /// 「今日が属する月」が前回の確認から変わっていれば、画面へ再描画を通知する。
+  ///
+  /// 時間の経過はStreamのような通知を持たないため、アプリの復帰など
+  /// 「日時が進んでいそうな契機」にホストがこれを呼ぶ。月が変わっていれば
+  /// 翌月へ進むボタンの活性([canShowNextMonth])が表示に追随する。
+  void refreshCurrentMonth() {
+    final today = _now();
+    if (today.year == _knownTodayYear && today.month == _knownTodayMonth) {
+      return;
+    }
+    _knownTodayYear = today.year;
+    _knownTodayMonth = today.month;
+    notifyListeners();
   }
 
   /// 前の月を表示する。

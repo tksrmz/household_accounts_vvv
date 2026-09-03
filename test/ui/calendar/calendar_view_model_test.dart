@@ -194,6 +194,28 @@ void main() {
         Period.calendarMonth(2026, 9),
       );
     });
+
+    test('月をまたいだあとにrefreshCurrentMonthを呼んだとき、リスナーへ通知されること', () {
+      var today = DateTime(2026, 8, 31);
+      final target = _buildViewModel(now: () => today);
+      var notifiedCount = 0;
+      target.viewModel.addListener(() => notifiedCount++);
+
+      today = DateTime(2026, 9, 1);
+      target.viewModel.refreshCurrentMonth();
+
+      expect(notifiedCount, 1);
+    });
+
+    test('月が変わっていないときにrefreshCurrentMonthを呼んでも、通知されないこと', () {
+      final target = _buildViewModel();
+      var notifiedCount = 0;
+      target.viewModel.addListener(() => notifiedCount++);
+
+      target.viewModel.refreshCurrentMonth();
+
+      expect(notifiedCount, 0);
+    });
   });
 
   group('購読のエラー', () {
