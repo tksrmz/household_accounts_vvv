@@ -174,6 +174,26 @@ void main() {
 
       expect(target.viewModel.canShowNextMonth, isTrue);
     });
+
+    test('表示したまま月をまたいだとき、新しい当月へ進めるようになること', () {
+      // タブがIndexedStackに保持されたままのVMを想定し、生成後に現在日時が
+      // 翌月へ進んだ状況を可変の時計で再現する
+      var today = DateTime(2026, 8, 31);
+      final target = _buildViewModel(now: () => today);
+      expect(target.viewModel.canShowNextMonth, isFalse);
+
+      today = DateTime(2026, 9, 1);
+
+      expect(target.viewModel.canShowNextMonth, isTrue);
+
+      target.viewModel.showNextMonth();
+
+      expect(target.viewModel.month, 9);
+      expect(
+        target.recordRepository.lastWatchedPeriod,
+        Period.calendarMonth(2026, 9),
+      );
+    });
   });
 
   group('購読のエラー', () {
@@ -256,14 +276,17 @@ class _Fixture {
   final FakeRecordRepository recordRepository;
 }
 
-_Fixture _buildViewModel({int currentYear = 2026, int currentMonth = 8}) {
+_Fixture _buildViewModel({
+  int currentYear = 2026,
+  int currentMonth = 8,
+  DateTime Function()? now,
+}) {
   final recordRepository = FakeRecordRepository();
 
   return _Fixture(
     viewModel: CalendarViewModel(
       recordRepository: recordRepository,
-      currentYear: currentYear,
-      currentMonth: currentMonth,
+      now: now ?? () => DateTime(currentYear, currentMonth, 15),
     ),
     recordRepository: recordRepository,
   );

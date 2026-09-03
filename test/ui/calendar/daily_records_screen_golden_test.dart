@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/domain/models/amount.dart';
 import 'package:household_accounts/domain/models/category.dart';
@@ -67,6 +70,21 @@ void main() {
           _expense(hour: 12, categoryId: CategoryId('deleted-category')),
           _transfer(hour: 20, toPropertyId: PropertyId('deleted-property')),
         ]);
+      },
+    );
+
+    testGoldens(
+      '削除の実行中のとき、全行の削除アイコンが無効表示になること',
+      goldenFileName: 'daily_records_deleting',
+      builder: () => (fixture = _buildFixture()).screen,
+      expectFn: (tester) async {
+        // 完了しないCompleterで削除中の状態を固定する。実行中の削除コマンドは
+        // 後続の実行要求を黙って捨てるため、その間はアイコンを無効化して
+        // 「押しても何も起きないタップ」が生まれないことを確認する
+        fixture.recordRepository.deleteCompleter = Completer();
+        await _emit(tester, fixture, [_income(hour: 9), _expense(hour: 12)]);
+        await tester.tap(find.byIcon(Icons.delete).first);
+        await tester.pumpAndSettle();
       },
     );
 

@@ -10,6 +10,7 @@ class DailyRecordList extends StatelessWidget {
     super.key,
     required this.viewModel,
     required this.onDeletePressed,
+    required this.deleteEnabled,
   });
 
   /// 表示するレコードと、ID→名前の逆引きを提供するViewModel。
@@ -17,6 +18,12 @@ class DailyRecordList extends StatelessWidget {
 
   /// 行の削除アイコンが押されたときに、その行のレコードを渡して呼ばれる。
   final void Function(Record record) onDeletePressed;
+
+  /// 削除アイコンを押せるかどうか。
+  ///
+  /// 削除コマンドは実行中の再実行を黙って捨てるため、実行中は全行の削除アイコンを
+  /// 無効化し、押しても何も起きないタップが生まれないようにする。
+  final bool deleteEnabled;
 
   // 参照先のカテゴリ・資産が既に削除されている場合の表示。名前を空欄にすると
   // その行が何の記録なのか読み取れなくなるため、削除済みであることを明示する。
@@ -30,7 +37,9 @@ class DailyRecordList extends StatelessWidget {
             (record) => _DailyRecordRow(
               leadingText: _leadingTextOf(record),
               amountText: _amountTextOf(record),
-              onDeletePressed: () => onDeletePressed(record),
+              onDeletePressed: deleteEnabled
+                  ? () => onDeletePressed(record)
+                  : null,
             ),
           )
           .toList(growable: false),
@@ -67,7 +76,9 @@ class _DailyRecordRow extends StatelessWidget {
 
   final String leadingText;
   final String amountText;
-  final VoidCallback onDeletePressed;
+
+  /// `null`のとき削除アイコンは無効表示になる。
+  final VoidCallback? onDeletePressed;
 
   @override
   Widget build(BuildContext context) {

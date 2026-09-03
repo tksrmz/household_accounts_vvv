@@ -25,12 +25,7 @@ class _CalendarScreenHostState extends State<CalendarScreenHost> {
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
-    _viewModel = CalendarViewModel(
-      recordRepository: context.read(),
-      currentYear: now.year,
-      currentMonth: now.month,
-    );
+    _viewModel = CalendarViewModel(recordRepository: context.read());
   }
 
   @override

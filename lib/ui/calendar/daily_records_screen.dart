@@ -58,7 +58,9 @@ class _DailyRecordsScreenState extends State<DailyRecordsScreen> {
         title: Text('${viewModel.year}/${viewModel.month}/${viewModel.day}'),
       ),
       body: ListenableBuilder(
-        listenable: viewModel,
+        // 削除コマンドの実行状態(実行中の無効化)も描画に反映するため、
+        // VMとコマンドの両方を監視する
+        listenable: Listenable.merge([viewModel, viewModel.deleteRecord]),
         builder: (context, _) {
           // 購読が初回データより先に失敗すると一覧が届かず読み込み中のままに
           // なるため、ローディングよりも先にエラーを確認する
@@ -72,6 +74,7 @@ class _DailyRecordsScreenState extends State<DailyRecordsScreen> {
           return DailyRecordList(
             viewModel: viewModel,
             onDeletePressed: viewModel.deleteRecord.execute,
+            deleteEnabled: !viewModel.deleteRecord.running,
           );
         },
       ),

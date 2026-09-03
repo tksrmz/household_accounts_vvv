@@ -90,8 +90,7 @@ _Fixture _buildFixture() {
   final recordRepository = FakeRecordRepository();
   final viewModel = CalendarViewModel(
     recordRepository: recordRepository,
-    currentYear: _currentYear,
-    currentMonth: _currentMonth,
+    now: () => DateTime(_currentYear, _currentMonth, 15),
   );
 
   return _Fixture(

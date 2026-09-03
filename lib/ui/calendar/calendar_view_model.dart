@@ -11,15 +11,19 @@ import '../../domain/models/record.dart';
 
 /// 月次カレンダー画面の状態を持つViewModel。
 class CalendarViewModel extends ChangeNotifier {
+  /// [now]は現在日時の取得手段。本番は既定値のままでよく、テストが固定日時を
+  /// 注入するための口である(Repositoryではないため、VMへのRepository注入規約
+  /// とは別枠の、決定的テストのための時計注入)。
   CalendarViewModel({
     required RecordRepository recordRepository,
-    required int currentYear,
-    required int currentMonth,
+    DateTime Function() now = DateTime.now,
   }) : _recordRepository = recordRepository,
-       _currentYear = currentYear,
-       _currentMonth = currentMonth,
-       _year = currentYear,
-       _month = currentMonth {
+       _now = now {
+    // 表示月の初期値は「今日が属する月」。年月を別々に取得すると日跨ぎで
+    // 食い違いうるため、1回の取得値から両方を決める。
+    final today = now();
+    _year = today.year;
+    _month = today.month;
     // レコードの購読をCommandに載せない理由:
     // Commandは「完了する非同期処理」の実行状態(実行中/完了/エラー)を扱う型で
     // あり、完了せず流れ続ける購読はその型に載らない。購読の結果はこのVMの
@@ -29,19 +33,16 @@ class CalendarViewModel extends ChangeNotifier {
 
   final RecordRepository _recordRepository;
 
-  // 「今日が属する月」は画面を開いた時点の値で固定する。表示月の初期値と
-  // 翌月へ進めるかの判定にだけ使うため、日をまたいだ追随は必要ない。
-  final int _currentYear;
-  final int _currentMonth;
+  final DateTime Function() _now;
 
   late StreamSubscription<List<Record>> _subscription;
 
-  int _year;
+  late int _year;
 
   /// 表示中の年。
   int get year => _year;
 
-  int _month;
+  late int _month;
 
   /// 表示中の月(1〜12)。
   int get month => _month;
@@ -63,12 +64,18 @@ class CalendarViewModel extends ChangeNotifier {
   /// 翌月へ進めるかどうか。
   ///
   /// 未来の月は集計する対象がないため進めない(過去へは制限なく遡れる)。
-  bool get canShowNextMonth => _isBefore(
-    year: _year,
-    month: _month,
-    otherYear: _currentYear,
-    otherMonth: _currentMonth,
-  );
+  /// 「今日が属する月」は評価のたびに取り直す。生成時の値で固定すると、
+  /// タブがIndexedStackに保持されたまま月をまたいだとき、新しい当月へ
+  /// 進めなくなるため。
+  bool get canShowNextMonth {
+    final today = _now();
+    return _isBefore(
+      year: _year,
+      month: _month,
+      otherYear: today.year,
+      otherMonth: today.month,
+    );
+  }
 
   /// 前の月を表示する。
   void showPreviousMonth() => _showMonthAt(-1);
