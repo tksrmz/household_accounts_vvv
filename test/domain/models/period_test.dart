@@ -57,4 +57,54 @@ void main() {
       expect(() => Period.calendarMonth(2026, 13), throwsArgumentError);
     });
   });
+
+  group('day', () {
+    test('月の途中の日のとき、その日0時から翌日0時までの半開区間になること', () {
+      final period = Period.day(2026, 8, 15);
+
+      expect(period.start, DateTime(2026, 8, 15));
+      expect(period.end, DateTime(2026, 8, 16));
+    });
+
+    test('月末日のとき、endが翌月1日になること', () {
+      final period = Period.day(2026, 8, 31);
+
+      expect(period.start, DateTime(2026, 8, 31));
+      expect(period.end, DateTime(2026, 9, 1));
+    });
+
+    test('12月31日のとき、endが翌年1月1日になること', () {
+      final period = Period.day(2026, 12, 31);
+
+      expect(period.start, DateTime(2026, 12, 31));
+      expect(period.end, DateTime(2027, 1, 1));
+    });
+
+    test('うるう年の2月29日のとき、インスタンスを生成できること', () {
+      final period = Period.day(2024, 2, 29);
+
+      expect(period.start, DateTime(2024, 2, 29));
+      expect(period.end, DateTime(2024, 3, 1));
+    });
+
+    test('平年の2月29日のとき、ArgumentErrorが送出されること', () {
+      expect(() => Period.day(2026, 2, 29), throwsArgumentError);
+    });
+
+    test('30日までの月の31日のとき、ArgumentErrorが送出されること', () {
+      expect(() => Period.day(2026, 4, 31), throwsArgumentError);
+    });
+
+    test('日が0のとき、ArgumentErrorが送出されること', () {
+      expect(() => Period.day(2026, 8, 0), throwsArgumentError);
+    });
+
+    test('月が0のとき、ArgumentErrorが送出されること', () {
+      expect(() => Period.day(2026, 0, 1), throwsArgumentError);
+    });
+
+    test('月が13のとき、ArgumentErrorが送出されること', () {
+      expect(() => Period.day(2026, 13, 1), throwsArgumentError);
+    });
+  });
 }

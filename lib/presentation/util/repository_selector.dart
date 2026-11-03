@@ -69,29 +69,6 @@ Repository<ExpenseCategory> selectExpenseCategoryRepository(
   return repository;
 }
 
-RecordRepository<IncomeRecord> selectIncomeRecordRepository(
-  SelectedNote value,
-) {
-  debugPrint('selectIncomeRecordRepository($value)');
-  final RecordRepository<IncomeRecord> repository;
-
-  switch (value) {
-    case SelectedNote.personal:
-      debugPrint(
-        'selectIncomeRecordRepository: Select personal income record.',
-      );
-      repository = sl<PersonalIncomeRecordRepository>();
-      break;
-
-    case SelectedNote.shared:
-      debugPrint('selectIncomeRecordRepository: Select shared  income record.');
-      repository = sl<SharedIncomeRecordRepository>();
-      break;
-  }
-
-  return repository;
-}
-
 RecordRepository<ExpenseRecord> selectExpenseRecordRepository(
   SelectedNote value,
 ) {
@@ -111,31 +88,6 @@ RecordRepository<ExpenseRecord> selectExpenseRecordRepository(
         'selectExpenseRecordRepository: Select shared  expense record.',
       );
       repository = sl<SharedExpenseRecordRepository>();
-      break;
-  }
-
-  return repository;
-}
-
-RecordRepository<TransferRecord> selectTransferRecordRepository(
-  SelectedNote value,
-) {
-  debugPrint('selectTransferRecordRepository($value)');
-  final RecordRepository<TransferRecord> repository;
-
-  switch (value) {
-    case SelectedNote.personal:
-      debugPrint(
-        'selectTransferRecordRepository: Select personal transfer record.',
-      );
-      repository = sl<PersonalTransferRecordRepository>();
-      break;
-
-    case SelectedNote.shared:
-      debugPrint(
-        'selectTransferRecordRepository: Select shared  transfer record.',
-      );
-      repository = sl<SharedTransferRecordRepository>();
       break;
   }
 

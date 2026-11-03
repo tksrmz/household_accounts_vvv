@@ -10,9 +10,9 @@ import '../../data/repositories/record/record_repository.dart';
 import '../../domain/models/amount.dart';
 import '../../domain/models/category.dart';
 import '../../domain/models/category_id.dart';
-import '../../domain/models/new_record.dart';
 import '../../domain/models/property.dart';
 import '../../domain/models/property_id.dart';
+import '../../domain/models/record_content.dart';
 import '../../domain/models/record_date.dart';
 import '../../domain/models/record_note.dart';
 import '../../utils/command.dart';
@@ -83,10 +83,10 @@ class RecordEntryViewModel extends ChangeNotifier {
 
   /// 検証済みのレコードを保存するコマンド。
   ///
-  /// 引数を検証済みの[NewRecord]に限ることで、検証漏れを型で防ぐ。検証は
+  /// 引数を検証済みの[RecordContent]に限ることで、検証漏れを型で防ぐ。検証は
   /// UI層の関心事として[submit]が担い、このコマンドの失敗はデータ層由来の
   /// 失敗だけを表す。
-  late final Command1<void, NewRecord> submitRecord;
+  late final Command1<void, RecordContent> submitRecord;
 
   List<IncomeCategory> _incomeCategories = const [];
   List<ExpenseCategory> _expenseCategories = const [];
@@ -300,7 +300,7 @@ class RecordEntryViewModel extends ChangeNotifier {
   /// 入力内容を検証し、妥当ならレコードを保存する。
   ///
   /// 各検証はライブ検証やDatePickerの制限が主経路だが、型境界([submitRecord]が
-  /// 受け取る[NewRecord])に不正な値を渡さないための防御としてここでも行う。
+  /// 受け取る[RecordContent])に不正な値を渡さないための防御としてここでも行う。
   Future<void> submit() async {
     if (_date.isAfter(maxSelectableDate)) {
       // 未来日付のレコードは資産残高と予算の見通しを壊すため、入力境界で拒否する
@@ -336,14 +336,14 @@ class RecordEntryViewModel extends ChangeNotifier {
     final toPropertyId = _selectedToPropertyId;
 
     // 必須選択の欠落は[canSubmit]がボタンを無効化して防ぐが、
-    // [NewRecord]へnullを渡さないための防御としてここでも確認する
-    final NewRecord record;
+    // [RecordContent]へnullを渡さないための防御としてここでも確認する
+    final RecordContent record;
     switch (_type) {
       case RecordEntryType.income:
         if (categoryId == null || propertyId == null) {
           return;
         }
-        record = NewRecord.income(
+        record = RecordContent.income(
           date: recordDate,
           amount: amount,
           note: note,
@@ -354,7 +354,7 @@ class RecordEntryViewModel extends ChangeNotifier {
         if (categoryId == null || propertyId == null) {
           return;
         }
-        record = NewRecord.expense(
+        record = RecordContent.expense(
           date: recordDate,
           amount: amount,
           note: note,
@@ -365,7 +365,7 @@ class RecordEntryViewModel extends ChangeNotifier {
         if (propertyId == null || toPropertyId == null) {
           return;
         }
-        record = NewRecord.transfer(
+        record = RecordContent.transfer(
           date: recordDate,
           amount: amount,
           note: note,
@@ -472,7 +472,7 @@ class RecordEntryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Result<void>> _submit(NewRecord record) async {
+  Future<Result<void>> _submit(RecordContent record) async {
     final result = await _recordRepository.add(record);
     // dispose後は何もしない: ノート切替はHostごと再生成でこのVMをdisposeするが、
     // 保存中のCommandはVMのライフサイクルから独立して完走する。破棄済みの

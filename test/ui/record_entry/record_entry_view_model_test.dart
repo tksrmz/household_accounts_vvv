@@ -5,10 +5,10 @@ import 'package:household_accounts/domain/models/amount.dart';
 import 'package:household_accounts/domain/models/category.dart';
 import 'package:household_accounts/domain/models/category_id.dart';
 import 'package:household_accounts/domain/models/category_name.dart';
-import 'package:household_accounts/domain/models/new_record.dart';
 import 'package:household_accounts/domain/models/property.dart';
 import 'package:household_accounts/domain/models/property_id.dart';
 import 'package:household_accounts/domain/models/property_name.dart';
+import 'package:household_accounts/domain/models/record_content.dart';
 import 'package:household_accounts/domain/models/record_date.dart';
 import 'package:household_accounts/domain/models/record_note.dart';
 import 'package:household_accounts/ui/record_entry/record_entry_view_model.dart';
@@ -297,7 +297,7 @@ void main() {
       expect(target.recordRepository.addCallCount, 1);
       expect(
         target.recordRepository.lastAddedRecord,
-        NewRecord.income(
+        RecordContent.income(
           date: RecordDate(DateTime(2026, 8, 20)),
           amount: Amount(1200),
           note: RecordNote('8月分'),
@@ -320,7 +320,7 @@ void main() {
 
       expect(
         target.recordRepository.lastAddedRecord,
-        NewRecord.expense(
+        RecordContent.expense(
           date: RecordDate(DateTime(2026, 8, 26)),
           amount: Amount(980),
           note: RecordNote('昼食'),
@@ -342,7 +342,7 @@ void main() {
 
       expect(
         target.recordRepository.lastAddedRecord,
-        NewRecord.transfer(
+        RecordContent.transfer(
           date: RecordDate(DateTime(2026, 8, 26)),
           amount: Amount(5000),
           note: RecordNote(''),

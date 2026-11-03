@@ -333,7 +333,7 @@ sealed class Record with _$Record {
 | ダッシュボード | `/dashboard` | DashboardViewModel | Record, Profile | 当月 `watchPeriod`。集計はドメイン純粋関数 |
 | 記録入力 | `/entry` | RecordEntryViewModel | Category, Property, Record | カテゴリ/資産をwatch(ドロップダウン)、`submit = Command1<NewRecord>` |
 | カレンダー(月次) | `/calendar` | CalendarViewModel | Record | 月の `watchPeriod` を日別に畳み込み |
-| 日次明細 | `/calendar/:date` | DailyRecordsViewModel | Record | その日の `watchPeriod` + `delete = Command1<RecordId>` |
+| 日次明細 | `/calendar/:date` | DailyRecordsViewModel | Record | その日の `watchPeriod` + `delete = Command1<Record>`(PR5訂正: RecordIdだけでは3コレクションのどれか特定できないため `Record` を渡す) |
 | 資産 | `/properties` | PropertiesViewModel | Property | watch + CRUD Command。エディタはサブルート |
 | カテゴリ | `/categories` | CategoriesViewModel | Category | watch + CRUD Command(収入/支出タブ)。削除ガードはRepository側 |
 | 予算 | `/budget` | BudgetViewModel | Category, Record | `Period` 切替(暦月/月度)。実装済みの月度集計(002-bikini)を `Period` で引き継ぐ |
@@ -344,8 +344,8 @@ Repository一覧(抽象、計5つ):
 ```dart
 abstract class RecordRepository {
   Stream<List<Record>> watchPeriod(Period period);
-  Future<Result<void>> add(NewRecord record);     // 残高トランザクション込み
-  Future<Result<void>> delete(RecordId id);       // 残高打ち消し込み
+  Future<Result<void>> add(RecordContent record); // 残高トランザクション込み
+  Future<Result<void>> delete(Record record);     // 残高打ち消し込み
 }
 
 abstract class CategoryRepository {
@@ -360,6 +360,8 @@ abstract class PropertyRepository { /* watchAll + CRUD、削除は参照ガー�
 abstract class ProfileRepository  { /* userName読み書き + Stream<PairStatus> watchPairStatus() */ }
 abstract class AuthRepository     { /* currentUser + Stream<UserAuth> authStateChanges() */ }
 ```
+
+> **PR5での追記修正(2026-08-31)**: `RecordRepository` の2メソッドは当初案から変更した。`delete(RecordId id)` はIDだけでは3コレクション(incomes/expenses/transfers)のどれを消すか特定できず実装不能のため `delete(Record record)` とする(sealed型switchでコレクション解決)。また `NewRecord` は `RecordContent` へ改名した: 残高への寄与(`balanceEffects`)はレコード内容の関数でありIDや保存状態と無関係で、「新規」という性質は型の内在ではなく `add` の引数という文脈が表す。保存済み `Record` からは `Record.content` で同じ内容を取り出し、削除の残高打ち消しはその寄与の符号反転で計算する(本節以外の `NewRecord` 表記は当時の記述として残す。経緯は移行計画書の変更履歴を参照)。
 
 ---
 

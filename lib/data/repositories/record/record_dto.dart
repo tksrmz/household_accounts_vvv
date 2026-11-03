@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../domain/models/amount.dart';
 import '../../../domain/models/category_id.dart';
-import '../../../domain/models/new_record.dart';
 import '../../../domain/models/property_id.dart';
 import '../../../domain/models/record.dart';
+import '../../../domain/models/record_content.dart';
 import '../../../domain/models/record_date.dart';
 import '../../../domain/models/record_id.dart';
 import '../../../domain/models/record_note.dart';
@@ -31,16 +31,21 @@ class IncomeRecordDto {
   /// [FormatException]を送出する。
   factory IncomeRecordDto.fromSnapshot(
     QueryDocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
-    final data = doc.data();
-    _requireType(data, 'income', doc.id);
+  ) => IncomeRecordDto.fromData(doc.id, doc.data());
+
+  /// ドキュメントID[docId]と中身[data]から[IncomeRecordDto]を組み立てる。
+  ///
+  /// フィールドの欠損・型不正、および`type`フィールドが`income`でないときは
+  /// [FormatException]を送出する。
+  factory IncomeRecordDto.fromData(String docId, Map<String, dynamic> data) {
+    _requireType(data, 'income', docId);
     return IncomeRecordDto(
-      id: doc.id,
-      date: _readDate(data, doc.id),
-      amount: _readAmount(data, doc.id),
-      note: _readNote(data, doc.id),
-      categoryId: _readRefId(data, 'category', doc.id),
-      propertyId: _readRefId(data, 'property', doc.id),
+      id: docId,
+      date: _readDate(data, docId),
+      amount: _readAmount(data, docId),
+      note: _readNote(data, docId),
+      categoryId: _readRefId(data, 'category', docId),
+      propertyId: _readRefId(data, 'property', docId),
     );
   }
 
@@ -80,16 +85,21 @@ class ExpenseRecordDto {
   /// [FormatException]を送出する。
   factory ExpenseRecordDto.fromSnapshot(
     QueryDocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
-    final data = doc.data();
-    _requireType(data, 'expense', doc.id);
+  ) => ExpenseRecordDto.fromData(doc.id, doc.data());
+
+  /// ドキュメントID[docId]と中身[data]から[ExpenseRecordDto]を組み立てる。
+  ///
+  /// フィールドの欠損・型不正、および`type`フィールドが`expense`でないときは
+  /// [FormatException]を送出する。
+  factory ExpenseRecordDto.fromData(String docId, Map<String, dynamic> data) {
+    _requireType(data, 'expense', docId);
     return ExpenseRecordDto(
-      id: doc.id,
-      date: _readDate(data, doc.id),
-      amount: _readAmount(data, doc.id),
-      note: _readNote(data, doc.id),
-      categoryId: _readRefId(data, 'category', doc.id),
-      propertyId: _readRefId(data, 'property', doc.id),
+      id: docId,
+      date: _readDate(data, docId),
+      amount: _readAmount(data, docId),
+      note: _readNote(data, docId),
+      categoryId: _readRefId(data, 'category', docId),
+      propertyId: _readRefId(data, 'property', docId),
     );
   }
 
@@ -129,16 +139,21 @@ class TransferRecordDto {
   /// [FormatException]を送出する。
   factory TransferRecordDto.fromSnapshot(
     QueryDocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
-    final data = doc.data();
-    _requireType(data, 'transfer', doc.id);
+  ) => TransferRecordDto.fromData(doc.id, doc.data());
+
+  /// ドキュメントID[docId]と中身[data]から[TransferRecordDto]を組み立てる。
+  ///
+  /// フィールドの欠損・型不正、および`type`フィールドが`transfer`でないときは
+  /// [FormatException]を送出する。
+  factory TransferRecordDto.fromData(String docId, Map<String, dynamic> data) {
+    _requireType(data, 'transfer', docId);
     return TransferRecordDto(
-      id: doc.id,
-      date: _readDate(data, doc.id),
-      amount: _readAmount(data, doc.id),
-      note: _readNote(data, doc.id),
-      fromPropertyId: _readRefId(data, 'fromProperty', doc.id),
-      toPropertyId: _readRefId(data, 'toProperty', doc.id),
+      id: docId,
+      date: _readDate(data, docId),
+      amount: _readAmount(data, docId),
+      note: _readNote(data, docId),
+      fromPropertyId: _readRefId(data, 'fromProperty', docId),
+      toPropertyId: _readRefId(data, 'toProperty', docId),
     );
   }
 
@@ -224,7 +239,7 @@ String _readRefId(Map<String, dynamic> data, String field, String docId) {
 /// (date/amount/note/createdAt/hasCheckedOut/type/category/property)の
 /// キー集合と完全に一致させる必要がある。
 Map<String, Object?> incomeRecordJson({
-  required NewIncomeRecord record,
+  required IncomeRecordContent record,
   required DocumentReference<Map<String, dynamic>> categoryRef,
   required DocumentReference<Map<String, dynamic>> propertyRef,
 }) => {
@@ -239,7 +254,7 @@ Map<String, Object?> incomeRecordJson({
 /// Firestore Rulesが要求する8フィールド版スキーマの
 /// キー集合と完全に一致させる必要がある。
 Map<String, Object?> expenseRecordJson({
-  required NewExpenseRecord record,
+  required ExpenseRecordContent record,
   required DocumentReference<Map<String, dynamic>> categoryRef,
   required DocumentReference<Map<String, dynamic>> propertyRef,
 }) => {
@@ -254,7 +269,7 @@ Map<String, Object?> expenseRecordJson({
 /// Firestore Rulesが要求する8フィールド版スキーマ(category/propertyの代わりに
 /// fromProperty/toPropertyを持つ)のキー集合と完全に一致させる必要がある。
 Map<String, Object?> transferRecordJson({
-  required NewTransferRecord record,
+  required TransferRecordContent record,
   required DocumentReference<Map<String, dynamic>> fromPropertyRef,
   required DocumentReference<Map<String, dynamic>> toPropertyRef,
 }) => {
@@ -272,7 +287,7 @@ Map<String, Object?> transferRecordJson({
 /// (このRepositoryが作成するレコードは作成と同時に残高へ反映済みであることを
 /// 表すフラグであり、カレンダーの削除処理がこのフラグを見て残高打ち消しの
 /// 要否を決めるため)。
-Map<String, Object?> _commonRecordJson(NewRecord record) => {
+Map<String, Object?> _commonRecordJson(RecordContent record) => {
   'date': Timestamp.fromDate(record.date.value),
   'amount': record.amount.value,
   'note': record.note.value,

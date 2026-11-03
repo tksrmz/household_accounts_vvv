@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/data/repositories/record/record_dto.dart';
 import 'package:household_accounts/domain/models/amount.dart';
 import 'package:household_accounts/domain/models/category_id.dart';
-import 'package:household_accounts/domain/models/new_record.dart';
 import 'package:household_accounts/domain/models/property_id.dart';
 import 'package:household_accounts/domain/models/record.dart';
+import 'package:household_accounts/domain/models/record_content.dart';
 import 'package:household_accounts/domain/models/record_date.dart';
 import 'package:household_accounts/domain/models/record_note.dart';
 import 'package:test/test.dart';
@@ -31,6 +31,22 @@ void main() {
       expect(dto.categoryId, 'category-1');
       expect(dto.propertyId, 'property-1');
       expect(dto.toDomain(), isA<IncomeRecord>());
+    });
+
+    test('ドキュメントIDと中身から直接変換したとき、スナップショット経由と同じ結果になること', () {
+      final data = _validIncomeData();
+
+      final fromData = IncomeRecordDto.fromData('income-1', data);
+      final fromSnapshot = IncomeRecordDto.fromSnapshot(
+        _fakeDoc('income-1', data),
+      );
+
+      expect(fromData.id, fromSnapshot.id);
+      expect(fromData.date, fromSnapshot.date);
+      expect(fromData.amount, fromSnapshot.amount);
+      expect(fromData.note, fromSnapshot.note);
+      expect(fromData.categoryId, fromSnapshot.categoryId);
+      expect(fromData.propertyId, fromSnapshot.propertyId);
     });
 
     test('typeがincomeでないとき、FormatExceptionが送出されること(コレクション所属だけで種別を決めないこと)', () {
@@ -208,7 +224,7 @@ void main() {
       final categoryRef = _fakeRef('category-1');
       final propertyRef = _fakeRef('property-1');
       final json = incomeRecordJson(
-        record: NewIncomeRecord(
+        record: IncomeRecordContent(
           date: RecordDate(date),
           amount: Amount(1000),
           note: RecordNote('給料'),
@@ -235,7 +251,7 @@ void main() {
   group('expenseRecordJson', () {
     test('組み立てたJSONのとき、Rulesが要求する8フィールドと完全に一致すること', () {
       final json = expenseRecordJson(
-        record: NewExpenseRecord(
+        record: ExpenseRecordContent(
           date: RecordDate(DateTime(2026, 8, 26)),
           amount: Amount(500),
           note: RecordNote('食費'),
@@ -269,7 +285,7 @@ void main() {
         final fromPropertyRef = _fakeRef('property-3');
         final toPropertyRef = _fakeRef('property-4');
         final json = transferRecordJson(
-          record: NewTransferRecord(
+          record: TransferRecordContent(
             date: RecordDate(DateTime(2026, 8, 26)),
             amount: Amount(3000),
             note: RecordNote('振替'),
@@ -302,7 +318,7 @@ void main() {
   });
 }
 
-NewIncomeRecord _newIncomeRecord() => NewIncomeRecord(
+IncomeRecordContent _newIncomeRecord() => IncomeRecordContent(
   date: RecordDate(DateTime(2026, 8, 26)),
   amount: Amount(1000),
   note: RecordNote('給料'),

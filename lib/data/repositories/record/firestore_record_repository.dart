@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../../domain/models/new_record.dart';
+import '../../../domain/models/balance_effect.dart';
 import '../../../domain/models/notebook.dart';
 import '../../../domain/models/period.dart';
 import '../../../domain/models/record.dart';
+import '../../../domain/models/record_content.dart';
 import '../../../utils/combine_latest.dart';
 import '../../../utils/result.dart';
 import '../firestore_shared/notebook_paths.dart';
@@ -17,6 +18,9 @@ import 'record_repository.dart';
 // クエリ実行そのものが対象であり、フェイクでは検証にならないため、
 // integrationテストで担保する。addの書き込みJSONの組み立てはrecord_dto_test.dartで
 // 担保しており、書き込みの実効性(Rules適合・残高増減)もintegrationテストで担保する。
+// deleteも同様に、打ち消し量の算出は record_test.dart(RecordContent.balanceEffects)、
+// 再読ドキュメントの変換は record_dto_test.dart で担保し、トランザクションの
+// 実効性(原子性・資産消失時のスキップ)はintegrationテストで担保する。
 
 class FirestoreRecordRepository implements RecordRepository {
   FirestoreRecordRepository(this._db, this._notebook);
@@ -35,18 +39,22 @@ class FirestoreRecordRepository implements RecordRepository {
   );
 
   @override
-  Future<Result<void>> add(NewRecord record) =>
+  Future<Result<void>> add(RecordContent record) =>
       Result.guard(() => _add(record));
+
+  @override
+  Future<Result<void>> delete(Record record) =>
+      Result.guard(() => _delete(record));
 
   // WriteBatchを使う理由: addは読み取りを伴わないため、原子性の面では
   // トランザクションと同等である。その上でバッチはオフライン時もローカルへ
   // 即時適用され、オンライン復帰時にサーバーへ同期される(トランザクションは
   // オフラインでは即座に失敗する)。存在しない資産へのupdateはバッチ全体を
   // 失敗させるため、参照整合性(資産が存在すること)もこの原子性の中で保たれる。
-  Future<void> _add(NewRecord record) async {
+  Future<void> _add(RecordContent record) async {
     final batch = _db.batch();
     final (collectionName, json) = switch (record) {
-      NewIncomeRecord() => (
+      IncomeRecordContent() => (
         'incomes',
         incomeRecordJson(
           record: record,
@@ -56,7 +64,7 @@ class FirestoreRecordRepository implements RecordRepository {
           propertyRef: _collection('properties').doc(record.propertyId.value),
         ),
       ),
-      NewExpenseRecord() => (
+      ExpenseRecordContent() => (
         'expenses',
         expenseRecordJson(
           record: record,
@@ -66,7 +74,7 @@ class FirestoreRecordRepository implements RecordRepository {
           propertyRef: _collection('properties').doc(record.propertyId.value),
         ),
       ),
-      NewTransferRecord() => (
+      TransferRecordContent() => (
         'transfers',
         transferRecordJson(
           record: record,
@@ -86,6 +94,78 @@ class FirestoreRecordRepository implements RecordRepository {
       });
     }
     await batch.commit();
+  }
+
+  // runTransactionを使う理由: 打ち消す残高は保存されているレコードの再読値を
+  // 正とするため、読み取りと書き込みを一体で行う必要がある(読み取りを伴わない
+  // addはWriteBatch)。読み取ったドキュメントが確定までの間に変更された場合、
+  // トランザクションは自動で再試行される。
+  Future<void> _delete(Record record) async {
+    final (collectionName, toDomain) = switch (record) {
+      IncomeRecord() => (
+        'incomes',
+        (String id, Map<String, dynamic> data) =>
+            IncomeRecordDto.fromData(id, data).toDomain(),
+      ),
+      ExpenseRecord() => (
+        'expenses',
+        (String id, Map<String, dynamic> data) =>
+            ExpenseRecordDto.fromData(id, data).toDomain(),
+      ),
+      TransferRecord() => (
+        'transfers',
+        (String id, Map<String, dynamic> data) =>
+            TransferRecordDto.fromData(id, data).toDomain(),
+      ),
+    };
+    final recordRef = _collection(collectionName).doc(record.id.value);
+
+    await _db.runTransaction((transaction) async {
+      final data = (await transaction.get(recordRef)).data();
+      if (data == null) {
+        return;
+      }
+
+      // 打ち消し量は引数のrecordではなく再読したドキュメントから求める。
+      // 引数が古い内容を保持していても残高がずれないようにするため。
+      final effects = _shouldRevertBalance(data)
+          ? toDomain(recordRef.id, data).content.balanceEffects
+          : const <BalanceEffect>[];
+
+      // 資産の存在確認は読み取りであり、Firestoreのトランザクションは
+      // すべての読み取りを書き込みより前に行う必要があるため、打ち消しの
+      // updateとレコードのdeleteより先にまとめて済ませる。
+      final increments =
+          <({DocumentReference<Map<String, dynamic>> ref, int delta})>[];
+      for (final effect in effects) {
+        final propertyRef = _collection(
+          'properties',
+        ).doc(effect.propertyId.value);
+        // 参照先の資産が既に削除されている場合、その打ち消しは行えない。
+        // レコードだけが消せずに残り続けるほうが害が大きいためスキップする。
+        if ((await transaction.get(propertyRef)).exists) {
+          increments.add((ref: propertyRef, delta: -effect.delta));
+        }
+      }
+
+      for (final increment in increments) {
+        transaction.update(increment.ref, {
+          'amount': FieldValue.increment(increment.delta),
+        });
+      }
+      transaction.delete(recordRef);
+    });
+  }
+
+  /// レコードのドキュメント[data]が残高へ反映済みかどうかを判定する。
+  ///
+  /// `hasCheckedOut`は残高へ反映済みであることを表すフラグ。欠損している
+  /// (あるいはbool以外が入っている)古いドキュメントは反映済みとみなす。
+  /// 未反映扱いにすると、実際には残高へ乗っている分を打ち消さないまま
+  /// レコードだけが消え、残高がずれるため。
+  bool _shouldRevertBalance(Map<String, dynamic> data) {
+    final value = data['hasCheckedOut'];
+    return value is! bool || value;
   }
 
   Stream<List<Record>> _watchIncomes(Period period) =>

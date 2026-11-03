@@ -5,8 +5,7 @@ import 'firestore_probe.dart';
 import 'firestore_rest.dart';
 import 'ui_operations.dart';
 
-/// budget_feature_test.dart で使用する、支出カテゴリ・資産・境界日の
-/// 支出レコードをseedするためのヘルパー関数群。
+/// featureテストの前提となるカテゴリ・資産・レコードを用意するヘルパー関数群。
 ///
 /// カテゴリと資産はUI操作で作る(カテゴリ画面・資産画面は現行の実装であり、
 /// 入力できない値も無いため、既存のintegrationテストと同じ流儀で作れる)。
@@ -15,6 +14,23 @@ import 'ui_operations.dart';
 /// 新しい記録入力画面は日付の選択範囲を当日までに制限しており、月度境界の
 /// フィクスチャに必要な未来日付(月度end当日など、実行日によっては未来になる)を
 /// UIからは投入できなくなったため。
+
+/// カテゴリ画面で収入カテゴリを1件作成する。
+///
+/// 事前条件: ボトムナビゲーションからアクセス可能な画面にいること。
+Future<void> createIncomeCategory(
+  WidgetTester tester, {
+  required String name,
+}) async {
+  await openTab(tester, 'カテゴリ');
+
+  await tester.tap(find.text('カテゴリの追加'));
+  await tester.pumpAndSettle();
+
+  await tester.enterText(find.widgetWithText(TextField, 'カテゴリ名'), name);
+  await tester.tap(find.text('登録'));
+  await tester.pumpAndSettle();
+}
 
 /// カテゴリ画面で支出カテゴリ（予算付き）を1件作成する。
 ///

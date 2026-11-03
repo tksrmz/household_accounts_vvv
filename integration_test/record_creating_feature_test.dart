@@ -4,6 +4,7 @@ import 'package:household_accounts/main.dart';
 
 import 'util/firestore_probe.dart';
 import 'util/firestore_rest.dart';
+import 'util/record_entry_operations.dart';
 import 'util/sign_in.dart';
 import 'util/ui_operations.dart';
 import 'util/sign_up.dart';
@@ -34,11 +35,19 @@ Future<void> recordCreatingFeature() async {
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
 
     await openTab(tester, '入力');
-    await _enterText(tester, label: _amountLabel, text: '$amount');
-    await _selectOption(tester, dropdownKey: 'category', label: categoryName);
-    await _selectOption(tester, dropdownKey: 'property', label: propertyName);
-    await _enterText(tester, label: _noteLabel, text: note);
-    await _submit(tester);
+    await enterRecordAmount(tester, amount);
+    await selectRecordOption(
+      tester,
+      dropdownKey: 'category',
+      label: categoryName,
+    );
+    await selectRecordOption(
+      tester,
+      dropdownKey: 'property',
+      label: propertyName,
+    );
+    await enterRecordNote(tester, note);
+    await submitRecord(tester);
 
     final record = await fetchRecordByNote(notePath, 'incomes', note);
     _expectCommonFields(record, amount: amount, type: 'income');
@@ -81,12 +90,20 @@ Future<void> recordCreatingFeature() async {
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
 
     await openTab(tester, '入力');
-    await _selectType(tester, '支出');
-    await _enterText(tester, label: _amountLabel, text: '$amount');
-    await _selectOption(tester, dropdownKey: 'category', label: categoryName);
-    await _selectOption(tester, dropdownKey: 'property', label: propertyName);
-    await _enterText(tester, label: _noteLabel, text: note);
-    await _submit(tester);
+    await selectRecordType(tester, '支出');
+    await enterRecordAmount(tester, amount);
+    await selectRecordOption(
+      tester,
+      dropdownKey: 'category',
+      label: categoryName,
+    );
+    await selectRecordOption(
+      tester,
+      dropdownKey: 'property',
+      label: propertyName,
+    );
+    await enterRecordNote(tester, note);
+    await submitRecord(tester);
 
     final record = await fetchRecordByNote(notePath, 'expenses', note);
     _expectCommonFields(record, amount: amount, type: 'expense');
@@ -132,20 +149,20 @@ Future<void> recordCreatingFeature() async {
     final toBalanceBefore = await fetchPropertyAmount(notePath, toPropertyName);
 
     await openTab(tester, '入力');
-    await _selectType(tester, '振替');
-    await _enterText(tester, label: _amountLabel, text: '$amount');
-    await _selectOption(
+    await selectRecordType(tester, '振替');
+    await enterRecordAmount(tester, amount);
+    await selectRecordOption(
       tester,
       dropdownKey: 'fromProperty',
       label: fromPropertyName,
     );
-    await _selectOption(
+    await selectRecordOption(
       tester,
       dropdownKey: 'toProperty',
       label: toPropertyName,
     );
-    await _enterText(tester, label: _noteLabel, text: note);
-    await _submit(tester);
+    await enterRecordNote(tester, note);
+    await submitRecord(tester);
 
     final record = await fetchRecordByNote(notePath, 'transfers', note);
     _expectCommonFields(record, amount: amount, type: 'transfer');
@@ -196,11 +213,19 @@ Future<void> recordCreatingFeature() async {
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
 
     await openTab(tester, '入力');
-    await _enterText(tester, label: _amountLabel, text: '$amount');
-    await _selectOption(tester, dropdownKey: 'category', label: categoryName);
-    await _selectOption(tester, dropdownKey: 'property', label: propertyName);
-    await _enterText(tester, label: _noteLabel, text: note);
-    await _submit(tester);
+    await enterRecordAmount(tester, amount);
+    await selectRecordOption(
+      tester,
+      dropdownKey: 'category',
+      label: categoryName,
+    );
+    await selectRecordOption(
+      tester,
+      dropdownKey: 'property',
+      label: propertyName,
+    );
+    await enterRecordNote(tester, note);
+    await submitRecord(tester);
 
     final record = await fetchRecordByNote(notePath, 'incomes', note);
     _expectCommonFields(record, amount: amount, type: 'income');
@@ -246,12 +271,20 @@ Future<void> recordCreatingFeature() async {
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
 
     await openTab(tester, '入力');
-    await _selectType(tester, '支出');
-    await _enterText(tester, label: _amountLabel, text: '$amount');
-    await _selectOption(tester, dropdownKey: 'category', label: categoryName);
-    await _selectOption(tester, dropdownKey: 'property', label: propertyName);
-    await _enterText(tester, label: _noteLabel, text: note);
-    await _submit(tester);
+    await selectRecordType(tester, '支出');
+    await enterRecordAmount(tester, amount);
+    await selectRecordOption(
+      tester,
+      dropdownKey: 'category',
+      label: categoryName,
+    );
+    await selectRecordOption(
+      tester,
+      dropdownKey: 'property',
+      label: propertyName,
+    );
+    await enterRecordNote(tester, note);
+    await submitRecord(tester);
 
     final record = await fetchRecordByNote(notePath, 'expenses', note);
     _expectCommonFields(record, amount: amount, type: 'expense');
@@ -300,20 +333,20 @@ Future<void> recordCreatingFeature() async {
     final toBalanceBefore = await fetchPropertyAmount(notePath, toPropertyName);
 
     await openTab(tester, '入力');
-    await _selectType(tester, '振替');
-    await _enterText(tester, label: _amountLabel, text: '$amount');
-    await _selectOption(
+    await selectRecordType(tester, '振替');
+    await enterRecordAmount(tester, amount);
+    await selectRecordOption(
       tester,
       dropdownKey: 'fromProperty',
       label: fromPropertyName,
     );
-    await _selectOption(
+    await selectRecordOption(
       tester,
       dropdownKey: 'toProperty',
       label: toPropertyName,
     );
-    await _enterText(tester, label: _noteLabel, text: note);
-    await _submit(tester);
+    await enterRecordNote(tester, note);
+    await submitRecord(tester);
 
     // 旧実装は共有ノートを選択していても振替だけを個人ノートへ書き込んでいた。
     // 新実装がノート種別によらず同じパス解決を通ることを、書き込み先そのもので
@@ -349,11 +382,6 @@ Future<void> recordCreatingFeature() async {
     );
   });
 }
-
-const _amountLabel = '金額';
-const _noteLabel = 'メモ';
-const _submitLabel = '登録';
-const _submitSucceededMessage = 'レコードを登録しました';
 
 /// カテゴリ画面で収入カテゴリを1件作成する。
 Future<void> _addIncomeCategory(
@@ -394,45 +422,6 @@ Future<void> _addProperty(
   await tester.enterText(find.widgetWithText(TextField, '資産額'), '$amount');
   await tester.tap(find.text('保存'));
   await tester.pumpAndSettle();
-}
-
-/// 記録入力の種別([label]は'収入'/'支出'/'振替')を切り替える。
-Future<void> _selectType(WidgetTester tester, String label) async {
-  await tester.tap(find.text(label));
-  await tester.pumpAndSettle();
-}
-
-/// 選択欄を開き、[label]の選択肢を選ぶ。
-///
-/// 選択欄はhintのテキストが選択後に消えるため、役割ごとに固定されたキー
-/// (category / property / fromProperty / toProperty)で特定する。
-/// 選択肢のラベルは閉じた選択欄の中にも存在する(DropdownButtonが全項目を
-/// ツリーへ保持するため)ので、あとから重ねて表示されるメニュー側を選ぶ。
-Future<void> _selectOption(
-  WidgetTester tester, {
-  required String dropdownKey,
-  required String label,
-}) async {
-  await tester.tap(find.byKey(ValueKey(dropdownKey)));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text(label).last);
-  await tester.pumpAndSettle();
-}
-
-Future<void> _enterText(
-  WidgetTester tester, {
-  required String label,
-  required String text,
-}) async {
-  await tester.enterText(find.widgetWithText(TextField, label), text);
-  await tester.pumpAndSettle();
-}
-
-/// 登録ボタンを押し、成功のスナックバーが出ることを確認する。
-Future<void> _submit(WidgetTester tester) async {
-  await tester.tap(find.text(_submitLabel));
-  await tester.pumpAndSettle();
-  expect(find.text(_submitSucceededMessage), findsOneWidget);
 }
 
 /// 収入/支出/振替に共通する書き込み内容を検証する。

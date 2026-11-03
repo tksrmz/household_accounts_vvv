@@ -39,4 +39,24 @@ class Period with _$Period {
     }
     return Period(start: DateTime(year, month), end: DateTime(year, month + 1));
   }
+
+  /// [year]年[month]月[day]日の1日(0時〜翌日0時)の期間を生成する。
+  ///
+  /// [month]が1〜12の範囲外のとき、および[day]がその月の実日数の範囲外のときは
+  /// [ArgumentError]を送出する。[calendarMonth]と同じ理由で、[DateTime]の
+  /// 自動正規化(例えば2月30日を3月2日として解釈する)に頼らず明示的に検証する。
+  factory Period.day(int year, int month, int day) {
+    if (month < 1 || month > 12) {
+      throw ArgumentError.value(month, 'month', '月は1から12の範囲である必要があります');
+    }
+    // 翌月0日は当月末日を表す(DateTimeの正規化を日数の算出にだけ利用する)。
+    final lastDay = DateTime(year, month + 1, 0).day;
+    if (day < 1 || day > lastDay) {
+      throw ArgumentError.value(day, 'day', '日は1から$lastDayの範囲である必要があります');
+    }
+    return Period(
+      start: DateTime(year, month, day),
+      end: DateTime(year, month, day + 1),
+    );
+  }
 }

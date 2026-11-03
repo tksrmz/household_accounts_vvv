@@ -2,23 +2,11 @@ import '../../entity/record.dart';
 import '../../util/type/exception_or.dart';
 import '../../util/type/repository.dart';
 
-abstract class PersonalIncomeRecordRepository
-    extends RecordRepository<IncomeRecord> {}
-
 abstract class PersonalExpenseRecordRepository
     extends RecordRepository<ExpenseRecord> {}
 
-abstract class PersonalTransferRecordRepository
-    extends RecordRepository<TransferRecord> {}
-
-abstract class SharedIncomeRecordRepository
-    extends RecordRepository<IncomeRecord> {}
-
 abstract class SharedExpenseRecordRepository
     extends RecordRepository<ExpenseRecord> {}
-
-abstract class SharedTransferRecordRepository
-    extends RecordRepository<TransferRecord> {}
 
 abstract class RecordRepository<T extends RecordBase> extends Repository<T> {
   @override
