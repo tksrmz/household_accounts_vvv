@@ -18,6 +18,5 @@ class PropertyId with _$PropertyId {
   }
 
   /// 資産IDの文字列。
-  @override
   final String value;
 }

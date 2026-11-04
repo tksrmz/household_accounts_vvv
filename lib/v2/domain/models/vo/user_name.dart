@@ -17,7 +17,6 @@ class UserNameVo with _$UserNameVo {
 
   const UserNameVo._empty() : value = '';
 
-  @override
   final String value;
 
   /// 有効なユーザー名かどうか

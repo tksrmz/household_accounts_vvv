@@ -36,6 +36,5 @@ class RecordNote with _$RecordNote {
   }
 
   /// メモの文字列。
-  @override
   final String value;
 }

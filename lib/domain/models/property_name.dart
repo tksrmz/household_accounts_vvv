@@ -35,6 +35,5 @@ class PropertyName with _$PropertyName {
   }
 
   /// 資産名の文字列。
-  @override
   final String value;
 }

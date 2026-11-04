@@ -18,6 +18,5 @@ class PairId with _$PairId {
   }
 
   /// ペアIDの文字列。
-  @override
   final String value;
 }

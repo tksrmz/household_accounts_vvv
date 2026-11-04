@@ -19,11 +19,9 @@ class Period with _$Period {
   }
 
   /// 期間の開始(この時刻を含む)。
-  @override
   final DateTime start;
 
   /// 期間の終了(この時刻を含まない)。
-  @override
   final DateTime end;
 
   /// [year]年[month]月の暦月(1日0時〜翌月1日0時)の期間を生成する。

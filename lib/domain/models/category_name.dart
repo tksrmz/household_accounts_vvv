@@ -35,6 +35,5 @@ class CategoryName with _$CategoryName {
   }
 
   /// カテゴリ名の文字列。
-  @override
   final String value;
 }

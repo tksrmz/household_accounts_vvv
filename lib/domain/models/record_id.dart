@@ -18,6 +18,5 @@ class RecordId with _$RecordId {
   }
 
   /// レコードIDの文字列。
-  @override
   final String value;
 }

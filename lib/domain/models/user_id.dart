@@ -18,6 +18,5 @@ class UserId with _$UserId {
   }
 
   /// ユーザーIDの文字列。
-  @override
   final String value;
 }
