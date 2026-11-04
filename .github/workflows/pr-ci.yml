@@ -17,6 +17,9 @@ on:
       - 'build.yaml'
       - 'analysis_options.yaml'
       - 'dart_test.yaml'
+      # ツールのバージョン(Flutter等)
+      - 'mise.toml'
+      - 'mise.lock'
       # このCI自体
       - '.github/workflows/pr-ci.yml'
   workflow_dispatch:
@@ -31,14 +34,15 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      MISE_ENABLE_TOOLS: flutter
     steps:
       - uses: actions/checkout@v7
 
-      - uses: subosito/flutter-action@v2
+      # バージョンはmise.toml(+mise.lock)が正。入れるツールはジョブのMISE_ENABLE_TOOLSで絞る
+      - uses: jdx/mise-action@v5
         with:
-          flutter-version: '3.44.4'
-          channel: stable
-          cache: true
+          cache_key_prefix: mise-v1-${{ env.MISE_ENABLE_TOOLS }}
 
       - name: Install dependencies
         run: flutter pub get
@@ -91,14 +95,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOLDEN_MODE: ci
+      MISE_ENABLE_TOOLS: flutter
     steps:
       - uses: actions/checkout@v7
 
-      - uses: subosito/flutter-action@v2
+      # バージョンはmise.toml(+mise.lock)が正。入れるツールはジョブのMISE_ENABLE_TOOLSで絞る
+      - uses: jdx/mise-action@v5
         with:
-          flutter-version: '3.44.4'
-          channel: stable
-          cache: true
+          cache_key_prefix: mise-v1-${{ env.MISE_ENABLE_TOOLS }}
 
       - name: Install dependencies
         run: flutter pub get

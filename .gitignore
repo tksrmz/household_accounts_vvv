@@ -70,3 +70,7 @@ android/key.properties
 
 # Ignore prompt files
 .prompt/
+
+# mise: 個人用の上書き設定(バージョンの正はmise.toml)
+mise.local.toml
+mise.local.lock

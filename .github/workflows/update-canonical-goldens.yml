@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOLDEN_MODE: ci
+      MISE_ENABLE_TOOLS: flutter
     outputs:
       changed: ${{ steps.golden-diff.outputs.changed }}
       head_branch: ${{ steps.pr.outputs.head_branch }}
@@ -59,11 +60,10 @@ jobs:
         with:
           ref: ${{ steps.pr.outputs.head_sha }}
 
-      - uses: subosito/flutter-action@v2
+      # バージョンはmise.toml(+mise.lock)が正。入れるツールはジョブのMISE_ENABLE_TOOLSで絞る
+      - uses: jdx/mise-action@v5
         with:
-          flutter-version: '3.44.4'
-          channel: stable
-          cache: true
+          cache_key_prefix: mise-v1-${{ env.MISE_ENABLE_TOOLS }}
 
       - name: Install dependencies
         run: flutter pub get

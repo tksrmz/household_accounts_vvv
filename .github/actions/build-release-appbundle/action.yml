@@ -18,18 +18,21 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Set up Java
-      uses: actions/setup-java@v5
+    # Flutter・JDKのバージョンはmise.toml(+mise.lock)が正。JAVA_HOMEもmiseが後続ステップへ設定する
+    - name: Set up Flutter and Java
+      uses: jdx/mise-action@v5
+      env:
+        MISE_ENABLE_TOOLS: flutter,java
       with:
-        distribution: temurin
-        java-version: '21'
+        cache_key_prefix: mise-v1-flutter-java
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.44.4'
-        channel: stable
-        cache: true
+    # ランナー既定のJDKではなくmise.tomlのJDKでビルドされることをログに残す
+    - name: Show toolchain versions
+      shell: bash
+      run: |
+        echo "JAVA_HOME=$JAVA_HOME"
+        java -version
+        flutter --version
 
     - name: Set up Gradle
       uses: gradle/actions/setup-gradle@v6.2.0

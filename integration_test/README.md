@@ -30,7 +30,7 @@
 
 - Android device emulator（AVD）が起動していること
 - Firebase CLIがインストールされていること（Firebase local emulatorの設定は同一リポジトリの`firebase/`ディレクトリにあります）
-- Cloud Functionsがビルド済みであること（Node.js 22で`firebase/functions/`にて`npm install && npm run build`を実行。未ビルドだとFunctionsエミュレータが起動できません）
+- Cloud Functionsがビルド済みであること（リポジトリ直下の`mise.toml`で固定されたNode.jsで`firebase/functions/`にて`npm install && npm run build`を実行。未ビルドだとFunctionsエミュレータが起動できません）
 
 受け入れテストは以下のコマンドで実行できます（Unix系シェルの場合）。
 
