@@ -3,6 +3,9 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - test/**/**.mocks.dart
+    - build/**
+    - android/**
+    - ios/**
 
 # household_lints: Repository実装(lib/data/repositories/配下)がFuture<Result<T>>を
 # 返す公開メソッドをResult.guard(...)の直接返しにする規約(2026-08-19導入)を
