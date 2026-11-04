@@ -36,11 +36,16 @@ jobs:
       firebase_functions_test_version: ${{ steps.readiness.outputs.firebase_functions_test_version }}
       firebase_admin_peer_range: ${{ steps.readiness.outputs.firebase_admin_peer_range }}
     steps:
-      - name: Set up Node.js 22
-        uses: actions/setup-node@v6
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      # Node.jsのバージョンはmise.toml(+mise.lock)が正
+      - name: Set up Node.js
+        uses: jdx/mise-action@v5
+        env:
+          MISE_ENABLE_TOOLS: node
         with:
-          node-version: "22"
-          package-manager-cache: false
+          cache_key_prefix: mise-v1-node
 
       - name: Check Issue #36 and package compatibility
         id: readiness
@@ -154,6 +159,14 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
+
+      # Node.jsのバージョンはmise.toml(+mise.lock)が正(後段のnpm ci/testをこのNodeで実行させる)
+      - name: Set up Node.js
+        uses: jdx/mise-action@v5
+        env:
+          MISE_ENABLE_TOOLS: node
+        with:
+          cache_key_prefix: mise-v1-node
 
       - name: Upgrade firebase-admin with Claude Code
         id: claude

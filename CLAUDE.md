@@ -49,6 +49,12 @@ $env:Path = "$env:LOCALAPPDATA\mise\shims;$env:Path"
 export PATH="$HOME/AppData/Local/mise/shims:$PATH"
 ```
 
+ツールのバージョンはリポジトリ直下の `mise.toml`(+ `mise.lock`)が**唯一の正**。CIの全ワークフローも `jdx/mise-action` で同じファイルを読むため、ローカルとCIで同じバージョンになる:
+
+- ワークフローやcomposite actionにバージョンを直書きしない(`subosito/flutter-action`・`setup-java`・`setup-node` は使わない)。ジョブで使うツールは `MISE_ENABLE_TOOLS` で絞る
+- バージョンを上げるときは `mise.toml` を書き換えてから `mise lock --platform linux-x64,windows-x64` を実行し、`mise.lock` も一緒にコミットする(Dependabotは `mise.toml` を更新できないため手動)
+- 個人的な上書きは `mise.local.toml`(gitignore済み)で行う
+
 ### Build & Run
 
 ```bash
