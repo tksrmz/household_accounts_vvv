@@ -9,7 +9,7 @@ min_version = "2026.8.11"
 lockfile = true
 
 [tools]
-flutter = "3.44.9"
+flutter = "3.47.9"
 # Androidリリースビルド(Gradle)用のJDK
 java = "temurin-21.0.13+9.0.LTS"
 # Cloud Functionsのランタイム(firebase/functions/package.jsonのengines)に合わせる
