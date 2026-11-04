@@ -35,6 +35,5 @@ class UserName with _$UserName {
   }
 
   /// ユーザー名の文字列。
-  @override
   final String value;
 }

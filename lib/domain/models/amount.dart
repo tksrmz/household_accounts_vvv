@@ -33,6 +33,5 @@ class Amount with _$Amount {
   }
 
   /// 金額の整数値。
-  @override
   final int value;
 }

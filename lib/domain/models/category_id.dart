@@ -18,6 +18,5 @@ class CategoryId with _$CategoryId {
   }
 
   /// カテゴリIDの文字列。
-  @override
   final String value;
 }
