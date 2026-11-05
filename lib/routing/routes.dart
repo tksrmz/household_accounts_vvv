@@ -16,6 +16,13 @@ abstract final class Routes {
   }
 
   static const properties = '/properties';
+
+  /// 資産の追加画面のパス。
+  static const propertyNew = '$properties/new';
+
+  /// 資産の編集画面のパス。編集対象の資産は `extra` で渡す。
+  static const propertyEdit = '$properties/edit';
+
   static const categories = '/categories';
   static const budget = '/budget';
   static const settings = '/settings';
