@@ -7,11 +7,13 @@ part 'property.freezed.dart';
 
 /// 資産。
 ///
-/// 記録入力(資産選択)が必要とする最小限のフィールドのみを持つ。残高(amount)は
-/// 資産管理画面の移行時に追加する(この画面の移行時点では資産を選択できれば
-/// 十分なため)。
+/// [balance]は残高。支出で負になりうるうえ、取りうる値に検証がないため
+/// 値型でラップしない(金額>0の`Amount`とは別物)。
 @freezed
 abstract class Property with _$Property {
-  const factory Property({required PropertyId id, required PropertyName name}) =
-      _Property;
+  const factory Property({
+    required PropertyId id,
+    required PropertyName name,
+    required int balance,
+  }) = _Property;
 }
