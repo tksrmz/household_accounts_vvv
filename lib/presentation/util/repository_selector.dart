@@ -1,46 +1,29 @@
 import 'package:flutter/foundation.dart';
 
 import '../../entity/category.dart';
-import '../../entity/property.dart';
 import '../../entity/record.dart';
 import '../../feature/repository/category_repository.dart';
-import '../../feature/repository/property_repository.dart';
 import '../../feature/repository/record_repository.dart';
 import '../../util/service_locator/main.dart';
 import '../../util/type/repository.dart';
 import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 
-Repository<Property> selectPropertyRepository(SelectedNote value) {
-  debugPrint('$selectPropertyRepository($value)');
-  final Repository<Property> repository;
-
-  switch (value) {
-    case SelectedNote.personal:
-      debugPrint('$selectPropertyRepository: Select personal repository.');
-      repository = sl<PersonalPropertyRepository>();
-      break;
-
-    case SelectedNote.shared:
-      debugPrint('$selectPropertyRepository: Select shared repository.');
-      repository = sl<SharedPropertyRepository>();
-      break;
-  }
-
-  return repository;
-}
-
 Repository<IncomeCategory> selectIncomeCategoryRepository(SelectedNote value) {
-  debugPrint('$selectPropertyRepository($value)');
+  debugPrint('selectIncomeCategoryRepository($value)');
   final Repository<IncomeCategory> repository;
 
   switch (value) {
     case SelectedNote.personal:
-      debugPrint('$selectPropertyRepository: Select personal income cateogy.');
+      debugPrint(
+        'selectIncomeCategoryRepository: Select personal income cateogy.',
+      );
       repository = sl<PersonalIncomeCategoryRepository>();
       break;
 
     case SelectedNote.shared:
-      debugPrint('$selectPropertyRepository: Select shared income cateogy.');
+      debugPrint(
+        'selectIncomeCategoryRepository: Select shared income cateogy.',
+      );
       repository = sl<SharedIncomeCategoryRepository>();
       break;
   }
@@ -51,17 +34,21 @@ Repository<IncomeCategory> selectIncomeCategoryRepository(SelectedNote value) {
 Repository<ExpenseCategory> selectExpenseCategoryRepository(
   SelectedNote value,
 ) {
-  debugPrint('$selectPropertyRepository($value)');
+  debugPrint('selectExpenseCategoryRepository($value)');
   final Repository<ExpenseCategory> repository;
 
   switch (value) {
     case SelectedNote.personal:
-      debugPrint('$selectPropertyRepository: Select personal expense cateogy.');
+      debugPrint(
+        'selectExpenseCategoryRepository: Select personal expense cateogy.',
+      );
       repository = sl<PersonalExpenseCategoryRepository>();
       break;
 
     case SelectedNote.shared:
-      debugPrint('$selectPropertyRepository: Select shared expense cateogy.');
+      debugPrint(
+        'selectExpenseCategoryRepository: Select shared expense cateogy.',
+      );
       repository = sl<SharedExpenseCategoryRepository>();
       break;
   }
