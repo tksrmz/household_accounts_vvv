@@ -81,13 +81,22 @@ void main() {
   });
 
   group('資産額の入力', () {
-    testWidgets('マイナス記号と数字以外を入力したとき、入力欄に残らないこと', (tester) async {
+    testWidgets('マイナス記号と数字以外を入力したとき、その文字だけが取り除かれ残りの文字は保たれること', (tester) async {
       await _pumpScreen(tester, _buildFixture());
 
       await tester.enterText(_balanceField, '-12a3');
       await tester.pump();
 
-      expect(find.text('-12'), findsOneWidget);
+      expect(find.text('-123'), findsOneWidget);
+    });
+
+    testWidgets('桁区切りのカンマを含む値を貼り付けたとき、カンマだけが取り除かれること', (tester) async {
+      await _pumpScreen(tester, _buildFixture());
+
+      await tester.enterText(_balanceField, '100,000');
+      await tester.pump();
+
+      expect(find.text('100000'), findsOneWidget);
     });
   });
 

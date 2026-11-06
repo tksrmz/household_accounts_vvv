@@ -116,10 +116,12 @@ class _PropertyEditorScreenState extends State<PropertyEditorScreen> {
                 keyboardType: const TextInputType.numberWithOptions(
                   signed: true,
                 ),
-                // 先頭のマイナス記号と数字以外を弾いておくと、検証エラーに至る前に
-                // 入力そのものを正しい形へ導ける
+                // マイナス記号と数字以外の文字だけを取り除く。`^` で先頭に固定した
+                // パターンにすると、途中に不正な文字があるときそれ以降が丸ごと捨てられ
+                // (「100,000」が「100」になる)、有効な別の値として保存されてしまう。
+                // 形式の検証(マイナスは先頭に1つだけ等)はViewModelのライブ検証に任せる
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^-?[0-9]*')),
+                  FilteringTextInputFormatter.allow(RegExp(r'[-0-9]')),
                 ],
                 onChanged: viewModel.onBalanceChanged,
                 decoration: InputDecoration(

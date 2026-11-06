@@ -73,6 +73,13 @@ void main() {
     test('残高だけを渡したとき、amountのみを含むこと', () {
       expect(propertyUpdateJson(balance: 0), {'amount': 0});
     });
+
+    test('名前と残高の両方を渡したとき、nameとamountの両方を含むこと', () {
+      expect(propertyUpdateJson(name: PropertyName('銀行'), balance: -500), {
+        'name': '銀行',
+        'amount': -500,
+      });
+    });
   });
 }
 
