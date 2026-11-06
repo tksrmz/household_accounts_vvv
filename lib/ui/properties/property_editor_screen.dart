@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../domain/models/property_name.dart';
 import 'property_editor_view_model.dart';
@@ -116,13 +115,10 @@ class _PropertyEditorScreenState extends State<PropertyEditorScreen> {
                 keyboardType: const TextInputType.numberWithOptions(
                   signed: true,
                 ),
-                // マイナス記号と数字以外の文字だけを取り除く。`^` で先頭に固定した
-                // パターンにすると、途中に不正な文字があるときそれ以降が丸ごと捨てられ
-                // (「100,000」が「100」になる)、有効な別の値として保存されてしまう。
-                // 形式の検証(マイナスは先頭に1つだけ等)はViewModelのライブ検証に任せる
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[-0-9]')),
-                ],
+                // 入力フォーマッタで文字を取り除かない。取り除くと不正な入力が有効な
+                // 別の値に化けて保存できてしまう(「1234.50」→「123450」、「1e3」→「13」、
+                // 先頭固定のパターンなら「100,000」→「100」)。入力はそのままViewModelの
+                // ライブ検証に渡し、整数でなければエラー表示で保存できなくする
                 onChanged: viewModel.onBalanceChanged,
                 decoration: InputDecoration(
                   labelText: '資産額',
