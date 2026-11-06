@@ -28,7 +28,7 @@ final _longName = Property(
   balance: 1234567,
 );
 
-const _dialogMessage = '本当に『財布』を削除しますか？';
+const _dialogMessage = '本当に「財布」を削除しますか？';
 
 // なぜ確認ダイアログを一覧のgoldenに含めないか:
 // ダイアログはルートのNavigatorのオーバーレイに開くため、3幅ヘルパーが撮影する

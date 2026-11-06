@@ -67,7 +67,7 @@ Future<void> propertyFeature() async {
 
     // 確認ダイアログで「削除しない」を選ぶと何も消えない
     await _tapRowIcon(tester, editedSavingsName, Icons.delete);
-    expect(find.text('本当に『$editedSavingsName』を削除しますか？'), findsOneWidget);
+    expect(find.text('本当に「$editedSavingsName」を削除しますか？'), findsOneWidget);
     await tester.tap(find.text('削除しない'));
     await tester.pumpAndSettle();
 

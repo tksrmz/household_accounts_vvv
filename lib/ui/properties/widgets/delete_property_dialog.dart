@@ -33,7 +33,7 @@ class DeletePropertyDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      content: Text('本当に『$_propertyName』を削除しますか？'),
+      content: Text('本当に「$_propertyName」を削除しますか？'),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
