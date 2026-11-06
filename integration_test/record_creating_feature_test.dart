@@ -4,6 +4,7 @@ import 'package:household_accounts/main.dart';
 
 import 'util/firestore_probe.dart';
 import 'util/firestore_rest.dart';
+import 'util/property_operations.dart';
 import 'util/record_entry_operations.dart';
 import 'util/sign_in.dart';
 import 'util/ui_operations.dart';
@@ -28,8 +29,7 @@ Future<void> recordCreatingFeature() async {
 
     await openTab(tester, 'カテゴリ');
     await _addIncomeCategory(tester, name: categoryName);
-    await openTab(tester, '資産');
-    await _addProperty(tester, name: propertyName, amount: 100000);
+    await createProperty(tester, name: propertyName, amount: 100000);
 
     final notePath = currentPersonalNotePath();
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
@@ -83,8 +83,7 @@ Future<void> recordCreatingFeature() async {
 
     await openTab(tester, 'カテゴリ');
     await _addExpenseCategory(tester, name: categoryName, budget: 50000);
-    await openTab(tester, '資産');
-    await _addProperty(tester, name: propertyName, amount: 50000);
+    await createProperty(tester, name: propertyName, amount: 50000);
 
     final notePath = currentPersonalNotePath();
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
@@ -137,9 +136,8 @@ Future<void> recordCreatingFeature() async {
     await signUpApp(tester);
     await tester.pumpAndSettle();
 
-    await openTab(tester, '資産');
-    await _addProperty(tester, name: fromPropertyName, amount: 200000);
-    await _addProperty(tester, name: toPropertyName, amount: 30000);
+    await createProperty(tester, name: fromPropertyName, amount: 200000);
+    await createProperty(tester, name: toPropertyName, amount: 30000);
 
     final notePath = currentPersonalNotePath();
     final fromBalanceBefore = await fetchPropertyAmount(
@@ -206,8 +204,7 @@ Future<void> recordCreatingFeature() async {
 
     await openTab(tester, 'カテゴリ');
     await _addIncomeCategory(tester, name: categoryName);
-    await openTab(tester, '資産');
-    await _addProperty(tester, name: propertyName, amount: 300000);
+    await createProperty(tester, name: propertyName, amount: 300000);
 
     final notePath = await currentSharedNotePath();
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
@@ -264,8 +261,7 @@ Future<void> recordCreatingFeature() async {
 
     await openTab(tester, 'カテゴリ');
     await _addExpenseCategory(tester, name: categoryName, budget: 30000);
-    await openTab(tester, '資産');
-    await _addProperty(tester, name: propertyName, amount: 300000);
+    await createProperty(tester, name: propertyName, amount: 300000);
 
     final notePath = await currentSharedNotePath();
     final balanceBefore = await fetchPropertyAmount(notePath, propertyName);
@@ -321,9 +317,8 @@ Future<void> recordCreatingFeature() async {
     await tester.pumpAndSettle();
     await switchToSharedNote(tester);
 
-    await openTab(tester, '資産');
-    await _addProperty(tester, name: fromPropertyName, amount: 300000);
-    await _addProperty(tester, name: toPropertyName, amount: 200000);
+    await createProperty(tester, name: fromPropertyName, amount: 300000);
+    await createProperty(tester, name: toPropertyName, amount: 200000);
 
     final notePath = await currentSharedNotePath();
     final fromBalanceBefore = await fetchPropertyAmount(
@@ -407,20 +402,6 @@ Future<void> _addExpenseCategory(
   await tester.enterText(find.widgetWithText(TextField, 'カテゴリ名'), name);
   await tester.enterText(find.widgetWithText(TextField, '予算'), '$budget');
   await tester.tap(find.text('登録'));
-  await tester.pumpAndSettle();
-}
-
-/// 資産画面で資産を1件作成する。
-Future<void> _addProperty(
-  WidgetTester tester, {
-  required String name,
-  required int amount,
-}) async {
-  await tester.tap(find.text('資産の追加'));
-  await tester.pumpAndSettle();
-  await tester.enterText(find.widgetWithText(TextField, '資産名'), name);
-  await tester.enterText(find.widgetWithText(TextField, '資産額'), '$amount');
-  await tester.tap(find.text('保存'));
   await tester.pumpAndSettle();
 }
 

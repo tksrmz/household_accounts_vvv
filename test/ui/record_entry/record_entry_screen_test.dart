@@ -25,8 +25,16 @@ final _salary = IncomeCategory(
   name: CategoryName('給与'),
 );
 final _food = ExpenseCategory(id: CategoryId('food'), name: CategoryName('食費'));
-final _wallet = Property(id: PropertyId('wallet'), name: PropertyName('財布'));
-final _bank = Property(id: PropertyId('bank'), name: PropertyName('銀行'));
+final _wallet = Property(
+  id: PropertyId('wallet'),
+  name: PropertyName('財布'),
+  balance: 0,
+);
+final _bank = Property(
+  id: PropertyId('bank'),
+  name: PropertyName('銀行'),
+  balance: 0,
+);
 
 const _amountLabel = '金額';
 const _noteLabel = 'メモ';

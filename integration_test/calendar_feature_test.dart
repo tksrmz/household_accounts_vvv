@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
 
 import 'util/firestore_probe.dart';
+import 'util/property_operations.dart';
 import 'util/record_entry_operations.dart';
 import 'util/record_seeding.dart';
 import 'util/seed_record_dates.dart';
@@ -140,12 +139,12 @@ Future<void> calendarFeature() async {
 
     // 削除後に一覧を取り直す実装は無い。行が消えるのはレコードの購読が
     // 削除を反映するからであり、それ自体がリアルタイム反映の検証になる
-    await _waitUntil(
+    await waitUntil(
       tester,
       () => find.text(leadingText).evaluate().isEmpty,
       description: '削除した行が明細から消えること',
     );
-    await _waitUntil(
+    await waitUntil(
       tester,
       () async =>
           await fetchPropertyAmount(notePath, propertyName) ==
@@ -214,12 +213,12 @@ Future<void> calendarFeature() async {
 
     await _deleteRow(tester, leadingText);
 
-    await _waitUntil(
+    await waitUntil(
       tester,
       () => find.text(leadingText).evaluate().isEmpty,
       description: '削除した行が明細から消えること',
     );
-    await _waitUntil(
+    await waitUntil(
       tester,
       () async =>
           await fetchPropertyAmount(notePath, fromPropertyName) ==
@@ -304,29 +303,4 @@ Future<void> _deleteRow(WidgetTester tester, String leadingText) async {
   await tester.pumpAndSettle();
   await tester.tap(deleteButton);
   await tester.pumpAndSettle();
-}
-
-/// [condition]が満たされるまで、フレームを進めながら待つ。
-///
-/// 削除はレコードの購読を通じて画面と残高に反映されるため、操作直後の
-/// [WidgetTester.pumpAndSettle]では反映前の状態を見てしまう(スナックバー等の
-/// 完了の合図が無く、待つべきフレームも無いため即座に戻る)。
-Future<void> _waitUntil(
-  WidgetTester tester,
-  FutureOr<bool> Function() condition, {
-  required String description,
-}) async {
-  const timeout = Duration(seconds: 30);
-  const interval = Duration(milliseconds: 200);
-
-  final deadline = DateTime.now().add(timeout);
-  while (true) {
-    if (await condition()) {
-      return;
-    }
-    if (DateTime.now().isAfter(deadline)) {
-      fail('$description が${timeout.inSeconds}秒以内に満たされませんでした');
-    }
-    await tester.pump(interval);
-  }
 }

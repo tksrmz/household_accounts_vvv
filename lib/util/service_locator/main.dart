@@ -3,7 +3,6 @@ import 'package:get_it/get_it.dart';
 import 'budget_use_case.dart';
 import 'category_use_case.dart';
 import 'personal_repository.dart';
-import 'property_use_case.dart';
 import 'shared_repository.dart';
 
 final sl = GetIt.instance;
@@ -16,7 +15,6 @@ void initializeServiceLocator() {
 
   initPersonalRepository(sl);
   initSharedRepository(sl);
-  initPropertyUseCase(sl);
   initCategoryUseCase(sl);
   initBudgetUseCase(sl);
 }

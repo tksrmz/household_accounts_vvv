@@ -62,6 +62,21 @@ Future<int> fetchPropertyAmount(String notePath, String propertyName) async {
   return readInt(fieldsOf(document), 'amount');
 }
 
+/// `name`が[propertyName]である資産の件数。
+///
+/// 資産のドキュメントが消えたこと(削除)や、誤ったノートへ書かれていないこと
+/// (共有ノートでの操作)を確認するために使う。
+Future<int> countPropertiesByName(String notePath, String propertyName) async {
+  final documents = await useFirestoreRest(
+    (rest) => rest.listDocuments('$notePath/properties'),
+  );
+  return documents
+      .where(
+        (document) => tryReadString(fieldsOf(document), 'name') == propertyName,
+      )
+      .length;
+}
+
 /// `name`が[name]であるドキュメントのパスを返す。
 ///
 /// レコードの参照フィールド(category.ref等)が、名前で識別できる

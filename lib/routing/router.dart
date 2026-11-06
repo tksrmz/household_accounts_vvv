@@ -8,12 +8,14 @@ import 'package:provider/provider.dart';
 import '../data/repositories/auth/auth_repository.dart';
 import '../presentation/budget_viewer/budget_viewer_page.dart';
 import '../presentation/category_viewer/category_viewer_page.dart';
-import '../presentation/property_viewer/property_viewer_page.dart';
 import '../domain/models/notebook.dart';
+import '../domain/models/property.dart';
 import '../domain/models/user_auth.dart';
 import '../ui/calendar/calendar_screen_host.dart';
 import '../ui/calendar/daily_records_screen_host.dart';
 import '../ui/dashboard/dashboard_screen_host.dart';
+import '../ui/properties/properties_screen_host.dart';
+import '../ui/properties/property_editor_screen_host.dart';
 import '../ui/record_entry/record_entry_screen_host.dart';
 import '../ui/settings/settings_screen.dart';
 import '../ui/settings/settings_view_model.dart';
@@ -95,6 +97,37 @@ GoRouter createRouter({
           );
         },
       ),
+      // 資産エディタもボトムナビを覆う(旧実装のrootNavigatorへのpushに合わせる)。
+      // シェル内の資産一覧(/properties)とパスの先頭を共有するが、一覧のルートは
+      // 子ルートを持たないため /properties/new 等には一致せず、衝突しない
+      GoRoute(
+        path: Routes.propertyNew,
+        builder: (context, state) => _notebookScoped(
+          (notebook) => PropertyEditorScreenHost(key: ValueKey(notebook)),
+        ),
+      ),
+      GoRoute(
+        path: Routes.propertyEdit,
+        builder: (context, state) {
+          // 遷移経路は資産一覧の編集ボタンだけであり、編集対象はアプリが
+          // extraへ渡す。Propertyでない値が来るのは実装の不具合であるため、
+          // ArgumentErrorでfail fastさせる。
+          final property = state.extra;
+          if (property is! Property) {
+            throw ArgumentError.value(
+              property,
+              'extra',
+              '資産の編集画面には編集対象のPropertyを渡す必要があります',
+            );
+          }
+          return _notebookScoped(
+            (notebook) => PropertyEditorScreenHost(
+              key: ValueKey(notebook),
+              property: property,
+            ),
+          );
+        },
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             ShellScreenHost(navigationShell: navigationShell),
@@ -136,7 +169,9 @@ GoRouter createRouter({
             routes: [
               GoRoute(
                 path: Routes.properties,
-                builder: (context, state) => const PropertyListBody(),
+                builder: (context, state) => _notebookScoped(
+                  (notebook) => PropertiesScreenHost(key: ValueKey(notebook)),
+                ),
               ),
             ],
           ),
