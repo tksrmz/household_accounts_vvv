@@ -30,7 +30,7 @@ class Period with _$Period {
   /// コンストラクタは月が範囲外でも自動的に正規化してしまう(例えば13を渡すと
   /// 翌年1月として解釈される)ため、その正規化に頼らず明示的に検証する。
   ///
-  /// 16日始まりの月度(旧実装のカスタムサイクル)は予算画面の移行時に追加予定。
+  /// 16日始まりの月度の期間は[FiscalMonth.period]で求める。
   factory Period.calendarMonth(int year, int month) {
     if (month < 1 || month > 12) {
       throw ArgumentError.value(month, 'month', '月は1から12の範囲である必要があります');
