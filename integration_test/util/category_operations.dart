@@ -76,6 +76,25 @@ Future<void> saveCategoryEditor(
   await tester.pumpAndSettle();
 }
 
+/// カテゴリ一覧で、[rowText]を表示している行の[icon](編集/削除)を押す。
+///
+/// 共有ノートの一覧には他のテストが作ったカテゴリも並ぶため、位置ではなく
+/// 行の文言(収入カテゴリは名前、支出カテゴリは名前と予算)で行を特定する。
+Future<void> tapCategoryRowIcon(
+  WidgetTester tester,
+  String rowText,
+  IconData icon,
+) async {
+  final row = find
+      .ancestor(of: find.text(rowText), matching: find.byType(Row))
+      .first;
+  final button = find.descendant(of: row, matching: find.byIcon(icon));
+  await tester.ensureVisible(button);
+  await tester.pumpAndSettle();
+  await tester.tap(button);
+  await tester.pumpAndSettle();
+}
+
 /// カテゴリタブを開き、追加エディタを開く。
 Future<void> _openCategoryEditorForAdding(WidgetTester tester) async {
   await openTab(tester, 'カテゴリ');

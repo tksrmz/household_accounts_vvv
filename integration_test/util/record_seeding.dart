@@ -18,8 +18,8 @@ import 'firestore_rest.dart';
 ///
 /// 書き込む8フィールドは、Firestore Rulesが要求するスキーマ
 /// (date/amount/note/createdAt/hasCheckedOut/type/category/property)と
-/// 一致させてある。旧実装の読み取り(予算タブ)と新実装のRecordDtoの検証は
-/// どちらもこの形を前提にしているため、片方だけを満たす形にはしない。
+/// 一致させてある。アプリの読み取り(RecordDtoの検証)もこの形を前提に
+/// しているため、Rulesを迂回できるRESTの書き込みでも形を崩さない。
 ///
 /// 資産残高([propertyName]のamount)は増減させない。予算タブは残高を参照せず、
 /// 残高の自動増減はrecord_creating_feature_test.dartが検証するため。
