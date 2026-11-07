@@ -363,12 +363,18 @@ void main() {
   });
 
   group('破棄', () {
-    test('disposeしたとき、支出カテゴリとレコードの購読が解除されること', () async {
+    test('期間を張り替えたあとにdisposeしたとき、古い購読が残らず全ての購読が解除されること', () async {
       final target = _buildFixture();
+      target.viewModel.showPrevious();
+      target.viewModel.showPrevious();
+      await pumpEventQueue();
+
+      expect(target.records.activeSubscriptionCount, 1);
 
       target.viewModel.dispose();
       await pumpEventQueue();
 
+      expect(target.records.activeSubscriptionCount, 0);
       expect(
         target.categories.expenseCategoriesController.hasListener,
         isFalse,

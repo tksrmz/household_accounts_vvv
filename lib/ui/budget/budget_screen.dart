@@ -40,9 +40,9 @@ class BudgetScreen extends StatelessWidget {
                     _viewModel.selectMode(selected.single),
               ),
             ),
-            // 期間の切り替えは一覧の表示状態によらず行えるべきで、失敗した
-            // 期間から別の期間へ移ることが復帰手段にもなるため、読み込み中も
-            // 失敗中もヘッダを表示し続ける
+            // 期間の切り替えは一覧の表示状態によらず行えるべきで、レコードの
+            // 読み込みに失敗した場合は別の期間へ移ることが復帰手段にもなるため、
+            // 読み込み中も失敗中もヘッダを表示し続ける
             PeriodHeader(
               label: _periodLabel(
                 _viewModel.mode,

@@ -36,7 +36,8 @@ class ShellScreen extends StatelessWidget {
             body: Center(child: Text(error.toString())),
           ),
           ShellPairData() => Provider<UserInfo>.value(
-            // 旧タブページ群がProviderからUserInfoを読む互換供給。PR9で除去する
+            // 読み手はもういないが、ShellViewModelのペア判定がUserInfo型を使って
+            // いるため、その置き換えと一緒に後続の後始末で除去する
             value: viewModel.userInfo!,
             child: ShellScaffold(
               currentIndex: navigationShell.currentIndex,
