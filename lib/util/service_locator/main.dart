@@ -1,7 +1,6 @@
 import 'package:get_it/get_it.dart';
 
 import 'budget_use_case.dart';
-import 'category_use_case.dart';
 import 'personal_repository.dart';
 import 'shared_repository.dart';
 
@@ -15,6 +14,5 @@ void initializeServiceLocator() {
 
   initPersonalRepository(sl);
   initSharedRepository(sl);
-  initCategoryUseCase(sl);
   initBudgetUseCase(sl);
 }

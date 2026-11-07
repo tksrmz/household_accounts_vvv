@@ -8,29 +8,6 @@ import '../../util/service_locator/main.dart';
 import '../../util/type/repository.dart';
 import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
 
-Repository<IncomeCategory> selectIncomeCategoryRepository(SelectedNote value) {
-  debugPrint('selectIncomeCategoryRepository($value)');
-  final Repository<IncomeCategory> repository;
-
-  switch (value) {
-    case SelectedNote.personal:
-      debugPrint(
-        'selectIncomeCategoryRepository: Select personal income cateogy.',
-      );
-      repository = sl<PersonalIncomeCategoryRepository>();
-      break;
-
-    case SelectedNote.shared:
-      debugPrint(
-        'selectIncomeCategoryRepository: Select shared income cateogy.',
-      );
-      repository = sl<SharedIncomeCategoryRepository>();
-      break;
-  }
-
-  return repository;
-}
-
 Repository<ExpenseCategory> selectExpenseCategoryRepository(
   SelectedNote value,
 ) {
