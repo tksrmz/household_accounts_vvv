@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
 
+import 'util/category_operations.dart';
 import 'util/firestore_probe.dart';
 import 'util/firestore_rest.dart';
 import 'util/property_operations.dart';
@@ -27,8 +27,7 @@ Future<void> recordCreatingFeature() async {
     await signUpApp(tester);
     await tester.pumpAndSettle();
 
-    await openTab(tester, 'カテゴリ');
-    await _addIncomeCategory(tester, name: categoryName);
+    await createIncomeCategory(tester, name: categoryName);
     await createProperty(tester, name: propertyName, amount: 100000);
 
     final notePath = currentPersonalNotePath();
@@ -81,8 +80,7 @@ Future<void> recordCreatingFeature() async {
     await signUpApp(tester);
     await tester.pumpAndSettle();
 
-    await openTab(tester, 'カテゴリ');
-    await _addExpenseCategory(tester, name: categoryName, budget: 50000);
+    await createExpenseCategory(tester, name: categoryName, budget: 50000);
     await createProperty(tester, name: propertyName, amount: 50000);
 
     final notePath = currentPersonalNotePath();
@@ -202,8 +200,7 @@ Future<void> recordCreatingFeature() async {
     await tester.pumpAndSettle();
     await switchToSharedNote(tester);
 
-    await openTab(tester, 'カテゴリ');
-    await _addIncomeCategory(tester, name: categoryName);
+    await createIncomeCategory(tester, name: categoryName);
     await createProperty(tester, name: propertyName, amount: 300000);
 
     final notePath = await currentSharedNotePath();
@@ -259,8 +256,7 @@ Future<void> recordCreatingFeature() async {
     await tester.pumpAndSettle();
     await switchToSharedNote(tester);
 
-    await openTab(tester, 'カテゴリ');
-    await _addExpenseCategory(tester, name: categoryName, budget: 30000);
+    await createExpenseCategory(tester, name: categoryName, budget: 30000);
     await createProperty(tester, name: propertyName, amount: 300000);
 
     final notePath = await currentSharedNotePath();
@@ -376,33 +372,6 @@ Future<void> recordCreatingFeature() async {
       toBalanceBefore + amount,
     );
   });
-}
-
-/// カテゴリ画面で収入カテゴリを1件作成する。
-Future<void> _addIncomeCategory(
-  WidgetTester tester, {
-  required String name,
-}) async {
-  await tester.tap(find.text('カテゴリの追加'));
-  await tester.pumpAndSettle();
-  await tester.enterText(find.widgetWithText(TextField, 'カテゴリ名'), name);
-  await tester.tap(find.text('登録'));
-  await tester.pumpAndSettle();
-}
-
-/// カテゴリ画面で支出カテゴリ(予算付き)を1件作成する。
-Future<void> _addExpenseCategory(
-  WidgetTester tester, {
-  required String name,
-  required int budget,
-}) async {
-  await tester.tap(find.text('カテゴリの追加'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('支出'));
-  await tester.enterText(find.widgetWithText(TextField, 'カテゴリ名'), name);
-  await tester.enterText(find.widgetWithText(TextField, '予算'), '$budget');
-  await tester.tap(find.text('登録'));
-  await tester.pumpAndSettle();
 }
 
 /// 収入/支出/振替に共通する書き込み内容を検証する。

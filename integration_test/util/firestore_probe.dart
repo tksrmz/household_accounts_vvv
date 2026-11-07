@@ -66,14 +66,28 @@ Future<int> fetchPropertyAmount(String notePath, String propertyName) async {
 ///
 /// 資産のドキュメントが消えたこと(削除)や、誤ったノートへ書かれていないこと
 /// (共有ノートでの操作)を確認するために使う。
-Future<int> countPropertiesByName(String notePath, String propertyName) async {
+Future<int> countPropertiesByName(String notePath, String propertyName) =>
+    countDocumentsByName('$notePath/properties', propertyName);
+
+/// [collectionPath]のうち、`name`が[name]であるドキュメントのフィールドを返す。
+///
+/// 名前で識別できるドキュメント(カテゴリ・資産)の保存内容を確認するために使う。
+/// 1件に絞れないときは[StateError]を送出する。
+Future<Map<String, dynamic>> fetchFieldsByName(
+  String collectionPath,
+  String name,
+) async => fieldsOf(await _singleDocumentByField(collectionPath, 'name', name));
+
+/// [collectionPath]のうち、`name`が[name]であるドキュメントの件数。
+///
+/// ドキュメントが消えたこと(削除)や、誤ったノートへ書かれていないこと
+/// (共有ノートでの操作)を確認するために使う。
+Future<int> countDocumentsByName(String collectionPath, String name) async {
   final documents = await useFirestoreRest(
-    (rest) => rest.listDocuments('$notePath/properties'),
+    (rest) => rest.listDocuments(collectionPath),
   );
   return documents
-      .where(
-        (document) => tryReadString(fieldsOf(document), 'name') == propertyName,
-      )
+      .where((document) => tryReadString(fieldsOf(document), 'name') == name)
       .length;
 }
 

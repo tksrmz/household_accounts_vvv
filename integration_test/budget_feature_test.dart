@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
 import 'package:household_accounts/presentation/util/custom_cycle.dart';
 
+import 'util/category_operations.dart';
 import 'util/property_operations.dart';
 import 'util/record_seeding.dart';
 import 'util/sign_up.dart';
