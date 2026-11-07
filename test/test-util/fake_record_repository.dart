@@ -17,10 +17,14 @@ class FakeRecordRepository implements RecordRepository {
 
   Period? lastWatchedPeriod;
 
+  /// [watchPeriod]で購読された期間の記録(呼び出し順)。
+  final List<Period> watchedPeriods = [];
+
   @override
   Stream<List<Record>> watchPeriod(Period period) {
     watchPeriodCallCount++;
     lastWatchedPeriod = period;
+    watchedPeriods.add(period);
     return recordsController.stream;
   }
 

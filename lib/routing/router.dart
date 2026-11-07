@@ -6,11 +6,11 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../data/repositories/auth/auth_repository.dart';
-import '../presentation/budget_viewer/budget_viewer_page.dart';
 import '../domain/models/category.dart';
 import '../domain/models/notebook.dart';
 import '../domain/models/property.dart';
 import '../domain/models/user_auth.dart';
+import '../ui/budget/budget_screen_host.dart';
 import '../ui/calendar/calendar_screen_host.dart';
 import '../ui/calendar/daily_records_screen_host.dart';
 import '../ui/categories/categories_screen_host.dart';
@@ -228,7 +228,9 @@ GoRouter createRouter({
             routes: [
               GoRoute(
                 path: Routes.budget,
-                builder: (context, state) => const BudgetViewerPage(),
+                builder: (context, state) => _notebookScoped(
+                  (notebook) => BudgetScreenHost(key: ValueKey(notebook)),
+                ),
               ),
             ],
           ),
