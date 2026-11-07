@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:household_accounts/data/repositories/category/category_dto.dart';
+import 'package:household_accounts/domain/models/budget.dart';
 import 'package:household_accounts/domain/models/category.dart';
+import 'package:household_accounts/domain/models/category_id.dart';
+import 'package:household_accounts/domain/models/category_name.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -49,34 +52,147 @@ void main() {
   });
 
   group('ExpenseCategoryDto', () {
-    test('正常なドキュメントのとき、変換できること', () {
-      final doc = _fakeDoc('category-2', {'type': 'expense', 'name': '食費'});
+    test('正常なドキュメントのとき、予算を含めて変換できること', () {
+      final doc = _fakeDoc('category-2', {
+        'type': 'expense',
+        'name': '食費',
+        'totalBudget': 30000,
+      });
 
       final dto = ExpenseCategoryDto.fromSnapshot(doc);
 
       expect(dto.id, 'category-2');
       expect(dto.name, '食費');
-      expect(dto.toDomain(), isA<ExpenseCategory>());
+      expect(dto.budget, 30000);
+      expect(
+        dto.toDomain(),
+        ExpenseCategory(
+          id: CategoryId('category-2'),
+          name: CategoryName('食費'),
+          budget: Budget(30000),
+        ),
+      );
     });
 
     test('typeがexpenseでないとき、FormatExceptionが送出されること', () {
-      final doc = _fakeDoc('category-2', {'type': 'income', 'name': '食費'});
+      final doc = _fakeDoc('category-2', {
+        'type': 'income',
+        'name': '食費',
+        'totalBudget': 0,
+      });
 
       expect(() => ExpenseCategoryDto.fromSnapshot(doc), throwsFormatException);
     });
 
     test('nameが文字列でないとき、FormatExceptionが送出されること', () {
-      final doc = _fakeDoc('category-2', {'type': 'expense', 'name': null});
+      final doc = _fakeDoc('category-2', {
+        'type': 'expense',
+        'name': null,
+        'totalBudget': 0,
+      });
 
       expect(() => ExpenseCategoryDto.fromSnapshot(doc), throwsFormatException);
     });
 
     test('nameが空文字のとき、toDomainでFormatExceptionが送出されること', () {
-      final doc = _fakeDoc('category-2', {'type': 'expense', 'name': ''});
+      final doc = _fakeDoc('category-2', {
+        'type': 'expense',
+        'name': '',
+        'totalBudget': 0,
+      });
 
       final dto = ExpenseCategoryDto.fromSnapshot(doc);
 
       expect(() => dto.toDomain(), throwsFormatException);
+    });
+
+    test('totalBudgetが欠損しているとき、FormatExceptionが送出されること', () {
+      final doc = _fakeDoc('category-2', {'type': 'expense', 'name': '食費'});
+
+      expect(() => ExpenseCategoryDto.fromSnapshot(doc), throwsFormatException);
+    });
+
+    test('totalBudgetが整数でないとき、FormatExceptionが送出されること', () {
+      final doc = _fakeDoc('category-2', {
+        'type': 'expense',
+        'name': '食費',
+        'totalBudget': 1.5,
+      });
+
+      expect(() => ExpenseCategoryDto.fromSnapshot(doc), throwsFormatException);
+    });
+
+    test('totalBudgetが負数のとき、toDomainでFormatExceptionが送出されること', () {
+      final doc = _fakeDoc('category-2', {
+        'type': 'expense',
+        'name': '食費',
+        'totalBudget': -1,
+      });
+
+      final dto = ExpenseCategoryDto.fromSnapshot(doc);
+
+      expect(() => dto.toDomain(), throwsFormatException);
+    });
+
+    test('totalBudgetが0のとき、予算0として変換できること', () {
+      final doc = _fakeDoc('category-2', {
+        'type': 'expense',
+        'name': '食費',
+        'totalBudget': 0,
+      });
+
+      expect(ExpenseCategoryDto.fromSnapshot(doc).toDomain().budget, Budget(0));
+    });
+  });
+
+  group('incomeCategoryCreateJson', () {
+    test('名前を渡したとき、nameとtype(income)の2フィールドになること', () {
+      expect(incomeCategoryCreateJson(name: CategoryName('給与')), {
+        'name': '給与',
+        'type': 'income',
+      });
+    });
+  });
+
+  group('expenseCategoryCreateJson', () {
+    test('名前と予算を渡したとき、nameとtype(expense)とtotalBudgetの3フィールドになること', () {
+      expect(
+        expenseCategoryCreateJson(
+          name: CategoryName('食費'),
+          budget: Budget(30000),
+        ),
+        {'name': '食費', 'type': 'expense', 'totalBudget': 30000},
+      );
+    });
+  });
+
+  group('incomeCategoryUpdateJson', () {
+    test('名前を渡したとき、nameのみを含むこと', () {
+      expect(incomeCategoryUpdateJson(name: CategoryName('賞与')), {
+        'name': '賞与',
+      });
+    });
+  });
+
+  group('expenseCategoryUpdateJson', () {
+    test('名前だけを渡したとき、nameのみを含むこと', () {
+      expect(expenseCategoryUpdateJson(name: CategoryName('外食')), {
+        'name': '外食',
+      });
+    });
+
+    test('予算だけを渡したとき、totalBudgetのみを含むこと', () {
+      expect(expenseCategoryUpdateJson(budget: Budget(0)), {'totalBudget': 0});
+    });
+
+    test('名前と予算の両方を渡したとき、nameとtotalBudgetの両方を含むこと', () {
+      expect(
+        expenseCategoryUpdateJson(
+          name: CategoryName('外食'),
+          budget: Budget(5000),
+        ),
+        {'name': '外食', 'totalBudget': 5000},
+      );
     });
   });
 }
