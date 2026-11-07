@@ -8,14 +8,6 @@ String getPersonalPropertyCollectionPath(String uid) =>
 String getSharedPropertyCollectionPath(String pairId) =>
     '/$firebaseCollectionSharedNotes/$pairId/$firebaseCollectionProperties';
 
-/// Get path of personal income category collection.
-String getPersonalIncomeCategoryCollectionPath(String uid) =>
-    '/$firebaseCollectionPersonalNotes/$uid/$firebaseCollectionIncomeCategories';
-
-/// Get path of shared income category collection.
-String getSharedIncomeCategoryCollectionPath(String pairId) =>
-    '/$firebaseCollectionSharedNotes/$pairId/$firebaseCollectionIncomeCategories';
-
 /// Get path of personal expense category collection.
 String getPersonalExpenseCategoryCollectionPath(String uid) =>
     '/$firebaseCollectionPersonalNotes/$uid/$firebaseCollectionExpenseCategories';

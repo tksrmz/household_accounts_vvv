@@ -4,10 +4,6 @@ import '../../util/type/json.dart';
 import 'data_model.dart';
 
 class IncomeCategoryModel implements DataModel<IncomeCategory> {
-  IncomeCategoryModel.fromIncomeCategory(IncomeCategory category)
-    : id = category.id,
-      name = category.name;
-
   IncomeCategoryModel.fromJson(Json json)
     : id = json['id'] as String,
       name = json['name'] as String;

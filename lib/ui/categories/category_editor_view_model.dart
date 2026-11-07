@@ -246,9 +246,9 @@ class CategoryEditorViewModel extends ChangeNotifier {
   /// [budgetInput]を予算として解釈する。0以上の整数として読めなければ`null`。
   ///
   /// int.tryParseだけに頼らず書式を先に確かめるのは、int.tryParseが前後の空白・
-  /// 符号・`0x`始まりの16進表記まで受け付けてしまい、画面に見えている文字列と
-  /// 保存される値が食い違うため。予算は0以上なので符号は許さない(書式で負数を
-  /// 弾くため、ここで読めた値は[Budget]の検証も満たす)。
+  /// 符号・`0x`始まりの16進表記まで受け付けてしまうため。予算は0以上なので符号は
+  /// 許さない(書式で負数を弾くため、ここで読めた値は[Budget]の検証も満たす)。
+  /// 先頭ゼロ(「0100」)は数値が変わらないので許し、100として扱う。
   static int? _parseBudget(String budgetInput) {
     if (!_budgetPattern.hasMatch(budgetInput)) {
       return null;
