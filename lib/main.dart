@@ -12,12 +12,10 @@ import 'data/repositories/auth/firebase_auth_repository.dart';
 import 'firebase_options.dart';
 import 'routing/router.dart';
 import 'ui/core/themes/theme.dart';
-import 'util/service_locator/main.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeFirebaseApp();
-  initializeServiceLocator();
   runApp(const MyApp());
 }
 
