@@ -15,7 +15,14 @@ jobs:
     # Dependabot-triggered runs cannot read Actions secrets (they only get
     # Dependabot secrets), so CLAUDE_CODE_OAUTH_TOKEN would be empty and the
     # job would always fail. Dependency bumps do not need a Claude review.
-    if: github.actor != 'dependabot[bot]'
+    #
+    # github-actions[bot] is the actor of the commit that
+    # update-canonical-goldens.yml pushes to the PR branch. That commit only
+    # contains golden PNGs, so there is nothing to review, and the action
+    # rejects non-human actors unless they are listed in `allowed_bots`
+    # ("Workflow initiated by non-human actor"). Skip the job rather than
+    # allow the bot, so a red check does not remain on every golden update.
+    if: github.actor != 'dependabot[bot]' && github.actor != 'github-actions[bot]'
 
     runs-on: ubuntu-latest
     permissions:
