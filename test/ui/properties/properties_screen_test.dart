@@ -5,7 +5,7 @@ import 'package:household_accounts/domain/models/property_id.dart';
 import 'package:household_accounts/domain/models/property_name.dart';
 import 'package:household_accounts/ui/properties/properties_screen.dart';
 import 'package:household_accounts/ui/properties/properties_view_model.dart';
-import 'package:household_accounts/ui/properties/widgets/delete_property_dialog.dart';
+import 'package:household_accounts/ui/core/widgets/delete_confirmation_dialog.dart';
 import 'package:household_accounts/utils/result.dart';
 
 import '../../test-util/fake_property_repository.dart';
@@ -33,7 +33,7 @@ const _dialogMessage = '本当に「財布」を削除しますか？';
 // なぜ確認ダイアログを一覧のgoldenに含めないか:
 // ダイアログはルートのNavigatorのオーバーレイに開くため、3幅ヘルパーが撮影する
 // 画面の範囲(幅を絞ったSizedBox)の外に描かれる。ダイアログの中身は
-// [DeletePropertyDialog]単体のgoldenで幅ごとに固定する。
+// [DeleteConfirmationDialog]単体のgoldenで幅ごとに固定する。
 //
 // なぜスナックバーをgoldenで確認しないか:
 // 3幅ヘルパーの外側のScaffoldに出るため撮影範囲の外になる。文言は下の
@@ -87,7 +87,7 @@ void main() {
     testGoldens(
       '削除の確認ダイアログを開いたとき、資産名を含む確認文と2つのボタンが表示されること',
       goldenFileName: 'properties_delete_dialog',
-      builder: () => DeletePropertyDialog(propertyName: _longName.name.value),
+      builder: () => DeleteConfirmationDialog(targetName: _longName.name.value),
     );
   });
 

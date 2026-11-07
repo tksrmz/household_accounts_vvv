@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../domain/models/budget.dart';
 import '../../../domain/models/category.dart';
 import '../../../domain/models/category_id.dart';
 import '../../../domain/models/category_name.dart';
 
 // incomeCategories/expenseCategoriesのFirestoreドキュメントは形が似ているが、
 // 収入カテゴリと支出カテゴリはドメイン的に別物である(支出カテゴリだけが
-// 今後予算を持つ)ため、DTOクラスを共用しない。
+// 予算を持つ)ため、DTOクラスを共用しない。
 
 /// incomeCategoriesコレクションの1ドキュメントを表すDTO。
 class IncomeCategoryDto {
@@ -35,7 +36,11 @@ class IncomeCategoryDto {
 
 /// expenseCategoriesコレクションの1ドキュメントを表すDTO。
 class ExpenseCategoryDto {
-  ExpenseCategoryDto({required this.id, required this.name});
+  ExpenseCategoryDto({
+    required this.id,
+    required this.name,
+    required this.budget,
+  });
 
   /// [doc]から[ExpenseCategoryDto]を組み立てる。
   ///
@@ -46,18 +51,26 @@ class ExpenseCategoryDto {
   ) {
     final data = doc.data();
     _requireType(data, 'expense', doc.id);
-    return ExpenseCategoryDto(id: doc.id, name: _readName(data, doc.id));
+    return ExpenseCategoryDto(
+      id: doc.id,
+      name: _readName(data, doc.id),
+      budget: _readBudget(data, doc.id),
+    );
   }
 
   final String id;
   final String name;
 
-  /// ドメインモデルへ変換する。名前の値型([CategoryName])の検証違反による
-  /// [FormatException]はそのまま透過させる。
-  // totalBudgetは読まない(記録入力ではカテゴリを選択できれば十分なため。
-  // カテゴリ管理画面の移行時に追加する)。
-  ExpenseCategory toDomain() =>
-      ExpenseCategory(id: CategoryId(id), name: CategoryName(name));
+  /// 予算。Firestore上のフィールド名は`totalBudget`。
+  final int budget;
+
+  /// ドメインモデルへ変換する。名前・予算の値型([CategoryName]・[Budget])の
+  /// 検証違反による[FormatException]はそのまま透過させる。
+  ExpenseCategory toDomain() => ExpenseCategory(
+    id: CategoryId(id),
+    name: CategoryName(name),
+    budget: Budget(budget),
+  );
 }
 
 /// カテゴリ種別(`type`フィールド)が[expected]と一致することを検証する。
@@ -79,3 +92,41 @@ String _readName(Map<String, dynamic> data, String docId) {
   }
   return value;
 }
+
+/// 負数かどうかはここでは見ず、[Budget]の検証に任せる(予算の妥当性の
+/// 定義をドメインの1箇所に保つため)。
+int _readBudget(Map<String, dynamic> data, String docId) {
+  final value = data['totalBudget'];
+  if (value is! int) {
+    throw FormatException('totalBudget フィールドが不正です: docId=$docId');
+  }
+  return value;
+}
+
+/// incomeCategoriesコレクションへ新規作成するドキュメントのJSONを組み立てる。
+Map<String, Object?> incomeCategoryCreateJson({required CategoryName name}) => {
+  'name': name.value,
+  'type': 'income',
+};
+
+/// expenseCategoriesコレクションへ新規作成するドキュメントのJSONを組み立てる。
+Map<String, Object?> expenseCategoryCreateJson({
+  required CategoryName name,
+  required Budget budget,
+}) => {'name': name.value, 'type': 'expense', 'totalBudget': budget.value};
+
+/// incomeCategoriesドキュメントの部分更新用JSONを組み立てる。
+///
+/// 収入カテゴリで変えられるのは名前だけなので、`type`は書き戻さない。
+Map<String, Object?> incomeCategoryUpdateJson({required CategoryName name}) => {
+  'name': name.value,
+};
+
+/// expenseCategoriesドキュメントの部分更新用JSONを組み立てる。
+///
+/// 渡されたフィールドだけを含める。編集していないフィールドまで開いた時点の
+/// 値で書き戻すと、編集中に他の端末やペア相手が行った変更を上書きしてしまうため。
+Map<String, Object?> expenseCategoryUpdateJson({
+  CategoryName? name,
+  Budget? budget,
+}) => {'name': ?name?.value, 'totalBudget': ?budget?.value};

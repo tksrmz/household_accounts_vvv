@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
 
+import 'util/category_operations.dart';
 import 'util/firestore_probe.dart';
 import 'util/property_operations.dart';
 import 'util/record_entry_operations.dart';
-import 'util/record_seeding.dart';
 import 'util/seed_record_dates.dart';
 import 'util/sign_in.dart';
 import 'util/sign_up.dart';

@@ -24,6 +24,13 @@ abstract final class Routes {
   static const propertyEdit = '$properties/edit';
 
   static const categories = '/categories';
+
+  /// カテゴリの追加画面のパス。
+  static const categoryNew = '$categories/new';
+
+  /// カテゴリの編集画面のパス。編集対象のカテゴリ(収入か支出)は `extra` で渡す。
+  static const categoryEdit = '$categories/edit';
+
   static const budget = '/budget';
   static const settings = '/settings';
 }

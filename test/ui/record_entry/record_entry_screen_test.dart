@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:household_accounts/domain/models/budget.dart';
 import 'package:household_accounts/domain/models/category.dart';
 import 'package:household_accounts/domain/models/category_id.dart';
 import 'package:household_accounts/domain/models/category_name.dart';
@@ -24,7 +25,11 @@ final _salary = IncomeCategory(
   id: CategoryId('salary'),
   name: CategoryName('給与'),
 );
-final _food = ExpenseCategory(id: CategoryId('food'), name: CategoryName('食費'));
+final _food = ExpenseCategory(
+  id: CategoryId('food'),
+  name: CategoryName('食費'),
+  budget: Budget(0),
+);
 final _wallet = Property(
   id: PropertyId('wallet'),
   name: PropertyName('財布'),

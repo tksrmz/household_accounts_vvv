@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../domain/models/property.dart';
 import '../../routing/routes.dart';
+import '../core/widgets/delete_confirmation_dialog.dart';
 import 'properties_view_model.dart';
-import 'widgets/delete_property_dialog.dart';
 import 'widgets/property_list.dart';
 
 /// 資産一覧画面。
@@ -57,9 +57,9 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
   /// 実行するか」を利用者に問うUIの手続きであり、データの状態ではないため
   /// (ViewModelは確認済みの削除だけを受け取る)。
   Future<void> _confirmAndDelete(Property property) async {
-    final confirmed = await showDeletePropertyDialog(
+    final confirmed = await showDeleteConfirmationDialog(
       context,
-      propertyName: property.name.value,
+      targetName: property.name.value,
     );
     // ダイアログを開いている間にノート切替で画面が作り直されていたら、
     // 古いノートの資産を消さない

@@ -7,12 +7,14 @@ import 'package:provider/provider.dart';
 
 import '../data/repositories/auth/auth_repository.dart';
 import '../presentation/budget_viewer/budget_viewer_page.dart';
-import '../presentation/category_viewer/category_viewer_page.dart';
+import '../domain/models/category.dart';
 import '../domain/models/notebook.dart';
 import '../domain/models/property.dart';
 import '../domain/models/user_auth.dart';
 import '../ui/calendar/calendar_screen_host.dart';
 import '../ui/calendar/daily_records_screen_host.dart';
+import '../ui/categories/categories_screen_host.dart';
+import '../ui/categories/category_editor_screen_host.dart';
 import '../ui/dashboard/dashboard_screen_host.dart';
 import '../ui/properties/properties_screen_host.dart';
 import '../ui/properties/property_editor_screen_host.dart';
@@ -128,6 +130,43 @@ GoRouter createRouter({
           );
         },
       ),
+      // カテゴリエディタも資産エディタと同じくボトムナビを覆う。一覧のルート
+      // (/categories)は子ルートを持たないため、/categories/new 等とは衝突しない
+      GoRoute(
+        path: Routes.categoryNew,
+        builder: (context, state) => _notebookScoped(
+          (notebook) => CategoryEditorScreenHost.add(key: ValueKey(notebook)),
+        ),
+      ),
+      GoRoute(
+        path: Routes.categoryEdit,
+        builder: (context, state) {
+          // 遷移経路はカテゴリ一覧の編集ボタンだけであり、編集対象はアプリが
+          // extraへ渡す。収入カテゴリと支出カテゴリには共通の上位型がないため
+          // ここで型を見て分け、どちらでもない値が来たら実装の不具合として
+          // ArgumentErrorでfail fastさせる。
+          final category = state.extra;
+          return switch (category) {
+            IncomeCategory() => _notebookScoped(
+              (notebook) => CategoryEditorScreenHost.editIncome(
+                key: ValueKey(notebook),
+                category: category,
+              ),
+            ),
+            ExpenseCategory() => _notebookScoped(
+              (notebook) => CategoryEditorScreenHost.editExpense(
+                key: ValueKey(notebook),
+                category: category,
+              ),
+            ),
+            _ => throw ArgumentError.value(
+              category,
+              'extra',
+              'カテゴリの編集画面には編集対象のIncomeCategoryかExpenseCategoryを渡す必要があります',
+            ),
+          };
+        },
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             ShellScreenHost(navigationShell: navigationShell),
@@ -179,7 +218,9 @@ GoRouter createRouter({
             routes: [
               GoRoute(
                 path: Routes.categories,
-                builder: (context, state) => const CategoryListPage(),
+                builder: (context, state) => _notebookScoped(
+                  (notebook) => CategoriesScreenHost(key: ValueKey(notebook)),
+                ),
               ),
             ],
           ),

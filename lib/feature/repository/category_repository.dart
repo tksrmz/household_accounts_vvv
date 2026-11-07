@@ -1,12 +1,6 @@
 import '../../entity/category.dart';
 import '../../util/type/repository.dart';
 
-abstract class PersonalIncomeCategoryRepository
-    extends Repository<IncomeCategory> {}
-
-abstract class SharedIncomeCategoryRepository
-    extends Repository<IncomeCategory> {}
-
 abstract class PersonalExpenseCategoryRepository
     extends Repository<ExpenseCategory> {}
 

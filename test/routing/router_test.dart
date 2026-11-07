@@ -23,12 +23,16 @@ void main() {
     refreshListenable.dispose();
   });
 
-  // 資産エディタのパスはシェル内の資産一覧(/properties)と先頭を共有するため、
-  // 一覧のルートに吸い込まれずエディタのルートへ一致することを固定する
+  // 資産・カテゴリのエディタのパスはシェル内の一覧(/properties・/categories)と
+  // 先頭を共有するため、一覧のルートに吸い込まれずエディタのルートへ一致することを
+  // 固定する
   for (final path in [
     Routes.properties,
     Routes.propertyNew,
     Routes.propertyEdit,
+    Routes.categories,
+    Routes.categoryNew,
+    Routes.categoryEdit,
   ]) {
     test('$pathへ遷移するとき、同じパスのルートに一致すること', () {
       final matches = router.configuration.findMatch(Uri.parse(path));
