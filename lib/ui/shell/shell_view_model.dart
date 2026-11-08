@@ -111,9 +111,6 @@ class ShellViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 旧実装の `sl.reset()` は移植しない。get_it登録は全てステートレスな
-  // registerFactoryでresetに実益がなく、reset後の再登録経路が無いため
-  // 再ログイン時にクラッシュする一因だった(2026-08-19の移行判断で廃止)。
   Future<Result<void>> _logout() => _authRepository.signOut();
 
   @override

@@ -16,7 +16,7 @@ import '../domain/models/user_auth.dart';
 import '../domain/models/user_id.dart';
 import '../ui/core/selected_notebook.dart';
 
-/// アプリ全域・長寿命の依存(Repository/Service/共有状態)のProvider登録一覧。
+/// アプリ全域・長寿命の依存(Repository・共有状態)のProvider登録一覧。
 ///
 /// AuthRepositoryインスタンスを先に生成する方式で1段に平坦化した。
 List<SingleChildWidget> appProviders(AuthRepository authRepository) => [

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:household_accounts/ui/core/formatter.dart';
 import 'package:household_accounts/domain/models/fiscal_month.dart';
 import 'package:household_accounts/main.dart';
 import 'package:household_accounts/ui/budget/widgets/budget_row.dart';
 import 'package:household_accounts/ui/budget/widgets/period_header.dart';
+import 'package:household_accounts/ui/core/formatter.dart';
 
 import 'util/category_operations.dart';
 import 'util/property_operations.dart';

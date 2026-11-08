@@ -15,6 +15,7 @@ import '../ui/calendar/calendar_screen_host.dart';
 import '../ui/calendar/daily_records_screen_host.dart';
 import '../ui/categories/categories_screen_host.dart';
 import '../ui/categories/category_editor_screen_host.dart';
+import '../ui/core/selected_notebook.dart';
 import '../ui/dashboard/dashboard_screen_host.dart';
 import '../ui/properties/properties_screen_host.dart';
 import '../ui/properties/property_editor_screen_host.dart';
@@ -22,7 +23,6 @@ import '../ui/record_entry/record_entry_screen_host.dart';
 import '../ui/settings/settings_screen.dart';
 import '../ui/settings/settings_view_model.dart';
 import '../ui/shell/shell_screen_host.dart';
-import '../ui/core/selected_notebook.dart';
 import 'routes.dart';
 
 /// StreamをGoRouterのrefreshListenableへ橋渡しする。
