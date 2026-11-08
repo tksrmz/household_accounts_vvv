@@ -21,8 +21,8 @@
         },
         "amount": {
           "type": "integer",
-          "minimum": 0,
-          "description": "Amount value (must be non-negative)"
+          "minimum": 1,
+          "description": "Amount value (must be 1 or greater)"
         },
         "note": {
           "type": "string",
@@ -154,6 +154,7 @@
       "properties": {
         "name": {
           "type": "string",
+          "minLength": 1,
           "maxLength": 20,
           "description": "Category name"
         },
@@ -170,6 +171,7 @@
       "properties": {
         "name": {
           "type": "string",
+          "minLength": 1,
           "maxLength": 20,
           "description": "Category name"
         },
@@ -191,6 +193,7 @@
       "properties": {
         "name": {
           "type": "string",
+          "minLength": 1,
           "maxLength": 20,
           "description": "Property name"
         },
