@@ -11,32 +11,41 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
+    // income, expense, transferごとに固有の参照フィールドの検証を行う関数
+    // 三項演算子は&&より優先順位が低いため、記録の検証の&&の連鎖に直接書くと
+    // 連鎖全体が条件部になり、振替では共通フィールド(金額・メモ・フィールド数など)の
+    // 検証が素通りしてしまう。関数に切り出して、共通フィールドの検証と&&で結合する
+    function hasValidRecordReferences(record) {
+      return record.type in ['income', 'expense']
+        ? ('property' in record && record.property is map
+            && record.property.size() == 1
+            && 'ref' in record.property && record.property.ref is path
+          && 'category' in record && record.category is map
+            && record.category.size() == 1
+            && 'ref' in record.category && record.category.ref is path)
+        : ('fromProperty' in record && record.fromProperty is map
+            && record.fromProperty.size() == 1
+            && 'ref' in record.fromProperty && record.fromProperty.ref is path
+          && 'toProperty' in record && record.toProperty is map
+            && record.toProperty.size() == 1
+            && 'ref' in record.toProperty && record.toProperty.ref is path
+          // 振替元と振替先は異なる資産であること
+          && record.fromProperty.ref != record.toProperty.ref);
+    }
+
     // DEPRECATED
   	// income, expense, transfer recordドキュメントのスキーマ検証を行う関数
     function isValidRecordOld(record) {
       return record.size() == 7
         && 'date' in record && record.date is timestamp
         && 'amount' in record && record.amount is int
-          && record.amount >= 0
+          && record.amount >= 1
         && 'note' in record && record.note is string
           && record.note.size() <= 100
         && 'createdAt' in record && record.createdAt is timestamp
         && 'type' in record && record.type is string
           && record.type in ['income', 'expense', 'transfer']
-          // income, expense, transferごとに固有のスキーマ検証
-          && record.type in ['income', 'expense']
-            ? ('property' in record && record.property is map
-                && record.property.size() == 1
-                && 'ref' in record.property && record.property.ref is path
-              && 'category' in record && record.category is map
-                && record.category.size() == 1
-                && 'ref' in record.category && record.category.ref is path)
-            : ('fromProperty' in record && record.fromProperty is map
-                && record.fromProperty.size() == 1
-                && 'ref' in record.fromProperty && record.fromProperty.ref is path
-              && 'toProperty' in record && record.toProperty is map
-                && record.toProperty.size() == 1
-                && 'ref' in record.toProperty && record.toProperty.ref is path);
+        && hasValidRecordReferences(record);
     }
 
   	// income, expense, transfer recordドキュメントのスキーマ検証を行う関数
@@ -44,27 +53,14 @@ service cloud.firestore {
       return record.size() == 8
         && 'date' in record && record.date is timestamp
         && 'amount' in record && record.amount is int
-          && record.amount >= 0
+          && record.amount >= 1
         && 'note' in record && record.note is string
           && record.note.size() <= 100
         && 'createdAt' in record && record.createdAt is timestamp
         && 'hasCheckedOut' in record && record.hasCheckedOut is bool
         && 'type' in record && record.type is string
           && record.type in ['income', 'expense', 'transfer']
-          // income, expense, transferごとに固有のスキーマ検証
-          && record.type in ['income', 'expense']
-            ? ('property' in record && record.property is map
-                && record.property.size() == 1
-                && 'ref' in record.property && record.property.ref is path
-              && 'category' in record && record.category is map
-                && record.category.size() == 1
-                && 'ref' in record.category && record.category.ref is path)
-            : ('fromProperty' in record && record.fromProperty is map
-                && record.fromProperty.size() == 1
-                && 'ref' in record.fromProperty && record.fromProperty.ref is path
-              && 'toProperty' in record && record.toProperty is map
-                && record.toProperty.size() == 1
-                && 'ref' in record.toProperty && record.toProperty.ref is path);
+        && hasValidRecordReferences(record);
     }
 
 
@@ -107,6 +103,7 @@ service cloud.firestore {
     function isValidIncomeCategory(category) {
     	return category.size() == 2
       	&& 'name' in category && category.name is string
+        && category.name.size() >= 1
         && category.name.size() <= 20
         && 'type' in category && category.type is string
         && category.type == 'income';
@@ -116,6 +113,7 @@ service cloud.firestore {
     function isValidExpenseCategory(category) {
     	return category.size() == 3
       	&& 'name' in category && category.name is string
+        && category.name.size() >= 1
         && category.name.size() <= 20
         && 'type' in category && category.type is string
         && category.type == 'expense'
@@ -127,6 +125,7 @@ service cloud.firestore {
     function isValidProperty(property) {
       return property.size() == 2
         && 'name' in property && property.name is string
+        && property.name.size() >= 1
         && property.name.size() <= 20
         && 'amount' in property && property.amount is int;
     }
