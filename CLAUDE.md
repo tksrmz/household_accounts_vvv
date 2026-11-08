@@ -120,13 +120,15 @@ lib/
 
 ### Domain Models (`lib/domain/models/`)
 
-- Immutable freezed types: IDs (`RecordId`, `PropertyId`, ...), validated values (`Amount`, `RecordNote`, `CategoryName`, `PropertyName`, `UserName`, `Budget`), entities (`Record` sealed union, `IncomeCategory`/`ExpenseCategory`, `Property`), `RecordContent`, `Period`/`FiscalMonth`, `Notebook`, `UserAuth`, `PairStatus`
+- Immutable freezed types: IDs (`RecordId`, `PropertyId`, ...), validated values (`Amount`, `RecordNote`, `CategoryName`, `PropertyName`, `UserName`, `Budget`), the unvalidated `RecordDate` (see below), entities (`Record` sealed union, `IncomeCategory`/`ExpenseCategory`, `Property`), `RecordContent`, `Period`/`FiscalMonth`, `Notebook`, `UserAuth`, `PairStatus`
+- Small tuples are named-record typedefs, not freezed: `BalanceEffect`, `CategorySpending`
 - Aggregations are pure functions on domain models (`RecordSummary.from`, `BudgetSummary.from`)
 
 ### Data Layer (`lib/data/repositories/`)
 
 - Five Repositories: Auth, Profile, Record, Category, Property. Each is an `abstract interface class` with a Firestore implementation in the same folder
-- Implementations use `cloud_firestore` directly (no wrapper layer between Repository and SDK). DTOs read documents (`fromSnapshot` → `toDomain()`); write JSON is built by top-level functions in the DTO file. `withConverter` is not used
+- Implementations use `cloud_firestore` directly (no wrapper layer between Repository and SDK). `withConverter` is not used
+- Record / Category / Property: DTOs read documents (`fromSnapshot` → `toDomain()`, bad fields → `FormatException`); write JSON is built by top-level functions in the DTO file. `FirestoreProfileRepository` has no DTO and reads/writes document fields directly (a missing user name throws a plain `Exception`)
 - One implementation per data type for both notebooks: the constructor takes a `Notebook`, and `notebookPath()` resolves `personalNotes/{uid}` or `sharedNotes/{pairId}`
 
 ## Key Architectural Patterns
@@ -148,12 +150,14 @@ lib/
 
 - `provider` only. `appProviders()` in `lib/config/dependencies.dart` registers `SelectedNotebook` (`ChangeNotifierProvider`), `AuthRepository`, `FirebaseFirestore`, `ProfileRepository`, `StreamProvider<UserAuth>` (`lazy: false` is required) and the notebook-dependent Repositories via `ProxyProvider2<SelectedNotebook, UserAuth, XxxRepository>`
 - On a notebook switch, routes rebuild notebook-dependent Hosts with `ValueKey(notebook)`, so the old ViewModel is disposed (unsubscribed) and a new one subscribes to the new Repository
+- On a displayed-period change (calendar month, budget period/mode), the ViewModel itself cancels and re-subscribes `watchPeriod`; it is not recreated
+- The settings route's builder creates `SettingsViewModel` directly (no Host, never disposed, recreated if the builder re-runs). This is a legacy exception that is harmless only because that ViewModel holds no subscriptions; new screens use a Host
 
 ### Routing
 
 - `go_router` with an auth `redirect` (reads `AuthRepository` directly; `/sign-in` ↔ `/dashboard`)
 - Tabs are `StatefulShellRoute.indexedStack` branches (`/dashboard`, `/entry`, `/calendar`, `/properties`, `/categories`, `/budget`). Screens that cover the bottom navigation are root-level routes opened with `context.push` (`/settings`, `/calendar/:date`, `/properties/new|edit`, `/categories/new|edit`)
-- Editor targets are passed via `extra`; an unexpected type is a bug and throws `ArgumentError`
+- Editor targets are passed via `extra`; an unexpected type is a bug and throws `ArgumentError`. The daily view's `:date` is built by the app (`Routes.calendarDayOf`); an unparsable value makes `DateTime.parse` throw an uncaught `FormatException`
 
 ### Records and Asset Balances
 
@@ -192,12 +196,15 @@ A second screen of the same feature (editor, daily view) lives in the same folde
 
 - One type per file in `lib/domain/models/`; IDs are freezed value types placed next to their model (no extension types, no `ids.dart`)
 - Only IDs and validated values get value types; unvalidated values (e.g. an asset balance) stay plain
+- Exception: `RecordDate` is a value type with no validation, on purpose. Production data (the old UI allowed future dates) and integration seeds (month-end 23:59:59 records) can hold future dates, so a constructor check would break reads. Future dates are rejected at the record-entry input boundary instead (DatePicker `lastDate` = today, plus a check in `submit`)
 - Validate in constructors and throw (`FormatException` / `ArgumentError`); do not rely on `@Assert` for value validation (it only runs in debug builds)
 - No UI wording in domain models; display text belongs to widgets
 
 ### ViewModels
 
-- Inject Repository interfaces (not functions). The current time may be injected as `DateTime Function() now`
+- Inject Repository interfaces (not functions). The current time may be injected as a `DateTime Function()` clock (`now`; `clock` in record entry). Re-read it on each "today"-dependent check; Hosts call `refreshCurrentMonth()` / `refreshToday()` on app resume so a kept-alive tab notices a new month/day
+- With several watches, keep the latest value and error per source; a good value clears only its own source's error
+- Editors in edit mode pass only changed fields to `update`; an empty diff skips the Repository and closes as success
 - Input checks are pure functions taking the input as an argument, not getters reading VM state
 - Don't use input formatters that strip characters (they turn invalid input into a different valid value); validate the raw input instead
 - One-off notifications (SnackBar) are shown by the Screen from a Command listener, then `clearResult()`. Confirmation dialogs live in the widget layer
@@ -217,6 +224,7 @@ A second screen of the same feature (editor, daily view) lives in the same folde
 - Don't exhaustively assert Command internals (`running`/`error`/`completed`) in ViewModel tests; that is `test/utils/command_test.dart`'s job. Merge tests sharing the same premise into one behavior
 - Firestore Repository implementations have no unit tests; paths, DTOs, write JSON and stream combination are unit-tested, and Firestore effects are verified by integration tests (`integration_test/util/firestore_probe.dart`)
 - Goldens: `testGoldens` in `test/test-util/golden_helper.dart` captures 3 widths into `golden/` next to the test (see Golden Tests above for canonical operation)
+- Integration scenarios that run `runTransaction` (record deletion) must install the limited `MissingPluginException` filter first (`_ignoreFirestoreTransactionTeardownError` in `integration_test/calendar_feature_test.dart`): cloud_firestore 6.8.0 reports a harmless plugin teardown exception after a successful transaction
 - Integration UI operations are shared in `integration_test/util/` (`ui_operations.dart`, `record_entry_operations.dart`, `property_operations.dart`, `category_operations.dart`); data that cannot be entered via UI is seeded over REST (`record_seeding.dart`)
 
 ### Test Documentation
@@ -239,7 +247,7 @@ For detailed database schema and constraints, see @docs/firestore_schema.md and 
 
 - App code is under `lib/` (see Architecture Overview); there is no legacy generation left
 - Firebase configuration in `firebase_options.dart`
-- Firestore Rules (`firebase/firestore.rules`) enforce the same constraints as the app (e.g. amount ≥ 1, transfer source ≠ destination, names ≥ 1 char); a Rule looser than the app is a bug to fix
+- Firestore Rules (`firebase/firestore.rules`) enforce document shapes and value constraints (amount ≥ 1, note ≤ 100 chars, names 1–20 chars, budget ≥ 0, transfer source ≠ destination, referenced docs exist on create). For constraints that domain types check on read (and that would therefore turn a screen into an error), a Rule looser than the app is a bug to fix. The no-future-date rule is not in the Rules (they only check that `date` is a timestamp); it exists only at the record-entry input boundary
 
 ## Key Dependencies
 
@@ -268,7 +276,7 @@ Packages deliberately not used, and the reasons, are listed in @docs/style_guide
 - Follow coding standards in @docs/style_guide.md for consistent development practices
 - Review @docs/firestore_schema.md and @docs/firestore_constraints.md for database operations
 - Background of the design (snapshots, not live): `docs/features/202608_architecture_redesign.md` and `docs/features/202608_architecture_migration_plan.md`
-- Use `provider` for DI; create ViewModels in Hosts (or route builders), never in Provider
+- Use `provider` for DI; create ViewModels in Hosts, never in Provider (the settings route builder is the only, legacy exception)
 - Repositories are the single source of truth; ViewModels subscribe to their watches instead of reloading manually
 - Use `Command0`/`Command1` for user-initiated async operations, and accept only validated types in save Commands
 - Verify lint rules with `dart analyze`; keep `flutter analyze` / `dart analyze` / `dart format` / all tests green

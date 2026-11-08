@@ -88,10 +88,11 @@ household_accounts_claude/
 
 ### 4.2 ドメインモデル(`lib/domain/models/`)
 
-- 不変の型だけを置き、freezedで生成する
+- 不変の型だけを置く。クラスはfreezedで生成する。値を束ねるだけの小さな組は、名前付きrecordの `typedef` にする(`BalanceEffect`・`CategorySpending`)
 - **1つのファイルに1つの型**を置く。IDは対応するモデルの隣に置き(`property.dart` と `property_id.dart`)、`ids.dart` のような寄せ集めのファイルは作らない。モデルを足したり消したりするときに、触る場所がそのモデルの周りで済むようにするため
 - **IDはfreezedの値型**にする。extension typeは使わない(実行時に型が消えて素の `String` になり、実行時の型検査を捨てることになるため)
 - 値型にするのは、IDと検証を持つ値だけにする。検証のない値(資産の残高など)は値型で包まない
+  - 例外は記録の日付 `RecordDate`。値型だがコンストラクタで検証しない(`const factory` で書く)。本番やintegrationのシードには未来日付の記録がありうるので、読み取りで拒否すると画面が読み込めなくなるため。未来日付は記録入力の入力境界(DatePickerの `lastDate` と保存時の確認)で拒否する(詳細は [architecture.md の「ドメインモデル」](./architecture.md#4-ドメインモデル))
 - **検証付きの値型は、コンストラクタで検証して例外を投げる**。`@Assert` はデバッグビルドでしか効かないので、値型の検証には使わない
   - ユーザーが入力しうる値(`Amount`・`UserName` など)は `FormatException`。UI層が受けて検証エラーの状態にする
   - システムの内部で決まる値(IDなど)は `ArgumentError`。捕まえずにfail fastさせる
@@ -114,6 +115,8 @@ household_accounts_claude/
 - **入力フォーマッタで文字を取り除いて値を書き換えない**。「100,000」が「100」に、「1234.50」が「123450」になるように、不正な入力が別の有効な値に化けてしまう。入力はそのまま検証にかけ、不正なら保存させない
 - スナックバーのような一度きりの通知は、ScreenがCommandにリスナーを付けて出し、出したら `clearResult()` する(buildの中で出さない)
 - 削除の確認ダイアログはWidget層に置く。ViewModelは確認済みの操作だけを受け取る
+- **エディタの編集モードでは、初期値から変わったフィールドだけを `update` に渡す**(資産・カテゴリのエディタ)。変わっていないフィールドを書き戻すと、エディタを開いている間に入った変更(記録入力による残高の増減、ペア相手の編集)を開いた時点の値で上書きしてしまう。何も変わっていなければRepositoryを呼ばず、成功として画面を閉じる(編集を終えるという意図は満たされているため)
+- 表示期間の切り替え・複数の購読・「今日」の扱いは [architecture.md の「購読の管理」](./architecture.md#34-購読の管理) に従う
 
 ### 4.4 データ層(`lib/data/repositories/`)
 
@@ -122,7 +125,8 @@ household_accounts_claude/
 - 読み取りは素の `Stream<T>`、失敗しうる単発の操作は `Future<Result<T>>` を返す
 - **`Future<Result<T>>` を返す公開メソッドは、本体を `Result.guard(...)` の1行にする**。try/catchを手書きしない。この規約と「素の `Future` を返さない」「公開のgetter・setter・フィールドを持たない」は `packages/household_lints` が検証する(`dart analyze` で確認する)
 - 呼び出し側の不具合(更新するフィールドを1つも渡さないなど)は `ArgumentError` を投げる。`Result.guard` は `Error` を捕まえないので、そのまま伝わる
-- 読み取りはDTOの `fromSnapshot` → `toDomain()` で変換し、フィールドの欠損・型の不正は `FormatException` にする。書き込みのJSONはDTOファイル内のトップレベル関数で組み立てる。`withConverter` は使わない
+- 記録・カテゴリ・資産のRepositoryでは、読み取りはDTOの `fromSnapshot` → `toDomain()` で変換し、フィールドの欠損・型の不正は `FormatException` にする。書き込みのJSONはDTOファイル内のトップレベル関数で組み立てる。`withConverter` は使わない
+  - `FirestoreProfileRepository` はDTOを持たず、ドキュメントのフィールドを直接読み書きする。失敗の形がDTOと違う(ユーザー名が無いときは素の `Exception`)。詳細は [architecture.md の「DTOと書き込みJSON」](./architecture.md#53-dtoと書き込みjson)
 - 更新は渡されたフィールドだけを書く
 - 個人ノート・共有ノートのパスは `notebook_paths.dart` の `notebookPath()` で組み立て、Repositoryごとに組み立てない
 - 読み取りを伴わない複数書き込みは `WriteBatch`、読み取りを伴うものは `runTransaction` にする
@@ -173,6 +177,7 @@ household_accounts_claude/
 - **UI操作は `integration_test/util/` に集約する**(`ui_operations.dart`・`record_entry_operations.dart`・`property_operations.dart`・`category_operations.dart`)。同じ操作をテストファイルごとに書かない
 - UIから入れられないデータ(未来日付の記録など)は、`record_seeding.dart`(Firestore REST API)で投入する
 - 共有ノートのシナリオは、シード済みのペアユーザーでサインインし、共有ノートへ切り替えて行う
+- **`runTransaction` を通るシナリオ(記録の削除)では、テストの冒頭で `MissingPluginException` の限定フィルタを入れる**(`integration_test/calendar_feature_test.dart` の `_ignoreFirestoreTransactionTeardownError`)。cloud_firestore 6.8.0の `runTransaction` は、トランザクションが成功しても完了時にプラグイン内部の後始末で無害な `MissingPluginException` を `FlutterError` へ報告し、flutter_testはそれをテストの失敗として扱うため。落とすのはメッセージにトランザクション用のチャネル名(`plugins.flutter.io/firebase_firestore/transaction/`)を含むものだけで、ほかの例外は通す。`WriteBatch` だけを使うシナリオには要らない。プラグインを更新したら、まだ必要かを確かめる
 
 ### テスト記述・管理に関するルール
 

@@ -145,7 +145,7 @@ class _PropertiesScreenHostState extends State<PropertiesScreenHost> {
 }
 ```
 
-設定画面のようにノートに依存しない画面は、Hostを作らずルートのbuilderで直接ViewModelを生成している。
+新しい画面は、ノートに依存するかどうかにかかわらずHostを作る。設定画面だけは例外で、Hostを作らずルートのbuilder(`router.dart` の `Routes.settings`)が `SettingsViewModel` を直接生成している。このViewModelは誰もdisposeせず、builderが再実行されると新しいViewModelが作られて読み込みもやり直しになる。それでも問題にならないのは、`SettingsViewModel` がStreamの購読を持たず(ユーザー名の読み込みと保存の `Command` だけ)、破棄されなくても解除し損なう購読がないからである。購読を持つViewModelをこの形で作ってはいけない。
 
 ### 3.2 Command
 
@@ -181,7 +181,15 @@ late final Command1<void, ({PropertyName name, int balance})> save;
 - 入力フォーマッタで文字を取り除いて値を書き換えない。不正な入力は不正なまま検証にかけて拒否する
 - そのため `Command` の失敗(`Result.error`)は、データ層から来た失敗だけを表す
 
-### 3.4 シェル
+### 3.4 購読の管理
+
+- **表示期間の切り替えはViewModelが購読を張り替える**。カレンダーの月送り(`CalendarViewModel`)、予算画面の期間送りとモード切替(`BudgetViewModel`)は、表示中の期間をViewModelの状態として持ち、期間が変わったら古い購読を `cancel` して新しい期間で `watchPeriod` を購読し直す。新しい期間の値が届くまではローディングに戻し、前の期間の値やエラーは引き継がない。同じ画面上の操作なので、ViewModelは作り直さない
+- **ノートの切り替えはHostを作り直す**(§6)。期間の切り替えと違い、Repositoryそのものが入れ替わるため
+- **複数のStreamを購読するViewModelは、最新値とエラーを購読ごとに持つ**(記録入力のカテゴリ2本と資産、日次明細の記録・カテゴリ2本・資産、予算画面のカテゴリと記録、カテゴリ一覧の収入・支出の2セクション)。ある購読の正常な値で消してよいのはその購読自身のエラーだけで、エラーを出した購読は、後から正常な値が届いた時点で回復する。1つのフィールドで共有すると、失敗していない別の購読の値がエラーを消してしまい、失敗した購読の値は届かないままなので、ローディング表示から抜け出せなくなる。カテゴリ一覧は2つのセクションの状態を別々に表示し、それ以外は全部の値がそろうまでローディング、どれか1つでもエラーなら画面のエラーにする
+- **「今日」はViewModelに注入した時計(`DateTime Function()`。カレンダーと予算画面は `now`、記録入力は `clock`)から取る**。本番は `DateTime.now` のままで、テストが日付を固定するために差し替える。「次の期間へ進めるか」のような今日に依存する判定は、評価のたびに `now()` を呼び直す
+- **時間の経過による再描画はHostがアプリの復帰をきっかけに頼む**。時間の経過には通知がないので、タブが `IndexedStack` に残ったまま月や月度をまたぐと、次へ進むボタンが無効のまま残る。カレンダーと予算画面のHostは `WidgetsBindingObserver` で `AppLifecycleState.resumed` を受け、ViewModelの `refreshCurrentMonth()`(カレンダー。月が変わっていれば通知する)/ `refreshToday()`(予算画面。月度が16日で切り替わるので日単位で比べる)を呼ぶ
+
+### 3.5 シェル
 
 `lib/ui/shell/` はボトムナビ(6タブ)とDrawerを持つ。`ShellViewModel` は次を担当する。
 
@@ -189,19 +197,20 @@ late final Command1<void, ({PropertyName name, int balance})> save;
 - Drawerからのノート切替(`SelectedNotebook.select`)
 - ログアウト(`Command0`)
 
-### 3.5 サインイン
+### 3.6 サインイン
 
 サインイン画面は `lib/ui/auth/sign_in_screen.dart` にあり、中で firebase_ui_auth の `SignInScreen` を返すだけである。firebase_ui_authをimportするのはこのフォルダだけにして、将来差し替えるときの変更をここに閉じ込める。状態はfirebase_ui_authが持つので、ViewModelは作らない。
 
 ## 4. ドメインモデル
 
-`lib/domain/models/` に置く。すべて不変で、freezedで生成する。1つのファイルに1つの型を置く。
+`lib/domain/models/` に置く。すべて不変である。クラスはfreezedで生成し、値を束ねるだけの小さな組は名前付きrecordの `typedef` にする(`BalanceEffect` = `({PropertyId propertyId, int delta})`、`CategorySpending` = `({ExpenseCategory category, int spent})`)。1つのファイルに1つの型を置く。
 
 | 種類 | 例 | 方針 |
 |---|---|---|
 | ID | `RecordId` `CategoryId` `PropertyId` `UserId` `PairId` | freezedの値型。空文字は `ArgumentError` |
 | 検証付きの値 | `Amount`(1以上) `RecordNote`(100文字以下) `CategoryName` `PropertyName` `UserName`(1〜20文字) `Budget`(0以上) | コンストラクタで検証し、不正なら `FormatException` |
 | 検証のない値 | 資産の残高 `Property.balance`(`int`) | 値型で包まない |
+| 例外: 検証のない値型 | 記録の日付 `RecordDate` | 値型にするが、コンストラクタで検証しない。旧UIは未来日付を保存できたため本番に未来日付の記録がありうるうえ、integrationテストのシードにも月末23:59:59の記録(実行日によっては未来日付になる)があるので、ここで拒否すると読み込みそのものが失敗する。未来日付は記録入力の入力境界で拒否する(DatePickerの `lastDate` を今日にし、保存時にも `submit` で確かめる) |
 | エンティティ | `Record`(収入/支出/振替のsealed union)`IncomeCategory` `ExpenseCategory` `Property` | freezed |
 | 内容と保存済みの区別 | `RecordContent`(これから書く記録の内容) / `Record`(IDを持つ保存済みの記録。`record.content` で内容を取り出せる) | 残高への寄与(`balanceEffects`)は `RecordContent` に1か所だけ定義する |
 | 期間 | `Period`(半開区間 `[start, end)`。`calendarMonth`・`day`)/ `FiscalMonth`(前月16日〜当月15日の「月度」) | Repositoryの期間指定はすべて `Period` で受ける |
@@ -246,10 +255,11 @@ String notebookPath(Notebook notebook) => switch (notebook) {
 ### 5.3 DTOと書き込みJSON
 
 - Service層(コレクション単位の薄いラッパー)は置かない。Repository実装が `cloud_firestore` を直接使う。テストの差し替え口はRepositoryの抽象で足りるため、間にもう1層置いても得るものがない
-- 読み取りはDTO(`IncomeRecordDto` など)がドキュメントを読み、`toDomain()` でドメインモデルへ変換する。フィールドの欠損・型の不正は `FormatException` にする。収入・支出・振替はドキュメントの形が似ていても別のDTOにする
-- 書き込みのJSONは、DTOファイル内のトップレベル関数(`incomeRecordJson`・`propertyCreateJson`・`propertyUpdateJson` など)で組み立てる
+- ノートの中身を扱うRepository(記録・カテゴリ・資産)では、読み取りはDTO(`IncomeRecordDto` など)がドキュメントを読み、`toDomain()` でドメインモデルへ変換する。フィールドの欠損・型の不正は `FormatException` にする。収入・支出・振替はドキュメントの形が似ていても別のDTOにする
+- 同じく書き込みのJSONは、DTOファイル内のトップレベル関数(`incomeRecordJson`・`propertyCreateJson`・`propertyUpdateJson` など)で組み立てる
+- `FirestoreProfileRepository` はDTOを持たず、ドキュメントのフィールド(ユーザー名・`sharedNote.ref`)を直接読み書きする。そのため失敗の形も上と違う: 公開プロフィールにユーザー名が無いときは素の `Exception`、名前が不正なら `UserName` の `FormatException`、`privateProfiles` の形が不正なときはキャストの失敗(`TypeError`。`Error` なので投げ直される)になる
 - `withConverter` は使わない。読み取り(IDを持つ・参照は文字列)と書き込み(IDを持たない・`DocumentReference`・`serverTimestamp`)で型が一致せず、1つのコンバータに収まらないため
-- 更新は渡されたフィールドだけを書く。名前だけ編集したのに残高も書き戻すと、編集中に入った残高の増減を古い値で上書きしてしまうため
+- 更新は渡されたフィールドだけを書く。名前だけ編集したのに残高も書き戻すと、編集中に入った残高の増減を古い値で上書きしてしまうため(エディタ側で変わったフィールドだけを渡す規約は [style_guide.md の「UI層」](./style_guide.md#43-ui層libui))
 - 単体テストはDTOと書き込みJSONに対して書く。Firestoreへの購読・書き込みそのものはフェイクでは検証にならないので、integrationテストで確かめる
 
 ### 5.4 記録と資産残高
@@ -364,7 +374,8 @@ void _onPropertiesError(Object error, StackTrace stackTrace) {
 ユーザーが自分で直せないデータの不正(Firestore上の値がドメインの制約を満たさないなど)で、エラー画面を出さないようにする。そのために、不正なデータを読み取り側で吸収するのではなく、**書き込む側で防ぐ**。
 
 - アプリの入力画面で検証し、不正な値を保存できなくする
-- Firestore Rules(`firebase/firestore.rules`)でアプリと同じ制約を課す(金額1以上、振替元と振替先が別の資産、名前1文字以上など)。Rulesがアプリより緩い点は直す対象である
+- Firestore Rules(`firebase/firestore.rules`)で、ドキュメントの形と値の制約を課す(金額1以上、メモ100文字以下、名前1〜20文字、予算0以上、振替元と振替先が別の資産、作成時の参照先の存在など)。読み取り時にドメイン型が検証して画面をエラーにしうる制約(金額・メモ・名前・予算・ドキュメントの形)について、Rulesがアプリより緩い点は直す対象である
+- 未来日付の禁止はRulesに無く、記録入力の入力境界(DatePickerと保存時の確認)だけで行っている。Rulesは `date` がtimestampであることしか確かめない。読み取り時にも検証しない(`RecordDate` は検証のない値型。§4)ので、未来日付の記録があってもエラー画面にはならない
 - 既存の不正データは本番を確認して直す
 
 読み取り時のドメインの検証は残すので、不正なデータがあればその画面はエラー表示になる。ただしこれは上の予防により起きない状態を前提にしている。例外として、振替元と振替先が同じ資産の記録は、ドメイン型の `@Assert`(デバッグビルドだけで効く)で検出するだけにして、リリースビルドではそのまま表示する。通信や権限など、読み込みそのものの失敗はエラー表示でよい(再起動など、ユーザーが試せる対処があるため)。
@@ -376,7 +387,8 @@ void _onPropertiesError(Object error, StackTrace stackTrace) {
 - **認証のredirect**: 未サインインなら `/sign-in` へ、サインイン済みで `/sign-in` にいれば `/dashboard` へ送る。redirectはProviderではなく `AuthRepository` を直接読む。`authStateChanges()` を `refreshListenable` にして、認証状態が変わると再評価する
 - **シェル内のルート**: `StatefulShellRoute.indexedStack` の6ブランチ(`/dashboard` `/entry` `/calendar` `/properties` `/categories` `/budget`)。タブを切り替えても各タブの状態は残る
 - **シェル外のルート**: ボトムナビを覆って表示する画面はルートレベルに置き、`context.push` で開く。設定(`/settings`)、日次明細(`/calendar/:date`。日付は `yyyy-MM-dd`)、エディタ(`/properties/new` `/properties/edit` `/categories/new` `/categories/edit`)
-- **編集対象は `extra` で渡す**: 編集画面には編集する `Property` / `IncomeCategory` / `ExpenseCategory` を `extra` で渡す。型が違う値が来るのは実装の不具合なので、`ArgumentError` でfail fastさせる。日次明細の日付パラメータが読めない場合も同じく不具合として扱う(モバイル専用のアプリなので、ブラウザ履歴で `extra` が失われる問題は起きない)
+- **編集対象は `extra` で渡す**: 編集画面には編集する `Property` / `IncomeCategory` / `ExpenseCategory` を `extra` で渡す。型が違う値が来るのは実装の不具合なので、ルートのbuilderが `ArgumentError` を投げてfail fastさせる(モバイル専用のアプリなので、ブラウザ履歴で `extra` が失われる問題は起きない)
+- **日次明細の日付パラメータ**: 値はアプリが `Routes.calendarDayOf` で組み立てるので、読めない値が来るのも実装の不具合である。builderは `DateTime.parse` をそのまま呼び、読めなければ `DateTime.parse` が投げる `FormatException` を誰も捕まえずに表へ出す。§7.3の区分では `FormatException` は想定内の失敗を表すが、ここでは受けて状態にする側がいないため、結果として不具合と同じくfail fastになる
 
 ## 9. Firebase
 
