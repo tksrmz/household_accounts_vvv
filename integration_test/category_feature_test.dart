@@ -68,7 +68,7 @@ Future<void> categoryFeature() async {
     );
 
     // 収入カテゴリの名前を変更する
-    await _tapRowIcon(tester, salaryName, Icons.edit);
+    await tapCategoryRowIcon(tester, salaryName, Icons.edit);
     expect(
       find.descendant(of: find.byType(AppBar), matching: find.text('編集')),
       findsOneWidget,
@@ -89,7 +89,7 @@ Future<void> categoryFeature() async {
     );
 
     // 支出カテゴリの予算だけを変更する(名前の入力欄には触らない)
-    await _tapRowIcon(tester, '$foodName (予算: ¥30,000)', Icons.edit);
+    await tapCategoryRowIcon(tester, '$foodName (予算: ¥30,000)', Icons.edit);
     await saveCategoryEditor(tester, budget: 45000);
 
     expect(find.text('$foodName (予算: ¥45,000)'), findsOneWidget);
@@ -108,7 +108,7 @@ Future<void> categoryFeature() async {
 
     // 確認ダイアログで「削除しない」を選ぶと何も消えない
     const foodRowText = '$foodName (予算: ¥45,000)';
-    await _tapRowIcon(tester, foodRowText, Icons.delete);
+    await tapCategoryRowIcon(tester, foodRowText, Icons.delete);
     expect(find.text('本当に「$foodName」を削除しますか？'), findsOneWidget);
     await tester.tap(find.text('削除しない'));
     await tester.pumpAndSettle();
@@ -118,7 +118,7 @@ Future<void> categoryFeature() async {
     expect(await countDocumentsByName(expensePath, foodName), 1);
 
     // 「削除する」を選ぶと支出カテゴリが消える
-    await _tapRowIcon(tester, foodRowText, Icons.delete);
+    await tapCategoryRowIcon(tester, foodRowText, Icons.delete);
     await tester.tap(find.text('削除する'));
     await tester.pumpAndSettle();
 
@@ -140,7 +140,7 @@ Future<void> categoryFeature() async {
     expect(await countDocumentsByName(incomePath, editedSalaryName), 1);
 
     // 収入カテゴリも削除できる(収入と支出は別の削除操作になる)
-    await _tapRowIcon(tester, editedSalaryName, Icons.delete);
+    await tapCategoryRowIcon(tester, editedSalaryName, Icons.delete);
     expect(find.text('本当に「$editedSalaryName」を削除しますか？'), findsOneWidget);
     await tester.tap(find.text('削除する'));
     await tester.pumpAndSettle();
@@ -209,7 +209,7 @@ Future<void> categoryFeature() async {
       0,
     );
 
-    await _tapRowIcon(tester, sharedIncomeName, Icons.edit);
+    await tapCategoryRowIcon(tester, sharedIncomeName, Icons.edit);
     await saveCategoryEditor(tester, name: editedSharedIncomeName);
 
     expect(find.text(editedSharedIncomeName), findsOneWidget);
@@ -220,7 +220,7 @@ Future<void> categoryFeature() async {
     );
     expect(await countDocumentsByName(incomePath, sharedIncomeName), 0);
 
-    await _tapRowIcon(tester, sharedExpenseRowText, Icons.edit);
+    await tapCategoryRowIcon(tester, sharedExpenseRowText, Icons.edit);
     await saveCategoryEditor(tester, budget: 60000);
 
     expect(find.text(editedSharedExpenseRowText), findsOneWidget);
@@ -230,7 +230,7 @@ Future<void> categoryFeature() async {
       budget: 60000,
     );
 
-    await _tapRowIcon(tester, editedSharedExpenseRowText, Icons.delete);
+    await tapCategoryRowIcon(tester, editedSharedExpenseRowText, Icons.delete);
     await tester.tap(find.text('削除する'));
     await tester.pumpAndSettle();
     await waitUntil(
@@ -245,7 +245,7 @@ Future<void> categoryFeature() async {
       description: '削除した共有の支出カテゴリのドキュメントが消えること',
     );
 
-    await _tapRowIcon(tester, editedSharedIncomeName, Icons.delete);
+    await tapCategoryRowIcon(tester, editedSharedIncomeName, Icons.delete);
     await tester.tap(find.text('削除する'));
     await tester.pumpAndSettle();
     await waitUntil(
@@ -283,23 +283,4 @@ void _expectExpenseCategoryFields(
   expect(readString(fields, 'name'), name);
   expect(readString(fields, 'type'), 'expense');
   expect(readInt(fields, 'totalBudget'), budget);
-}
-
-/// カテゴリ一覧で、[rowText]を表示している行の[icon](編集/削除)を押す。
-///
-/// 共有ノートの一覧には他のテストが作ったカテゴリも並ぶため、位置ではなく
-/// 行の文言(収入カテゴリは名前、支出カテゴリは名前と予算)で行を特定する。
-Future<void> _tapRowIcon(
-  WidgetTester tester,
-  String rowText,
-  IconData icon,
-) async {
-  final row = find
-      .ancestor(of: find.text(rowText), matching: find.byType(Row))
-      .first;
-  final button = find.descendant(of: row, matching: find.byIcon(icon));
-  await tester.ensureVisible(button);
-  await tester.pumpAndSettle();
-  await tester.tap(button);
-  await tester.pumpAndSettle();
 }

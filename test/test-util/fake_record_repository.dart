@@ -17,12 +17,30 @@ class FakeRecordRepository implements RecordRepository {
 
   Period? lastWatchedPeriod;
 
+  /// [watchPeriod]で購読された期間の記録(呼び出し順)。
+  final List<Period> watchedPeriods = [];
+
   @override
   Stream<List<Record>> watchPeriod(Period period) {
     watchPeriodCallCount++;
     lastWatchedPeriod = period;
-    return recordsController.stream;
+    watchedPeriods.add(period);
+    // 購読ごとに数えることで、張り替え時の購読解除漏れを検出できる
+    return Stream<List<Record>>.multi((controller) {
+      activeSubscriptionCount++;
+      final subscription = recordsController.stream.listen(
+        controller.addSync,
+        onError: controller.addErrorSync,
+      );
+      controller.onCancel = () {
+        activeSubscriptionCount--;
+        return subscription.cancel();
+      };
+    });
   }
+
+  /// [watchPeriod]の購読のうち、まだ解除されていないものの数。
+  int activeSubscriptionCount = 0;
 
   /// [add]が返す結果。テストから成功/失敗を差し替えられる。
   Result<void> addResult = const Result.ok(null);
