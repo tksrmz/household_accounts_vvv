@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:firebase_ui_auth/firebase_ui_auth.dart' as ui;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +9,7 @@ import '../domain/models/category.dart';
 import '../domain/models/notebook.dart';
 import '../domain/models/property.dart';
 import '../domain/models/user_auth.dart';
+import '../ui/auth/sign_in_screen.dart';
 import '../ui/budget/budget_screen_host.dart';
 import '../ui/calendar/calendar_screen_host.dart';
 import '../ui/calendar/daily_records_screen_host.dart';
@@ -68,8 +68,7 @@ GoRouter createRouter({
     routes: [
       GoRoute(
         path: Routes.signIn,
-        builder: (context, state) =>
-            ui.SignInScreen(providers: [ui.EmailAuthProvider()]),
+        builder: (context, state) => const SignInScreen(),
       ),
       // ボトムナビを覆う従来挙動に合わせ、シェルの外(ルートレベル)へ置く
       GoRoute(

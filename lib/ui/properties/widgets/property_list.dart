@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../common/logic/formatter.dart';
+import '../../core/formatter.dart';
 import '../../../domain/models/property.dart';
 
 /// 資産を1行ずつ並べた一覧と、資産の追加ボタン。

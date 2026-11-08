@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:household_accounts/common/logic/formatter.dart';
+import 'package:household_accounts/ui/core/formatter.dart';
 import 'package:household_accounts/domain/models/fiscal_month.dart';
 import 'package:household_accounts/main.dart';
 import 'package:household_accounts/ui/budget/widgets/budget_row.dart';

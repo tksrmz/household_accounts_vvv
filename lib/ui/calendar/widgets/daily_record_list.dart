@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../common/logic/formatter.dart';
+import '../../core/formatter.dart';
 import '../../../domain/models/record.dart';
 import '../daily_records_view_model.dart';
 
