@@ -22,7 +22,7 @@ import '../ui/record_entry/record_entry_screen_host.dart';
 import '../ui/settings/settings_screen.dart';
 import '../ui/settings/settings_view_model.dart';
 import '../ui/shell/shell_screen_host.dart';
-import '../v2/presentation/pages/state_managements/selected_note_state.dart';
+import '../ui/core/selected_notebook.dart';
 import 'routes.dart';
 
 /// StreamをGoRouterのrefreshListenableへ橋渡しする。
@@ -242,7 +242,7 @@ GoRouter createRouter({
 
 /// サインイン済みユーザーの選択中ノートを解決し、[builder] へ渡す。
 ///
-/// ノート切替時にViewModelを作り直すため、SelectedNoteStateの変化で
+/// ノート切替時にViewModelを作り直すため、SelectedNotebookの変化で
 /// 再buildされ、ValueKeyの変化によりHostのStateごと再生成される(旧ViewModelの
 /// disposeで購読解除、新ViewModelが新しいRepositoryを購読する)。[builder] 側で
 /// `ValueKey(notebook)` を付与すること。
@@ -256,7 +256,7 @@ Widget _notebookScoped(Widget Function(Notebook notebook) builder) {
       if (userAuth is! UserAuthSignedIn) {
         return const SizedBox.shrink();
       }
-      final notebook = context.watch<SelectedNoteState>().resolve(userAuth.uid);
+      final notebook = context.watch<SelectedNotebook>().resolve(userAuth.uid);
       return builder(notebook);
     },
   );

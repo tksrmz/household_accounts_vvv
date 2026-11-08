@@ -4,7 +4,7 @@ import 'package:household_accounts/domain/models/pair_status.dart';
 import 'package:household_accounts/domain/models/user_auth.dart';
 import 'package:household_accounts/domain/models/user_id.dart';
 import 'package:household_accounts/ui/shell/shell_view_model.dart';
-import 'package:household_accounts/v2/presentation/pages/state_managements/selected_note_state.dart';
+import 'package:household_accounts/ui/core/selected_notebook.dart';
 
 import '../../test-util/fake_auth_repository.dart';
 import '../../test-util/fake_profile_repository.dart';
@@ -23,7 +23,7 @@ void main() {
   final uid = UserId('test-uid');
 
   group('ペア検知', () {
-    test('ペア検知ストリームが未発行のとき、pairStateがローディングでuserInfoがnullであること', () {
+    test('ペア検知ストリームが未発行のとき、pairStateがローディングでcanSwitchNoteがfalseであること', () {
       final target = _buildViewModel();
 
       expect(target.profileRepository.watchPairStatusCallCount, 1);
@@ -32,11 +32,11 @@ void main() {
         UserId(uid.value),
       );
       expect(target.viewModel.pairState, isA<ShellPairLoading>());
-      expect(target.viewModel.userInfo, isNull);
+      expect(target.viewModel.canSwitchNote, isFalse);
     });
 
     test(
-      'pairIdが流れたとき、userInfoのuidとpairIdが設定されcanSwitchNoteがtrueであること',
+      'pairIdが流れたとき、pairStateが完了でcanSwitchNoteがtrueになりSelectedNotebookのpairIdが更新されること',
       () async {
         final target = _buildViewModel();
 
@@ -45,31 +45,23 @@ void main() {
         );
         await pumpEventQueue();
 
-        final pairState = target.viewModel.pairState;
-        expect(pairState, isA<ShellPairData>());
-        expect((pairState as ShellPairData).pairId, 'pair-id');
-        expect(target.viewModel.userInfo?.uid, uid.value);
-        expect(target.viewModel.userInfo?.pairId, 'pair-id');
+        expect(target.viewModel.pairState, isA<ShellPairReady>());
         expect(target.viewModel.canSwitchNote, isTrue);
+        expect(target.selectedNotebook.pairId, PairId('pair-id'));
       },
     );
 
-    test(
-      'notPairedが流れたとき、userInfoのpairIdがnullでcanSwitchNoteがfalseであること',
-      () async {
-        final target = _buildViewModel();
+    test('notPairedが流れたとき、pairStateが完了でcanSwitchNoteがfalseであること', () async {
+      final target = _buildViewModel();
 
-        target.profileRepository.pairStatusController.add(
-          const PairStatus.notPaired(),
-        );
-        await pumpEventQueue();
+      target.profileRepository.pairStatusController.add(
+        const PairStatus.notPaired(),
+      );
+      await pumpEventQueue();
 
-        expect(target.viewModel.pairState, isA<ShellPairData>());
-        expect(target.viewModel.userInfo?.uid, uid.value);
-        expect(target.viewModel.userInfo?.pairId, isNull);
-        expect(target.viewModel.canSwitchNote, isFalse);
-      },
-    );
+      expect(target.viewModel.pairState, isA<ShellPairReady>());
+      expect(target.viewModel.canSwitchNote, isFalse);
+    });
 
     test('ペア検知ストリームがエラーを流したとき、pairStateがエラーになること', () async {
       final target = _buildViewModel();
@@ -89,8 +81,8 @@ void main() {
     // Exceptionが状態化される上のテストで、is! Exceptionによる分岐の入口
     // 自体は経路として通っている。
 
-    test('pairIdが後から変化したとき、userInfoが更新されリスナーへ通知されること', () async {
-      // 通知回数は「userInfo更新の明示的なnotifyListeners」と「SelectedNoteState
+    test('pairIdが後から変化したとき、canSwitchNoteが更新されリスナーへ通知されること', () async {
+      // 通知回数は「ペア検知結果の明示的なnotifyListeners」と「SelectedNotebook
       // 経由の転送notifyListeners」が両方発火しうる実装詳細のため、正確な回数では
       // なく「各イベントで少なくとも1回は増える」ことだけを確認する。
       final target = _buildViewModel();
@@ -102,7 +94,7 @@ void main() {
       );
       await pumpEventQueue();
       expect(notifyCount, greaterThan(0));
-      expect(target.viewModel.userInfo?.pairId, isNull);
+      expect(target.viewModel.canSwitchNote, isFalse);
 
       final notifyCountAfterFirstEvent = notifyCount;
       target.profileRepository.pairStatusController.add(
@@ -110,24 +102,13 @@ void main() {
       );
       await pumpEventQueue();
       expect(notifyCount, greaterThan(notifyCountAfterFirstEvent));
-      expect(target.viewModel.userInfo?.pairId, 'pair-id');
+      expect(target.viewModel.canSwitchNote, isTrue);
     });
 
-    // ペア解消時にpersonalへ強制リセットする責務そのものはSelectedNoteStateへ
-    // 移った(selected_note_state_test.dartで検証済み)。ここではShellViewModelが
-    // ペア検知結果を確実にSelectedNoteStateへ伝えていることだけを確かめる。
-    test('pairIdが流れたとき、SelectedNoteStateのpairIdが更新されること', () async {
-      final target = _buildViewModel();
-
-      target.profileRepository.pairStatusController.add(
-        PairStatus.paired(PairId('pair-id')),
-      );
-      await pumpEventQueue();
-
-      expect(target.selectedNoteState.pairId, PairId('pair-id'));
-    });
-
-    test('notPairedが流れたとき、SelectedNoteStateのpairIdがnullに更新されること', () async {
+    // ペア解消時にpersonalへ強制リセットする責務そのものはSelectedNotebookへ
+    // 移った(selected_notebook_test.dartで検証済み)。ここではShellViewModelが
+    // ペア検知結果を確実にSelectedNotebookへ伝えていることだけを確かめる。
+    test('notPairedが流れたとき、SelectedNotebookのpairIdがnullに更新されること', () async {
       final target = _buildViewModel();
       target.profileRepository.pairStatusController.add(
         PairStatus.paired(PairId('pair-id')),
@@ -139,22 +120,22 @@ void main() {
       );
       await pumpEventQueue();
 
-      expect(target.selectedNoteState.pairId, isNull);
+      expect(target.selectedNotebook.pairId, isNull);
     });
   });
 
   group('ノート切替', () {
     test(
-      'switchNote(shared)を呼んだとき、SelectedNoteStateがsharedになり自身のリスナーへも通知されること',
+      'switchNotebook(shared)を呼んだとき、SelectedNotebookがsharedになり自身のリスナーへも通知されること',
       () {
         final target = _buildViewModel();
         var notifyCount = 0;
         target.viewModel.addListener(() => notifyCount++);
 
-        target.viewModel.switchNote(SelectedNote.shared);
+        target.viewModel.switchNotebook(NotebookKind.shared);
 
-        expect(target.selectedNoteState.value, SelectedNote.shared);
-        expect(target.viewModel.selectedNote, SelectedNote.shared);
+        expect(target.selectedNotebook.kind, NotebookKind.shared);
+        expect(target.viewModel.notebookKind, NotebookKind.shared);
         expect(notifyCount, 1);
       },
     );
@@ -194,13 +175,13 @@ class _Fixture {
     required this.viewModel,
     required this.profileRepository,
     required this.authRepository,
-    required this.selectedNoteState,
+    required this.selectedNotebook,
   });
 
   final ShellViewModel viewModel;
   final FakeProfileRepository profileRepository;
   final FakeAuthRepository authRepository;
-  final SelectedNoteState selectedNoteState;
+  final SelectedNotebook selectedNotebook;
 }
 
 _Fixture _buildViewModel() {
@@ -208,10 +189,10 @@ _Fixture _buildViewModel() {
   final authRepository = FakeAuthRepository(
     currentUser: UserAuth.signedIn(UserId('test-uid')),
   );
-  final selectedNoteState = SelectedNoteState();
+  final selectedNotebook = SelectedNotebook();
   final viewModel = ShellViewModel(
     authRepository: authRepository,
-    selectedNoteState: selectedNoteState,
+    selectedNotebook: selectedNotebook,
     profileRepository: profileRepository,
   );
 
@@ -219,6 +200,6 @@ _Fixture _buildViewModel() {
     viewModel: viewModel,
     profileRepository: profileRepository,
     authRepository: authRepository,
-    selectedNoteState: selectedNoteState,
+    selectedNotebook: selectedNotebook,
   );
 }

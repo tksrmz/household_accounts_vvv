@@ -6,7 +6,7 @@ import 'package:household_accounts/domain/models/user_auth.dart';
 import 'package:household_accounts/domain/models/user_id.dart';
 import 'package:household_accounts/ui/shell/shell_scaffold.dart';
 import 'package:household_accounts/ui/shell/shell_view_model.dart';
-import 'package:household_accounts/v2/presentation/pages/state_managements/selected_note_state.dart';
+import 'package:household_accounts/ui/core/selected_notebook.dart';
 
 import '../../test-util/fake_auth_repository.dart';
 import '../../test-util/fake_profile_repository.dart';
@@ -60,7 +60,7 @@ void main() {
         currentIndex: 0,
         onSelectTab: (_) {},
         onOpenSettings: () {},
-        viewModel: _buildFixture(initialNote: SelectedNote.shared).viewModel,
+        viewModel: _buildFixture(initialNote: NotebookKind.shared).viewModel,
         body: const SizedBox.expand(),
       ),
       expectFn: (tester) async {
@@ -99,7 +99,7 @@ void main() {
       expect(find.text('ふたりの家計簿を見る'), findsNothing);
     });
 
-    testWidgets('ノート切替タイルをタップしたとき、SelectedNoteStateが切り替わりドロワーが閉じること', (
+    testWidgets('ノート切替タイルをタップしたとき、SelectedNotebookが切り替わりドロワーが閉じること', (
       tester,
     ) async {
       final fixture = await _pumpScaffold(tester);
@@ -114,7 +114,7 @@ void main() {
       await tester.tap(find.text('ふたりの家計簿を見る'));
       await tester.pumpAndSettle();
 
-      expect(fixture.selectedNoteState.value, SelectedNote.shared);
+      expect(fixture.selectedNotebook.kind, NotebookKind.shared);
       expect(
         tester.state<ScaffoldState>(find.byType(Scaffold)).isDrawerOpen,
         isFalse,
@@ -150,29 +150,29 @@ class _Fixture {
   _Fixture({
     required this.viewModel,
     required this.authRepository,
-    required this.selectedNoteState,
+    required this.selectedNotebook,
   });
 
   final ShellViewModel viewModel;
   final FakeAuthRepository authRepository;
-  final SelectedNoteState selectedNoteState;
+  final SelectedNotebook selectedNotebook;
 }
 
 _Fixture _buildFixture({
   String? pairId = 'pair-id',
-  SelectedNote initialNote = SelectedNote.personal,
+  NotebookKind initialNote = NotebookKind.personal,
 }) {
   final profileRepository = FakeProfileRepository();
   final authRepository = FakeAuthRepository(
     currentUser: UserAuth.signedIn(UserId('test-uid')),
   );
-  final selectedNoteState = SelectedNoteState();
-  if (initialNote == SelectedNote.shared) {
-    selectedNoteState.select(SelectedNote.shared);
+  final selectedNotebook = SelectedNotebook();
+  if (initialNote == NotebookKind.shared) {
+    selectedNotebook.select(NotebookKind.shared);
   }
   final viewModel = ShellViewModel(
     authRepository: authRepository,
-    selectedNoteState: selectedNoteState,
+    selectedNotebook: selectedNotebook,
     profileRepository: profileRepository,
   );
   // ViewModelがコンストラクタで購読済みなので、この時点のaddは購読者へ配送される。
@@ -185,14 +185,14 @@ _Fixture _buildFixture({
   return _Fixture(
     viewModel: viewModel,
     authRepository: authRepository,
-    selectedNoteState: selectedNoteState,
+    selectedNotebook: selectedNotebook,
   );
 }
 
 Future<_Fixture> _pumpScaffold(
   WidgetTester tester, {
   String? pairId = 'pair-id',
-  SelectedNote initialNote = SelectedNote.personal,
+  NotebookKind initialNote = NotebookKind.personal,
   void Function(int)? onSelectTab,
   VoidCallback? onOpenSettings,
 }) async {

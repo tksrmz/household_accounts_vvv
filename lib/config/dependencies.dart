@@ -14,13 +14,13 @@ import '../data/repositories/record/record_repository.dart';
 import '../domain/models/notebook.dart';
 import '../domain/models/user_auth.dart';
 import '../domain/models/user_id.dart';
-import '../v2/presentation/pages/state_managements/selected_note_state.dart';
+import '../ui/core/selected_notebook.dart';
 
 /// アプリ全域・長寿命の依存(Repository/Service/共有状態)のProvider登録一覧。
 ///
 /// AuthRepositoryインスタンスを先に生成する方式で1段に平坦化した。
 List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
-  ChangeNotifierProvider(create: (_) => SelectedNoteState()),
+  ChangeNotifierProvider(create: (_) => SelectedNotebook()),
   Provider<AuthRepository>.value(value: authRepository),
   Provider<FirebaseFirestore>.value(value: FirebaseFirestore.instance),
   Provider<ProfileRepository>(
@@ -36,30 +36,30 @@ List<SingleChildWidget> appProviders(AuthRepository authRepository) => [
     initialData: authRepository.getCurrentUser(),
     create: (_) => authRepository.authStateChanges(),
   ),
-  ProxyProvider2<SelectedNoteState, UserAuth, RecordRepository>(
-    update: (context, selectedNote, user, _) => FirestoreRecordRepository(
+  ProxyProvider2<SelectedNotebook, UserAuth, RecordRepository>(
+    update: (context, selectedNotebook, user, _) => FirestoreRecordRepository(
       context.read<FirebaseFirestore>(),
-      _resolveNotebook(selectedNote, user),
+      _resolveNotebook(selectedNotebook, user),
     ),
   ),
-  ProxyProvider2<SelectedNoteState, UserAuth, CategoryRepository>(
-    update: (context, selectedNote, user, _) => FirestoreCategoryRepository(
+  ProxyProvider2<SelectedNotebook, UserAuth, CategoryRepository>(
+    update: (context, selectedNotebook, user, _) => FirestoreCategoryRepository(
       context.read<FirebaseFirestore>(),
-      _resolveNotebook(selectedNote, user),
+      _resolveNotebook(selectedNotebook, user),
     ),
   ),
-  ProxyProvider2<SelectedNoteState, UserAuth, PropertyRepository>(
-    update: (context, selectedNote, user, _) => FirestorePropertyRepository(
+  ProxyProvider2<SelectedNotebook, UserAuth, PropertyRepository>(
+    update: (context, selectedNotebook, user, _) => FirestorePropertyRepository(
       context.read<FirebaseFirestore>(),
-      _resolveNotebook(selectedNote, user),
+      _resolveNotebook(selectedNotebook, user),
     ),
   ),
 ];
 
 /// 現在の選択状態と認証状態から、Repositoryが読み書きするノートを決める。
-Notebook _resolveNotebook(SelectedNoteState selectedNote, UserAuth user) =>
+Notebook _resolveNotebook(SelectedNotebook selectedNotebook, UserAuth user) =>
     switch (user) {
-      UserAuthSignedIn(:final uid) => selectedNote.resolve(uid),
+      UserAuthSignedIn(:final uid) => selectedNotebook.resolve(uid),
       // サインイン前もProviderの評価自体は走るが、routerのredirectにより
       // 画面がこのRepositoryを購読する前にサインイン画面へ遷移する。
       // 使われない間のプレースホルダとして無害な個人ノートを与える
