@@ -37,7 +37,7 @@ dependencies:
   # UUID generation
   uuid: ^4.6.0
   firebase_core: ^4.0.0
-  cloud_firestore: ^6.8.0
+  cloud_firestore: ^6.10.2
   firebase_auth: ^6.5.7
   firebase_ui_auth: ^3.1.1
   freezed_annotation: ^3.0.0
