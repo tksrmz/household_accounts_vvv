@@ -32,7 +32,7 @@ class _ShellScreenHostState extends State<ShellScreenHost> {
     super.initState();
     _viewModel = ShellViewModel(
       authRepository: context.read(),
-      selectedNoteState: context.read(),
+      selectedNotebook: context.read(),
       profileRepository: context.read(),
     );
   }

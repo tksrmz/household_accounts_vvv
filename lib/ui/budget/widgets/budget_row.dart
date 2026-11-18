@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../common/logic/formatter.dart';
+import '../../core/formatter.dart';
 
 /// 支出カテゴリ1件の予算の消化状況を表す行。名前と「支出 / 予算」の金額、
 /// その下に消化の割合を示すバーを並べる。

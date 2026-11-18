@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../v2/presentation/pages/state_managements/selected_note_state.dart';
+import '../../core/selected_notebook.dart';
 
 /// シェルのドロワー。ノート切替と設定画面への導線を持つ。
 ///
@@ -8,21 +8,21 @@ import '../../../v2/presentation/pages/state_managements/selected_note_state.dar
 /// (goldenテストからrouter無しで組み立てられるようにするため)。
 class ShellDrawer extends StatelessWidget {
   const ShellDrawer({
-    required this.mode,
+    required this.kind,
     required this.canSwitch,
-    required this.onSwitchNote,
+    required this.onSwitchNotebook,
     required this.onOpenSettings,
     super.key,
   });
 
   /// 現在選択されているノート。
-  final SelectedNote mode;
+  final NotebookKind kind;
 
   /// ノート切替タイルを表示するかどうか(= ペアが存在するかどうか)。
   final bool canSwitch;
 
   /// ノート切替が要求されたときに呼ばれる。
-  final void Function(SelectedNote) onSwitchNote;
+  final void Function(NotebookKind) onSwitchNotebook;
 
   /// 設定画面を開くときに呼ばれる。
   final VoidCallback onOpenSettings;
@@ -63,12 +63,12 @@ class ShellDrawer extends StatelessWidget {
   String _getHeaderTitle() {
     final String modeText;
 
-    switch (mode) {
-      case SelectedNote.personal:
+    switch (kind) {
+      case NotebookKind.personal:
         modeText = '自分の家計簿';
         break;
 
-      case SelectedNote.shared:
+      case NotebookKind.shared:
         modeText = 'ふたりの家計簿';
         break;
     }
@@ -80,19 +80,19 @@ class ShellDrawer extends StatelessWidget {
     final Text title;
     final void Function() onTap;
 
-    switch (mode) {
-      case SelectedNote.personal:
+    switch (kind) {
+      case NotebookKind.personal:
         title = Text('ふたりの家計簿を見る');
         onTap = () {
-          onSwitchNote(SelectedNote.shared);
+          onSwitchNotebook(NotebookKind.shared);
           Navigator.pop(context); // close the drawer
         };
         break;
 
-      case SelectedNote.shared:
+      case NotebookKind.shared:
         title = Text('自分の家計簿を見る');
         onTap = () {
-          onSwitchNote(SelectedNote.personal);
+          onSwitchNotebook(NotebookKind.personal);
           Navigator.pop(context); // close the drawer
         };
         break;
@@ -108,12 +108,12 @@ class ShellDrawer extends StatelessWidget {
   Icon _getIcon() {
     final Icon icon;
 
-    switch (mode) {
-      case SelectedNote.personal:
+    switch (kind) {
+      case NotebookKind.personal:
         icon = const Icon(Icons.person, color: Colors.white);
         break;
 
-      case SelectedNote.shared:
+      case NotebookKind.shared:
         icon = const Icon(Icons.group, color: Colors.white);
         break;
     }

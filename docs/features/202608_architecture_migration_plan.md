@@ -1,9 +1,9 @@
 # アーキテクチャ移行計画
 
-- ステータス: **実行中**(計画はv1.1でレビュー反映済み。進捗は§3の各PRチェックボックスを正とする)
+- ステータス: **完了**(2026-11-08、PR1〜PR9。以後のライブの正は `docs/architecture.md`・`docs/style_guide.md`。移行後のフォローアップは§7)
 - 作成日: 2026-08-19
 - 親ドキュメント: [202608_architecture_redesign.md](./202608_architecture_redesign.md)(コミット e84adff で確定した設計に従う)
-- 注記: `docs/features/` はスナップショット型だが、本ドキュメントは進捗管理を兼ねるため**例外的にライブ運用**する(各PRマージ時にチェックボックスと特記を更新)
+- 注記: `docs/features/` はスナップショット型だが、本ドキュメントは進捗管理を兼ねるため移行期間中は**例外的にライブ運用**した(各PRマージ時にチェックボックスと特記を更新)。移行の完了をもってスナップショットに戻す
 
 ## 0. 合意済みの前提(2026-08-19の会話で決定)
 
@@ -133,21 +133,26 @@
 
 ### PR9: 後始末 `dev/arch-09-cleanup`
 
-- [ ] 完了
+- [x] 完了(2026-11-08、PR #46)
 
 | 項目 | 内容 |
 |---|---|
-| 削除 | 残存する旧世代すべて: `lib/presentation/`(PR8後は `util/model/user_info.dart` のみ)、`lib/v2/` ディレクトリの解消(空化。未配線の予算グラフ `budget_graph.dart` 一式とgolden 27枚を含む)、シェルの `UserInfo` 互換供給の除去、`SelectedNoteState` の最終形(`SelectedNotebook`)への改名整理。(`lib/feature/` `lib/util/` `lib/data/firebase/` `lib/entity/` `lib/vo/` とget_it初期化はPR8で削除済み) |
-| pubspec | `dartz` `equatable` `uuid` `result_dart` `fl_chart` を除去(`get_it` はPR8で除去済み)。`mocktail` は必要になった時点(それまでのPR)で追加済みの想定(実態注記: PR3時点でも未導入。DocumentReference等のフェイクはnoSuchMethodを自前宣言した手書きFakeで足りたため) |
-| ドキュメント | `docs/architecture.md` `docs/style_guide.md` `CLAUDE.md` を新アーキテクチャに合わせて全面改訂(現行の「get_itは不使用」等の乖離も解消) |
-| 特記 | ここで「新アーキテクチャ100%」宣言。mockitoテストの全面置き換えはしない(既存テストは触るときに移行、の方針を継続) |
+| 目的 | 旧世代の残り(`lib/v2/`・`lib/presentation/`)と、移行期間中だけの仮の形(`SelectedNoteState`・`UserInfo` 互換供給・`lib/common/`)を解消し、コードと文書を新アーキテクチャの最終形に揃える。画面の挙動は変えない(挙動変更なし) |
+| 改名・移設 | **`SelectedNoteState` → `SelectedNotebook`**(`lib/ui/core/selected_notebook.dart`。複数画面にまたがるUI状態として置く=ユーザー決定、2026-11-08。`domain/models/` は不変のfreezed型だけにする)。列挙型 `SelectedNote` は `NotebookKind`(`personal`/`shared`)へ改名して同じファイルに置く。APIは `kind`(旧 `value`)・`select(NotebookKind)`・`pairId`・`updatePairId(PairId?)`・`resolve(UserId)` → `Notebook`。消費者のいない `isPersonal` は削除する(ダッシュボードの `isPersonal` はVM自身のgetterで別物)。利用箇所: `config/dependencies.dart`(ChangeNotifierProviderと3本のProxyProvider2・`_resolveNotebook`)、`routing/router.dart`(`_notebookScoped` とそのdoc)、`ui/shell/` の `shell_view_model.dart`・`shell_screen_host.dart`・`shell_scaffold.dart`・`widgets/shell_drawer.dart`(引数名 `selectedNoteState`・`selectedNote`・`switchNote(SelectedNote)` も新しい名前に揃える)。ファイル冒頭の「移行期間中の一時的な置き場所」のコメントは消す。**シェルの `UserInfo` 除去**: `ShellViewModel` から `userInfo` を消し、`canSwitchNote` は `SelectedNotebook.pairId != null` から求める(ペアの有無の情報源を `SelectedNotebook` の1つにする)。それに伴いペア検知の成功状態は値を持たない `ShellPairReady` にする(旧 `ShellPairData(String? pairId)`。pairIdを二重に持たない)。`ShellScreen` の `Provider<UserInfo>.value` を外し、`ShellScaffold` を直接描く。**`Formatter` の移設**(ユーザー決定): `lib/common/logic/formatter.dart` → `lib/ui/core/formatter.dart`(使うのはUI層の7ファイルとintegrationの `budget_feature_test` だけ。刷新案のフォルダ構成に `common/` は無い)。lib内で使われていない `Formatter.date` は削除する(テストだけが使っている)。**サインイン画面の隔離**(ユーザー決定。刷新案O4): `lib/ui/auth/sign_in_screen.dart` に `SignInScreen` を置き、中で firebase_ui_auth の `SignInScreen(providers: [EmailAuthProvider()])` を返す(importはprefix付き)。`router.dart` はこれを使い、`package:firebase_ui_auth` をimportするのは `lib/ui/auth/` だけにする。ViewModelは作らない(firebase_ui_authが状態を持つため) |
+| 削除 | **`lib/v2/` 全体(37ファイル)**。`selected_note_state.dart` 以外はどこからもimportされていない(2026-11-08のコード調査): 未配線の予算グラフ一式(`presentation/pages/dashboard/widgets/budget_graph.dart`・`domain/models/budget_graph_data.dart`・`domain/usecases/budget_graph_data_list.dart`。**削除し、作り直しは必要になったときに新アーキテクチャの機能として別PRで行う**=ユーザー決定、2026-11-08。刷新案§7の「fl_chartは予算グラフの再配線で活きる」は採らない)/ 消費者のいない振替の旧データ層(`domain/repositories/transfer_repository.dart`・`data/repositories/firestore/transfer_repository.dart`・`data/services/firestore/personal/personal_transfer_record_service.dart`・`data/services/firestore/transaction/firestore_transaction_service.dart`)/ v2のモデル(`data/models/` 4・`domain/models/` 6・`domain/models/vo/` 17)/ `presentation/commands/command.dart`(旧 `AsyncCommand`)/ `presentation/README.md`。**`lib/presentation/` 全体**(`util/model/user_info.dart`)。**`test/v2/` 全体(28ファイル)**: `selected_note_state_test.dart` は移設(テスト欄)、それ以外は削除対象のコードのテスト・mockitoの使い方サンプル(`how_to_use_firestore_mock_test.dart`)・v2用の `flutter_test_config.dart` と `README.md`。予算グラフのgolden 27枚(`test/v2/presentation/pages/dashboard/widgets/golden/budget_graph/`)はpre-commitフックがローカルでの削除を拒否するため、PR作成後に `update-canonical-goldens.yml` のdispatchで削除する(PR8と同じ)。**`.github/copilot-instructions.md` と `.github/prompts/`(`create_presentation_layer.prompt.md` の1ファイル)**: 旧アーキテクチャ(get_it・`lib/presentation/`)前提のため削除し、CLAUDE.mdと `docs/` を唯一の正にする(ユーザー決定、2026-11-08)。mockitoの名残: `.gitignore` の `**.mocks.dart` とそのコメント、`analysis_options.yaml` の `test/**/**.mocks.dart` の除外 |
+| pubspec | dependenciesから `dartz` `equatable` `uuid` `result_dart` `fl_chart` を、dev_dependenciesから **`mockito`** を除去する(`get_it` はPR8で除去済み)。v2のテストを消すとmockitoの利用者が0になるため(計画時の「mockitoテストの全面置き換えはしない」は、移行の過程で対象が全て消えたので論点でなくなった)。`mocktail` は導入しない(全テストが手書きFakeで足りた。ルーターのモックが要る箇所も生じなかった)。残すもの: `provider` `firebase_core` `cloud_firestore` `firebase_auth` `firebase_ui_auth` `freezed_annotation` `logging`(VMのログで使用) `intl` `go_router`、dev: `build_runner`(freezedの生成) `flutter_lints` `flutter_test` `freezed` `integration_test` `test`(Dart専用テストで使用)。`pubspec.lock` は `flutter pub get` で更新する |
+| ドキュメント | **`docs/architecture.md` を全面改訂**し、新アーキテクチャのライブの正にする: レイヤー構造とフォルダ構成(実物)/ データの流れ(watch購読とCommand・`Result`)/ エラー処理(`Result.guard`、Streamの `onError` でException=エラー状態・Error=再送出、値型の `FormatException`/`ArgumentError` の区分、データ不正は発生源で予防しエラー画面を出さない方針)/ DI(`appProviders`・`SelectedNotebook` と `ProxyProvider2` によるRepositoryの組み替え・Hostの `ValueKey(notebook)` 再生成)/ ルーティング(シェル内ブランチとシェル外ルート、`extra` で渡す編集対象)/ データ層の方針(Service層なし・DTO・書き込みJSONのトップレベル関数・WriteBatchとrunTransactionの使い分け・withConverterとtransaction_runnerの不採用・削除ガードを入れない理由)。Mermaid図は新構成で描き直す。**`docs/style_guide.md` を全面改訂**: ドキュメント管理ポリシー(現行を維持)/ ディレクトリ構成(実物)/ 命名(`*_screen.dart`・`*_screen_host.dart`・`*_view_model.dart`、テスト名の形式は現行どおり)/ 設計ルール(移行中に決めた規約を集約: 1型1ファイル・IDはfreezedの値型・検証付き値型はコンストラクタでthrow・UI文言をドメインに置かない・検証はUI層でCommandは検証済みの型だけを受ける・VMはRepositoryを注入で受け取る・入力判定は引数を取る純粋関数・入力フォーマッタで値を書き換えない・コードコメントに設計ドキュメントの決定番号を書かない)/ テスト方針(手書きFake・VMテストでCommandの内部状態を網羅しない・同一前提は1テストに統合・golden 3幅とcanonical運用・integrationのUI操作は `integration_test/util/` へ集約)/ 使用ライブラリ(pubspecの実態)/ コード例(リポジトリの実物から短く引用)。**`CLAUDE.md` を改訂**: 移行中バナーと移行計画の@importを削除し、Project Overview・Architecture Overview・Key Architectural Patterns・Code Conventions・Testing Strategy・Project Structure・Key Dependencies・Development Guidelinesを新アーキテクチャの記述に置き換える(`lib/v2/`・get_it・dartz・mockito・`lib/presentation/` の記述を消す)。Development Commands(mise・golden・integration・`dart analyze`)と、コメントに決定番号を書かない規約は残す。**刷新案(`202608_architecture_redesign.md`)** はスナップショットなので本文は直さず、冒頭のステータスを「実施済み(2026-11、移行計画PR1〜PR9)。ライブの正は `docs/architecture.md`・`docs/style_guide.md`」に更新し、§7の処遇のうち実施結果と異なるもの(fl_chart=予算グラフとともに除去、mockito=全廃、mocktail=導入せず)を注記する。**本計画書**: ステータスを完了にし、§4のエミュレータポートの項目はCLAUDE.mdのMonorepo Structureの注記(既に記載あり)へ引き継いで完了にする。`docs/features/v2_arch/` などの過去のスナップショットは触らない |
+| テスト | `test/v2/presentation/pages/state_managements/selected_note_state_test.dart` → `test/ui/core/selected_notebook_test.dart`(改名に合わせて書き換え。ケースは維持)。`test/common/logic/formatter_test.dart` → `test/ui/core/formatter_test.dart`(`Formatter.date` のケースは削除)。`shell_view_model_test`: `userInfo` を見ていたケースを `canSwitchNote` と `pairState`(`ShellPairReady`)で確かめる形に直す(ケースの意図は維持し、同一前提のものは統合する)。`shell_scaffold_test`: 改名に追随。サインイン画面の隔離は新しいテストを足さない(中身はfirebase_ui_authを返すだけで、全integrationシナリオがこの画面からサインインしている)。golden: シェルを含め既存の正本は変わらない想定(変わったら差分を調べる)。integration: DIとシェルを触るので全シナリオを1回流す(PR8時点で21 passed / 0 skipped) |
+| 完了の確認 | DoDの「画面」は無いため、次で確かめる: (1) `flutter analyze` / `dart analyze` / `dart format` / 全テスト(golden含む)/ integration が緑 (2) `lib/v2/` `lib/presentation/` `lib/common/` `test/v2/` が無い (3) lib・test・integration_testに `SelectedNoteState` `SelectedNote` `UserInfo` `AsyncCommand` と、除去したパッケージ(`dartz` `equatable` `uuid` `result_dart` `fl_chart` `mockito`)のimportが0件 (4) `package:firebase_ui_auth` のimportが `lib/ui/auth/` だけ |
+| 作業の順番 | 1コミット1テーマで次の順に進める(各段階で解析とテストを緑に保つ): (1) `SelectedNotebook` への改名・移設とシェルの `UserInfo` 除去 (2) `lib/v2/`・`lib/presentation/`・`test/v2/` の削除 (3) `Formatter` の移設とサインイン画面の隔離 (4) pubspecと `.gitignore`・`analysis_options.yaml` (5) `.github/` のCopilot向け文書の削除 (6) `architecture.md`・`style_guide.md`・`CLAUDE.md` の改訂と刷新案のステータス更新 (7) 本計画書の完了更新。PR作成後にgoldenのdispatchで予算グラフのgolden 27枚を削除する |
+| 特記 | ここで「新アーキテクチャ100%」宣言。**PR9に含めないフォローアップ**(ユーザー決定、2026-11-08。§7に記録): `hasCheckedOut` の廃止判断、`packages/household_lints` のルール追加手順のREADME化、`cloud_firestore` の `MissingPluginException` の再確認、旧リポジトリからのIssue移管。**実装時の判明事項(2026-11-08)**: (1) 完了の確認(1)〜(4)をすべて満たした: ユニット・Widget 524件・golden 192件・integration 21 passed / 0 skipped、旧名と除去したパッケージのimportは0件 (2) シェルの公開APIは `notebookKind`・`switchNotebook(NotebookKind)`、ドロワーの引数は `kind`・`onSwitchNotebook` とした (3) 独立レビューで、改訂ドキュメントの事実誤りを直した: `RecordDate` は無検証の値型として明示した例外であること、未来日付の禁止は入力の境界だけで行っていてRulesでは検査していないこと、DTOの規約は記録・カテゴリ・資産のRepositoryに限ること(Profileは対象外)、設定画面だけがHostを持たずルートのbuilderでVMを作る例外であること。あわせて `firestore_constraints.md` の原子性の要件を実装に合わせた(作成=WriteBatch、削除=runTransaction) (4) 同じレビューで、`firestore_constraints.md`・`firestore_schema.md` に移行前からの記述の誤り(予算超過の警告、資産残高はレコードの合計と常に一致する、`privateProfiles.sharedNote.ref` の型)が残っていることがわかった。PR9の範囲外として直していない |
 
 ## 4. 横断の確認事項(PR1着手前後に実施)
 
 - [x] **CIと生成コード**: 確認済み(2026-08-19、ユーザー確認): `pr-ci.yml` はbuild_runnerを実行している。生成コードは当面**非コミット運用を継続**(移行中のPRレビューを手書きコードに集中させるため。方針を変える場合はここを更新)。再検討時の材料(2026-08-19調査): build_runner公式は「チェックインは選択でよい、pub公開時は同梱必須」、公式サンプルcompass_appは `*.freezed.dart`/`*.g.dart` をコミット、GitHub公式Dart.gitignoreテンプレートも生成物を除外していない
 - [x] **Firestore Rules(共有write)**: 確認済み(2026-08-19): `firebase/firestore.rules` の `sharedNotes/{pairId}` 配下は全サブコレクション(incomeCategories/expenseCategories/properties/incomes/expenses/transfers)とも `isOwner` 検証付きで create/update/delete を許可しており、O5の前提を満たす。PR4向けの追記: レコードcreateは `createdAt == request.time`(serverTimestamp必須)と8フィールド版スキーマ(`hasCheckedOut` 含む)を要求し、参照先property/categoryの存在チェックもRules側で行われる
 - [x] **goldenワークフロー**: 対応済み(2026-08-19): `update-canonical-goldens.yml` はファイルとしてはmasterに存在するがGitHubに未登録だった(`gh workflow list` に非表示。release.yml等も同様)。登録を発火させるtouch変更をPR #8として作成し、PR1のgolden dispatch前にマージする運び。マージ後に `gh workflow list` で登録を確認すること
-- [ ] エミュレータポート(Firestore 8081 / Auth 9099、`firebase/firebase.json`)と `lib` 側接続設定の同期維持
+- [x] エミュレータポート(Firestore 8081 / Auth 9099、`firebase/firebase.json`)と `lib` 側接続設定の同期維持: 2026-11-08時点で一致(`lib/main.dart`・`integration_test/util/firestore_rest.dart`)。以後の維持はCLAUDE.mdのMonorepo Structureの注記へ引き継いだ
 
 ## 5. 挙動変更の一覧(ユーザー影響、いずれも合意済み)
 
@@ -185,6 +190,17 @@
 - 各PRマージ時: 本ドキュメントのチェックボックス更新 + 特記事項があれば当該PR欄に追記
 - 順番の入れ替え・スコープ変更が必要になったら、変更理由を「変更履歴」に1行残して更新する(会話ログではなくここが正)
 
+## 7. 移行後のフォローアップ(PR9に含めないもの)
+
+移行中に「PR9以降へ」と持ち越した項目のうち、PR9のスコープから外したもの(2026-11-08、ユーザー決定)。いずれも移行完了の条件ではない。
+
+| 項目 | 経緯 | 着手時に確かめること |
+|---|---|---|
+| `hasCheckedOut` の廃止判断 | PR4で「恒久的にtrueを書く」と決め、PR5で削除時の残高打ち消しを `hasCheckedOut == true` のときだけに限定した(falseの実データの有無が未確認のため安全側) | 本番に `false` の記録があるか(読み取りのみ)。廃止するならRules(作成時に8フィールドを要求)・DTO・削除時の打ち消し条件・`firestore_schema.md`/`firestore_constraints.md` をまとめて変える |
+| `packages/household_lints` のルール追加手順のREADME化 | PR1以来の持ち越し。現状READMEが無い | パッケージでの `dart test` → ルートでの `dart analyze` → 実ファイルへ違反を一時注入して検知と終了コード非0を確かめる、という検証手順を残す |
+| `cloud_firestore` の `MissingPluginException` | PR5で判明。`runTransaction` の完了のたびにプラグイン内部が無害な例外を報告するため、integrationテストに限定フィルタを入れている | 依存更新のタイミングで再現するかを確かめ、直っていればフィルタを外す |
+| 旧リポジトリからのIssue移管 | §0で後回しにした | 移管対象と、旧Issue番号をハードコードしているワークフロー |
+
 ## 変更履歴
 
 - 2026-08-19: v1.0 作成(方針合意: 場所=このモノレポ / 機能単位 / 共存方法 / DoD / 体制 / 共有振替バグ対処不要)
@@ -215,3 +231,5 @@
 - 2026-11-08: PR8実装時の判明事項を反映 — integrationは21 passed / 0 skipped / 旧golden 3枚はPR作成後のdispatchで削除 / 独立レビューの指摘で、予算画面のデータ不正時のエラー表示を挙動変更一覧に追加し、VMテストで期間の張り替え時の購読解除漏れを検出できるようにした
 - 2026-11-08: データ不正でエラー画面を出さない方針を決定(ユーザー決定)— 対処できないエラー画面より発生源での予防を優先する。本番の不正な記録13件(金額0・振替元=振替先)を削除し、Rulesの強化(金額1以上・振替元≠振替先・名前1文字以上)を別PRに切り出した。読み込み自体の失敗はエラー表示のまま
 - 2026-11-08: PR8をマージ(PR #45) — PRレビュー(Codex・Claude)の指摘は0件(CodeRabbitはレート制限でレビューなし)。Rulesの強化はPR #44でマージ・本番デプロイ済み
+- 2026-11-08: PR9詳細化(コード実態調査+ユーザー決定5件)— (1) 未配線の予算グラフは削除し、`fl_chart` も除去する(刷新案§7の「再配線で活きる」は採らない。作り直すなら新アーキテクチャの機能として別PR)(2) `SelectedNotebook` は `lib/ui/core/` に置く(列挙型は `NotebookKind`)(3) `.github/` のCopilot向け文書2つは削除する (4) `Formatter` を `lib/ui/core/` へ移す (5) サインイン画面を `lib/ui/auth/` に隔離する。そのほか: v2のテストを消すとmockitoの利用者が0になるため `mockito` も除去する(計画時の「mockitoテストの全面置き換えはしない」は論点でなくなった)/ `mocktail` は導入しない / シェルのペア有無は `SelectedNotebook.pairId` を唯一の情報源にする / `hasCheckedOut` の廃止判断・lintのREADME化・`MissingPluginException` の再確認・Issue移管はPR9に含めず§7に記録
+- 2026-11-08: PR9を実装(PR #46)し、移行を完了とした。本ドキュメントはスナップショットに戻す

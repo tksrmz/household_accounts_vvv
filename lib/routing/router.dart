@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:firebase_ui_auth/firebase_ui_auth.dart' as ui;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -10,11 +9,13 @@ import '../domain/models/category.dart';
 import '../domain/models/notebook.dart';
 import '../domain/models/property.dart';
 import '../domain/models/user_auth.dart';
+import '../ui/auth/sign_in_screen.dart';
 import '../ui/budget/budget_screen_host.dart';
 import '../ui/calendar/calendar_screen_host.dart';
 import '../ui/calendar/daily_records_screen_host.dart';
 import '../ui/categories/categories_screen_host.dart';
 import '../ui/categories/category_editor_screen_host.dart';
+import '../ui/core/selected_notebook.dart';
 import '../ui/dashboard/dashboard_screen_host.dart';
 import '../ui/properties/properties_screen_host.dart';
 import '../ui/properties/property_editor_screen_host.dart';
@@ -22,7 +23,6 @@ import '../ui/record_entry/record_entry_screen_host.dart';
 import '../ui/settings/settings_screen.dart';
 import '../ui/settings/settings_view_model.dart';
 import '../ui/shell/shell_screen_host.dart';
-import '../v2/presentation/pages/state_managements/selected_note_state.dart';
 import 'routes.dart';
 
 /// StreamをGoRouterのrefreshListenableへ橋渡しする。
@@ -68,8 +68,7 @@ GoRouter createRouter({
     routes: [
       GoRoute(
         path: Routes.signIn,
-        builder: (context, state) =>
-            ui.SignInScreen(providers: [ui.EmailAuthProvider()]),
+        builder: (context, state) => const SignInScreen(),
       ),
       // ボトムナビを覆う従来挙動に合わせ、シェルの外(ルートレベル)へ置く
       GoRoute(
@@ -242,7 +241,7 @@ GoRouter createRouter({
 
 /// サインイン済みユーザーの選択中ノートを解決し、[builder] へ渡す。
 ///
-/// ノート切替時にViewModelを作り直すため、SelectedNoteStateの変化で
+/// ノート切替時にViewModelを作り直すため、SelectedNotebookの変化で
 /// 再buildされ、ValueKeyの変化によりHostのStateごと再生成される(旧ViewModelの
 /// disposeで購読解除、新ViewModelが新しいRepositoryを購読する)。[builder] 側で
 /// `ValueKey(notebook)` を付与すること。
@@ -256,7 +255,7 @@ Widget _notebookScoped(Widget Function(Notebook notebook) builder) {
       if (userAuth is! UserAuthSignedIn) {
         return const SizedBox.shrink();
       }
-      final notebook = context.watch<SelectedNoteState>().resolve(userAuth.uid);
+      final notebook = context.watch<SelectedNotebook>().resolve(userAuth.uid);
       return builder(notebook);
     },
   );

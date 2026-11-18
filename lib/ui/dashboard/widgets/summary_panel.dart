@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../common/logic/formatter.dart';
+import '../../core/formatter.dart';
 import '../../../domain/models/record_summary.dart';
 import 'm3_container.dart';
 import 'spaced_row.dart';

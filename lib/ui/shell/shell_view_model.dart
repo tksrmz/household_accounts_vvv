@@ -8,13 +8,12 @@ import '../../data/repositories/auth/auth_repository.dart';
 import '../../data/repositories/profile/profile_repository.dart';
 import '../../domain/models/pair_status.dart';
 import '../../domain/models/user_id.dart';
-import '../../presentation/util/model/user_info.dart';
 import '../../utils/command.dart';
 // utils/result.dartが独自の`Error<T>`(Resultの失敗variant)を公開しており、
 // dart:coreの`Error`(Error.throwWithStackTrace)と名前が衝突するため、
 // このファイルでは使わないResult側のErrorを隠してdart:core側を残す。
 import '../../utils/result.dart' hide Error;
-import '../../v2/presentation/pages/state_managements/selected_note_state.dart';
+import '../core/selected_notebook.dart';
 
 /// ペア検知の状態を表すUI向けの状態表現。
 sealed class ShellPairState {
@@ -34,34 +33,31 @@ final class ShellPairError extends ShellPairState {
   final Object error;
 }
 
-/// ペア情報を取得できた状態。[pairId] が `null` ならペア未設定。
-final class ShellPairData extends ShellPairState {
-  const ShellPairData(this.pairId);
-
-  /// ペアの共有ノートID。ペアがいない場合は `null`。
-  final String? pairId;
+/// ペア検知が完了した状態。ペアの有無は `SelectedNotebook.pairId` が持つ。
+final class ShellPairReady extends ShellPairState {
+  const ShellPairReady();
 }
 
 /// アプリのシェル(タブ + ドロワー)の状態を持つViewModel。
 class ShellViewModel extends ChangeNotifier {
   ShellViewModel({
     required AuthRepository authRepository,
-    required SelectedNoteState selectedNoteState,
+    required SelectedNotebook selectedNotebook,
     required ProfileRepository profileRepository,
   }) : _authRepository = authRepository,
-       _selectedNoteState = selectedNoteState {
+       _selectedNotebook = selectedNotebook {
     logout = Command0(_logout);
     // シェルは認証済みでのみマウントされる(routerのredirectが保証)
     _uid = authRepository.getCurrentUser().signedInUid;
     // ドロワー表示をノート切替へ追従させる
-    _selectedNoteState.addListener(notifyListeners);
+    _selectedNotebook.addListener(notifyListeners);
     _subscription = profileRepository
         .watchPairStatus(_uid)
         .listen(_onPairStatus, onError: _onPairError);
   }
 
   final AuthRepository _authRepository;
-  final SelectedNoteState _selectedNoteState;
+  final SelectedNotebook _selectedNotebook;
 
   late final UserId _uid;
   late final StreamSubscription<PairStatus> _subscription;
@@ -71,22 +67,17 @@ class ShellViewModel extends ChangeNotifier {
   /// ペア検知の状態。
   ShellPairState get pairState => _pairState;
 
-  UserInfo? _userInfo;
-
-  /// ペア検知が完了していれば、そのユーザー情報。未完了なら `null`。
-  UserInfo? get userInfo => _userInfo;
-
   /// ノート切替が可能かどうか(= ペアが存在するかどうか)。
-  bool get canSwitchNote => _userInfo?.hasPair ?? false;
+  bool get canSwitchNote => _selectedNotebook.pairId != null;
 
   /// 現在選択されているノート。
-  SelectedNote get selectedNote => _selectedNoteState.value;
+  NotebookKind get notebookKind => _selectedNotebook.kind;
 
   /// ログアウトを実行するコマンド。
   late final Command0<void> logout;
 
   /// 表示するノートを切り替える。
-  void switchNote(SelectedNote note) => _selectedNoteState.select(note);
+  void switchNotebook(NotebookKind kind) => _selectedNotebook.select(kind);
 
   void _onPairStatus(PairStatus status) {
     final pairId = switch (status) {
@@ -94,11 +85,10 @@ class ShellViewModel extends ChangeNotifier {
       NotPaired() => null,
     };
     // ペア解消時に選択中ノートがsharedのまま残ると共有ノートを解決できなく
-    // なるため、personalへの強制リセットはSelectedNoteState自身に委ねる
+    // なるため、personalへの強制リセットはSelectedNotebook自身に委ねる
     // (pairIdの消失とリセットを1回の通知で原子的に行う責務のため)
-    _selectedNoteState.updatePairId(pairId);
-    _pairState = ShellPairData(pairId?.value);
-    _userInfo = UserInfo(uid: _uid.value, pairId: pairId?.value);
+    _selectedNotebook.updatePairId(pairId);
+    _pairState = const ShellPairReady();
     notifyListeners();
   }
 
@@ -121,15 +111,12 @@ class ShellViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 旧実装の `sl.reset()` は移植しない。get_it登録は全てステートレスな
-  // registerFactoryでresetに実益がなく、reset後の再登録経路が無いため
-  // 再ログイン時にクラッシュする一因だった(2026-08-19の移行判断で廃止)。
   Future<Result<void>> _logout() => _authRepository.signOut();
 
   @override
   void dispose() {
     _subscription.cancel();
-    _selectedNoteState.removeListener(notifyListeners);
+    _selectedNotebook.removeListener(notifyListeners);
     super.dispose();
   }
 }

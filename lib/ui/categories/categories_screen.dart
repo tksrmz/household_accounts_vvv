@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../common/logic/formatter.dart';
+import '../core/formatter.dart';
 import '../../domain/models/category_id.dart';
 import '../../routing/routes.dart';
 import '../../utils/command.dart';

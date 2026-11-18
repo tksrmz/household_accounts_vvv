@@ -50,9 +50,9 @@ class ShellScaffold extends StatelessWidget {
             ],
           ),
           drawer: ShellDrawer(
-            mode: viewModel.selectedNote,
+            kind: viewModel.notebookKind,
             canSwitch: viewModel.canSwitchNote,
-            onSwitchNote: viewModel.switchNote,
+            onSwitchNotebook: viewModel.switchNotebook,
             onOpenSettings: onOpenSettings,
           ),
           body: body,
