@@ -12,6 +12,12 @@
 Firebaseバックエンドのテスト実行方法などは[firebase/README.md](firebase/README.md)を参照してください。
 Firebase CLIのコマンド（デプロイ、エミュレータ起動）は`firebase/`ディレクトリで実行します。
 
+## ライセンス
+
+このリポジトリはオープンソースではありません。閲覧・評価のために公開しており、すべての権利を留保しています（[LICENSE](LICENSE)）。
+
+ただし`fonts/NotoSansJP.ttf`はSIL Open Font License 1.1で提供されています（[fonts/OFL.txt](fonts/OFL.txt)）。
+
 ## Golden tests
 
 Golden画像は、Linux CIで生成してGit管理するcanonical Goldenと、各開発環境で
