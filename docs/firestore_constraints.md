@@ -117,11 +117,11 @@
 
 ## Firestore Rulesが今も受け付ける旧形式
 
-Firestore Rules(`firebase/firestore.rules`)は、アプリが今は使っていない旧形式の書き込みも受け付ける。アプリはどれも読み書きしない。
+Firestore Rules(`firebase/firestore.rules`)は、アプリが今は書き込まない旧形式も受け付ける。
 
-- **`hasCheckedOut` の無い7フィールドの記録**(`isValidRecordOld`): 収入・支出・振替の作成と更新で、今の8フィールドの形(`isValidRecord`)に加えて、`hasCheckedOut` を持たない形も通す。それ以外のフィールドの検証は今の形と同じ。アプリは常に `hasCheckedOut: true` を含む8フィールドで書く。削除時は `hasCheckedOut` が欠損した記録を残高へ反映済みとみなして打ち消す
-- **旧 `categories` コレクション**(`isValidCategory`): 個人ノート・共有ノートの両方で、読み取り・作成・更新・削除を許可する。形は `name`(文字列・20文字以下。下限は確かめない)と `type`(`income` / `expense`)の2フィールドで、予算は持たない。アプリのカテゴリは `incomeCategories` / `expenseCategories` を使う
-- **`calendars` コレクション**: 個人ノート・共有ノートの両方で、読み取りだけを許可する
+- **`hasCheckedOut` の無い7フィールドの記録**(`isValidRecordOld`): 収入・支出・振替の作成と更新で、今の8フィールドの形(`isValidRecord`)に加えて、`hasCheckedOut` を持たない形も通す。それ以外のフィールドの検証は今の形と同じ。アプリは常に `hasCheckedOut: true` を含む8フィールドで書く。読み取りでは `hasCheckedOut` を見ないので、この形の記録も表示できる。削除時は `hasCheckedOut` が欠損した記録を残高へ反映済みとみなして打ち消す
+- **旧 `categories` コレクション**(`isValidCategory`): 個人ノート・共有ノートの両方で、読み取り・作成・更新・削除を許可する。形は `name`(文字列・20文字以下。下限は確かめない)と `type`(`income` / `expense`)の2フィールドで、予算は持たない。アプリは読み書きしない(カテゴリは `incomeCategories` / `expenseCategories` を使う)
+- **`calendars` コレクション**: 個人ノート・共有ノートの両方で、読み取りだけを許可する。アプリは読まない
 
 ## 実装上の注意点
 
