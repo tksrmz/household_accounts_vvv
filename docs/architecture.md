@@ -269,7 +269,7 @@ String notebookPath(Notebook notebook) => switch (notebook) {
 - **作成(`add`)は `WriteBatch`**。読み取りを伴わないので、原子性はトランザクションと同じで、そのうえオフラインでもローカルに即時反映され、復帰後に同期される
 - **削除(`delete`)は `runTransaction`**。打ち消す金額は保存されているレコードを読み直した値を正とするため、読み取りと書き込みを一体で行う
 - 使い分けの基準は「読み取りを伴うかどうか」。トランザクション実行用の共通部品(transaction_runner)は作らず、必要なRepositoryに直接書く
-- 記録には常に `hasCheckedOut: true` を書く。削除時の打ち消しは `hasCheckedOut` がtrue(または欠損)の記録だけに行う
+- 削除時の打ち消しは無条件に行う。記録は作成と同時に残高へ反映されるため。旧フィールド `hasCheckedOut`(残高へ反映済みかのフラグ)は廃止し、書かない(本番にfalseの記録が無いことを確かめた)
 - 削除時に参照先の資産が既に無い場合は、その資産の打ち消しを飛ばしてレコードの削除は成功させる
 
 ```dart
@@ -399,3 +399,4 @@ void _onPropertiesError(Object error, StackTrace stackTrace) {
 ## 変更履歴
 
 - 2026-11-08: アーキテクチャ移行(移行計画PR1〜PR9)の完了に合わせて全面改訂
+- 2026-11-21: 記録の `hasCheckedOut` を廃止し、削除時の打ち消しを無条件にした

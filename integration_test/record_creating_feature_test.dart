@@ -13,7 +13,7 @@ import 'util/sign_up.dart';
 /// 記録入力の受け入れテスト。
 ///
 /// スナックバーの表示だけでなく、Firestoreへ実際に書き込まれた内容
-/// (保存先のノート・コレクション、8フィールドの値、参照先、資産残高の増減)を
+/// (保存先のノート・コレクション、7フィールドの値、参照先、資産残高の増減)を
 /// REST APIで直接読み取って検証する。表示だけを見ていると、書き込み先の
 /// パス誤りや残高更新の欠落を見逃すため。
 Future<void> recordCreatingFeature() async {
@@ -382,8 +382,8 @@ void _expectCommonFields(
 }) {
   expect(readInt(record, 'amount'), amount);
   expect(readString(record, 'type'), type);
-  // 作成と同時に残高へ反映済みであることを表すフラグ
-  expect(readBool(record, 'hasCheckedOut'), isTrue);
+  // 廃止したフィールド(残高へ反映済みかのフラグ)は書かない
+  expect(record.containsKey('hasCheckedOut'), isFalse);
   // createdAtはサーバー時刻で書かれるため、値そのものではなく
   // 書き込まれていること(Rulesが要求するフィールドの欠落がないこと)を見る
   expect(record['createdAt'], isNotNull);
