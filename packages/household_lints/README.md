@@ -11,7 +11,7 @@
 | ルール | 検証すること |
 |---|---|
 | `repository_must_use_result_guard` | `Future<Result<T>>` を返す公開メソッドは、本体を `Result.guard(...)` を直接返す形(`=> Result.guard(...)` か、`return Result.guard(...);` だけのブロック)にする。`async` を付けたもの・`await` したもの・try/catchを手書きしたものは違反。本体の無い(抽象の)メソッドは対象外 |
-| `repository_no_bare_future` | 公開メソッドは、素の `Future`(型引数が `Result` でないもの・nullableなもの)や `FutureOr` を返さない。返り値の型を省略した `async` のメソッドや `void ... async` も違反。抽象のメソッドも対象。同期の素の `T`(`getCurrentUser()` など)と `Stream` は対象外 |
+| `repository_no_bare_future` | 公開メソッドは、素の `Future`(型引数が `Result` でないもの・nullableなもの)や `FutureOr` を返さない。返り値の型が `Future` にならないメソッド(`dynamic`・`void`、型を省略して `dynamic` になるもの)の本体が `async` なら、それも違反。抽象のメソッドも対象。同期の素の `T`(`getCurrentUser()` など)と `Stream` は対象外 |
 | `repository_no_public_properties` | 公開のgetter・setter・フィールドを持たない(static・final・constを問わない)。公開するAPIはメソッドだけにする |
 
 対象は、次の2つを両方満たす宣言である(`lib/src/rules/target_path.dart`)。
@@ -99,7 +99,7 @@ git status
 
 1. `lib/src/rules/<ルール名>.dart` に、`AnalysisRule` を継承したルールを書く。`LintCode` は `static const` で持ち、CIで止めたいなら `severity: DiagnosticSeverity.ERROR` にする。対象の絞り込みは `isRepositoryApiDeclaration`(`target_path.dart`)を使う
 2. `lib/main.dart` の `register` で `registry.registerLintRule(...)` を呼んで登録する
-3. `test/rules/<ルール名>_test.dart` に、違反を検知するケースと、検知しないケース(対象外のフォルダ・対象外のクラス名を含む)を書く。`Result` のスタブは、既存のテストと同じく `lib/utils/result.dart` に置く
+3. `test/rules/<ルール名>_test.dart` に、違反を検知するケースと、検知しないケース(対象外のフォルダ・対象外のクラス名を含む)を書く。`Result` のスタブは、既存のテストと同じく、テスト用パッケージの `lib/utils/result.dart`(`newFile('$testPackageLibPath/utils/result.dart', ...)`)に置く
 4. リポジトリ直下の `analysis_options.yaml` の `diagnostics` に `<ルール名>: true` を足す
 5. 「検証の手順」の1〜3を行う
 6. 規約を `docs/architecture.md`・`docs/style_guide.md` にも書く

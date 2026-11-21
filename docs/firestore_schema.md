@@ -465,4 +465,4 @@
 
 ## 変更履歴
 
-- 2026-11-21: 非公開プロフィールの `sharedNote.ref` の型を文字列のパスからDocumentReferenceへ直し、`sharedNote` が `null` になりうることを足した(Cloud Functionsの初期化と本番データの読み取りで確認)
+- 2026-11-21: 非公開プロフィールの `sharedNote.ref` の型を文字列のパスからDocumentReferenceへ直し、`sharedNote` が `null` になりうること・必須項目であることを足した(Cloud Functionsの初期化と本番データの読み取りで確認)
