@@ -3,19 +3,19 @@
 lockfile_version = 1
 
 [[tools.firebase]]
-version = "15.26.0"
+version = "15.37.0"
 backend = "aqua:firebase/firebase-tools"
-specifiers = ["15.26.0"]
+specifiers = ["15.37.0"]
 
 [tools.firebase."platforms.linux-x64"]
-checksum = "sha256:d6eb340cb4f06dcf5a3015ff588d826ab3bdce75b25855a25866af182417afe7"
-url = "https://github.com/firebase/firebase-tools/releases/download/v15.26.0/firebase-tools-linux"
-url_api = "https://api.github.com/repos/firebase/firebase-tools/releases/assets/503174968"
+checksum = "sha256:f646ce0464f8d501441c88013bcb369c433630951d920afdc8b7023dcce40319"
+url = "https://github.com/firebase/firebase-tools/releases/download/v15.37.0/firebase-tools-linux"
+url_api = "https://api.github.com/repos/firebase/firebase-tools/releases/assets/765404061"
 
 [tools.firebase."platforms.windows-x64"]
-checksum = "sha256:d65253dfe3f7b6c2127c71adf32bd7ef0955a3d1f48693d08fb32d0050880cf0"
-url = "https://github.com/firebase/firebase-tools/releases/download/v15.26.0/firebase-tools-win.exe"
-url_api = "https://api.github.com/repos/firebase/firebase-tools/releases/assets/503175519"
+checksum = "sha256:56c87b28c656c0bfd01ee746ff30e72a021b4ffd90edf2a269cb79d3e7416710"
+url = "https://github.com/firebase/firebase-tools/releases/download/v15.37.0/firebase-tools-win.exe"
+url_api = "https://api.github.com/repos/firebase/firebase-tools/releases/assets/765405863"
 
 [[tools.flutter]]
 version = "3.47.9"
