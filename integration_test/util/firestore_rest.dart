@@ -153,8 +153,6 @@ Map<String, Object?> stringValue(String value) => {'stringValue': value};
 /// integerValueはREST上では文字列で表現される(JSONの数値は精度が足りないため)。
 Map<String, Object?> integerValue(int value) => {'integerValue': '$value'};
 
-Map<String, Object?> booleanValue(bool value) => {'booleanValue': value};
-
 Map<String, Object?> timestampValue(DateTime value) => {
   'timestampValue': value.toUtc().toIso8601String(),
 };
@@ -184,14 +182,6 @@ int readInt(Map<String, dynamic> fields, String field) {
     throw StateError('$field は整数ではありません: ${fields[field]}');
   }
   return int.parse(value);
-}
-
-bool readBool(Map<String, dynamic> fields, String field) {
-  final value = (fields[field] as Map<String, dynamic>?)?['booleanValue'];
-  if (value is! bool) {
-    throw StateError('$field は真偽値ではありません: ${fields[field]}');
-  }
-  return value;
 }
 
 /// タイムスタンプをUTCの[DateTime]として読み取る。

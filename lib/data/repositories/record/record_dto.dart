@@ -235,8 +235,8 @@ String _readRefId(Map<String, dynamic> data, String field, String docId) {
 
 /// incomesコレクションへ書き込むJSONを組み立てる。
 ///
-/// Firestore Rulesが要求する8フィールド版スキーマ
-/// (date/amount/note/createdAt/hasCheckedOut/type/category/property)の
+/// Firestore Rulesが受け付ける7フィールド版スキーマ
+/// (date/amount/note/createdAt/type/category/property)の
 /// キー集合と完全に一致させる必要がある。
 Map<String, Object?> incomeRecordJson({
   required IncomeRecordContent record,
@@ -251,7 +251,7 @@ Map<String, Object?> incomeRecordJson({
 
 /// expensesコレクションへ書き込むJSONを組み立てる。
 ///
-/// Firestore Rulesが要求する8フィールド版スキーマの
+/// Firestore Rulesが受け付ける7フィールド版スキーマの
 /// キー集合と完全に一致させる必要がある。
 Map<String, Object?> expenseRecordJson({
   required ExpenseRecordContent record,
@@ -266,7 +266,7 @@ Map<String, Object?> expenseRecordJson({
 
 /// transfersコレクションへ書き込むJSONを組み立てる。
 ///
-/// Firestore Rulesが要求する8フィールド版スキーマ(category/propertyの代わりに
+/// Firestore Rulesが受け付ける7フィールド版スキーマ(category/propertyの代わりに
 /// fromProperty/toPropertyを持つ)のキー集合と完全に一致させる必要がある。
 Map<String, Object?> transferRecordJson({
   required TransferRecordContent record,
@@ -283,14 +283,15 @@ Map<String, Object?> transferRecordJson({
 ///
 /// `createdAt`はクライアント時計ではなくサーバー時刻のセンチネル
 /// ([FieldValue.serverTimestamp])を書く(Firestore Rulesが
-/// `createdAt == request.time`を要求するため)。`hasCheckedOut`は常にtrueを書く
-/// (このRepositoryが作成するレコードは作成と同時に残高へ反映済みであることを
-/// 表すフラグであり、カレンダーの削除処理がこのフラグを見て残高打ち消しの
-/// 要否を決めるため)。
+/// `createdAt == request.time`を要求するため)。
+///
+/// 旧フィールド`hasCheckedOut`(残高へ反映済みかのフラグ)は書かない。記録は
+/// 常に作成と同時に残高へ反映されるため意味を持たず、削除時の打ち消しも
+/// このフラグを見ない。Rulesは書いていた頃の8フィールド版も受け付けている
+/// (更新していない端末のアプリが書くため)。
 Map<String, Object?> _commonRecordJson(RecordContent record) => {
   'date': Timestamp.fromDate(record.date.value),
   'amount': record.amount.value,
   'note': record.note.value,
   'createdAt': FieldValue.serverTimestamp(),
-  'hasCheckedOut': true,
 };

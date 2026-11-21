@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../../domain/models/balance_effect.dart';
 import '../../../domain/models/notebook.dart';
 import '../../../domain/models/period.dart';
 import '../../../domain/models/record.dart';
@@ -128,9 +127,10 @@ class FirestoreRecordRepository implements RecordRepository {
 
       // 打ち消し量は引数のrecordではなく再読したドキュメントから求める。
       // 引数が古い内容を保持していても残高がずれないようにするため。
-      final effects = _shouldRevertBalance(data)
-          ? toDomain(recordRef.id, data).content.balanceEffects
-          : const <BalanceEffect>[];
+      // 打ち消しは無条件に行う。記録は作成と同時に残高へ反映されるため。
+      // 旧フィールドhasCheckedOutがfalse(残高へ未反映)の記録は本番に1件も
+      // 無いことを確かめたうえで、このフィールドを廃止した。
+      final effects = toDomain(recordRef.id, data).content.balanceEffects;
 
       // 資産の存在確認は読み取りであり、Firestoreのトランザクションは
       // すべての読み取りを書き込みより前に行う必要があるため、打ち消しの
@@ -155,17 +155,6 @@ class FirestoreRecordRepository implements RecordRepository {
       }
       transaction.delete(recordRef);
     });
-  }
-
-  /// レコードのドキュメント[data]が残高へ反映済みかどうかを判定する。
-  ///
-  /// `hasCheckedOut`は残高へ反映済みであることを表すフラグ。欠損している
-  /// (あるいはbool以外が入っている)古いドキュメントは反映済みとみなす。
-  /// 未反映扱いにすると、実際には残高へ乗っている分を打ち消さないまま
-  /// レコードだけが消え、残高がずれるため。
-  bool _shouldRevertBalance(Map<String, dynamic> data) {
-    final value = data['hasCheckedOut'];
-    return value is! bool || value;
   }
 
   Stream<List<Record>> _watchIncomes(Period period) =>
