@@ -145,7 +145,7 @@ jobs:
           fi
 
       - name: Download canonical golden patch
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: canonical-goldens-${{ needs.generate.outputs.head_sha }}
           path: ${{ runner.temp }}/canonical-goldens
