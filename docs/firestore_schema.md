@@ -230,16 +230,18 @@
     "PrivateProfile": {
       "type": "object",
       "description": "User's private profile information",
+      "required": ["sharedNote"],
       "properties": {
         "sharedNote": {
-          "type": "object",
+          "type": ["object", "null"],
           "required": ["ref"],
           "properties": {
             "ref": {
-              "type": "string",
-              "description": "Reference path to shared note"
+              "type": "DocumentReference",
+              "description": "DocumentReference to the shared note (sharedNotes/{pairId})"
             }
-          }
+          },
+          "description": "null when the user has no pair"
         }
       }
     }
@@ -454,3 +456,13 @@
   - transfers: 共有振替記録
 
 このスキーマは、Firestoreのセキュリティルールに基づいて作成されており、データベースの構造と各フィールドの制約を表現しています。
+
+### 非公開プロフィールの sharedNote
+
+- ユーザー作成時にCloud Functions(`onCreateUser`)が `sharedNote: null` で作る。ペアが無いときは `null` のまま
+- ペアがあるときは `{ref}` になり、`ref` は共有ノート(`sharedNotes/{pairId}`)を指すDocumentReferenceである。文字列のパスではない(アプリは `DocumentReference` として読み、その `id` をpairIdにする)
+- Firestore Rulesは `privateProfiles` に所有者の読み取りだけを許可していて、値の形は検証しない
+
+## 変更履歴
+
+- 2026-11-21: 非公開プロフィールの `sharedNote.ref` の型を文字列のパスからDocumentReferenceへ直し、`sharedNote` が `null` になりうることを足した(Cloud Functionsの初期化と本番データの読み取りで確認)
