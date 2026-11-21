@@ -17,7 +17,10 @@ initializeApp();
  * Create public profile document and personal note document
  * when a user is created.
  */
-// onCreateUserに対応するイベントがcloud-functions/v2に見つからなかったのでv1を使う
+// 2nd genの相当トリガー(firebase-functions/v2/identityのonUserCreated)は公式にはまだPreviewなので、
+// 1st genのv1を使う。このためランタイムは1st genで選べるNode.js 22に留めている。
+// 背景と見直しの期限は docs/adr/001-firebase-functions-node22.md を参照
+
 export const onCreateUser = functions
   .region("asia-northeast2")
   .auth.user().onCreate(async (user) => {

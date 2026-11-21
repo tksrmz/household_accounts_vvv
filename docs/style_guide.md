@@ -16,6 +16,16 @@
 
 ---
 
+### ADR(Architecture Decision Record)
+
+コードや設定を見ただけでは理由が分からない決定(ランタイムのバージョンを上げない理由など)を、1決定1ファイルで残す。
+
+- 雛形は `/docs/adr/template.md`。タイトル・ステータス・コンテキスト・決定・影響・コンプライアンスの6項目を書く
+- 保存先: `/docs/adr/NNN-<内容を表す英語のkebab-case>.md`(NNNは001からの3桁の連番)
+- 承認した決定の内容は書き換えない。決定を変えるときは新しいADRを起こし、古いADRのステータスを破棄にする。破棄する側と破棄される側の両方のステータスに相手の番号を書く
+
+---
+
 ### ライブドキュメント型(常に最新を保つ)
 
 | ドキュメント | 内容 | 保存先 |
@@ -48,6 +58,7 @@ household_accounts_claude/
 ├── firebase/               # Firebaseバックエンド(Rules・Cloud Functions・Hosting)
 └── docs/
     ├── features/           # スナップショットドキュメント
+    ├── adr/                # ADR(template.mdが雛形)
     ├── architecture.md
     ├── style_guide.md      # このドキュメント
     ├── firestore_schema.md
@@ -385,3 +396,4 @@ Amount(this.value) : assert(value > 0);
 
 - 2026-11-08: アーキテクチャ移行(移行計画PR1〜PR9)の完了に合わせて全面改訂
 - 2026-11-21: cloud_firestore 6.9.0でAndroidの `runTransaction` 完了時の `MissingPluginException` が直った(firebase/flutterfire#18546)ため、integrationテストの限定フィルタの記述を削除した
+- 2026-11-21: ADR(`docs/adr/`)の運用を追加した

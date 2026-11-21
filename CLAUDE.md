@@ -23,6 +23,7 @@ This repository contains both the app and its backend:
 Notes:
 
 - Firebase CLI commands (`firebase deploy`, `firebase emulators:start`) are run from `firebase/`
+- Windowsでは、miseで入れた `firebase`(単体バイナリ)で `firebase deploy` を実行しないこと。単体バイナリは中にNode 20.18.2を持っていて、predeployの `npm run lint` がそのnpmで動いて失敗する(15.37.0で確認)。代わりに `mise.toml` の `firebase` と同じバージョンをnpmから取り、miseのNode 22で動かす: `npx firebase-tools@<mise.tomlのfirebaseのバージョン> deploy --only functions --project production`
 - Backend tests run online against the dev project: `npm --prefix firebase/functions test`
 - Emulator ports are defined in `firebase/firebase.json` (Firestore: 8081, Auth: 9099) and must stay in sync with `lib/main.dart`
 
