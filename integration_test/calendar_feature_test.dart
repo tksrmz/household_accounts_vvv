@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:household_accounts/main.dart';
 
@@ -87,8 +86,6 @@ Future<void> calendarFeature() async {
     const leadingText = '$categoryName@$note';
     const amount = 3000;
 
-    _ignoreFirestoreTransactionTeardownError();
-
     await tester.pumpWidget(const MyApp());
     await signUpApp(tester);
     await tester.pumpAndSettle();
@@ -163,8 +160,6 @@ Future<void> calendarFeature() async {
     const leadingText = '$fromPropertyName→$toPropertyName';
     const amount = 30000;
 
-    _ignoreFirestoreTransactionTeardownError();
-
     await tester.pumpWidget(const MyApp());
     // FIXME: ペアリング機能未作成の間は、seed済みのペアユーザーでサインインする
     await signInApp(tester, pairUser);
@@ -229,30 +224,6 @@ Future<void> calendarFeature() async {
     );
     expect(await countRecordsByNote(notePath, 'transfers', note), 0);
   });
-}
-
-/// レコード削除のトランザクション終了時にfirebase_firestoreプラグインが報告する
-/// 既知の例外を、実行中のテストの間だけ無視する。
-///
-/// `runTransaction`はトランザクション完了時にトランザクション専用の
-/// EventChannelの購読をcancelするが、ネイティブ側は完了と同時にそのチャネルの
-/// ハンドラを外すため、cancelがMissingPluginExceptionになる
-/// (cloud_firestore 6.8.0)。プラグイン内部の後始末の問題であり、
-/// トランザクション自体は成功している。flutter_testはFlutterErrorへ報告された
-/// 例外をすべてテスト失敗として扱うため、この例外だけを落として他は素通しする。
-void _ignoreFirestoreTransactionTeardownError() {
-  final previous = FlutterError.onError;
-  FlutterError.onError = (details) {
-    final exception = details.exception;
-    if (exception is MissingPluginException &&
-        (exception.message ?? '').contains(
-          'plugins.flutter.io/firebase_firestore/transaction/',
-        )) {
-      return;
-    }
-    previous?.call(details);
-  };
-  addTearDown(() => FlutterError.onError = previous);
 }
 
 /// 月次カレンダーの[day]の日セルを開く。

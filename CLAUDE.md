@@ -224,7 +224,6 @@ A second screen of the same feature (editor, daily view) lives in the same folde
 - Don't exhaustively assert Command internals (`running`/`error`/`completed`) in ViewModel tests; that is `test/utils/command_test.dart`'s job. Merge tests sharing the same premise into one behavior
 - Firestore Repository implementations have no unit tests; paths, DTOs, write JSON and stream combination are unit-tested, and Firestore effects are verified by integration tests (`integration_test/util/firestore_probe.dart`)
 - Goldens: `testGoldens` in `test/test-util/golden_helper.dart` captures 3 widths into `golden/` next to the test (see Golden Tests above for canonical operation)
-- Integration scenarios that run `runTransaction` (record deletion) must install the limited `MissingPluginException` filter first (`_ignoreFirestoreTransactionTeardownError` in `integration_test/calendar_feature_test.dart`): cloud_firestore 6.8.0 reports a harmless plugin teardown exception after a successful transaction
 - Integration UI operations are shared in `integration_test/util/` (`ui_operations.dart`, `record_entry_operations.dart`, `property_operations.dart`, `category_operations.dart`); data that cannot be entered via UI is seeded over REST (`record_seeding.dart`)
 
 ### Test Documentation

@@ -177,7 +177,6 @@ household_accounts_claude/
 - **UI操作は `integration_test/util/` に集約する**(`ui_operations.dart`・`record_entry_operations.dart`・`property_operations.dart`・`category_operations.dart`)。同じ操作をテストファイルごとに書かない
 - UIから入れられないデータ(未来日付の記録など)は、`record_seeding.dart`(Firestore REST API)で投入する
 - 共有ノートのシナリオは、シード済みのペアユーザーでサインインし、共有ノートへ切り替えて行う
-- **`runTransaction` を通るシナリオ(記録の削除)では、テストの冒頭で `MissingPluginException` の限定フィルタを入れる**(`integration_test/calendar_feature_test.dart` の `_ignoreFirestoreTransactionTeardownError`)。cloud_firestore 6.8.0の `runTransaction` は、トランザクションが成功しても完了時にプラグイン内部の後始末で無害な `MissingPluginException` を `FlutterError` へ報告し、flutter_testはそれをテストの失敗として扱うため。落とすのはメッセージにトランザクション用のチャネル名(`plugins.flutter.io/firebase_firestore/transaction/`)を含むものだけで、ほかの例外は通す。`WriteBatch` だけを使うシナリオには要らない。プラグインを更新したら、まだ必要かを確かめる
 
 ### テスト記述・管理に関するルール
 
@@ -385,3 +384,4 @@ Amount(this.value) : assert(value > 0);
 ## 変更履歴
 
 - 2026-11-08: アーキテクチャ移行(移行計画PR1〜PR9)の完了に合わせて全面改訂
+- 2026-11-21: cloud_firestore 6.9.0でAndroidの `runTransaction` 完了時の `MissingPluginException` が直った(firebase/flutterfire#18546)ため、integrationテストの限定フィルタの記述を削除した
