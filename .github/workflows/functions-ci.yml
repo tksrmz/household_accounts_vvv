@@ -1,0 +1,48 @@
+name: Functions CI
+
+# Cloud Functions(firebase/functions/)をデプロイと同じ手順でlint・ビルドできることを確かめる。
+# 単体テスト(npm test)は開発用プロジェクトのサービスアカウントキーが要るので、ここでは走らせない。
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'firebase/functions/**'
+      - 'firebase/firebase.json'
+      # Node.jsのバージョン
+      - 'mise.toml'
+      - 'mise.lock'
+      # このCI自体
+      - '.github/workflows/functions-ci.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: functions-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      MISE_ENABLE_TOOLS: node
+    defaults:
+      run:
+        working-directory: firebase/functions
+    steps:
+      - uses: actions/checkout@v7
+
+      # バージョンはmise.toml(+mise.lock)が正。入れるツールはジョブのMISE_ENABLE_TOOLSで絞る
+      - uses: jdx/mise-action@v5
+        with:
+          cache_key_prefix: mise-v1-${{ env.MISE_ENABLE_TOOLS }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build

@@ -1,0 +1,94 @@
+name: Deploy Functions
+
+# Cloud Functionsを本番へデプロイし、本番がADR-001(Node.js 22・1st gen)に沿っていることを確かめる。
+#
+# デプロイをCIに置くのは、ソースの宣言(engines.node)と本番のランタイムをずらさないため。
+# 手でデプロイしていたころ、engines.nodeを22に変えたのに本番が廃止済みのnodejs20のまま
+# 残っていた(docs/adr/001-firebase-functions-node22.md)。
+#
+# 前提の設定(GitHubのproduction-functionsエンバイロメントとGoogle CloudのWorkload Identity Federation)は
+# docs/functions_deploy.md にある。設定が無いままこのワークフローが走ると、最初のステップで失敗する。
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'firebase/functions/**'
+      - 'firebase/firebase.json'
+      - '.github/workflows/functions-deploy.yml'
+  workflow_dispatch:
+
+# デプロイを途中で止めると本番が中途半端な状態になりうるので、実行中のものは止めずに順番待ちにする
+concurrency:
+  group: functions-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # フォークでは動かさない
+    if: github.repository == 'tksrmz/household_accounts_vvv'
+    runs-on: ubuntu-latest
+    # production-functionsエンバイロメントは、承認者による承認とmasterだけからのデプロイを課す。
+    # Workload Identity Federationの条件もこのエンバイロメントからの実行だけを許可している
+    environment: production-functions
+    permissions:
+      contents: read
+      # Workload Identity FederationでGoogle Cloudの認証情報を得るため
+      id-token: write
+    env:
+      MISE_ENABLE_TOOLS: node
+    steps:
+      # 変数はproduction-functionsエンバイロメントに置く。エンバイロメントが未設定のまま
+      # (ワークフローが参照したことで保護ルール無しで自動作成された場合を含む)動いたら、ここで止める
+      - name: Check deploy settings
+        env:
+          WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          DEPLOY_SERVICE_ACCOUNT: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$WORKLOAD_IDENTITY_PROVIDER" ] || [ -z "$DEPLOY_SERVICE_ACCOUNT" ]; then
+            echo "::error::production-functionsエンバイロメントの変数 GCP_WORKLOAD_IDENTITY_PROVIDER / GCP_DEPLOY_SERVICE_ACCOUNT が無い。docs/functions_deploy.md の設定を行うこと"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+
+      # バージョンはmise.toml(+mise.lock)が正。入れるツールはジョブのMISE_ENABLE_TOOLSで絞る。
+      # firebase-toolsはmiseで入れない。miseのfirebaseは単体バイナリで、中に持つNode.js 20で
+      # predeployのlint・buildを走らせてしまうため、miseのNode.jsでnpmのfirebase-toolsを動かす
+      - uses: jdx/mise-action@v5
+        with:
+          cache_key_prefix: mise-v1-${{ env.MISE_ENABLE_TOOLS }}
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: firebase/functions
+
+      - name: Resolve firebase-tools version
+        id: firebase-tools
+        run: |
+          version=$(sed -nE 's/^firebase[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' mise.toml)
+          if [ -z "$version" ]; then
+            echo "::error::mise.tomlにfirebaseのバージョンが無い"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      # サービスアカウントを経由するWorkload Identity Federation。firebase-toolsでのデプロイの
+      # 成功例が報告されているのはこの形だけなので、サービスアカウントを使わない直接の形にはしない
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      # --forceは付けない。ソースから消えた関数が本番にあると、削除せずに失敗させる
+      - name: Deploy
+        run: npx --yes "firebase-tools@${{ steps.firebase-tools.outputs.version }}" deploy --only functions --project production --non-interactive
+        working-directory: firebase
+
+      - name: Verify production complies with ADR-001
+        run: |
+          npx --yes "firebase-tools@${{ steps.firebase-tools.outputs.version }}" functions:list --project production --json \
+            | node ../docs/adr/checks/001-firebase-functions-node22.production.mjs
+        working-directory: firebase

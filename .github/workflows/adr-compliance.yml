@@ -1,0 +1,32 @@
+name: ADR Compliance
+
+# ADR(docs/adr/)のコンプライアンスのうち、リポジトリのファイルだけで確かめられるものを検査する。
+# 検査はADRごとに docs/adr/checks/NNN-*.test.mjs に書く。検査対象のファイルはADRごとに
+# 違うので、パスで絞らずに全PRで走らせる(依存を入れないので数秒で終わる)。
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: adr-compliance-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      MISE_ENABLE_TOOLS: node
+    steps:
+      - uses: actions/checkout@v7
+
+      # バージョンはmise.toml(+mise.lock)が正。入れるツールはジョブのMISE_ENABLE_TOOLSで絞る
+      - uses: jdx/mise-action@v5
+        with:
+          cache_key_prefix: mise-v1-${{ env.MISE_ENABLE_TOOLS }}
+
+      - name: Check ADR compliance
+        run: node --test "docs/adr/checks/*.test.mjs"

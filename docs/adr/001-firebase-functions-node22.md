@@ -69,19 +69,12 @@ Cloud Functions for Firebaseは1st genの `auth.user().onCreate` を使い続け
 
 ## コンプライアンス
 
-次がすべて成り立っていることを確かめる。
+守りたい状態ごとに、次の仕組みで確かめる。
 
-- `firebase/functions/package.json`
-  - `engines.node` が `"22"`
-  - `devEngines.runtime.version` が `">=22.x.y <23"` の形(下限のメジャーが22)
-- `firebase/functions/scripts/check-node-version.cjs` が、`engines.node` と `devEngines.runtime.version` のメジャーが一致し、実行中のNode.jsがその範囲にあることを確かめる。`lint`・`build`・`test`・`deploy` などの `pre*` スクリプトから毎回走る
-- `firebase/functions/.npmrc` が `engine-strict=true` で、Node.js 22以外ではインストールが失敗する
-- リポジトリ直下の `mise.toml` の `node` が22系
-- `firebase/firebase.json` の `functions` に `runtime` を書いていない(書くと `engines.node` より優先される)
-- 本番のランタイムが実際にNode.js 22であること。**`engines.node` を変えただけでは本番は変わらない**(本番がnodejs20のまま残っていた原因)ので、ランタイムに関わる変更をしたらデプロイし、次のコマンドの `Runtime` 列が `nodejs22`、`Version` 列が `v1` であることを確かめる
-
-  ```bash
-  firebase functions:list --project production
-  ```
-
-PRのCI(`pr-ci.yml`)は `firebase/functions/` を対象にしていないので、上の確認は自動では行われない。
+- **デプロイするとNode.js 22・1st genになること(ソースの宣言)**: [`docs/adr/checks/001-firebase-functions-node22.test.mjs`](./checks/001-firebase-functions-node22.test.mjs) が確かめ、`adr-compliance.yml` が全PRで走らせる。確かめる内容は次のとおり
+  - `firebase/functions/package.json` の `engines.node` が `"22"`
+  - `firebase/firebase.json` の `functions` に `runtime` が無い(書くと `engines.node` より優先される)
+  - リポジトリ直下の `mise.toml` の `node` が22系(開発環境とCIのNode.js)
+  - 関数のソースが `firebase-functions/v1` だけをimportしている(パッケージ直下の `firebase-functions` は2nd genのAPIを指す)
+- **本番が実際にNode.js 22・1st genであること**: `engines.node` を変えただけでは本番は変わらない(本番がnodejs20のまま残っていた原因)。そこでデプロイは `functions-deploy.yml` がmasterへのマージをきっかけに行い、デプロイの直後に [`docs/adr/checks/001-firebase-functions-node22.production.mjs`](./checks/001-firebase-functions-node22.production.mjs) で、本番のすべての関数が `gcfv1` かつ `nodejs22` であることを確かめる。手順と前提の設定は [functions_deploy.md](../functions_deploy.md) にある(2026-11-23時点で前提の設定は未了で、CIからのデプロイはまだ一度も成功していない。最初のデプロイが成功したら、この注記を消す)
+- **見直しの期限(2027-04-30)に気づくこと**: 期限を設定したIssueで管理する(2026-11-23時点で未作成。作ったらIssueへのリンクをここに書く)

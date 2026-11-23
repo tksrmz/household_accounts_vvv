@@ -24,6 +24,8 @@ Notes:
 
 - Firebase CLI commands (`firebase deploy`, `firebase emulators:start`) are run from `firebase/`
 - Windowsでは、miseで入れた `firebase`(単体バイナリ)で `firebase deploy` や、Functionsエミュレータを含む `firebase emulators:*` を実行しないこと。単体バイナリは中にNode 20.18.2を持っていて、`deploy` はpredeployの `npm run lint` がそのnpmで動いて失敗し、`emulators:exec` はFunctionsエミュレータが起動できずテストが始まらないまま止まる(どちらも15.37.0で確認)。代わりに `mise.toml` の `firebase` と同じバージョンをnpmから取り、miseのNode 22で動かす: `npx firebase-tools@<mise.tomlのfirebaseのバージョン> deploy --only functions --project production`(エミュレータも同様に `npx firebase-tools@<バージョン> emulators:exec ...`)
+- Cloud Functionsの本番デプロイはCIが行う: `firebase/functions/**` などを変えたPRがmasterに入ると `.github/workflows/functions-deploy.yml` が動き、`production-functions` エンバイロメントの承認の後にデプロイし、本番がADR-001(Node.js 22・1st gen)に沿っていることを確かめる。手でのデプロイはCIが使えないときだけにする。手順と前提の設定は `docs/functions_deploy.md`(2026-11-23時点で前提の設定は未了で、CIからのデプロイはまだ成功していない)
+- ADRのコンプライアンスのうちファイルで確かめられるものは `docs/adr/checks/NNN-*.test.mjs` にあり、全PRで `adr-compliance.yml` が走らせる。ローカルでは `node --test "docs/adr/checks/*.test.mjs"`
 - Backend tests run online against the dev project: `npm --prefix firebase/functions test`
 - Emulator ports are defined in `firebase/firebase.json` (Firestore: 8081, Auth: 9099) and must stay in sync with `lib/main.dart`
 
