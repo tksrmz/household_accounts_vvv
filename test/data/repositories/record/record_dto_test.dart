@@ -200,7 +200,7 @@ void main() {
   });
 
   group('incomeRecordJson', () {
-    test('組み立てたJSONのとき、Rulesが要求する8フィールドと完全に一致すること', () {
+    test('組み立てたJSONのとき、Rulesが受け付ける7フィールドと完全に一致すること', () {
       final json = incomeRecordJson(
         record: _newIncomeRecord(),
         categoryRef: _fakeRef('category-1'),
@@ -212,7 +212,6 @@ void main() {
         'amount',
         'note',
         'createdAt',
-        'hasCheckedOut',
         'type',
         'category',
         'property',
@@ -239,7 +238,6 @@ void main() {
       expect(json['amount'], 1000);
       expect(json['note'], '給料');
       expect(json['createdAt'], isA<FieldValue>());
-      expect(json['hasCheckedOut'], isTrue);
       expect(json['type'], 'income');
       // _fakeRefは呼び出すたびに新しいインスタンスを返すため、比較には
       // 同一インスタンス(categoryRef/propertyRef)を使う。
@@ -249,7 +247,7 @@ void main() {
   });
 
   group('expenseRecordJson', () {
-    test('組み立てたJSONのとき、Rulesが要求する8フィールドと完全に一致すること', () {
+    test('組み立てたJSONのとき、Rulesが受け付ける7フィールドと完全に一致すること', () {
       final json = expenseRecordJson(
         record: ExpenseRecordContent(
           date: RecordDate(DateTime(2026, 8, 26)),
@@ -267,20 +265,18 @@ void main() {
         'amount',
         'note',
         'createdAt',
-        'hasCheckedOut',
         'type',
         'category',
         'property',
       });
       expect(json['type'], 'expense');
-      expect(json['hasCheckedOut'], isTrue);
       expect(json['createdAt'], isA<FieldValue>());
     });
   });
 
   group('transferRecordJson', () {
     test(
-      '組み立てたJSONのとき、Rulesが要求する8フィールド(fromProperty/toProperty)と完全に一致すること',
+      '組み立てたJSONのとき、Rulesが受け付ける7フィールド(fromProperty/toProperty)と完全に一致すること',
       () {
         final fromPropertyRef = _fakeRef('property-3');
         final toPropertyRef = _fakeRef('property-4');
@@ -301,13 +297,11 @@ void main() {
           'amount',
           'note',
           'createdAt',
-          'hasCheckedOut',
           'type',
           'fromProperty',
           'toProperty',
         });
         expect(json['type'], 'transfer');
-        expect(json['hasCheckedOut'], isTrue);
         expect(json['createdAt'], isA<FieldValue>());
         // _fakeRefは呼び出すたびに新しいインスタンスを返すため、比較には
         // 同一インスタンス(fromPropertyRef/toPropertyRef)を使う。

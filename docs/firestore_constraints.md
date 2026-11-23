@@ -62,7 +62,7 @@
 | amount | 0より大きい整数、必須項目 | ビジネスルール | Firestore Rules, ドメインモデル |
 | note | 100文字以下、必須項目 | UX要件 | Firestore Rules, ドメインモデル |
 | createdAt | 必須項目、自動生成 | データ整合性、監査証跡 | Repository実装 |
-| hasCheckedOut | 必須項目、常にtrue(残高へ反映済みであることを表す) | ビジネスルール | Repository実装 |
+| hasCheckedOut | 廃止。アプリは書かず、読まない(旧アプリが書いた記録には `true` で残る) | 記録は作成と同時に残高へ反映されるため、残高へ反映済みかのフラグは意味を持たない | なし(Firestore Rulesは、更新していない端末のアプリが書く、このフィールドを持つ8フィールド版も受け付ける) |
 | type | "income"固定値 | データ整合性 | Repository実装 |
 | property | 有効な資産への参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |
 | category | 有効な収入カテゴリへの参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |
@@ -76,7 +76,7 @@
 | amount | 0より大きい整数、必須項目 | ビジネスルール | Firestore Rules, ドメインモデル |
 | note | 100文字以下、必須項目 | UX要件 | Firestore Rules, ドメインモデル |
 | createdAt | 必須項目、自動生成 | データ整合性、監査証跡 | Repository実装 |
-| hasCheckedOut | 必須項目、常にtrue(残高へ反映済みであることを表す) | ビジネスルール | Repository実装 |
+| hasCheckedOut | 廃止。アプリは書かず、読まない(旧アプリが書いた記録には `true` で残る) | 記録は作成と同時に残高へ反映されるため、残高へ反映済みかのフラグは意味を持たない | なし(Firestore Rulesは、更新していない端末のアプリが書く、このフィールドを持つ8フィールド版も受け付ける) |
 | type | "expense"固定値 | データ整合性 | Repository実装 |
 | property | 有効な資産への参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |
 | category | 有効な支出カテゴリへの参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |
@@ -90,7 +90,7 @@
 | amount | 0より大きい整数、必須項目 | ビジネスルール | Firestore Rules, ドメインモデル |
 | note | 100文字以下、必須項目 | UX要件 | Firestore Rules, ドメインモデル |
 | createdAt | 必須項目、自動生成 | データ整合性、監査証跡 | Repository実装 |
-| hasCheckedOut | 必須項目、常にtrue(残高へ反映済みであることを表す) | ビジネスルール | Repository実装 |
+| hasCheckedOut | 廃止。アプリは書かず、読まない(旧アプリが書いた記録には `true` で残る) | 記録は作成と同時に残高へ反映されるため、残高へ反映済みかのフラグは意味を持たない | なし(Firestore Rulesは、更新していない端末のアプリが書く、このフィールドを持つ8フィールド版も受け付ける) |
 | type | "transfer"固定値 | データ整合性 | Repository実装 |
 | fromProperty | 有効な資産への参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |
 | toProperty | 有効な資産への参照、必須項目 | 参照整合性 | Firestore Rules, Repository実装 |
@@ -109,7 +109,7 @@
 記録の作成・削除は、記録のドキュメントと関連する資産の残高を1つの単位として書き込む(`lib/data/repositories/record/firestore_record_repository.dart`)。`WriteBatch` と `runTransaction` のどちらを使うかは、読み取りを伴うかどうかで決める。
 
 1. **記録(収入/支出/振替)の作成**: `WriteBatch` で、記録のドキュメントの作成と資産の残高の増減(`FieldValue.increment`。振替は2つの資産)をまとめて書く。読み取りを伴わないのでトランザクションは使わない。バッチはオフラインでもローカルに即時反映され、復帰後に同期される(トランザクションはオフラインでは失敗する)
-2. **記録(収入/支出/振替)の削除**: `runTransaction` で、保存されている記録を読み直し、その内容から求めた残高の打ち消しと記録の削除を行う。打ち消す金額は読み直した値を正とするため、読み取りと書き込みを一体にする。打ち消しは `hasCheckedOut` がtrue(または欠損)の記録だけに行う。参照先の資産が既に無いときはその資産の打ち消しを飛ばし、記録の削除は成功させる。記録が既に無いときは何もせず成功とする
+2. **記録(収入/支出/振替)の削除**: `runTransaction` で、保存されている記録を読み直し、その内容から求めた残高の打ち消しと記録の削除を行う。打ち消す金額は読み直した値を正とするため、読み取りと書き込みを一体にする。打ち消しは無条件に行う(記録は作成と同時に残高へ反映されるため)。参照先の資産が既に無いときはその資産の打ち消しを飛ばし、記録の削除は成功させる。記録が既に無いときは何もせず成功とする
 
 記録を更新する操作はアプリに無い(Firestore Rulesは記録のupdateを許可しているが、アプリからは使わない)。
 
@@ -119,7 +119,8 @@
 
 Firestore Rules(`firebase/firestore.rules`)は、アプリが今は書き込まない旧形式も受け付ける。
 
-- **`hasCheckedOut` の無い7フィールドの記録**(`isValidRecordOld`): 収入・支出・振替の作成と更新で、今の8フィールドの形(`isValidRecord`)に加えて、`hasCheckedOut` を持たない形も通す。それ以外のフィールドの検証は今の形と同じ。アプリは常に `hasCheckedOut: true` を含む8フィールドで書く。読み取りでは `hasCheckedOut` を見ないので、この形の記録も表示できる。削除時は `hasCheckedOut` が欠損した記録を残高へ反映済みとみなして打ち消す
+- **`hasCheckedOut` を持つ8フィールドの記録**(`isValidRecord`): 収入・支出・振替の作成と更新で、アプリが書く7フィールドの形(`isValidRecordOld`。関数名は8フィールド版を正としていた頃のまま)に加えて、廃止したフィールド `hasCheckedOut`(bool)を持つ形も通す。それ以外のフィールドの検証は同じ。更新していない端末のアプリ(2022-12〜2026-11のビルド)が `hasCheckedOut: true` を含む8フィールドで書くため、全端末が更新されるまで残す。アプリは読み取りでも削除でも `hasCheckedOut` を見ない
+  - 本番の記録は、2026-11-21の時点で `hasCheckedOut` がtrueのものが1005件、欠損のもの(2022-05〜2022-12-11に作られた7フィールドの記録)が203件で、falseのものは無い
 - **旧 `categories` コレクション**(`isValidCategory`): 個人ノート・共有ノートの両方で、読み取り・作成・更新・削除を許可する。形は `name`(文字列・20文字以下。下限は確かめない)と `type`(`income` / `expense`)の2フィールドで、予算は持たない。アプリは読み書きしない(カテゴリは `incomeCategories` / `expenseCategories` を使う)
 - **`calendars` コレクション**: 個人ノート・共有ノートの両方で、読み取りだけを許可する。アプリは読まない
 
@@ -141,3 +142,4 @@ Firestore Rules(`firebase/firestore.rules`)は、アプリが今は書き込ま�
 - 2026-11-07: 収入・支出カテゴリの削除制約を実態に合わせて訂正(資産と同じく、関連レコードの有無を確認せずに削除し、参照していたレコードは「削除済み」と表示する。削除前にUIで確認する)。トランザクション要件からカテゴリ削除を外した
 - 2026-11-08: 「トランザクション要件」を実態に合わせて「原子性の要件」に書き直した(記録の作成は `WriteBatch`、削除は `runTransaction`。記録を更新する操作は無い)。収入・支出・振替レコードの `date` の未来日付禁止の実装場所を、Firestore Rules・ドメインモデルから記録入力の入力境界(UI)へ訂正した
 - 2026-11-21: 実態に合わせて訂正した。支出レコードの「予算チェック」(超過時の警告)を削った(アプリにこの警告は無い)。振替の同一資産禁止の実装場所を、Firestore Rules・ドメインモデルからFirestore Rules・記録入力のUIへ直した(ドメインの検査はデバッグビルドだけで効く `@Assert`)。資産残高は資産エディタで直接書き換えられるため、レコードの合計と一致するとは限らないことにした。非公開プロフィールの `sharedNote` を、`null` か共有ノートへのDocumentReferenceで、クライアントからは書き込めない(Rulesは読み取りだけを許可)ことに直した。Rulesが今も受け付ける旧形式(7フィールドの記録・`categories`・`calendars`)の節を足した
+- 2026-11-21: 記録の `hasCheckedOut` を廃止した(書かず、削除時の打ち消しの条件にも使わない)。本番にfalseの記録が無いことを読み取りで確かめた。Rulesの旧形式の節を、アプリが7フィールドで書くことに合わせて直した

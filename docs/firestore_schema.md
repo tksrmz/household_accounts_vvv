@@ -12,7 +12,7 @@
   "definitions": {
     "Record": {
       "type": "object",
-      "required": ["date", "amount", "note", "createdAt", "hasCheckedOut", "type"],
+      "required": ["date", "amount", "note", "createdAt", "type"],
       "properties": {
         "date": {
           "type": "string",
@@ -36,7 +36,7 @@
         },
         "hasCheckedOut": {
           "type": "boolean",
-          "description": "Whether the record has been checked out"
+          "description": "Deprecated. Whether the record has been applied to the property balances. The app no longer writes or reads it; records written by older app versions still have it (always true)"
         },
         "type": {
           "type": "string",
@@ -421,7 +421,8 @@
 
 1. **Record（記録）**
    - 基本的な記録型で、income（収入）、expense（支出）、transfer（振替）の3種類があります
-   - 共通フィールド: date, amount, note, createdAt, hasCheckedOut, type
+   - 共通フィールド: date, amount, note, createdAt, type
+   - `hasCheckedOut`(残高へ反映済みかのフラグ)は廃止したフィールドで、今のアプリは書かず、読まない。2022-12〜2026-11のアプリが書いた記録には `true` で残っている
    - タイプ別の特有フィールド:
      - income/expense: property, category
      - transfer: fromProperty, toProperty
@@ -465,4 +466,5 @@
 
 ## 変更履歴
 
+- 2026-11-21: 記録の `hasCheckedOut` を廃止したフィールドとし、必須項目から外した(本番にfalseの記録が無いことを読み取りで確認)
 - 2026-11-21: 非公開プロフィールの `sharedNote.ref` の型を文字列のパスからDocumentReferenceへ直し、`sharedNote` が `null` になりうること・必須項目であることを足した(Cloud Functionsの初期化と本番データの読み取りで確認)

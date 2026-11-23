@@ -33,8 +33,8 @@ service cloud.firestore {
           && record.fromProperty.ref != record.toProperty.ref);
     }
 
-    // DEPRECATED
   	// income, expense, transfer recordドキュメントのスキーマ検証を行う関数
+    // (hasCheckedOutを持たない7フィールド版。今のアプリが書く形)
     function isValidRecordOld(record) {
       return record.size() == 7
         && 'date' in record && record.date is timestamp
@@ -48,7 +48,11 @@ service cloud.firestore {
         && hasValidRecordReferences(record);
     }
 
+    // DEPRECATED
   	// income, expense, transfer recordドキュメントのスキーマ検証を行う関数
+    // (廃止したフィールドhasCheckedOutを持つ8フィールド版)。更新していない端末の
+    // アプリがこの形で書くため、全端末が7フィールド版を書くアプリに
+    // 更新されるまで受け付ける
     function isValidRecord(record) {
       return record.size() == 8
         && 'date' in record && record.date is timestamp

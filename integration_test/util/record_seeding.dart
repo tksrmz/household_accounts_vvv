@@ -16,8 +16,8 @@ import 'firestore_rest.dart';
 /// サインイン中ユーザーの個人ノートへ、指定した[date]・[amount]・
 /// [categoryName]・[propertyName]・[note]の支出レコードを1件書き込む。
 ///
-/// 書き込む8フィールドは、Firestore Rulesが要求するスキーマ
-/// (date/amount/note/createdAt/hasCheckedOut/type/category/property)と
+/// 書き込む7フィールドは、アプリが書く形(Firestore Rulesが受け付けるスキーマ
+/// date/amount/note/createdAt/type/category/property)と
 /// 一致させてある。アプリの読み取り(RecordDtoの検証)もこの形を前提に
 /// しているため、Rulesを迂回できるRESTの書き込みでも形を崩さない。
 ///
@@ -52,7 +52,6 @@ Future<void> createExpenseRecord(
       // アプリはserverTimestampを書くが、REST APIにセンチネルは無いため
       // 書き込み時刻をそのまま入れる(読み取り側は値を検証しない)
       'createdAt': timestampValue(DateTime.now()),
-      'hasCheckedOut': booleanValue(true),
       'type': stringValue('expense'),
       'category': mapValue({'ref': referenceValue(categoryPath)}),
       'property': mapValue({'ref': referenceValue(propertyPath)}),
