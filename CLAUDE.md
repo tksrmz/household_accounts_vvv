@@ -23,7 +23,7 @@ This repository contains both the app and its backend:
 Notes:
 
 - Firebase CLI commands (`firebase deploy`, `firebase emulators:start`) are run from `firebase/`
-- Windowsでは、miseで入れた `firebase`(単体バイナリ)で `firebase deploy` を実行しないこと。単体バイナリは中にNode 20.18.2を持っていて、predeployの `npm run lint` がそのnpmで動いて失敗する(15.37.0で確認)。代わりに `mise.toml` の `firebase` と同じバージョンをnpmから取り、miseのNode 22で動かす: `npx firebase-tools@<mise.tomlのfirebaseのバージョン> deploy --only functions --project production`
+- Windowsでは、miseで入れた `firebase`(単体バイナリ)で `firebase deploy` や、Functionsエミュレータを含む `firebase emulators:*` を実行しないこと。単体バイナリは中にNode 20.18.2を持っていて、`deploy` はpredeployの `npm run lint` がそのnpmで動いて失敗し、`emulators:exec` はFunctionsエミュレータが起動できずテストが始まらないまま止まる(どちらも15.37.0で確認)。代わりに `mise.toml` の `firebase` と同じバージョンをnpmから取り、miseのNode 22で動かす: `npx firebase-tools@<mise.tomlのfirebaseのバージョン> deploy --only functions --project production`(エミュレータも同様に `npx firebase-tools@<バージョン> emulators:exec ...`)
 - Backend tests run online against the dev project: `npm --prefix firebase/functions test`
 - Emulator ports are defined in `firebase/firebase.json` (Firestore: 8081, Auth: 9099) and must stay in sync with `lib/main.dart`
 
@@ -74,7 +74,7 @@ flutter test -t golden               # Run golden file tests only
 
 実行手順の正は `integration_test/README.md`(前提: functionsのビルド(node 22)・Androidエミュレータ・Firebaseエミュレータ)。要点:
 
-- `firebase/` から `firebase emulators:exec` で実行し、**`--project household-accounts-1129d` と `--import ../integration_test/saved-data` は必須**。前者を欠くとFunctionsトリガが発火せず全テストがローディングでタイムアウトし、後者を欠くとシードユーザー不在で既存ユーザー系のテストが失敗する
+- `firebase/` から `emulators:exec` で実行し(Windowsでは単体バイナリの `firebase` でなく `npx firebase-tools@<mise.tomlのfirebaseのバージョン>` で。上のMonorepoのNotes参照)、**`--project household-accounts-1129d` と `--import ../integration_test/saved-data` は必須**。前者を欠くとFunctionsトリガが発火せず全テストがローディングでタイムアウトし、後者を欠くとシードユーザー不在で既存ユーザー系のテストが失敗する
 - Windowsでは `emulators:exec` がスクリプトをcmd経由で実行するため `run.sh` を直接渡せない。代わりにコマンド文字列 `"cd .. && flutter test integration_test/integration_test.dart -d <deviceId>"` を渡す
 
 ### Golden Tests(canonical運用)
