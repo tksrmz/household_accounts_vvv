@@ -77,4 +77,4 @@ Cloud Functions for Firebaseは1st genの `auth.user().onCreate` を使い続け
   - リポジトリ直下の `mise.toml` の `node` が22系(開発環境とCIのNode.js)
   - 関数のソースが `firebase-functions/v1` だけをimportしている(パッケージ直下の `firebase-functions` は2nd genのAPIを指す)
 - **本番が実際にNode.js 22・1st genであること**: `engines.node` を変えただけでは本番は変わらない(本番がnodejs20のまま残っていた原因)。そこでデプロイは `functions-deploy.yml` がmasterへのマージをきっかけに行い、デプロイの直後に [`docs/adr/checks/001-firebase-functions-node22.production.mjs`](./checks/001-firebase-functions-node22.production.mjs) で、本番のすべての関数が `gcfv1` かつ `nodejs22` であることを確かめる。手順と前提の設定は [functions_deploy.md](../functions_deploy.md) にある
-- **見直しの期限(2027-04-30)に気づくこと**: 期限を設定したIssueで管理する(2026-11-23時点で未作成。作ったらIssueへのリンクをここに書く)
+- **見直しの期限(2027-04-30)に気づくこと**: 期限を設定したIssue([#66](https://github.com/tksrmz/household_accounts_vvv/issues/66))で管理する
