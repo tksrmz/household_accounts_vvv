@@ -17,6 +17,8 @@ on:
       # このCI自体
       - '.github/actions/build-release-appbundle/**'
       - '.github/workflows/master-build.yml'
+  # dependabot-triage.ymlがGITHUB_TOKENでマージするとpushでは始まらないので、マージした後にこれで起動する
+  workflow_dispatch:
 
 concurrency:
   group: master-android-build

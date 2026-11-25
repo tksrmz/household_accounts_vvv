@@ -66,7 +66,8 @@ household_accounts_claude/
     ├── style_guide.md      # このドキュメント
     ├── firestore_schema.md
     ├── firestore_constraints.md
-    └── functions_deploy.md # Cloud FunctionsのCIデプロイと前提の設定
+    ├── functions_deploy.md # Cloud FunctionsのCIデプロイと前提の設定
+    └── dependency_holds.md # 見送っている依存の更新と、その理由・解除の条件(dependabot-triage.ymlが読む)
 ```
 
 ---
@@ -402,3 +403,4 @@ Amount(this.value) : assert(value > 0);
 - 2026-11-21: cloud_firestore 6.9.0でAndroidの `runTransaction` 完了時の `MissingPluginException` が直った(firebase/flutterfire#18546)ため、integrationテストの限定フィルタの記述を削除した
 - 2026-11-21: ADR(`docs/adr/`)の運用を追加した
 - 2026-11-23: ADRのコンプライアンス検査(`docs/adr/checks/`)の運用を追加した
+- 2026-11-25: 見送っている依存の更新の一覧(`docs/dependency_holds.md`)を追加した
