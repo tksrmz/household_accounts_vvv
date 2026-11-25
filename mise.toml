@@ -15,4 +15,4 @@ java = "temurin-21.0.13+9.0.LTS"
 # Cloud Functionsのランタイム(firebase/functions/package.jsonのengines)に合わせる
 node = "22.23.4"
 # Firebaseエミュレータ(integrationテスト)とデプロイに使う
-firebase = "15.26.0"
+firebase = "15.37.0"

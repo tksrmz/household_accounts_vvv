@@ -51,9 +51,11 @@ Windowsでは上記のコマンドは動きません。firebase-toolsの`emulato
 
 代わりに、スクリプトファイルではなくcmd互換のコマンド文字列を渡します（`<deviceId>`は`flutter devices`で確認できる接続中のAndroidエミュレータのID。例: `emulator-5554`）。
 
+また、miseで入れた`firebase`（単体バイナリ）は使いません。単体バイナリは中にNode 20を持っていて、Functionsエミュレータが「`... is not a Firebase command`」というエラーで起動できず、テストが始まらないまま止まります（15.37.0で確認）。リポジトリ直下の`mise.toml`の`firebase`と同じバージョンをnpmから取り、miseのNode 22で動かします（`<version>`は`mise.toml`の`firebase`の値。例: `15.37.0`）。起動できていれば、ログに「`Using node@22 from host`」と出ます。
+
 ```shell
 # firebase/ ディレクトリから実行
-firebase emulators:exec --project household-accounts-1129d --only auth,firestore,functions --import ../integration_test/saved-data "cd .. && flutter test integration_test/integration_test.dart -d <deviceId>"
+npx --yes firebase-tools@<version> emulators:exec --project household-accounts-1129d --only auth,firestore,functions --import ../integration_test/saved-data "cd .. && flutter test integration_test/integration_test.dart -d <deviceId>"
 ```
 
 `--project`の指定は必須である。`firebase/.firebaserc`には`default`エイリアスが存在しないため、
