@@ -32,6 +32,7 @@ Google Cloud Consoleで行う。プロジェクト番号はConsoleのダッシ�
 1. **デプロイ用のサービスアカウント**を作る: IAMと管理 → サービスアカウント → 作成。ID は `github-functions-deploy`
 2. **権限を付ける**(2026-11時点の公式ドキュメントから組み立てたもので、firebase-toolsに必要な最小限の一覧は公式に無い。最初の実行で権限不足のエラーが出たら、エラーに書かれた権限を持つロールを足す)
    - プロジェクトに対して: Cloud Functions 開発者(`roles/cloudfunctions.developer`)
+   - プロジェクトに対して: Firebase 閲覧者(`roles/firebase.viewer`)。firebase-toolsはデプロイの最初にFirebaseのプロジェクト設定(`adminSdkConfig`)を読むため、これが無いと403で止まる(2026-11-25の最初の実行で確認)
    - 関数の実行サービスアカウント `household-accounts-1129d@appspot.gserviceaccount.com` に対して: サービス アカウント ユーザー(`roles/iam.serviceAccountUser`)
    - Cloud Buildのサービスアカウントには付けない。この権限が要るのはビルド用のアカウントを指定してデプロイするときで、このワークフローは指定しないため。本番では `gcloud builds get-default-service-account` が `<プロジェクト番号>@cloudbuild.gserviceaccount.com` を返すが、そのアカウントはプロジェクトに存在しない(2026-11-25に確認)。最初の実行でビルドのアカウントに対する `iam.serviceAccounts.actAs` の不足が出たら、エラーに書かれたアカウントに対してサービス アカウント ユーザーを付ける
 3. **Workload Identity プール**を作る: IAMと管理 → Workload Identity 連携 → プールを作成
@@ -77,3 +78,4 @@ npx --yes firebase-tools@<mise.tomlのfirebaseのバージョン> functions:list
 
 - 2026-11-23: 初版。デプロイをGitHub Actionsへ移した
 - 2026-11-25: Cloud Buildのサービスアカウントへの権限付与を外した(本番に既定のアカウントが存在しない)
+- 2026-11-25: 権限にFirebase 閲覧者を足した(CIからの最初のデプロイが `adminSdkConfig` の読み取りの403で失敗した)
