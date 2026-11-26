@@ -56,7 +56,10 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+      # statusCheckRollupは、チェックの結果(checks)と、それを出したワークフローの名前
+      # (checkSuite.workflowRun。actions)の両方を読む
       checks: read
+      actions: read
     outputs:
       prs: ${{ steps.collect.outputs.prs }}
       count: ${{ steps.collect.outputs.count }}
@@ -187,6 +190,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      # マージの直前にstatusCheckRollupを読み直す(ワークフローの名前はactionsの権限で読む)
+      checks: read
+      # workflow_dispatchでのワークフローの起動
       actions: write
     steps:
       - uses: actions/checkout@v7
