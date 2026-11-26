@@ -66,6 +66,8 @@ jobs:
     outputs:
       prs: ${{ steps.collect.outputs.prs }}
       count: ${{ steps.collect.outputs.count }}
+      # 見送りごとの、見送る範囲に入る公開済みの最新版(レジストリから決まった処理で調べた値)
+      holds: ${{ steps.collect.outputs.holds }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -135,9 +137,16 @@ jobs:
             check its lift condition exactly as written, using `npm view`,
             `npx --yes semver@7.7.2 <version> --range '<range>'` or
             `curl -fsS https://pub.dev/api/packages/<name>`. Where the condition talks about the
-            version a pull request would take, use that pull request's version if one below
-            updates the package, and otherwise the latest published version inside the hold's
-            range. If the condition is met, delete that hold's whole section from
+            version a pull request would take, use that pull request's `to` version if one below
+            updates the package, and otherwise the hold's `latest_in_range` from this list, which
+            a script read from the registry:
+
+            ${{ needs.collect.outputs.holds || '[]' }}
+
+            Never look up, infer or invent that version yourself. If `latest_in_range` is null,
+            write its `lookup_error` in `evidence` and do not lift the hold.
+
+            If the condition is met, delete that hold's whole section from
             docs/dependency_holds.md and add it to lifted_holds with its exact heading (without
             "## ") and the values you saw as evidence, in Japanese.
 

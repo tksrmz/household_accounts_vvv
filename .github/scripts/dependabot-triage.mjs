@@ -206,6 +206,20 @@ export function permissionDenials(file) {
   });
 }
 
+// docs/dependency_holds.md の見送りを読む。見出しは「<パッケージ名> <見送る範囲>」で、「書き方」より後の
+// ## 見出しが1件ずつの見送り。エコシステムは「- **エコシステム**: npm(...)」の行の先頭の語。
+export function parseHolds(markdown) {
+  const sections = markdown.split(/^## /m).slice(1);
+  return sections
+    .map((section) => {
+      const heading = section.split("\n", 1)[0].trim();
+      const ecosystem = /^- \*\*エコシステム\*\*: *([a-z-]+)/m.exec(section)?.[1] ?? null;
+      const space = heading.indexOf(" ");
+      return space < 0 ? null : { heading, package: heading.slice(0, space), range: heading.slice(space + 1).trim(), ecosystem };
+    })
+    .filter((hold) => hold !== null && hold.heading !== "書き方");
+}
+
 // ---- ここから下はGitHubへの入出力 ----
 
 function gh(args, { input } = {}) {
@@ -234,7 +248,46 @@ function summary(line) {
   console.log(line);
 }
 
+// 見送る範囲に入る公開済みの最新版を、レジストリから決まった処理で求める。初回の実行では、Claudeが
+// 存在しないバージョン(TypeScript 7.4.0。実際の最新は7.0.2)を「範囲内の最新版」として記録した。
+// 解除の条件の判定に使う値なので、Claudeに探させず、ここで調べて渡す。
+// 範囲の判定はnpmと同じsemver(npx semver)で行い、プレリリースは含めない。
+function latestInRange(hold) {
+  const quiet = { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] };
+  let versions;
+  try {
+    if (hold.ecosystem === "npm") {
+      versions = [JSON.parse(execFileSync("npm", ["view", hold.package, "versions", "--json"], quiet))].flat();
+    } else if (hold.ecosystem === "pub") {
+      const body = execFileSync("curl", ["-fsS", `https://pub.dev/api/packages/${hold.package}`], quiet);
+      versions = JSON.parse(body).versions.map((v) => v.version);
+    } else {
+      return { latest_in_range: null, lookup_error: `エコシステム ${hold.ecosystem} の公開済みのバージョンは調べられない` };
+    }
+  } catch (error) {
+    return { latest_in_range: null, lookup_error: `公開済みのバージョンを読めなかった: ${String(error.stderr || error.message).trim().split("\n")[0].slice(0, 200)}` };
+  }
+  try {
+    // semverは範囲に入るバージョンを昇順で1行ずつ出し、1つも無ければ終了コード1になる
+    const matched = execFileSync("npx", ["--yes", "semver@7.7.2", "-r", hold.range, ...versions], quiet).trim().split("\n");
+    return { latest_in_range: matched.at(-1) || null, lookup_error: null };
+  } catch (error) {
+    if (error.status === 1) return { latest_in_range: null, lookup_error: "範囲に入る公開済みのバージョンが無い" };
+    return { latest_in_range: null, lookup_error: `範囲を確かめられなかった: ${String(error.stderr || error.message).trim().split("\n")[0].slice(0, 200)}` };
+  }
+}
+
+function collectHolds() {
+  const holds = parseHolds(readFileSync("docs/dependency_holds.md", "utf8")).map((hold) => ({ ...hold, ...latestInRange(hold) }));
+  summary("## 見送る範囲に入る最新版");
+  summary("");
+  for (const h of holds) summary(`- **${h.heading}**: ${h.latest_in_range ?? `不明(${h.lookup_error})`}`);
+  summary("");
+  setOutput("holds", JSON.stringify(holds));
+}
+
 function collect() {
+  collectHolds();
   const repo = process.env.GITHUB_REPOSITORY;
   const prs = ghJson([
     "pr", "list", "--repo", repo, "--author", "app/dependabot", "--state", "open", "--limit", "100",
