@@ -2,12 +2,15 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import {
+  checkRecordFor,
   ciStateOf,
+  holdCheckLines,
   ecosystemOf,
   lockedVersion,
   markerFor,
   parseFromVersions,
   parseUpdatedDependencies,
+  permissionDenials,
   planAction,
   workflowsToDispatch,
 } from "./dependabot-triage.mjs";
@@ -175,4 +178,50 @@ test("ロックファイルが読めなかったとき、バージョンは不�
 test("判定済みの印は頭のコミットごとに別であること", () => {
   assert.notEqual(markerFor("abc"), markerFor("def"));
   assert.match(markerFor("abc"), /^<!-- .* -->$/);
+});
+
+const checks = [
+  { heading: "typescript >=7.0.0", applies_to_prs: [5], lifted: false, evidence: "eslint-pluginのpeerは >=4.8.4 <6.1.0" },
+  { heading: "firebase-admin >=14.0.0", applies_to_prs: [], lifted: true, evidence: "firebase-functions-testのpeerに ^14.0.0 が入った" },
+];
+
+test("見送りの確認は、解除できるかどうかと根拠を見出しごとに1行で並べること", () => {
+  assert.deepEqual(holdCheckLines(checks), [
+    "- **typescript >=7.0.0**: まだ解除できない。eslint-pluginのpeerは >=4.8.4 <6.1.0",
+    "- **firebase-admin >=14.0.0**: 解除できる。firebase-functions-testのpeerに ^14.0.0 が入った",
+  ]);
+});
+
+test("PRのコメントには、そのPRの依存の更新前後と、そのPRに当たる見送りの確認だけが入ること", () => {
+  const record = checkRecordFor(
+    { number: 5, dependencies: [{ name: "typescript", from: "6.0.3", to: "7.0.2" }] },
+    checks,
+  );
+  assert.match(record, /- `typescript` 6\.0\.3 → 7\.0\.2/);
+  assert.match(record, /typescript >=7\.0\.0\*\*: まだ解除できない/);
+  assert.doesNotMatch(record, /firebase-admin/);
+});
+
+test("当たる見送りが無く、ロックファイルにも無い依存のとき、そう書くこと", () => {
+  const record = checkRecordFor({ number: 7, dependencies: [{ name: "eslint", from: null, to: "10.15.0" }] }, checks);
+  assert.match(record, /- `eslint` \(なし\) → 10\.15\.0/);
+  assert.match(record, /- 無かった/);
+});
+
+test("実行記録の最後の結果から、拒否されたツールとコマンドが読めること", () => {
+  const messages = [
+    { type: "system", subtype: "init" },
+    {
+      type: "result",
+      permission_denials: [
+        { tool_name: "Bash", tool_use_id: "a", tool_input: { command: "npx --yes semver@7.7.2 14.5.1 --range '^13 || ^14'" } },
+        { tool_name: "Write", tool_use_id: "b", tool_input: { file_path: "/tmp/x" } },
+      ],
+    },
+  ];
+  assert.deepEqual(permissionDenials(messages), [
+    { tool: "Bash", input: "npx --yes semver@7.7.2 14.5.1 --range '^13 || ^14'" },
+    { tool: "Write", input: "/tmp/x" },
+  ]);
+  assert.deepEqual(permissionDenials([{ type: "result" }]), []);
 });

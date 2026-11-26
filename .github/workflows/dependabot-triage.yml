@@ -12,6 +12,9 @@ name: Dependabot Triage
 # - CIが失敗し、見送りにも当たらない → 原因の見立てをコメントして人へ回す。
 #   見送りを足すかどうかは人が決める(Claudeはdependency_holds.mdに節を足さない)
 #
+# 判定したPRには、更新する依存の更新前後と、当たる見送りについて確かめたこと(値と根拠)を
+# コメントで残す(マージしたPRにも残す)。PRが無くても、見送りの確認は実行のサマリーに残す。
+#
 # ジョブを3つに分けている。
 # - collect: 対象のPRと、CIの状態・更新する依存を決まった処理で集める
 # - judge: Claudeが判定する。トークンは読み取り専用で、変えてよいのはdependency_holds.mdだけ
@@ -138,6 +141,14 @@ jobs:
             docs/dependency_holds.md and add it to lifted_holds with its exact heading (without
             "## ") and the values you saw as evidence, in Japanese.
 
+            Record every hold in checked_holds, lifted or not: its exact heading, `lifted`,
+            `applies_to_prs` (the numbers of the pull requests below with a dependency of the same
+            name whose `to` version is inside the hold's range; empty if none), and `evidence`: in
+            Japanese, the versions and ranges you actually saw and which part of the condition is
+            met or unmet. If a command you needed was refused or failed, say so in `evidence` and
+            do not count that part of the condition as met. This record is what people read
+            later, since the run's full output is not published.
+
             Step 2 — these pull requests, collected by a script. ci.state is success or failure
             and ci.failed names the failed checks. dependencies[].from and .to are read from the
             lockfiles of the default branch and of the pull request (null if the package is not
@@ -161,6 +172,11 @@ jobs:
               Do not add a hold yourself.
 
             Rules:
+            - Run exactly one command per Bash call: no pipes, `&&`, `;`, redirects or command
+              substitution, which are refused. Read files with the Read tool, not cat.
+            - A semver range containing `||` matches when any of its parts matches. Check each
+              part with its own `npx --yes semver@7.7.2 <version> --range '<part>'` call instead of
+              passing `||` on the command line.
             - Return exactly one decision per pull request above, echoing its number and
               head_sha. With no pull requests, return an empty decisions list.
             - Change no file other than docs/dependency_holds.md, and change it only by deleting
@@ -169,7 +185,15 @@ jobs:
           claude_args: |
             --max-turns 40
             --allowedTools "Read,Glob,Grep,Edit(docs/dependency_holds.md),Bash(npm view:*),Bash(npx --yes semver@7.7.2:*),Bash(curl -fsS https://pub.dev/api/packages/:*),Bash(gh run list:*),Bash(gh run view:*)"
-            --json-schema '{"type":"object","properties":{"decisions":{"type":"array","items":{"type":"object","properties":{"number":{"type":"integer"},"head_sha":{"type":"string"},"decision":{"type":"string","enum":["merge","close","needs_human"]},"reason":{"type":"string"}},"required":["number","head_sha","decision","reason"],"additionalProperties":false}},"lifted_holds":{"type":"array","items":{"type":"object","properties":{"heading":{"type":"string"},"evidence":{"type":"string"}},"required":["heading","evidence"],"additionalProperties":false}}},"required":["decisions","lifted_holds"],"additionalProperties":false}'
+            --json-schema '{"type":"object","properties":{"decisions":{"type":"array","items":{"type":"object","properties":{"number":{"type":"integer"},"head_sha":{"type":"string"},"decision":{"type":"string","enum":["merge","close","needs_human"]},"reason":{"type":"string"}},"required":["number","head_sha","decision","reason"],"additionalProperties":false}},"lifted_holds":{"type":"array","items":{"type":"object","properties":{"heading":{"type":"string"},"evidence":{"type":"string"}},"required":["heading","evidence"],"additionalProperties":false}},"checked_holds":{"type":"array","items":{"type":"object","properties":{"heading":{"type":"string"},"lifted":{"type":"boolean"},"applies_to_prs":{"type":"array","items":{"type":"integer"}},"evidence":{"type":"string"}},"required":["heading","lifted","applies_to_prs","evidence"],"additionalProperties":false}}},"required":["decisions","lifted_holds","checked_holds"],"additionalProperties":false}'
+
+      # 全文の出力は公開のログに出さないので、拒否された呼び出しだけを出す。拒否されたまま
+      # 判定していれば、判定の根拠が足りていないかもしれないため
+      - name: Report refused tool calls
+        if: always() && steps.claude.outputs.execution_file != ''
+        env:
+          EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
+        run: node .github/scripts/dependabot-triage.mjs denials "$EXECUTION_FILE"
 
       # Claudeがdependency_holds.md以外を変えていれば、判定ごと捨てる(actを走らせない)
       - name: Export the change to the holds

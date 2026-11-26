@@ -8,10 +8,11 @@
 //
 //   node dependabot-triage.mjs collect   判定の対象にするPRを集め、GITHUB_OUTPUTのprsに書く
 //   node dependabot-triage.mjs act       環境変数PRSとDECISIONSを受け取り、判定を実行する
+//   node dependabot-triage.mjs denials <file>  Claudeの実行記録から、拒否されたツール呼び出しをサマリーに書く
 //
 // 純粋関数はdependabot-triage.test.mjsで検査する(node --test ".github/scripts/*.test.mjs")。
 import { execFileSync } from "node:child_process";
-import { appendFileSync, existsSync, statSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync, statSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 // 判定を済ませたことを、PRのコメントに頭のコミットごとに残す。同じコミットを二度判定しない
@@ -171,6 +172,40 @@ export function planAction(pr, decision, live) {
   }
 }
 
+// Claudeが見送りごとに確かめたこと(checked_holds)を、Markdownの箇条書きにする。
+// 判定のログは公開リポジトリでは誰でも読めるので全文を出しておらず、判定の根拠はここで残す。
+export function holdCheckLines(checks) {
+  return checks.map((c) => `- **${c.heading}**: ${c.lifted ? "解除できる" : "まだ解除できない"}。${c.evidence}`);
+}
+
+// PRへのコメントに付ける「確かめたこと」の節。更新する依存はロックファイルから読んだ値(決まった処理)、
+// 見送りの確認はClaudeの答え。
+export function checkRecordFor(pr, checks) {
+  const deps = pr.dependencies.map((d) => `- \`${d.name}\` ${d.from ?? "(なし)"} → ${d.to ?? "(なし)"}`);
+  const applying = checks.filter((c) => (c.applies_to_prs ?? []).includes(pr.number));
+  return [
+    "### 確かめたこと",
+    "",
+    "更新する依存(既定ブランチとこのPRのロックファイルから読んだ値):",
+    "",
+    ...(deps.length ? deps : ["- (読めなかった)"]),
+    "",
+    "当たる見送り(`docs/dependency_holds.md`):",
+    "",
+    ...(applying.length ? holdCheckLines(applying) : ["- 無かった"]),
+  ].join("\n");
+}
+
+// 実行記録(claude-code-actionのexecution_file。SDKのメッセージの配列)から、拒否された呼び出しを読む
+export function permissionDenials(file) {
+  const messages = Array.isArray(file) ? file : (file?.messages ?? []);
+  const result = messages.findLast((m) => m.type === "result") ?? null;
+  return (result?.permission_denials ?? []).map((d) => {
+    const input = d.tool_input?.command ?? d.tool_input?.file_path ?? JSON.stringify(d.tool_input ?? {});
+    return { tool: d.tool_name, input: String(input).slice(0, 300) };
+  });
+}
+
 // ---- ここから下はGitHubへの入出力 ----
 
 function gh(args, { input } = {}) {
@@ -278,8 +313,16 @@ function livePr(repo, number) {
 function act() {
   const repo = process.env.GITHUB_REPOSITORY;
   const prs = JSON.parse(process.env.PRS || "[]");
-  const { decisions = [], lifted_holds: liftedHolds = [] } = JSON.parse(process.env.DECISIONS || "{}");
+  const {
+    decisions = [],
+    lifted_holds: liftedHolds = [],
+    checked_holds: checkedHolds = [],
+  } = JSON.parse(process.env.DECISIONS || "{}");
   const toDispatch = new Set();
+  summary("## 見送りの確認");
+  summary("");
+  for (const line of checkedHolds.length ? holdCheckLines(checkedHolds) : ["- (記録が無い)"]) summary(line);
+  summary("");
   summary("## 判定の実行");
   summary("");
   try {
@@ -287,7 +330,7 @@ function act() {
       // 1件の失敗(読み直しの失敗、並んだPRのマージの競合など)で残りを止めない。
       // Dependabotがrebaseすれば次の実行で拾う
       try {
-        actOn(repo, prs, decision, toDispatch);
+        actOn(repo, prs, decision, toDispatch, checkedHolds);
       } catch (error) {
         process.exitCode = 1;
         summary(`- #${decision.number}: 失敗した: ${error.message}`);
@@ -309,25 +352,44 @@ function act() {
   if (patch && existsSync(patch) && statSync(patch).size > 0) openHoldsPullRequest(repo, patch, liftedHolds);
 }
 
-function actOn(repo, prs, decision, toDispatch) {
+function actOn(repo, prs, decision, toDispatch, checkedHolds) {
   const pr = prs.find((p) => p.number === decision.number);
   const plan = planAction(pr, decision, pr ? livePr(repo, pr.number) : null);
   const reason = [plan.why, decision.reason].filter(Boolean).join("\n\n");
+  const comment = (text) =>
+    gh(["pr", "comment", String(pr.number), "--repo", repo, "--body-file", "-"], {
+      input: commentBody(`${text}\n\n${checkRecordFor(pr, checkedHolds)}`, pr.head_sha),
+    });
   switch (plan.action) {
     case "merge":
       gh(["pr", "merge", String(pr.number), "--repo", repo, "--merge", "--match-head-commit", pr.head_sha]);
+      // 起動はコメントより先に積む(コメントが失敗しても、マージしたPRのワークフローは起動する)
       for (const w of workflowsToDispatch(pr.branch, pr.files)) toDispatch.add(w);
+      // マージの後に書く。先に書くと、マージが失敗したときに判定済みの印だけが残り、次の実行で拾えない
+      comment(`マージしました。${reason}`);
       break;
     case "close":
-      gh(["pr", "close", String(pr.number), "--repo", repo, "--comment", commentBody(reason, pr.head_sha)]);
+      // クローズの前に書く(閉じたPRにも書けるが、通知で理由が先に届くように)
+      comment(reason);
+      gh(["pr", "close", String(pr.number), "--repo", repo]);
       break;
     case "comment":
-      gh(["pr", "comment", String(pr.number), "--repo", repo, "--body-file", "-"], {
-        input: commentBody(reason, pr.head_sha),
-      });
+      comment(reason);
       break;
   }
   summary(`- #${decision.number}: ${plan.action}${plan.why ? `(${plan.why})` : ""}`);
+}
+
+function reportDenials(file) {
+  const denials = permissionDenials(JSON.parse(readFileSync(file, "utf8")));
+  summary("## 拒否されたツール呼び出し");
+  summary("");
+  if (denials.length === 0) summary("- 無かった");
+  // 拒否されたまま判定したなら、判定の根拠が足りていないかもしれない。警告にして目に付くようにする
+  for (const d of denials) {
+    summary(`- ${d.tool}: \`${d.input.replaceAll("`", "'")}\``);
+    console.log(`::warning::Claudeの${d.tool}の呼び出しが拒否された: ${d.input}`);
+  }
 }
 
 // 解除の条件を満たした見送りの節を消すPR。前のPRが開いたままなら作らない(重複させない)
@@ -362,5 +424,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const command = process.argv[2];
   if (command === "collect") collect();
   else if (command === "act") act();
+  else if (command === "denials") reportDenials(process.argv[3]);
   else throw new Error(`unknown command: ${command}`);
 }
