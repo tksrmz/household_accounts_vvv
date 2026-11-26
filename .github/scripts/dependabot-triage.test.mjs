@@ -9,6 +9,7 @@ import {
   lockedVersion,
   markerFor,
   parseFromVersions,
+  parseHolds,
   parseUpdatedDependencies,
   permissionDenials,
   planAction,
@@ -224,4 +225,26 @@ test("実行記録の最後の結果から、拒否されたツールとコマ�
     { tool: "Write", input: "/tmp/x" },
   ]);
   assert.deepEqual(permissionDenials([{ type: "result" }]), []);
+});
+
+test("見送りの一覧のとき、「書き方」を除いた節ごとにパッケージ名・範囲・エコシステムが読めること", () => {
+  const markdown = `# 見送っている依存パッケージの更新
+
+## 書き方
+
+- **エコシステム**: \`npm\`(ディレクトリも書く)/ \`pub\`
+
+## typescript >=7.0.0
+
+- **エコシステム**: npm(\`firebase/functions\`)
+- **見送る範囲**: \`>=7.0.0\`
+
+## build_runner >=2.17.0 <3.0.0
+
+- **エコシステム**: pub
+`;
+  assert.deepEqual(parseHolds(markdown), [
+    { heading: "typescript >=7.0.0", package: "typescript", range: ">=7.0.0", ecosystem: "npm" },
+    { heading: "build_runner >=2.17.0 <3.0.0", package: "build_runner", range: ">=2.17.0 <3.0.0", ecosystem: "pub" },
+  ]);
 });
