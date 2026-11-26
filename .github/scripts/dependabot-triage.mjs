@@ -156,8 +156,10 @@ export function planAction(pr, decision, live) {
   }
   switch (decision.decision) {
     case "merge":
+      // コメントすると判定済みの印が付き、このコミットは二度と集められない。CIの再実行が
+      // 終われば、その完了で起動した実行が今のCIの結果で判定し直すので、ここでは何もしない
       if (live.ci.state !== "success") {
-        return { action: "comment", why: `Claudeはマージと判定したが、今のCIが成功していない(${live.ci.state})` };
+        return { action: "skip", why: `Claudeはマージと判定したが、今のCIが成功していない(${live.ci.state})。次の実行で判定し直す` };
       }
       return { action: "merge" };
     case "close":

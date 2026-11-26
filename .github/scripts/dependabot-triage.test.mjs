@@ -113,9 +113,9 @@ test("今のCIが成功しているPRをClaudeがマージと判定したとき�
   assert.deepEqual(planAction(pr, decide("merge"), live("success")), { action: "merge" });
 });
 
-test("集めた時点では成功していたが、今のCIが失敗か実行中のとき、マージせずコメントに留めること", () => {
-  assert.equal(planAction(pr, decide("merge"), live("failure")).action, "comment");
-  assert.equal(planAction(pr, decide("merge"), live("pending")).action, "comment");
+test("集めた時点では成功していたが、今のCIが失敗か実行中のとき、判定済みの印を残さず次の実行に回すこと", () => {
+  assert.equal(planAction(pr, decide("merge"), live("failure")).action, "skip");
+  assert.equal(planAction(pr, decide("merge"), live("pending")).action, "skip");
 });
 
 test("見送りに当たる判定はクローズ、人が見る判定はコメントになること", () => {
