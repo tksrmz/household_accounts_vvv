@@ -28,6 +28,7 @@ const ecosystems = [
   {
     prefix: "dependabot/npm_and_yarn/firebase/functions/",
     ecosystem: "npm (firebase/functions)",
+    lockfile: "firebase/functions/package-lock.json",
     requiredWorkflows: ["Functions CI"],
     // 本番のpushで動くワークフロー。GITHUB_TOKENでマージするとpushのワークフローが
     // 動かないので、マージした後にworkflow_dispatchで起動する。
@@ -42,6 +43,7 @@ const ecosystems = [
   {
     prefix: "dependabot/pub/",
     ecosystem: "pub",
+    lockfile: "pubspec.lock",
     requiredWorkflows: ["PR CI"],
     dispatch: [
       {
@@ -82,8 +84,9 @@ export function parseUpdatedDependencies(commitMessage) {
     .filter((dep) => dep.name !== null);
 }
 
-// 更新前のバージョンはメタデータに無いので、Dependabotが書く定型の文から読む。
-// 単体のPRはタイトル(bump x from a to b)、グループのPRは本文(Updates `x` from a to b)にある。
+// Dependabotが書く定型の文から、更新する依存の名前と更新前のバージョンを読む。単体のPRはタイトル
+// (bump x from a to b)、グループのPRは本文(Updates `x` from a to b)にある。バージョンの正は
+// ロックファイル(lockedVersion)で、ここで読むのはメタデータから漏れた名前を拾うため。
 export function parseFromVersions(title, body) {
   const from = {};
   for (const m of (body ?? "").matchAll(/^Updates `([^`]+)` from (\S+) to (\S+)$/gm)) {
@@ -92,6 +95,23 @@ export function parseFromVersions(title, body) {
   const single = /\bbump (\S+) from (\S+) to (\S+)/.exec(title);
   if (single && !(single[1] in from)) from[single[1]] = single[2];
   return from;
+}
+
+// 更新前後のバージョンはロックファイルから読む。コミットメッセージのメタデータは、Dependabotが
+// PRを作り直してもコミットを作った時点のまま残ることがある(#28では、メタデータはeslint 10.10.0、
+// package.jsonは^10.15.0だった)ので、バージョンの正にしない。
+export function lockedVersion(lockfileName, lockText, name) {
+  if (lockText == null) return null;
+  if (lockfileName === "package-lock.json") {
+    return JSON.parse(lockText).packages?.[`node_modules/${name}`]?.version ?? null;
+  }
+  if (lockfileName === "pubspec.lock") {
+    // pubspec.lockは packages: の下に2字下げでパッケージ名、4字下げでその属性が並ぶ
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const m = new RegExp(`^  ${escaped}:\\n(?:    .*\\n)*?    version: "([^"]+)"`, "m").exec(lockText);
+    return m?.[1] ?? null;
+  }
+  throw new Error(`unknown lockfile: ${lockfileName}`);
 }
 
 const passingConclusions = new Set(["SUCCESS", "SKIPPED", "NEUTRAL"]);
@@ -125,14 +145,19 @@ export function workflowsToDispatch(branch, files) {
 }
 
 // Claudeの判定を、このスクリプトが実行してよい操作に絞る。
+// liveは実行の直前に読み直したPRの状態({state, head_sha, ci})。集めた時点の状態では判断しない
+// (判定の間にrebaseされたり、同じコミットでCIが再実行されて失敗したりしうるため)。
 // 戻り値のactionはmerge / close / comment / skip。
-export function planAction(pr, decision) {
+export function planAction(pr, decision, live) {
   if (!pr) return { action: "skip", why: "判定の対象に集めたPRではない" };
   if (decision.head_sha !== pr.head_sha) return { action: "skip", why: "判定の後にPRの頭のコミットが変わった" };
+  if (live.state !== "OPEN" || live.head_sha !== pr.head_sha) {
+    return { action: "skip", why: "判定の後にPRが更新されたか、閉じられた" };
+  }
   switch (decision.decision) {
     case "merge":
-      if (pr.ci.state !== "success") {
-        return { action: "comment", why: `Claudeはマージと判定したが、CIが成功していない(${pr.ci.state})` };
+      if (live.ci.state !== "success") {
+        return { action: "comment", why: `Claudeはマージと判定したが、今のCIが成功していない(${live.ci.state})` };
       }
       return { action: "merge" };
     case "close":
@@ -152,6 +177,15 @@ function gh(args, { input } = {}) {
 
 function ghJson(args) {
   return JSON.parse(gh(args));
+}
+
+// ロックファイルは1MBを超えうるので、contents APIのJSON(base64)ではなく生の中身で読む
+function readFileAt(repo, path, ref) {
+  try {
+    return gh(["api", "-H", "Accept: application/vnd.github.raw", `repos/${repo}/contents/${path}?ref=${ref}`]);
+  } catch {
+    return null;
+  }
 }
 
 function setOutput(name, value) {
@@ -187,15 +221,29 @@ function collect() {
       summary(`- #${pr.number}: CIの完了待ち${ci.missing.length ? `(未開始: ${ci.missing.join(", ")})` : ""}`);
       continue;
     }
+    // 更新する依存の名前は、メタデータと本文の定型文の両方から集める(どちらかが古くても漏らさない)
     const message = ghJson(["api", `repos/${repo}/commits/${pr.headRefOid}`]).commit.message;
-    const from = parseFromVersions(pr.title, pr.body);
+    const metadata = parseUpdatedDependencies(message);
+    const names = [...new Set([...metadata.map((d) => d.name), ...Object.keys(parseFromVersions(pr.title, pr.body))])];
+    const baseLock = readFileAt(repo, eco.lockfile, process.env.DEFAULT_BRANCH);
+    const headLock = readFileAt(repo, eco.lockfile, pr.headRefOid);
+    const lockName = eco.lockfile.split("/").at(-1);
     targets.push({
       number: pr.number,
       title: pr.title,
       head_sha: pr.headRefOid,
       branch: pr.headRefName,
       ecosystem: eco.ecosystem,
-      dependencies: parseUpdatedDependencies(message).map((d) => ({ ...d, from: from[d.name] ?? null })),
+      dependencies: names.map((name) => {
+        const meta = metadata.find((d) => d.name === name);
+        return {
+          name,
+          from: lockedVersion(lockName, baseLock, name),
+          to: lockedVersion(lockName, headLock, name),
+          dependencyType: meta?.dependencyType ?? null,
+          updateType: meta?.updateType ?? null,
+        };
+      }),
       files: pr.files.map((f) => f.path),
       ci,
     });
@@ -215,63 +263,79 @@ function commentBody(text, headSha) {
   ].join("\n");
 }
 
+function livePr(repo, number) {
+  const pr = ghJson(["pr", "view", String(number), "--repo", repo, "--json", "headRefName,headRefOid,state,statusCheckRollup"]);
+  const eco = ecosystemOf(pr.headRefName);
+  return {
+    state: pr.state,
+    head_sha: pr.headRefOid,
+    ci: eco ? ciStateOf(pr.statusCheckRollup, eco.requiredWorkflows) : { state: "pending", failed: [], missing: [] },
+  };
+}
+
 function act() {
   const repo = process.env.GITHUB_REPOSITORY;
-  const prs = JSON.parse(process.env.PRS);
-  const { decisions = [] } = JSON.parse(process.env.DECISIONS || "{}");
+  const prs = JSON.parse(process.env.PRS || "[]");
+  const { decisions = [], lifted_holds: liftedHolds = [] } = JSON.parse(process.env.DECISIONS || "{}");
   const toDispatch = new Set();
   summary("## 判定の実行");
   summary("");
-  for (const decision of decisions) {
-    const pr = prs.find((p) => p.number === decision.number);
-    let plan = planAction(pr, decision);
-    // 判定の間にDependabotがrebaseしていれば、古いコミットへの判定は使わない
-    if (plan.action !== "skip") {
-      const live = ghJson(["pr", "view", String(pr.number), "--repo", repo, "--json", "headRefOid,state"]);
-      if (live.state !== "OPEN" || live.headRefOid !== pr.head_sha) {
-        plan = { action: "skip", why: "判定の後にPRが更新されたか、閉じられた" };
+  try {
+    for (const decision of decisions) {
+      // 1件の失敗(読み直しの失敗、並んだPRのマージの競合など)で残りを止めない。
+      // Dependabotがrebaseすれば次の実行で拾う
+      try {
+        actOn(repo, prs, decision, toDispatch);
+      } catch (error) {
+        process.exitCode = 1;
+        summary(`- #${decision.number}: 失敗した: ${error.message}`);
       }
     }
-    const reason = [plan.why, decision.reason].filter(Boolean).join("\n\n");
-    try {
-      switch (plan.action) {
-        case "merge":
-          gh(["pr", "merge", String(pr.number), "--repo", repo, "--merge", "--match-head-commit", pr.head_sha]);
-          for (const w of workflowsToDispatch(pr.branch, pr.files)) toDispatch.add(w);
-          break;
-        case "close":
-          gh(["pr", "close", String(pr.number), "--repo", repo, "--comment", commentBody(reason, pr.head_sha)]);
-          break;
-        case "comment":
-          gh(["pr", "comment", String(pr.number), "--repo", repo, "--body-file", "-"], {
-            input: commentBody(reason, pr.head_sha),
-          });
-          break;
+  } finally {
+    // マージしたPRは次の実行で集められないので、起動し損ねると取り返せない。何が失敗しても起動する
+    for (const workflow of toDispatch) {
+      try {
+        gh(["workflow", "run", workflow, "--repo", repo, "--ref", process.env.DEFAULT_BRANCH]);
+        summary(`- ${workflow} を起動した(GITHUB_TOKENでのマージではpushのワークフローが動かないため)`);
+      } catch (error) {
+        process.exitCode = 1;
+        summary(`- ::error::${workflow} の起動に失敗した。手で起動すること: ${error.message}`);
       }
-      summary(`- #${decision.number}: ${plan.action}${plan.why ? `(${plan.why})` : ""}`);
-    } catch (error) {
-      // 1件の失敗(並んだPRのマージで競合した、など)で残りを止めない。Dependabotがrebaseすれば次の実行で拾う
-      process.exitCode = 1;
-      summary(`- #${decision.number}: ${plan.action}に失敗した: ${error.message}`);
     }
-  }
-  for (const workflow of toDispatch) {
-    gh(["workflow", "run", workflow, "--repo", repo, "--ref", process.env.DEFAULT_BRANCH]);
-    summary(`- ${workflow} を起動した(GITHUB_TOKENでのマージではpushのワークフローが動かないため)`);
   }
   const patch = process.env.HOLDS_PATCH;
-  if (patch && existsSync(patch) && statSync(patch).size > 0) openHoldsPullRequest(repo, patch, decisions);
+  if (patch && existsSync(patch) && statSync(patch).size > 0) openHoldsPullRequest(repo, patch, liftedHolds);
+}
+
+function actOn(repo, prs, decision, toDispatch) {
+  const pr = prs.find((p) => p.number === decision.number);
+  const plan = planAction(pr, decision, pr ? livePr(repo, pr.number) : null);
+  const reason = [plan.why, decision.reason].filter(Boolean).join("\n\n");
+  switch (plan.action) {
+    case "merge":
+      gh(["pr", "merge", String(pr.number), "--repo", repo, "--merge", "--match-head-commit", pr.head_sha]);
+      for (const w of workflowsToDispatch(pr.branch, pr.files)) toDispatch.add(w);
+      break;
+    case "close":
+      gh(["pr", "close", String(pr.number), "--repo", repo, "--comment", commentBody(reason, pr.head_sha)]);
+      break;
+    case "comment":
+      gh(["pr", "comment", String(pr.number), "--repo", repo, "--body-file", "-"], {
+        input: commentBody(reason, pr.head_sha),
+      });
+      break;
+  }
+  summary(`- #${decision.number}: ${plan.action}${plan.why ? `(${plan.why})` : ""}`);
 }
 
 // 解除の条件を満たした見送りの節を消すPR。前のPRが開いたままなら作らない(重複させない)
-function openHoldsPullRequest(repo, patch, decisions) {
+function openHoldsPullRequest(repo, patch, liftedHolds) {
   const branch = "automation/dependency-holds";
   const open = ghJson(["pr", "list", "--repo", repo, "--head", branch, "--state", "open", "--json", "url"]);
   if (open.length > 0) {
     summary(`- 見送りの解除: 前のPRが開いたままなので作らなかった(${open[0].url})`);
     return;
   }
-  const lifted = decisions.flatMap((d) => (d.lifted_holds ?? []).map((h) => ({ hold: h, pr: d.number })));
   const git = (...args) => execFileSync("git", args, { stdio: "inherit" });
   git("checkout", "-B", branch);
   git("apply", patch);
@@ -282,7 +346,7 @@ function openHoldsPullRequest(repo, patch, decisions) {
   const body = [
     "`dependabot-triage.yml` が、`docs/dependency_holds.md` の見送りのうち解除の条件を満たしたものを消しました。",
     "",
-    ...lifted.map(({ hold, pr }) => `- ${hold}(#${pr} の判定で確かめた)`),
+    ...liftedHolds.map(({ heading, evidence }) => `- **${heading}**: ${evidence}`),
     "",
     "各見送りの「解除の条件」に、解除した後に人が確かめることが書かれていれば、それも確かめてからマージしてください。",
     "GITHUB_TOKENで作ったPRなので、CIは動きません。",
@@ -292,7 +356,7 @@ function openHoldsPullRequest(repo, patch, decisions) {
   summary(`- 見送りの解除のPRを作った: ${url}`);
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const command = process.argv[2];
   if (command === "collect") collect();
   else if (command === "act") act();

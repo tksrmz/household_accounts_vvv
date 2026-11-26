@@ -4,6 +4,7 @@ import { test } from "node:test";
 import {
   ciStateOf,
   ecosystemOf,
+  lockedVersion,
   markerFor,
   parseFromVersions,
   parseUpdatedDependencies,
@@ -104,25 +105,71 @@ test("マージしたPRが変えたファイルに合わせて、pushで動く�
   assert.deepEqual(workflowsToDispatch("dependabot/pub/x", ["packages/household_lints/pubspec.lock"]), []);
 });
 
-const pr = (state) => ({ number: 5, head_sha: "abc", ci: { state } });
+const pr = { number: 5, head_sha: "abc", ci: { state: "success" } };
+const live = (ciState, { state = "OPEN", head_sha = "abc" } = {}) => ({ state, head_sha, ci: { state: ciState } });
+const decide = (decision, head_sha = "abc") => ({ number: 5, head_sha, decision });
 
-test("CIが成功したPRをClaudeがマージと判定したとき、マージすること", () => {
-  assert.deepEqual(planAction(pr("success"), { number: 5, head_sha: "abc", decision: "merge" }), { action: "merge" });
+test("今のCIが成功しているPRをClaudeがマージと判定したとき、マージすること", () => {
+  assert.deepEqual(planAction(pr, decide("merge"), live("success")), { action: "merge" });
 });
 
-test("CIが失敗したPRをClaudeがマージと判定したとき、マージせずコメントに留めること", () => {
-  assert.equal(planAction(pr("failure"), { number: 5, head_sha: "abc", decision: "merge" }).action, "comment");
+test("集めた時点では成功していたが、今のCIが失敗か実行中のとき、マージせずコメントに留めること", () => {
+  assert.equal(planAction(pr, decide("merge"), live("failure")).action, "comment");
+  assert.equal(planAction(pr, decide("merge"), live("pending")).action, "comment");
 });
 
 test("見送りに当たる判定はクローズ、人が見る判定はコメントになること", () => {
-  assert.equal(planAction(pr("failure"), { number: 5, head_sha: "abc", decision: "close" }).action, "close");
-  assert.equal(planAction(pr("failure"), { number: 5, head_sha: "abc", decision: "needs_human" }).action, "comment");
+  assert.equal(planAction(pr, decide("close"), live("failure")).action, "close");
+  assert.equal(planAction(pr, decide("needs_human"), live("failure")).action, "comment");
 });
 
-test("集めていないPRや、判定の後に頭のコミットが変わったPRや、不明な判定は何もしないこと", () => {
-  assert.equal(planAction(undefined, { number: 9, head_sha: "abc", decision: "merge" }).action, "skip");
-  assert.equal(planAction(pr("success"), { number: 5, head_sha: "def", decision: "merge" }).action, "skip");
-  assert.equal(planAction(pr("success"), { number: 5, head_sha: "abc", decision: "approve" }).action, "skip");
+test("集めていないPR・判定の後に更新されたか閉じられたPR・不明な判定のとき、何もしないこと", () => {
+  assert.equal(planAction(undefined, decide("merge"), null).action, "skip");
+  assert.equal(planAction(pr, decide("merge", "def"), live("success")).action, "skip");
+  assert.equal(planAction(pr, decide("merge"), live("success", { head_sha: "def" })).action, "skip");
+  assert.equal(planAction(pr, decide("merge"), live("success", { state: "CLOSED" })).action, "skip");
+  assert.equal(planAction(pr, decide("approve"), live("success")).action, "skip");
+});
+
+test("package-lock.jsonのとき、スコープ付きのパッケージも含めて入っているバージョンが読めること", () => {
+  const lock = JSON.stringify({
+    packages: {
+      "": { devDependencies: { eslint: "^10.15.0" } },
+      "node_modules/eslint": { version: "10.15.0" },
+      "node_modules/@typescript-eslint/parser": { version: "8.73.0" },
+    },
+  });
+  assert.equal(lockedVersion("package-lock.json", lock, "eslint"), "10.15.0");
+  assert.equal(lockedVersion("package-lock.json", lock, "@typescript-eslint/parser"), "8.73.0");
+  assert.equal(lockedVersion("package-lock.json", lock, "globals"), null);
+});
+
+test("pubspec.lockのとき、そのパッケージの節のバージョンだけが読めること", () => {
+  const lock = `packages:
+  build:
+    dependency: transitive
+    description:
+      name: build
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.0"
+  build_runner:
+    dependency: "direct dev"
+    description:
+      name: build_runner
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.17.1"
+sdks:
+  dart: ">=3.9.0 <4.0.0"
+`;
+  assert.equal(lockedVersion("pubspec.lock", lock, "build_runner"), "2.17.1");
+  assert.equal(lockedVersion("pubspec.lock", lock, "build"), "5.0.0");
+  assert.equal(lockedVersion("pubspec.lock", lock, "freezed"), null);
+});
+
+test("ロックファイルが読めなかったとき、バージョンは不明(null)であること", () => {
+  assert.equal(lockedVersion("pubspec.lock", null, "build"), null);
 });
 
 test("判定済みの印は頭のコミットごとに別であること", () => {
